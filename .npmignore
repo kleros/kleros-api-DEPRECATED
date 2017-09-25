@@ -1,0 +1,5 @@
+.*
+config.json
+webpack.config.js
+yarn.lock
+docs
