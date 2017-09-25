@@ -1,7 +1,6 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import web3Wrapper from '../util/web3Wrapper'
-import RPS from '../artifact/RPS.json'
 import config from '../config'
 
 /**

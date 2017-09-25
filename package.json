@@ -1,8 +1,8 @@
 {
-  "name": "kleros",
+  "name": "kleros-api",
   "version": "0.0.1",
   "description": "Kleros API",
-  "main": "lib/api-rps.js",
+  "main": "lib/kleros-api.js",
   "scripts": {
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",
@@ -33,6 +33,7 @@
   },
   "keywords": [
     "Kleros",
+    "justice system",
     "Ethereum"
   ],
   "author": "Wagner Nicolas",
