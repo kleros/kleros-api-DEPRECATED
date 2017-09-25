@@ -18,8 +18,9 @@ class ContractWrapper {
 
   /**
    * Instantiate contract.
+   * DEPRECATED use instead of _deployAsync()
    * @param   artifact
-   * @param   tokenAddress    The hex encoded contract Ethereum address where the ERC20 token is deployed.
+   * @param   address    The hex encoded contract Ethereum address
    * @return  The owner's ERC20 token balance in base units.
    */
   _instantiateContractIfExistsAsync = async (artifact, address) => {
@@ -79,7 +80,7 @@ class ContractWrapper {
    * @param   rest arguments
    * @return  address | err The owner's of the contract
    */
-  _deployContractAsync = async (account, value, artifact, ...args) => {
+  _deployAsync = async (account, value, artifact, ...args) => {
     if (_.isUndefined(account)) {
       account = this._web3Wrapper.getAccount(0)
     }

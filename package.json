@@ -42,7 +42,7 @@
   },
   "homepage": "https://kleros.io",
   "dependencies": {
-    "babel-preset-latest": "^6.24.1",
+    "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.1",
     "dotenv-webpack": "^1.5.4",
     "ethereumjs-testrpc": "^4.1.1",

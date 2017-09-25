@@ -35,15 +35,15 @@ class KlerosWrapper extends ContractWrapper {
 
     this.stake = value
 
-    const addressContractDeployed = await this._deployContractAsync(
+    const addressContractDeployed = await this._deployAsync(
       account,
       value,
       Kleros
     )
 
-    this.contractInstance = addressContractDeployed
+    this.address = addressContractDeployed
 
-    return this.contractInstance
+    return this.address
   }
 }
 

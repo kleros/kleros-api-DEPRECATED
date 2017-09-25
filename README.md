@@ -8,6 +8,8 @@ This repository contains a Javascript library that makes it easy to build Relaye
 
 ## Installation
 
+We assume that you have npm and yarn installed.
+
 ```
 yarn install
 ```
