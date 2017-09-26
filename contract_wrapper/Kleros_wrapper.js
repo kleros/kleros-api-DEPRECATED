@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
 import ContractWrapper from './contract_wrapper'
-import Kleros from '../artifact/RPS.json' // FIXME mock artifact
+import Kleros from 'kleros/build/contracts/MetaCoin' // FIXME mock artifact
 import contract from 'truffle-contract'
 import config from '../config'
 

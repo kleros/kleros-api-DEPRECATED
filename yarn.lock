@@ -2594,6 +2594,10 @@ kind-of@^4.0.0:
   dependencies:
     is-buffer "^1.1.5"
 
+kleros@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/kleros/-/kleros-0.0.1.tgz#43b4c0a9e59f0ccc5228ac8174545c3d72fc1a81"
+
 lazy-cache@^1.0.3:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/lazy-cache/-/lazy-cache-1.0.4.tgz#a1d78fc3a50474cb80845d3b3b6e1da49a446e8e"
