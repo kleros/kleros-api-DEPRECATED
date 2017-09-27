@@ -9,7 +9,8 @@
     "test": "jest"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "verbose": true
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

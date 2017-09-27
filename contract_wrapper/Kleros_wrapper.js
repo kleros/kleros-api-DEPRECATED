@@ -45,6 +45,70 @@ class KlerosWrapper extends ContractWrapper {
 
     return this.address
   }
+
+  /**
+   * Get disputes. // FIXME mock
+   * @return objects[]
+   */
+  getDisputes = async () => {
+    const disputes = [
+      {
+        title: 'Unknown website owner',
+        deadline: '28/8/2017',
+        caseId: '#135345',
+        status: 'Vote',
+        evidence: ''
+      },
+      {
+        title: 'Uncomplete software product',
+        deadline: '28/8/2017',
+        caseId: '#135345',
+        status: 'Opportunity to appeal',
+        evidence: ''
+      },
+      {
+        title: 'Unknown website owner',
+        deadline: '10/9/2017',
+        caseId: '#2345',
+        status: 'Execution',
+        evidence: ''
+      },
+      {
+        title: 'Stolen logo',
+        deadline: '28/8/2017',
+        caseId: '#135345',
+        status: 'Execution',
+        evidence: ''
+      },
+      {
+        title: 'Unknown website owner',
+        deadline: '28/8/2017',
+        caseId: '#135345',
+        status: 'Vote',
+        evidence: ''
+      },
+      {
+        title: 'Stolen logo',
+        deadline: '28/8/2017',
+        caseId: '#135345',
+        status: 'Vote',
+        evidence: ''
+      },
+      {
+        title: 'Stolen logo',
+        deadline: '28/8/2017',
+        caseId: '#135345',
+        status: 'Vote',
+        evidence: ''
+      }
+    ]
+
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(disputes)
+      }, 2000)
+    })
+  }
 }
 
 export default KlerosWrapper

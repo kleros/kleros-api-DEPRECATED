@@ -1,32 +1,75 @@
-import KlerosWrapper from '../contract_wrapper/Kleros_wrapper'
+import Kleros from './kleros'
 import Web3 from 'web3'
 import contract from 'truffle-contract'
-import Web3Wrapper from '../util/Web3Wrapper'
 import config from '../config'
 
-let Web3WrapperInstance
+let court
 
 beforeAll(async () => {
   // use testRPC
   const provider = await new Web3.providers.HttpProvider('http://localhost:8545')
 
-  Web3WrapperInstance = await new Web3Wrapper(provider)
+  let KlerosInstance = await new Kleros(provider)
 
-  return Web3WrapperInstance
+  court = await KlerosInstance.court
 })
 
 describe('Kleros', () => {
+  test('get disputes', async () => {
+    const disputes = [
+      {
+        title: 'Unknown website owner',
+        deadline: '28/8/2017',
+        caseId: '#135345',
+        status: 'Vote',
+        evidence: ''
+      },
+      {
+        title: 'Uncomplete software product',
+        deadline: '28/8/2017',
+        caseId: '#135345',
+        status: 'Opportunity to appeal',
+        evidence: ''
+      },
+      {
+        title: 'Unknown website owner',
+        deadline: '10/9/2017',
+        caseId: '#2345',
+        status: 'Execution',
+        evidence: ''
+      },
+      {
+        title: 'Stolen logo',
+        deadline: '28/8/2017',
+        caseId: '#135345',
+        status: 'Execution',
+        evidence: ''
+      },
+      {
+        title: 'Unknown website owner',
+        deadline: '28/8/2017',
+        caseId: '#135345',
+        status: 'Vote',
+        evidence: ''
+      },
+      {
+        title: 'Stolen logo',
+        deadline: '28/8/2017',
+        caseId: '#135345',
+        status: 'Vote',
+        evidence: ''
+      },
+      {
+        title: 'Stolen logo',
+        deadline: '28/8/2017',
+        caseId: '#135345',
+        status: 'Vote',
+        evidence: ''
+      }
+    ]
 
-  let balanceAccount0
-  let balanceAccount1
+    let disputesKleros = await court.getDisputes()
 
-  test('get account 0 balance', async () => {
-    balanceAccount0 = await Web3WrapperInstance.getBalanceInWeiAsync()
-    expect(typeof balanceAccount0).toBe('string')
-  })
-
-  test('get account 1 balance', async () => {
-    balanceAccount1 = await Web3WrapperInstance.getBalanceInWeiAsync(Web3WrapperInstance.getAccount(1))
-    expect(typeof balanceAccount1).toBe('string')
+    expect(disputes).toEqual(disputesKleros);
   })
 })
