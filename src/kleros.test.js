@@ -19,6 +19,7 @@ describe('Kleros', () => {
     const disputes = [
       {
         title: 'Unknown website owner',
+        category: 'Category',
         deadline: '28/8/2017',
         caseId: '#135345',
         status: 'Vote',
@@ -26,6 +27,7 @@ describe('Kleros', () => {
       },
       {
         title: 'Uncomplete software product',
+        category: 'Web, Ecommerce',
         deadline: '28/8/2017',
         caseId: '#135345',
         status: 'Opportunity to appeal',
@@ -33,6 +35,7 @@ describe('Kleros', () => {
       },
       {
         title: 'Unknown website owner',
+        category: 'Web, Ecommerce',
         deadline: '10/9/2017',
         caseId: '#2345',
         status: 'Execution',
@@ -40,6 +43,7 @@ describe('Kleros', () => {
       },
       {
         title: 'Stolen logo',
+        category: 'Category',
         deadline: '28/8/2017',
         caseId: '#135345',
         status: 'Execution',
@@ -47,6 +51,7 @@ describe('Kleros', () => {
       },
       {
         title: 'Unknown website owner',
+        category: 'Category',
         deadline: '28/8/2017',
         caseId: '#135345',
         status: 'Vote',
@@ -54,6 +59,7 @@ describe('Kleros', () => {
       },
       {
         title: 'Stolen logo',
+        category: 'Category',
         deadline: '28/8/2017',
         caseId: '#135345',
         status: 'Vote',
@@ -61,6 +67,7 @@ describe('Kleros', () => {
       },
       {
         title: 'Stolen logo',
+        category: 'Category',
         deadline: '28/8/2017',
         caseId: '#135345',
         status: 'Vote',
