@@ -56,7 +56,7 @@ class KlerosWrapper extends ContractWrapper {
         title: 'Unknown website owner',
         category: 'Category',
         deadline: '28/8/2017',
-        caseId: '#135345',
+        caseId: '#1',
         status: 'Vote',
         evidence: ''
       },
@@ -64,7 +64,7 @@ class KlerosWrapper extends ContractWrapper {
         title: 'Uncomplete software product',
         category: 'Web, Ecommerce',
         deadline: '28/8/2017',
-        caseId: '#135345',
+        caseId: '#2',
         status: 'Opportunity to appeal',
         evidence: ''
       },
@@ -72,7 +72,7 @@ class KlerosWrapper extends ContractWrapper {
         title: 'Unknown website owner',
         category: 'Web, Ecommerce',
         deadline: '10/9/2017',
-        caseId: '#2345',
+        caseId: '#3',
         status: 'Execution',
         evidence: ''
       },
@@ -80,7 +80,7 @@ class KlerosWrapper extends ContractWrapper {
         title: 'Stolen logo',
         category: 'Category',
         deadline: '28/8/2017',
-        caseId: '#135345',
+        caseId: '#4',
         status: 'Execution',
         evidence: ''
       },
@@ -88,7 +88,7 @@ class KlerosWrapper extends ContractWrapper {
         title: 'Unknown website owner',
         category: 'Category',
         deadline: '28/8/2017',
-        caseId: '#135345',
+        caseId: '#5',
         status: 'Vote',
         evidence: ''
       },
@@ -96,7 +96,7 @@ class KlerosWrapper extends ContractWrapper {
         title: 'Stolen logo',
         category: 'Category',
         deadline: '28/8/2017',
-        caseId: '#135345',
+        caseId: '#6',
         status: 'Vote',
         evidence: ''
       },
@@ -104,7 +104,7 @@ class KlerosWrapper extends ContractWrapper {
         title: 'Stolen logo',
         category: 'Category',
         deadline: '28/8/2017',
-        caseId: '#135345',
+        caseId: '#7',
         status: 'Vote',
         evidence: ''
       }
