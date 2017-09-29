@@ -12,6 +12,11 @@ class Kleros {
   _web3Wrapper = {}
 
   /**
+   * An instance court
+   */
+  court = {}
+
+  /**
    * Instantiates a new Kelros instance that provides the public interface to the 0x.js library.
    * @param   provider    The Web3.js Provider instance you would like the Kleros.js library to use for interacting with
    *                      the Ethereum network.
