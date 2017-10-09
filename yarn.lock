@@ -2594,6 +2594,10 @@ kind-of@^4.0.0:
   dependencies:
     is-buffer "^1.1.5"
 
+kleros-interaction@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/kleros-interaction/-/kleros-interaction-0.0.1.tgz#b8c2d3152cb0f036fcf5d22967d27a3c5319e73b"
+
 kleros@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/kleros/-/kleros-0.0.1.tgz#43b4c0a9e59f0ccc5228ac8174545c3d72fc1a81"

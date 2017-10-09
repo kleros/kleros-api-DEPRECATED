@@ -1,17 +1,19 @@
 import Kleros from './kleros'
 import Web3 from 'web3'
 import contract from 'truffle-contract'
+import {LOCALHOST_PROVIDER} from '../constants'
 import config from '../config'
 
 let court
 
 beforeAll(async () => {
   // use testRPC
-  const provider = await new Web3.providers.HttpProvider('http://localhost:8545')
+  const provider = await new Web3.providers.HttpProvider(LOCALHOST_PROVIDER)
 
   let KlerosInstance = await new Kleros(provider)
 
   court = await KlerosInstance.court
+  let centralCourt = await KlerosInstance.centralCourt
 })
 
 describe('Kleros', () => {

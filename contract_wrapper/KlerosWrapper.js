@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
-import ContractWrapper from './contract_wrapper'
-import Kleros from 'kleros/build/contracts/MetaCoin' // FIXME mock artifact
+import ContractWrapper from './ContractWrapper'
+import Kleros from 'kleros/build/contracts/MetaCoin' // FIXME mock
 import contract from 'truffle-contract'
 import config from '../config'
 
@@ -18,12 +18,11 @@ class KlerosWrapper extends ContractWrapper {
     if (!_.isUndefined(address)) {
       this.address = address
     }
-    this.stake = 0
     this.contractInstance = null
   }
 
   /**
-   * To be called by j2 and provided stake.
+   * Kleros deploy.
    * @param   account (default: accounts[0])
    * @param   value (default: 10000)
    * @return  address | err The address of the contract or error deploy
@@ -32,8 +31,6 @@ class KlerosWrapper extends ContractWrapper {
       account = this._web3Wrapper.getAccount(0),
       value = config.VALUE,
     ) => {
-
-    this.stake = value
 
     const addressContractDeployed = await this._deployAsync(
       account,

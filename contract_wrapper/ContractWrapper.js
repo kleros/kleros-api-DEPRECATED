@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
-import web3Wrapper from '../util/web3Wrapper'
+import Web3Wrapper from '../util/Web3Wrapper'
 import config from '../config'
 
 /**
@@ -12,7 +12,7 @@ class ContractWrapper {
    * @param web3Wrapper instance
    */
   constructor(web3Wrapper) {
-    this._web3Wrapper = web3Wrapper
+    this._Web3Wrapper = Web3Wrapper
   }
 
   /**
@@ -25,11 +25,11 @@ class ContractWrapper {
   _instantiateContractIfExistsAsync = async (artifact, address) => {
     const c = await contract(artifact)
 
-    const providerObj = this._web3Wrapper.getProvider()
+    const providerObj = this._Web3Wrapper.getProvider()
 
     c.setProvider(providerObj)
 
-    const networkIdIfExists = await this._web3Wrapper._getNetworkIdIfExistsAsync()
+    const networkIdIfExists = await this._Web3Wrapper._getNetworkIdIfExistsAsync()
 
 
 
@@ -47,7 +47,7 @@ class ContractWrapper {
     }
 
     if (!_.isUndefined(contractAddress)) {
-      const doesContractExist = await this._web3Wrapper.doesContractExistAtAddressAsync(contractAddress)
+      const doesContractExist = await this._Web3Wrapper.doesContractExistAtAddressAsync(contractAddress)
 
       if (!doesContractExist) {
         throw new Error('ContractDoesNotExist')
@@ -81,7 +81,7 @@ class ContractWrapper {
    */
   _deployAsync = async (account, value, artifact, ...args) => {
     if (_.isUndefined(account)) {
-      account = this._web3Wrapper.getAccount(0)
+      account = this._Web3Wrapper.getAccount(0)
     }
 
     const MyContract = contract({
@@ -89,7 +89,7 @@ class ContractWrapper {
       unlinked_binary: artifact.unlinked_binary,
     })
 
-    const provider = await this._web3Wrapper.getProvider()
+    const provider = await this._Web3Wrapper.getProvider()
 
     MyContract.setProvider(provider)
 
