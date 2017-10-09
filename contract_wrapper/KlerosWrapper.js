@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
+import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import Kleros from 'kleros/build/contracts/MetaCoin' // FIXME mock
-import contract from 'truffle-contract'
 import config from '../config'
 
 /**

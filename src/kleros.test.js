@@ -1,22 +1,31 @@
-import Kleros from './kleros'
+import Kleros from './Kleros'
 import Web3 from 'web3'
 import contract from 'truffle-contract'
 import {LOCALHOST_PROVIDER} from '../constants'
 import config from '../config'
 
-let court
-
-beforeAll(async () => {
-  // use testRPC
-  const provider = await new Web3.providers.HttpProvider(LOCALHOST_PROVIDER)
-
-  let KlerosInstance = await new Kleros(provider)
-
-  court = await KlerosInstance.court
-  let centralCourt = await KlerosInstance.centralCourt
-})
-
 describe('Kleros', () => {
+  let court
+  let centralCourt
+  let twoPartyArbitrable
+
+  beforeAll(async () => {
+    // use testRPC
+    const provider = await new Web3.providers.HttpProvider(LOCALHOST_PROVIDER)
+
+    let KlerosInstance = await new Kleros(provider)
+
+    court = await KlerosInstance.court
+    centralCourt = await KlerosInstance.centralCourt
+    twoPartyArbitrable = await KlerosInstance.twoPartyArbitrable
+  })
+
+  test('deploy a central court', async () => {
+    let centralCourtAddress = await centralCourt.deploy()
+    expect(centralCourtAddress.transactionHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+  })
+
   test('get disputes', async () => {
     const disputes = [
       {

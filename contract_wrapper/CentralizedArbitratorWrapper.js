@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
+import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import klerosInteraction from 'kleros-interaction/code/build/contracts/CentralizedArbitrator'
-import contract from 'truffle-contract'
 import config from '../config'
 
 /**
@@ -15,6 +15,7 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
    */
   constructor(web3Provider, address) {
     super(web3Provider)
+
     if (!_.isUndefined(address)) {
       this.address = address
     }
@@ -23,13 +24,13 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
 
   /**
    * Deploy CentralizedArbitrator.
-   * @param   account Ethereum account (account[0])
+   * @param   account Ethereum account
    * @param   value gas price value
    * @param   price Set the initial arbitration price. (default: 10000 wei)
    * @return  address | err The address of the contract or a deploy error
    */
   deploy = async (
-      account = this._web3Wrapper.getAccount(0),
+      account,
       value = config.VALUE,
       priceArbitration = 10000
     ) => {

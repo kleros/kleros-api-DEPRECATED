@@ -1,6 +1,7 @@
 import Web3Wrapper from '../util/Web3Wrapper'
-import CentralizedArbitratorWrapper from '../contract_wrapper/CentralizedArbitratorWrapper'
 import KlerosWrapper from '../contract_wrapper/KlerosWrapper'
+import CentralizedArbitratorWrapper from '../contract_wrapper/CentralizedArbitratorWrapper'
+import TwoPartyArbitrable from '../contract_wrapper/TwoPartyArbitrableWrapper'
 
 class Kleros {
   /**
@@ -20,6 +21,11 @@ class Kleros {
   centralCourt = {}
 
   /**
+   * Default contract TwoPartyArbitrable
+   */
+  twoPartyArbitrable = {}
+
+  /**
    * Instantiates a new Kelros instance that provides the public interface
    * to the 0x.js library.
    * @param provider The Web3.js Provider instance you would like the
@@ -31,6 +37,7 @@ class Kleros {
     this._web3Wrapper = new Web3Wrapper(provider)
     this.court = new KlerosWrapper(this._web3Wrapper)
     this.centralCourt = new CentralizedArbitratorWrapper(this._web3Wrapper) // FIXME mock in waiting the decentralized court contract
+    this.twoPartyArbitrable = new TwoPartyArbitrable(this._web3Wrapper)
   }
 
   getWeb3Wrapper = () => this._web3Wrapper

@@ -1,6 +1,5 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
-import Web3Wrapper from '../util/Web3Wrapper'
 import config from '../config'
 
 /**
@@ -12,7 +11,7 @@ class ContractWrapper {
    * @param web3Wrapper instance
    */
   constructor(web3Wrapper) {
-    this._Web3Wrapper = Web3Wrapper
+    this._Web3Wrapper = web3Wrapper
   }
 
   /**
@@ -80,7 +79,7 @@ class ContractWrapper {
    * @return  address | err The owner's of the contract
    */
   _deployAsync = async (account, value, artifact, ...args) => {
-    if (_.isUndefined(account)) {
+    if (_.isEmpty(account)) {
       account = this._Web3Wrapper.getAccount(0)
     }
 
