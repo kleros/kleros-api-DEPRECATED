@@ -34,20 +34,23 @@ class TwoPartyArbitrableWrapper extends ContractWrapper {
    * @return address | err The address of the contract or a deploy error
    */
   deploy = async (
-      undefined,
+      account = this._Web3Wrapper.getAccount(0),
       value = config.VALUE,
       arbitrator,
       hashContract = 'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
       timeout = 3600,
-      partyB = this._web3Wrapper.getAccount(1),
+      partyB = this._Web3Wrapper.getAccount(1),
       arbitratorExtraData = ''
     ) => {
 
     const addressContractDeployed = await this._deployAsync(
       account,
       value,
-      klerosInteraction,
-      priceArbitration
+      arbitrator,
+      hashContract,
+      timeout,
+      partyB,
+      arbitratorExtraData
     )
 
     this.address = addressContractDeployed

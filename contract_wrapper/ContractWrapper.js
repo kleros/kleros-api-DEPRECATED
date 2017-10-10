@@ -93,7 +93,7 @@ class ContractWrapper {
     MyContract.setProvider(provider)
 
     try {
-      const contractDeployed = await MyContract.new(
+      let contractDeployed = await MyContract.new(
         ...args,
         {
           from: account,

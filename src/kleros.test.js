@@ -20,9 +20,17 @@ describe('Kleros', () => {
     twoPartyArbitrable = await KlerosInstance.twoPartyArbitrable
   })
 
-  test('deploy a central court', async () => {
-    let centralCourtAddress = await centralCourt.deploy()
-    expect(centralCourtAddress.transactionHash)
+  test('deploy a twoPartyArbitrable contract', async () => {
+    let centralCourtDeployed = await centralCourt.deploy()
+    expect(centralCourtDeployed.transactionHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    let contractTwoPartyArbitrableAddress = await twoPartyArbitrable.deploy(
+      undefined, // account use default value in ContractWrapper
+      undefined, // value use default value in ContractWrapper
+      centralCourtDeployed.address
+    )
+    expect(contractTwoPartyArbitrableAddress.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
   })
 
