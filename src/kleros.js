@@ -1,7 +1,7 @@
 import Web3Wrapper from '../util/Web3Wrapper'
 import KlerosWrapper from '../contract_wrapper/KlerosWrapper'
 import CentralizedArbitratorWrapper from '../contract_wrapper/CentralizedArbitratorWrapper'
-import TwoPartyArbitrable from '../contract_wrapper/TwoPartyArbitrableWrapper'
+import ArbitrableTransactionWrapper from '../contract_wrapper/ArbitrableTransactionWrapper'
 
 class Kleros {
   /**
@@ -37,7 +37,7 @@ class Kleros {
     this._web3Wrapper = new Web3Wrapper(provider)
     this.court = new KlerosWrapper(this._web3Wrapper)
     this.centralCourt = new CentralizedArbitratorWrapper(this._web3Wrapper) // FIXME mock in waiting the decentralized court contract
-    this.twoPartyArbitrable = new TwoPartyArbitrable(this._web3Wrapper)
+    this.arbitrableTransaction = new ArbitrableTransactionWrapper(this._web3Wrapper)
   }
 
   getWeb3Wrapper = () => this._web3Wrapper

@@ -4,10 +4,11 @@ import contract from 'truffle-contract'
 import {LOCALHOST_PROVIDER} from '../constants'
 import config from '../config'
 
+
 describe('Kleros', () => {
   let court
   let centralCourt
-  let twoPartyArbitrable
+  let arbitrableTransaction
 
   beforeAll(async () => {
     // use testRPC
@@ -17,20 +18,21 @@ describe('Kleros', () => {
 
     court = await KlerosInstance.court
     centralCourt = await KlerosInstance.centralCourt
-    twoPartyArbitrable = await KlerosInstance.twoPartyArbitrable
+    arbitrableTransaction = await KlerosInstance.arbitrableTransaction
   })
 
-  test('deploy a twoPartyArbitrable contract', async () => {
+  test('deploy a arbitrableTransaction contract', async () => {
     let centralCourtDeployed = await centralCourt.deploy()
     expect(centralCourtDeployed.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
-    let contractTwoPartyArbitrableAddress = await twoPartyArbitrable.deploy(
-      undefined, // account use default value in ContractWrapper
-      undefined, // value use default value in ContractWrapper
+
+    let contractArbitrableTransactionAddress = await arbitrableTransaction.deploy(
+      undefined, // use default account : account[0]
+      undefined, // use default value : 0
       centralCourtDeployed.address
     )
-    expect(contractTwoPartyArbitrableAddress.transactionHash)
+    expect(contractArbitrableTransactionAddress.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
   })
 

@@ -1,15 +1,15 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
-import klerosInteraction from 'kleros-interaction/code/build/contracts/TwoPartyArbitrable'
+import arbitrableTransaction from 'kleros-interaction/build/contracts/ArbitrableTransaction'
 import config from '../config'
 
 /**
- * TwoPartyArbitrable API
+ * ArbitrableTransaction API
  */
-class TwoPartyArbitrableWrapper extends ContractWrapper {
+class ArbitrableTransactionWrapper extends ContractWrapper {
   /**
-   * Constructor TwoPartyArbitrable.
+   * Constructor ArbitrableTransaction.
    * @param web3 instance
    * @param address of the contract (optionnal)
    */
@@ -22,7 +22,7 @@ class TwoPartyArbitrableWrapper extends ContractWrapper {
   }
 
   /**
-   * Deploy TwoPartyArbitrable.
+   * Deploy ArbitrableTransaction.
    * @param account Ethereum account (default account[0])
    * @param value gas price value
    * @param arbitrator The arbitrator of the contract.
@@ -37,8 +37,8 @@ class TwoPartyArbitrableWrapper extends ContractWrapper {
       account = this._Web3Wrapper.getAccount(0),
       value = config.VALUE,
       arbitrator,
-      hashContract = 'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
-      timeout = 3600,
+      hashContract = 0x6aa0bb2779ab006be0739900654a89f1f8a2d7373ed38490a7cbab9c9392e1ff,
+      timeout = 100,
       partyB = this._Web3Wrapper.getAccount(1),
       arbitratorExtraData = ''
     ) => {
@@ -46,11 +46,12 @@ class TwoPartyArbitrableWrapper extends ContractWrapper {
     const addressContractDeployed = await this._deployAsync(
       account,
       value,
+      arbitrableTransaction,
       arbitrator,
       hashContract,
       timeout,
       partyB,
-      arbitratorExtraData
+      arbitratorExtraData,
     )
 
     this.address = addressContractDeployed
@@ -69,7 +70,7 @@ class TwoPartyArbitrableWrapper extends ContractWrapper {
   createDispute = async (choices, extraData=null) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve('0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d')
+        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
       }, 1000)
     })
   }
@@ -81,7 +82,7 @@ class TwoPartyArbitrableWrapper extends ContractWrapper {
   payArbitrationFeeByPartyA = async () => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve('0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d')
+        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
       }, 1000)
     })
   }
@@ -93,7 +94,7 @@ class TwoPartyArbitrableWrapper extends ContractWrapper {
   payArbitrationFeeByPartyB = async () => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve('0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d')
+        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
       }, 1000)
     })
   }
@@ -106,7 +107,7 @@ class TwoPartyArbitrableWrapper extends ContractWrapper {
   raiseDispute = async (arbitrationCost = 10000) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve('0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d')
+        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
       }, 1000)
     })
   }
@@ -118,7 +119,7 @@ class TwoPartyArbitrableWrapper extends ContractWrapper {
   timeOutByPartyB = async () => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve('0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d')
+        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
       }, 1000)
     })
   }
@@ -131,10 +132,35 @@ class TwoPartyArbitrableWrapper extends ContractWrapper {
   submitEvidence = async (evidence) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve('0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d')
+        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
+      }, 1000)
+    })
+  }
+
+  /**
+   * Pay the party B. To be called when the good is delivered or the service rendered.
+   * @return txHash hash transaction
+   */
+  pay = async () => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
+      }, 1000)
+    })
+  }
+
+  /**
+   * Reimburse party A. To be called if the good or service can't be fully provided.
+   * @param amountReimbursed Amount to reimburse in wei.
+   * @return txHash hash transaction
+   */
+  reimburse = async (amountReimbursed) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
       }, 1000)
     })
   }
 }
 
-export default TwoPartyArbitrableWrapper
+export default ArbitrableTransactionWrapper

@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
-import klerosInteraction from 'kleros-interaction/code/build/contracts/CentralizedArbitrator'
+import centralizedArbitrator from 'kleros-interaction/build/contracts/CentralizedArbitrator'
 import config from '../config'
 
 /**
@@ -38,7 +38,7 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
     const addressContractDeployed = await this._deployAsync(
       account,
       value,
-      klerosInteraction,
+      centralizedArbitrator,
       priceArbitration
     )
 

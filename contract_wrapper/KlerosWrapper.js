@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
-import Kleros from 'kleros/build/contracts/MetaCoin' // FIXME mock
+import kleros from 'kleros/build/contracts/MetaCoin' // FIXME mock
 import config from '../config'
 
 /**
@@ -35,7 +35,7 @@ class KlerosWrapper extends ContractWrapper {
     const addressContractDeployed = await this._deployAsync(
       account,
       value,
-      Kleros
+      kleros
     )
 
     this.address = addressContractDeployed
