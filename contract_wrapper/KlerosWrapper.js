@@ -3,6 +3,7 @@ import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import kleros from 'kleros/build/contracts/MetaCoin' // FIXME mock
 import config from '../config'
+import disputes from './mockDisputes'
 
 /**
  * Kleros API
@@ -48,68 +49,22 @@ class KlerosWrapper extends ContractWrapper {
    * @return objects[]
    */
   getDisputes = async () => {
-    const disputes = [
-      {
-        title: 'Unknown website owner',
-        category: 'Category',
-        deadline: '28/8/2017',
-        caseId: '#1',
-        status: 'Vote',
-        evidence: ''
-      },
-      {
-        title: 'Uncomplete software product',
-        category: 'Web, Ecommerce',
-        deadline: '28/8/2017',
-        caseId: '#2',
-        status: 'Opportunity to appeal',
-        evidence: ''
-      },
-      {
-        title: 'Unknown website owner',
-        category: 'Web, Ecommerce',
-        deadline: '10/9/2017',
-        caseId: '#3',
-        status: 'Execution',
-        evidence: ''
-      },
-      {
-        title: 'Stolen logo',
-        category: 'Category',
-        deadline: '28/8/2017',
-        caseId: '#4',
-        status: 'Execution',
-        evidence: ''
-      },
-      {
-        title: 'Unknown website owner',
-        category: 'Category',
-        deadline: '28/8/2017',
-        caseId: '#5',
-        status: 'Vote',
-        evidence: ''
-      },
-      {
-        title: 'Stolen logo',
-        category: 'Category',
-        deadline: '28/8/2017',
-        caseId: '#6',
-        status: 'Vote',
-        evidence: ''
-      },
-      {
-        title: 'Stolen logo',
-        category: 'Category',
-        deadline: '28/8/2017',
-        caseId: '#7',
-        status: 'Vote',
-        evidence: ''
-      }
-    ]
-
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve(disputes)
+      }, 2000)
+    })
+  }
+
+  /**
+   * Get dispute by caseId. // FIXME mock
+   * @return object
+   */
+  getDisputeById = async (caseId) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const dispute = _.filter(disputes, (o) => {return o.caseId = caseId})
+        resolve(dispute[0])
       }, 2000)
     })
   }
