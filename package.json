@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",
-    "test": "jest"
+    "test": "jest",
+    "deployCentralCourt": "./node_modules/.bin/babel-node script/deployCentralCourt"
   },
   "jest": {
     "testEnvironment": "node",
@@ -37,15 +38,21 @@
     "justice system",
     "Ethereum"
   ],
-  "author": "Wagner Nicolas",
+  "author": "Kleros's team <contact@kleros.io> (https://github.com/kleros)",
+  "contributors": [
+    "Wagner Nicolas <nicolas@kleros.io> (https://github.com/n1c01a5)",
+    "Sam Vitello (https://github.com/satello)"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/kleros/kleros-api.git"
   },
   "homepage": "https://kleros.io",
   "dependencies": {
+    "babel-plugin-inline-import": "^2.0.6",
     "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.1",
+    "commander": "^2.11.0",
     "dotenv-webpack": "^1.5.4",
     "ethereumjs-testrpc": "^4.1.1",
     "global": "^4.3.2",
