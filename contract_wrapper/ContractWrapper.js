@@ -91,6 +91,7 @@ class ContractWrapper {
 
     MyContract.setProvider(provider)
 
+    console.log("creating new contract")
     try {
       let contractDeployed = await MyContract.new(
         ...args,
@@ -100,7 +101,7 @@ class ContractWrapper {
           gas: config.GAS,
         }
       )
-
+      console.log("contract created")
       return contractDeployed
     } catch (e) {
       throw new Error(e)
