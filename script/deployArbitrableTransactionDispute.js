@@ -25,6 +25,10 @@ let deployArbitrableTransactionDispute = async () => {
   console.log(partyAFeeTxHash)
   let partyBFeeTxHash = await arbitrableTransaction.payArbitrationFeeByPartyB()
   console.log(partyBFeeTxHash)
+
+  // get dispute from blockchain
+  let dispute = await KlerosInstance.court.getDisputeById(arbitrableTransactionAddress)
+  console.log("yay")
 }
 
 deployArbitrableTransactionDispute()
