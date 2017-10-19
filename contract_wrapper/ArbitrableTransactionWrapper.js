@@ -14,8 +14,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @param web3 instance
    * @param address of the contract (optional)
    */
-  constructor(web3Provider, address) {
-    super(web3Provider)
+  constructor(web3Provider, storeProvider, address) {
+    super(web3Provider, storeProvider)
     if (!_.isUndefined(address)) {
       this.address = address
     }

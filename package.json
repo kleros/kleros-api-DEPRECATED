@@ -7,7 +7,9 @@
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",
     "test": "jest",
-    "deployCentralCourt": "./node_modules/.bin/babel-node script/deployCentralCourt"
+    "deployCentralCourt": "./node_modules/.bin/babel-node script/deployCentralCourt.js",
+    "deployArbitrableTransaction": "./node_modules/.bin/babel-node script/deployArbitrableTransaction.js",
+    "createArbitrableTransactionDispute": "./node_modules/.bin/babel-node script/createArbitrableTransactionDispute.js"
   },
   "jest": {
     "testEnvironment": "node",

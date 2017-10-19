@@ -1,6 +1,7 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
+import CentralizedArbitratorDispute from '../src/disputes/CentralizedArbitratorDispute'
 import centralizedArbitrator from 'kleros-interaction/build/contracts/CentralizedArbitrator'
 import config from '../config'
 
@@ -13,8 +14,8 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
    * @param web3 instance
    * @param address of the contract (optionnal)
    */
-  constructor(web3Provider, address) {
-    super(web3Provider)
+  constructor(web3Provider, storeProvider, address) {
+    super(web3Provider, storeProvider)
 
     if (!_.isUndefined(address)) {
       this.address = address
@@ -48,19 +49,45 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
   }
 
   /**
-   * Create a dispute. // FIXME mock
-   * @param  choices Amount of choices the arbitrator can make in this dispute.
-   *                 When ruling ruling<=choices.
-   * @param  extraData Can be used to give additional info on the dispute
-   *                   to be created.
-   * @return txHash hash transaction
+   * Load an existing contract
+   * @param address contract address
+   * @return success bool
    */
-  createDispute = async (choices, extraData=null) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve('0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d')
-      }, 1000)
-    })
+  load = async (
+    address
+  ) => {
+    try {
+      const contractInstance = await this._instantiateContractIfExistsAsync(centralizedArbitrator, address)
+      this.contractInstance = contractInstance
+      this.address = address
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+
+  /**
+   * Get dispute by caseId.
+   * @param contractId contract id of dispute
+   * @param artifact defaults to CentralizedArbitrator
+   * @return CentralizedArbitratorDispute object
+   */
+  getDisputeById = async disputeId => {
+    // load contract
+    if (!this.contractInstance) {
+      if (!this.address) {
+        return new Error("Wrapper does not have court address")
+      }
+      let success = await this.load(this.address)
+      if (!success) {
+        return new Error("Cannot load contract instance")
+      }
+    }
+
+    let disputes = await this.contractInstance.disputes()
+    const dispute = disputes[disputeId]
+    console.log(dispute)
+    return new CentralizedArbitratorDispute(this._StoreProvider, dispute)
   }
 
   /**

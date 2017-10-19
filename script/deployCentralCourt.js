@@ -14,9 +14,9 @@ let deployCentralCourt = async () => {
 
   centralCourt = await KlerosInstance.centralCourt
 
-  let centralCourtDeployed = await centralCourt.deploy()
+  let centralCourtDeployedAddress = await centralCourt.deploy()
 
-  console.log('addressCentralCourtDeployed: ', centralCourtDeployed.address)
+  console.log('addressCentralCourtDeployed: ', centralCourtDeployedAddress)
 }
 
 deployCentralCourt()

@@ -15,8 +15,8 @@ class KlerosWrapper extends ContractWrapper {
    * @param web3 instance
    * @param address of the contract (optionnal)
    */
-  constructor(web3Provider, address) {
-    super(web3Provider)
+  constructor(web3Provider, storeProvider, address) {
+    super(web3Provider, storeProvider)
     if (!_.isUndefined(address)) {
       this.address = address
     }
@@ -55,29 +55,6 @@ class KlerosWrapper extends ContractWrapper {
         resolve(disputes)
       }, 2000)
     })
-  }
-
-  /**
-   * Get dispute by caseId.
-   * @param contractId contract id of dispute
-   * @param artifact defaults to ArbitrableTransaction
-   * @return truffle-contract object
-   */
-  getDisputeById = async (
-    contractId,
-    artifact = arbitrableTransaction
-  ) => {
-    var MyContract = contract({
-      abi: artifact.abi,
-      unlinked_binary: artifact.unlinked_binary
-    })
-    const provider = await this._Web3Wrapper.getProvider()
-    MyContract.setProvider(provider);
-    try {
-      return await MyContract.at(contractId)
-    } catch (e) {
-      throw new Error(e)
-    }
   }
 }
 
