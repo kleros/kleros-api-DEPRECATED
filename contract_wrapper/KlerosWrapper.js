@@ -58,13 +58,13 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
-   * Get dispute by caseId. // FIXME mock
-   * @param caseId contract id of case
-   * @param artifact defaults to ArbitrableTransaction // TODO handle different contract types
-   * @return object
+   * Get dispute by caseId.
+   * @param contractId contract id of dispute
+   * @param artifact defaults to ArbitrableTransaction
+   * @return truffle-contract object
    */
   getDisputeById = async (
-    caseId,
+    contractId,
     artifact = arbitrableTransaction
   ) => {
     var MyContract = contract({
@@ -74,8 +74,7 @@ class KlerosWrapper extends ContractWrapper {
     const provider = await this._Web3Wrapper.getProvider()
     MyContract.setProvider(provider);
     try {
-      let dispute = await MyContract.at(caseId)
-      return dispute
+      return await MyContract.at(contractId)
     } catch (e) {
       throw new Error(e)
     }

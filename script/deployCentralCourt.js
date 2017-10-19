@@ -16,7 +16,7 @@ let deployCentralCourt = async () => {
 
   let centralCourtDeployed = await centralCourt.deploy()
 
-  console.log('addressCentralCourtDeployed:', centralCourtDeployed.address)
+  console.log('addressCentralCourtDeployed: ', centralCourtDeployed.address)
 }
 
 deployCentralCourt()

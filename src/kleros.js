@@ -36,7 +36,7 @@ class Kleros {
   constructor(provider) {
     this._web3Wrapper = new Web3Wrapper(provider)
     this.court = new KlerosWrapper(this._web3Wrapper)
-    this.centralCourt = new CentralizedArbitratorWrapper(this._web3Wrapper) // FIXME mock in waiting the decentralized court contract
+    this.centralCourt = new CentralizedArbitratorWrapper(this._web3Wrapper)
     this.arbitrableTransaction = new ArbitrableTransactionWrapper(this._web3Wrapper)
   }
 
