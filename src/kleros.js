@@ -40,7 +40,7 @@ class Kleros {
     ethereumProvider,
     storeProvider=null
   ) {
-    this._web3Wrapper = new Web3Wrapper(provider)
+    this._web3Wrapper = new Web3Wrapper(ethereumProvider)
     // TODO storeProviderWrapper
     this.court = new KlerosWrapper(this._web3Wrapper, storeProvider)
     this.centralCourt = new CentralizedArbitratorWrapper(this._web3Wrapper, storeProvider)

@@ -56,6 +56,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     )
 
     this.address = contractDeployed.address
+    this.contractInstance = contractDeployed
 
     return contractDeployed
   }
@@ -87,11 +88,11 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * Pay the arbitration fee to raise a dispute. To be called by the party A.
    * @param account Ethereum account (default account[1])
    * @param arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
-   * @return txHash hash transaction
+   * @return txHash hash transaction | Error
    */
   payArbitrationFeeByPartyA = async (
     account = this._Web3Wrapper.getAccount(0),
-    arbitrationCost = 1000,
+    arbitrationCost = 10000,
   ) => {
     try {
       let result = await this.contractInstance.payArbitrationFeeByPartyA(
@@ -111,11 +112,11 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * Pay the arbitration fee to raise a dispute. To be called by the party B.
    * @param account Ethereum account (default account[1])
    * @param arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
-   * @return txHash hash transaction
+   * @return txHash hash transaction | Error
    */
   payArbitrationFeeByPartyB = async (
     account = this._Web3Wrapper.getAccount(1),
-    arbitrationCost = 1000,
+    arbitrationCost = 10000,
   ) => {
     try {
       let result = await this.contractInstance.payArbitrationFeeByPartyB(
@@ -206,13 +207,17 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        arbitrator,
        //hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
        timeout,
+       partyA,
        partyB,
+       status,
        arbitratorExtraData
      ] = await Promise.all([
        contractDeployed.arbitrator.call(),
        //contractDeployed.hashContract.call(),
        contractDeployed.timeout.call(),
+       contractDeployed.partyA.call(),
        contractDeployed.partyB.call(),
+       contractDeployed.status.call(),
        contractDeployed.arbitratorExtraData.call()
      ]).catch(err => {
       throw new Error(err)
@@ -222,7 +227,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        arbitrator,
        //hashContract,
        timeout: timeout.toNumber(),
+       partyA,
        partyB,
+       status: status.toNumber(),
        arbitratorExtraData
      }
    }

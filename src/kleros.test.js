@@ -68,11 +68,4 @@ describe('Kleros', () => {
 
     expect(mockDisputes).toEqual(disputesKleros);
   })
-
-  test('get dispute by id', async () => {
-    const testDispute = mockDisputes[0]
-    let disputeKleros = await court.getDisputeById(testDispute.caseId)
-
-    expect(testDispute).toEqual(disputeKleros);
-  })
 })

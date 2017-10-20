@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
-import CentralizedArbitratorDispute from '../src/disputes/CentralizedArbitratorDispute'
+import ArbitrableTransactionWrapper from './ArbitrableTransactionWrapper'
 import centralizedArbitrator from 'kleros-interaction/build/contracts/CentralizedArbitrator'
 import config from '../config'
 
@@ -51,7 +51,7 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
   /**
    * Load an existing contract
    * @param address contract address
-   * @return success bool
+   * @return Conract Instance | Error
    */
   load = async (
     address
@@ -60,34 +60,33 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
       const contractInstance = await this._instantiateContractIfExistsAsync(centralizedArbitrator, address)
       this.contractInstance = contractInstance
       this.address = address
-      return true
+      return contractInstance
     } catch (e) {
-      return false
+      throw new Error(e)
     }
   }
 
   /**
-   * Get dispute by caseId.
+   * Get dispute by caseId. TODO fetch data from store
    * @param contractId contract id of dispute
    * @param artifact defaults to CentralizedArbitrator
-   * @return CentralizedArbitratorDispute object
+   * @return object
    */
-  getDisputeById = async disputeId => {
-    // load contract
-    if (!this.contractInstance) {
-      if (!this.address) {
-        return new Error("Wrapper does not have court address")
-      }
-      let success = await this.load(this.address)
-      if (!success) {
-        return new Error("Cannot load contract instance")
-      }
-    }
+  getDisputeById = async (address, disputeId) => {
+    let contractDeployed = await this.load(address)
 
-    let disputes = await this.contractInstance.disputes()
-    const dispute = disputes[disputeId]
-    console.log(dispute)
-    return new CentralizedArbitratorDispute(this._StoreProvider, dispute)
+    let [disputedContractAddress, choices, fee] = await contractDeployed.disputes(disputeId)
+
+    // FIXME handle other contract types. Should this really be here?
+    const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper)
+    let arbitrableTransactionData = await ArbitrableTransaction.getDataContract(disputedContractAddress)
+
+    return {
+      disputedContractAddress,
+      choices: choices.toNumber(),
+      fee: fee.toNumber(),
+      disputedContractData: arbitrableTransactionData
+    }
   }
 
   /**

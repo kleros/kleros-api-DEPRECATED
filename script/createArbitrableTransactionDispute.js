@@ -6,7 +6,7 @@ import config from '../config'
 
 let arbitrableTransaction
 
-let createArbitrableTransactionDispute = async (contractAddress) => {
+let createArbitrableTransactionDispute = async contractAddress => {
   // use testRPC
   const provider = await new Web3.providers.HttpProvider(LOCALHOST_PROVIDER)
 
