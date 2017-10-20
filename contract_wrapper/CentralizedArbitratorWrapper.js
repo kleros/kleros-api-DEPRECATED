@@ -27,7 +27,7 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
    * @param   account Ethereum account
    * @param   value gas price value
    * @param   price Set the initial arbitration price. (default: 10000 wei)
-   * @return  address | err The address of the contract or a deploy error
+   * @return  truffle-contract Object | err The contract object deployed or an error
    */
   deploy = async (
       account,
@@ -35,16 +35,16 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
       priceArbitration = 10000
     ) => {
 
-    const addressContractDeployed = await this._deployAsync(
+    const contractDeployed = await this._deployAsync(
       account,
       value,
       centralizedArbitrator,
       priceArbitration
     )
 
-    this.address = addressContractDeployed
+    this.address = contractDeployed.address
 
-    return this.address
+    return contractDeployed
   }
 
   /**

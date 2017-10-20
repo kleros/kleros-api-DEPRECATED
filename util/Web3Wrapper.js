@@ -18,7 +18,7 @@ class Web3Wrapper {
 
   getCoinbase = () => this._web3.eth.coinbase
 
-  doesContractExistAtAddressAsync = async (address) => {
+  doesContractExistAtAddressAsync = async address => {
     const code = await this._web3.eth.getCode(address)
     // Regex matches 0x0, 0x00, 0x in order to accommodate poorly implemented clients
     const codeIsEmpty = /^0x0{0,40}$/i.test(code)

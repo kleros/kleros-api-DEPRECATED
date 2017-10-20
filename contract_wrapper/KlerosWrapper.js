@@ -26,22 +26,22 @@ class KlerosWrapper extends ContractWrapper {
    * Kleros deploy.
    * @param   account (default: accounts[0])
    * @param   value (default: 10000)
-   * @return  address | err The address of the contract or error deploy
+   * @return  truffle-contract Object | err The contract object or error deploy
    */
   deploy = async (
       account = this._web3Wrapper.getAccount(0),
       value = config.VALUE,
     ) => {
 
-    const addressContractDeployed = await this._deployAsync(
+    const contractDeployed = await this._deployAsync(
       account,
       value,
       kleros
     )
 
-    this.address = addressContractDeployed
+    this.address = addressContractDeployed.address
 
-    return this.address
+    return contractDeployed
   }
 
   /**

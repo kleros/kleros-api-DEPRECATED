@@ -1,6 +1,6 @@
 {
   "name": "kleros-api",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Kleros API",
   "main": "lib/kleros-api.js",
   "scripts": {
@@ -51,6 +51,7 @@
   "dependencies": {
     "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.1",
+    "bignumber": "^1.1.0",
     "dotenv-webpack": "^1.5.4",
     "ethereumjs-testrpc": "^4.1.1",
     "global": "^4.3.2",

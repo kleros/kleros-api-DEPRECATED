@@ -19,7 +19,7 @@ class ContractWrapper {
    * DEPRECATED use instead of _deployAsync()
    * @param   artifact
    * @param   address    The hex encoded contract Ethereum address
-   * @return  The owner's ERC20 token balance in base units.
+   * @return  truffle-contract object | Error
    */
   _instantiateContractIfExistsAsync = async (artifact, address) => {
     const c = await contract(artifact)
@@ -37,7 +37,6 @@ class ContractWrapper {
                                    artifact.networks[networkIdIfExists] // TODO fix
 
     let contractAddress
-
 
     if (!_.isUndefined(address)) {
       contractAddress = address
@@ -58,7 +57,7 @@ class ContractWrapper {
                               ? await c.deployed()
                               : await c.at(address)
 
-      return contractInstance;
+      return contractInstance
     } catch (err) {
       const errMsg = `${err}`
 
@@ -76,7 +75,7 @@ class ContractWrapper {
    * @param   value
    * @param   json artifact of the contract
    * @param   rest arguments
-   * @return  address | err The owner's of the contract
+   * @return  truffle-contract Object | err The contract object or an error
    */
   _deployAsync = async (account, value, artifact, ...args) => {
     if (_.isEmpty(account)) {
