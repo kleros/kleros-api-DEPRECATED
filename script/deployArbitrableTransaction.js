@@ -14,17 +14,17 @@ let deployArbitrableTransaction = async (courtAddress) => {
 
   arbitrableTransaction = await KlerosInstance.arbitrableTransaction
   // deploy contract with defaults (testRPC + localhost addresses)
-  console.log("deploying arbitratable transaction contract...")
+  console.log('deploying arbitratable transaction contract...')
   let arbitrableTransactionInstance = await arbitrableTransaction.deploy(
     undefined, //use default
     undefined, //use default
     courtAddress
   )
-  console.log("contract address: " + arbitrableTransactionInstance.address)
+  console.log('contract address: ' + arbitrableTransactionInstance.address)
 }
 
 if (process.argv.length <= 2) {
-    console.log("Usage: " + __filename + " COURT_ADDRESS");
+    console.log('Usage: ' + __filename + ' COURT_ADDRESS');
     process.exit(-1);
 }
 

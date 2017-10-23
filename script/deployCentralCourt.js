@@ -12,7 +12,6 @@ let deployCentralCourt = async () => {
   console.log(provider)
 
   let KlerosInstance = await new Kleros(provider)
-  console.log("waht")
 
   centralCourt = await KlerosInstance.centralCourt
 
