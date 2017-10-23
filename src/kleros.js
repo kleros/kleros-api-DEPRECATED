@@ -28,16 +28,23 @@ class Kleros {
   /**
    * Instantiates a new Kelros instance that provides the public interface
    * to the 0x.js library.
-   * @param provider The Web3.js Provider instance you would like the
+   * @param ethereumProvider The Web3.js Provider instance you would like the
    *                 Kleros.js library to use for interacting with the
    *                 Ethereum network.
+   * @param storeProvider The storage provider instance used by the contract to
+   *                      get data from the cloud. e.g. Kleros-Store,
+   *                      IPFS, Swarm etc.
    * @return An instance of the Kleros.js class.
    */
-  constructor(provider) {
-    this._web3Wrapper = new Web3Wrapper(provider)
-    this.court = new KlerosWrapper(this._web3Wrapper)
-    this.centralCourt = new CentralizedArbitratorWrapper(this._web3Wrapper) // FIXME mock in waiting the decentralized court contract
-    this.arbitrableTransaction = new ArbitrableTransactionWrapper(this._web3Wrapper)
+  constructor(
+    ethereumProvider,
+    storeProvider=null
+  ) {
+    this._web3Wrapper = new Web3Wrapper(ethereumProvider)
+    // TODO storeProviderWrapper
+    this.court = new KlerosWrapper(this._web3Wrapper, storeProvider)
+    this.centralCourt = new CentralizedArbitratorWrapper(this._web3Wrapper, storeProvider)
+    this.arbitrableTransaction = new ArbitrableTransactionWrapper(this._web3Wrapper, storeProvider)
   }
 
   getWeb3Wrapper = () => this._web3Wrapper

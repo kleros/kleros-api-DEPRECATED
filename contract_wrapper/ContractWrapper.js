@@ -10,8 +10,9 @@ class ContractWrapper {
    * Constructor contract wrapper
    * @param web3Wrapper instance
    */
-  constructor(web3Wrapper) {
+  constructor(web3Wrapper, storeProvider) {
     this._Web3Wrapper = web3Wrapper
+    this._StoreProvider = storeProvider
   }
 
   /**
@@ -100,7 +101,6 @@ class ContractWrapper {
           gas: config.GAS,
         }
       )
-
       return contractDeployed
     } catch (e) {
       throw new Error(e)

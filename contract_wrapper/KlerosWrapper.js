@@ -1,6 +1,7 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
+import arbitrableTransaction from 'kleros-interaction/build/contracts/ArbitrableTransaction'
 import kleros from 'kleros/build/contracts/MetaCoin' // FIXME mock
 import config from '../config'
 import disputes from './mockDisputes'
@@ -14,8 +15,8 @@ class KlerosWrapper extends ContractWrapper {
    * @param web3 instance
    * @param address of the contract (optionnal)
    */
-  constructor(web3Provider, address) {
-    super(web3Provider)
+  constructor(web3Provider, storeProvider, address) {
+    super(web3Provider, storeProvider)
     if (!_.isUndefined(address)) {
       this.address = address
     }
@@ -52,19 +53,6 @@ class KlerosWrapper extends ContractWrapper {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve(disputes)
-      }, 2000)
-    })
-  }
-
-  /**
-   * Get dispute by caseId. // FIXME mock
-   * @return object
-   */
-  getDisputeById = async (caseId) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const dispute = _.filter(disputes, (o) => {return o.caseId = caseId})
-        resolve(dispute[0])
       }, 2000)
     })
   }

@@ -12,10 +12,10 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   /**
    * Constructor ArbitrableTransaction.
    * @param web3 instance
-   * @param address of the contract (optionnal)
+   * @param address of the contract (optional)
    */
-  constructor(web3Provider, address) {
-    super(web3Provider)
+  constructor(web3Provider, storeProvider, address) {
+    super(web3Provider, storeProvider)
     if (!_.isUndefined(address)) {
       this.address = address
     }
@@ -56,6 +56,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     )
 
     this.address = contractDeployed.address
+    this.contractInstance = contractDeployed
 
     return contractDeployed
   }
@@ -85,26 +86,50 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
 
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the party A.
-   * @return txHash Hash transaction
+   * @param account Ethereum account (default account[1])
+   * @param arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
+   * @return txHash hash transaction | Error
    */
-  payArbitrationFeeByPartyA = async () => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
-      }, 1000)
-    })
+  payArbitrationFeeByPartyA = async (
+    account = this._Web3Wrapper.getAccount(0),
+    arbitrationCost = 10000,
+  ) => {
+    try {
+      let result = await this.contractInstance.payArbitrationFeeByPartyA(
+        {
+          from: account,
+          gas: config.GAS,
+          value: arbitrationCost,
+        }
+      )
+      return result.tx
+    } catch (e) {
+      throw new Error(e)
+    }
   }
 
   /**
-   * Pay the arbitration fee to raise a dispute. To be called by the party B
-   * @return txHash Hash transaction
+   * Pay the arbitration fee to raise a dispute. To be called by the party B.
+   * @param account Ethereum account (default account[1])
+   * @param arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
+   * @return txHash hash transaction | Error
    */
-  payArbitrationFeeByPartyB = async () => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
-      }, 1000)
-    })
+  payArbitrationFeeByPartyB = async (
+    account = this._Web3Wrapper.getAccount(1),
+    arbitrationCost = 10000,
+  ) => {
+    try {
+      let result = await this.contractInstance.payArbitrationFeeByPartyB(
+        {
+          from: account,
+          gas: config.GAS,
+          value: arbitrationCost,
+        }
+      )
+      return result.tx
+    } catch (e) {
+      throw new Error(e)
+    }
   }
 
   /**
@@ -182,13 +207,17 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        arbitrator,
        //hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
        timeout,
+       partyA,
        partyB,
+       status,
        arbitratorExtraData
      ] = await Promise.all([
        contractDeployed.arbitrator.call(),
        //contractDeployed.hashContract.call(),
        contractDeployed.timeout.call(),
+       contractDeployed.partyA.call(),
        contractDeployed.partyB.call(),
+       contractDeployed.status.call(),
        contractDeployed.arbitratorExtraData.call()
      ]).catch(err => {
       throw new Error(err)
@@ -198,7 +227,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        arbitrator,
        //hashContract,
        timeout: timeout.toNumber(),
+       partyA,
        partyB,
+       status: status.toNumber(),
        arbitratorExtraData
      }
    }

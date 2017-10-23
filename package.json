@@ -1,13 +1,17 @@
 {
   "name": "kleros-api",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Kleros API",
   "main": "lib/kleros-api.js",
   "scripts": {
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",
     "test": "jest",
-    "deployCentralCourt": "./node_modules/.bin/babel-node script/deployCentralCourt"
+    "deployCentralCourt": "./node_modules/.bin/babel-node script/deployCentralCourt.js",
+    "deployArbitrableTransaction": "./node_modules/.bin/babel-node script/deployArbitrableTransaction.js",
+    "createArbitrableTransactionDispute": "./node_modules/.bin/babel-node script/createArbitrableTransactionDispute.js",
+    "getDisputeDataFromCentralCourt": "./node_modules/.bin/babel-node script/getDisputeDataFromCentralCourt.js",
+    "getDataFromArbitrableTransaction": "./node_modules/.bin/babel-node script/getDataFromArbitrableTransaction.js"
   },
   "jest": {
     "testEnvironment": "node",
