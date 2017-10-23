@@ -14,8 +14,8 @@ let getDisputeFromCentralCourt = async (contractAddress, disputeId) => {
 
   const centralCourt = KlerosInstance.centralCourt
   console.log("loading contract...")
-  let data = await centralCourt.getDisputeById(contractAddress, disputeId)
-  console.log(data)
+  let dataDispute = await centralCourt.getDisputeById(contractAddress, disputeId)
+  console.log(dataDispute)
 }
 
 if (process.argv.length <= 3) {

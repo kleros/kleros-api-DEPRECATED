@@ -13,21 +13,21 @@ let createArbitrableTransactionDispute = async contractAddress => {
   let KlerosInstance = await new Kleros(provider)
 
   const arbitrableTransaction = KlerosInstance.arbitrableTransaction
-  console.log("loading contract...")
+  console.log('loading contract...')
   let success = await arbitrableTransaction.load(contractAddress)
   if (!success) {
-    return new Error("No contract found with address " + contractAddress)
+    return new Error('No contract found with address ' + contractAddress)
   }
 
   // pay dispute fees
-  console.log("paying party A dispute fee...")
+  console.log('paying party A dispute fee...')
   let partyAFeeTxHash = await arbitrableTransaction.payArbitrationFeeByPartyA()
-  console.log("tx hash: " + partyAFeeTxHash)
-  console.log("paying party B dispute fee...")
+  console.log('tx hash: ' + partyAFeeTxHash)
+  console.log('paying party B dispute fee...')
   let partyBFeeTxHash = await arbitrableTransaction.payArbitrationFeeByPartyB()
-  console.log("tx hash: " + partyBFeeTxHash)
+  console.log('tx hash: ' + partyBFeeTxHash)
 
-  console.log("Dispute successfully started")
+  console.log('Dispute successfully started')
 }
 
 if (process.argv.length <= 2) {

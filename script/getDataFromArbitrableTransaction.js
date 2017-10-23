@@ -13,13 +13,13 @@ let getDataFromArbitrableTransaction = async (contractAddress) => {
   let KlerosInstance = await new Kleros(provider)
 
   arbitrableTransaction = await KlerosInstance.arbitrableTransaction
-  console.log("loading contract...")
+  console.log('loading contract...')
   let data = await arbitrableTransaction.getDataContract(contractAddress)
   console.log(data)
 }
 
 if (process.argv.length <= 2) {
-    console.log("Usage: createArbitrableTransactionDispute CONTRACT_ADDRESS DISPUTE_ID");
+    console.log('Usage: createArbitrableTransactionDispute CONTRACT_ADDRESS DISPUTE_ID');
     process.exit(-1);
 }
 
