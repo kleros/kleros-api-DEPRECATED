@@ -7,6 +7,8 @@ import mockDisputes from '../contract_wrapper/mockDisputes'
 
 
 describe('Kleros', () => {
+  let partyA
+  let partyB
   let court
   let centralCourt
   let arbitrableTransaction
@@ -16,6 +18,11 @@ describe('Kleros', () => {
     const provider = await new Web3.providers.HttpProvider(LOCALHOST_PROVIDER)
 
     let KlerosInstance = await new Kleros(provider)
+
+    let web3 = await new Web3(provider)
+
+    partyA = web3.eth.accounts[0]
+    partyB = web3.eth.accounts[1]
 
     court = await KlerosInstance.court
     centralCourt = await KlerosInstance.centralCourt
@@ -43,15 +50,17 @@ describe('Kleros', () => {
     let contractData = {
       arbitrator: centralCourtDeployed.address,
       timeout: 3600,
-      partyB: '0x8f7aaea81ee557aef373795569d3d308474d2a28',
-      arbitratorExtraData: '0x'
+      partyA,
+      partyB,
+      arbitratorExtraData: '0x',
+      status: 0
     }
 
     let contractArbitrableTransaction = await arbitrableTransaction.deploy(
       undefined, // use default account : account[0]
       undefined, // use default value : 0
       contractData.arbitrator,
-      '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
+      contractData.partyA,
       contractData.timeout,
       contractData.partyB,
       contractData.arbitratorExtraData
