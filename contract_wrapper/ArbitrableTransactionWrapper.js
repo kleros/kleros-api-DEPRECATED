@@ -202,7 +202,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    */
    getDataContract = async (address) => {
      let contractDeployed = await this.load(address)
-
+     // TODO fetch data from the store provider
      let [
        arbitrator,
        //hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
