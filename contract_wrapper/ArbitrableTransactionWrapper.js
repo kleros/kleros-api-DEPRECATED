@@ -66,9 +66,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @param address Contract address
    * @return contractInstance | Error
    */
-  load = async (
-    address
-  ) => {
+  load = async address => {
     try {
       const contractInstance = await this._instantiateContractIfExistsAsync(
         arbitrableTransaction,
@@ -200,12 +198,12 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @param address Address of the ArbitrableTransaction contract.
    * @return Object Data of the contract.
    */
-   getDataContract = async (address) => {
+   getDataContract = async address => {
      let contractDeployed = await this.load(address)
      // TODO fetch data from the store provider
      let [
        arbitrator,
-       //hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
+       // hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
        timeout,
        partyA,
        partyB,
@@ -213,7 +211,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        arbitratorExtraData
      ] = await Promise.all([
        contractDeployed.arbitrator.call(),
-       //contractDeployed.hashContract.call(),
+       // contractDeployed.hashContract.call(),
        contractDeployed.timeout.call(),
        contractDeployed.partyA.call(),
        contractDeployed.partyB.call(),
