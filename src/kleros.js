@@ -1,4 +1,5 @@
 import Web3Wrapper from '../util/Web3Wrapper'
+import StoreProviderWrapper from '../util/StoreProviderWrapper'
 import KlerosWrapper from '../contract_wrapper/KlerosWrapper'
 import CentralizedArbitratorWrapper from '../contract_wrapper/CentralizedArbitratorWrapper'
 import ArbitrableTransactionWrapper from '../contract_wrapper/ArbitrableTransactionWrapper'
@@ -41,10 +42,10 @@ class Kleros {
     storeProvider=null
   ) {
     this._web3Wrapper = new Web3Wrapper(ethereumProvider)
-    // TODO storeProviderWrapper
-    this.court = new KlerosWrapper(this._web3Wrapper, storeProvider)
-    this.centralCourt = new CentralizedArbitratorWrapper(this._web3Wrapper, storeProvider)
-    this.arbitrableTransaction = new ArbitrableTransactionWrapper(this._web3Wrapper, storeProvider)
+    this.store = new StoreProviderWrapper(storeProvider)
+    this.court = new KlerosWrapper(this._web3Wrapper, this.store)
+    this.centralCourt = new CentralizedArbitratorWrapper(this._web3Wrapper, this.store)
+    this.arbitrableTransaction = new ArbitrableTransactionWrapper(this._web3Wrapper, this.store)
   }
 
   getWeb3Wrapper = () => this._web3Wrapper
