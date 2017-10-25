@@ -78,7 +78,7 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
     let [disputedContractAddress, choices, fee] = await contractDeployed.disputes(disputeId)
 
     // FIXME handle other contract types. Should this really be here?
-    const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper)
+    const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
     let arbitrableTransactionData = await ArbitrableTransaction.getDataContract(disputedContractAddress)
 
     return {
