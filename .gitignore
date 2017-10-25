@@ -9,4 +9,7 @@ node_modules
 # Env configuration
 .env
 
+# built js
+lib
+
 package-lock.json
