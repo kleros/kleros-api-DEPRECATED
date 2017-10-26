@@ -65,14 +65,16 @@ describe('Kleros', () => {
       contractData.partyA,
       contractData.timeout,
       contractData.partyB,
-      contractData.arbitratorExtraData
+      contractData.arbitratorExtraData,
+      'email',
+      'desc'
     )
 
     let contractDataDeployed = await arbitrableTransaction
       .getDataContract(contractArbitrableTransaction.address)
 
-    contractData.email = ''
-    contractData.description = ''
+    contractData.email = 'email'
+    contractData.description = 'desc'
 
     expect(contractDataDeployed)
       .toEqual(contractData)
