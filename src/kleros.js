@@ -43,10 +43,10 @@ class Kleros {
     storeProvider = LOCALHOST_STORE_PROVIDER
   ) {
     this._web3Wrapper = new Web3Wrapper(ethereumProvider)
-    this.store = new StoreProviderWrapper(storeProvider)
-    this.court = new KlerosWrapper(this._web3Wrapper, this.store)
-    this.centralCourt = new CentralizedArbitratorWrapper(this._web3Wrapper, this.store)
-    this.arbitrableTransaction = new ArbitrableTransactionWrapper(this._web3Wrapper, this.store)
+    this._storeWrapper = new StoreProviderWrapper(storeProvider)
+    this.court = new KlerosWrapper(this._web3Wrapper, this._storeWrapper)
+    this.centralCourt = new CentralizedArbitratorWrapper(this._web3Wrapper, this._storeWrapper)
+    this.arbitrableTransaction = new ArbitrableTransactionWrapper(this._web3Wrapper, this._storeWrapper)
   }
 
   getWeb3Wrapper = () => this._web3Wrapper

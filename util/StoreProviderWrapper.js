@@ -49,19 +49,19 @@ class StoreProviderWrapper {
     return httpResponse
   }
 
-  getDocumentsForDispute = async (userAddress, hash) => {
+  getDisputeData = async (userAddress, hash) => {
     const userProfile = await this.getUserProfile(userAddress)
-    if (!userProfile) throw new Error("No profile found for address: " + userAddress)
+    if (!userProfile) throw new Error(`No profile found for address: ${userAddress}`)
 
     let disputeData = _.filter(userProfile.disputes, (o) => {
       return o.hash === hash
     })
 
-    if (disputeData.length < 1) return null
-    return JSON.parse(disputeData[0].contentDocument)
+    if (_.isEmpty(disputeData)) return null
+    return disputeData[0]
   }
 
-  getDocumentsForContract = async (userAddress, hash) => {
+  getContractByHash = async (userAddress, hash) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile) throw new Error(`No profile found for address: ${userAddress}`)
 
@@ -70,11 +70,12 @@ class StoreProviderWrapper {
     })
 
     if (contractData.length < 1) return null
-    return JSON.parse(contractData[0].contentDocument)
+    return contractData[0]
   }
 
-  getContract = async (userAddress, addressContract) => {
+  getContractByAddress = async (userAddress, addressContract) => {
     const userProfile = await this.getUserProfile(userAddress)
+    if (!userProfile) throw new Error(`No profile found for address: ${userAddress}`)
 
     let contract = _.filter(userProfile.contracts, contract => {
       return contract.address === addressContract

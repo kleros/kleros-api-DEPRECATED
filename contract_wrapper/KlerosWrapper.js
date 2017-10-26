@@ -30,7 +30,7 @@ class KlerosWrapper extends ContractWrapper {
    * @return  truffle-contract Object | err The contract object or error deploy
    */
   deploy = async (
-      account = this._web3Wrapper.getAccount(0),
+      account = this._Web3Wrapper.getAccount(0),
       value = config.VALUE,
     ) => {
 
@@ -47,14 +47,38 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
    * Get disputes
+   * @param account address of user
    * @return objects[]
    */
-  getDisputes = async (
-    account = this._web3Wrapper.getAccount(0)
+  getDisputesForUser = async (
+    account = this._Web3Wrapper.getAccount(0)
   ) => {
     const profile = await this._StoreProvider.getUserProfile(account)
     if (!profile) throw new Error("No user profile for " + account)
     return profile.disputes
+  }
+
+  /**
+   * Get dispute by id FIXME isn't calling blockchain
+   * @param disputeHash hash of the dispute
+   * @param account address of user
+   * @return objects[]
+   */
+  getDisputeByHash = async (
+    disputeHash,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    // fetch dispute
+    const disputeData = await this._StoreProvider.getDisputeData(account, disputeHash)
+    if (!disputeData) throw new Error(`No dispute with hash ${disputeHash} for account ${account}`)
+
+    // get contract data from partyA (should have same docs for both parties)
+    const contractData = await this._StoreProvider.getContractByAddress(disputeData.partyA, disputeData.contractAddress)
+
+    return {
+      contractData,
+      disputeData
+    }
   }
 }
 
