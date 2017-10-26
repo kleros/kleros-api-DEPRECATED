@@ -46,15 +46,15 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
-   * Get disputes. // FIXME mock
+   * Get disputes
    * @return objects[]
    */
-  getDisputes = async () => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(disputes)
-      }, 2000)
-    })
+  getDisputes = async (
+    account = this._web3Wrapper.getAccount(0)
+  ) => {
+    const profile = await this._StoreProvider.getUserProfile(account)
+    if (!profile) throw new Error("No user profile for " + account)
+    return profile.disputes
   }
 }
 
