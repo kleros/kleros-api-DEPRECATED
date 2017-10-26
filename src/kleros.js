@@ -3,6 +3,7 @@ import StoreProviderWrapper from '../util/StoreProviderWrapper'
 import KlerosWrapper from '../contract_wrapper/KlerosWrapper'
 import CentralizedArbitratorWrapper from '../contract_wrapper/CentralizedArbitratorWrapper'
 import ArbitrableTransactionWrapper from '../contract_wrapper/ArbitrableTransactionWrapper'
+import {LOCALHOST_STORE_PROVIDER} from '../constants'
 
 class Kleros {
   /**
@@ -39,7 +40,7 @@ class Kleros {
    */
   constructor(
     ethereumProvider,
-    storeProvider=null
+    storeProvider = LOCALHOST_STORE_PROVIDER
   ) {
     this._web3Wrapper = new Web3Wrapper(ethereumProvider)
     this.store = new StoreProviderWrapper(storeProvider)

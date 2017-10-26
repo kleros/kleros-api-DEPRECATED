@@ -41,7 +41,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       hashContract = 0x6aa0bb2779ab006be0739900654a89f1f8a2d7373ed38490a7cbab9c9392e1ff,
       timeout = 100,
       partyB = this._Web3Wrapper.getAccount(1),
-      arbitratorExtraData = ''
+      arbitratorExtraData = '',
+      email = '',
+      description = ''
     ) => {
 
     const contractDeployed = await this._deployAsync(
@@ -52,11 +54,22 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       hashContract,
       timeout,
       partyB,
-      arbitratorExtraData,
+      arbitratorExtraData
     )
 
     this.address = contractDeployed.address
     this.contractInstance = contractDeployed
+
+    await this._StoreProvider.updateContract(
+      this.address,
+      hashContract,
+      account,
+      partyB,
+      arbitrator,
+      timeout,
+      email,
+      description
+    )
 
     return contractDeployed
   }
@@ -217,12 +230,10 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        contractDeployed.status.call(),
        contractDeployed.arbitratorExtraData.call()
      ]).catch(err => {
-      throw new Error(err)
+       throw new Error(err)
      })
-     // fetch contract data from store
-     const partyADocuments = await this._StoreProvider.getDocumentsForContract(partyA, address)
-     const partyBDocuments = await this._StoreProvider.getDocumentsForContract(partyB, address)
 
+     const storeDataContract = await this._StoreProvider.getContract(partyA, address)
 
      return {
        arbitrator,
@@ -232,8 +243,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        partyB,
        status: status.toNumber(),
        arbitratorExtraData,
-       partyADocuments,
-       partyBDocuments
+       email: storeDataContract.email,
+       description: storeDataContract.description
      }
    }
 }

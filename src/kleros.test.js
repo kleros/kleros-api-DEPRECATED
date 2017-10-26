@@ -35,11 +35,13 @@ describe('Kleros', () => {
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
 
-    let contractArbitrableTransactionAddress = await arbitrableTransaction.deploy(
-      undefined, // use default account : account[0]
-      undefined, // use default value : 0
-      centralCourtDeployed.address
-    )
+    let contractArbitrableTransactionAddress = await arbitrableTransaction
+      .deploy(
+        undefined, // use default account : account[0]
+        undefined, // use default value : 0
+        centralCourtDeployed.address
+      )
+
     expect(contractArbitrableTransactionAddress.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
   })
@@ -66,15 +68,13 @@ describe('Kleros', () => {
       contractData.arbitratorExtraData
     )
 
-    let contractDataDeployed = await arbitrableTransaction.getDataContract(contractArbitrableTransaction.address)
+    let contractDataDeployed = await arbitrableTransaction
+      .getDataContract(contractArbitrableTransaction.address)
+
+    contractData.email = ''
+    contractData.description = ''
 
     expect(contractDataDeployed)
       .toEqual(contractData)
-  })
-
-  test('get disputes', async () => {
-    let disputesKleros = await court.getDisputes()
-
-    expect(mockDisputes).toEqual(disputesKleros);
   })
 })

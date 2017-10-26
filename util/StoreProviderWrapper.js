@@ -5,15 +5,18 @@ class StoreProviderWrapper {
     this._storeUri = storeProviderUri
   }
 
-  _makeRequest = async (verb, uri, body=null) => {
+  _makeRequest = async (verb, uri, body = null) => {
     const httpRequest = new XMLHttpRequest()
     return new Promise ((resolve, reject) => {
       try {
         httpRequest.open(verb, uri, true)
         if (body) {
-          httpRequest.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+          httpRequest.setRequestHeader(
+            'Content-Type',
+            'application/json;charset=UTF-8'
+          )
         }
-        httpRequest.onreadystatechange = function () {
+        httpRequest.onreadystatechange =  () => {
           if (httpRequest.readyState === 4) {
             resolve(httpRequest.responseText)
           }
@@ -25,17 +28,20 @@ class StoreProviderWrapper {
     })
   }
 
-  getUserProfile = async (userAddress) => {
-    let httpResponse = await this._makeRequest('GET', this._storeUri + '/' + userAddress)
-    if (httpResponse) {
-      return JSON.parse(httpResponse)
-    } else {
-      return null
-    }
+  getUserProfile = async userAddress => {
+    const httpResponse = await this._makeRequest(
+      'GET',
+      `${this._storeUri}/${userAddress}`
+    )
+
+    if (!httpResponse)
+      throw new Error(`No profile found for address: ${userAddress}`)
+
+    return JSON.parse(httpResponse)
   }
 
   newUserProfile = async (userAddress, contractsData = {}, disputesData = {}) => {
-    let httpResponse = await this._makeRequest(
+    const httpResponse = await this._makeRequest(
       'POST',
       this._storeUri + '/' + userAddress,
       JSON.stringify(Object.assign({}, {contracts: contractsData}, {disputes: disputesData}))
@@ -57,7 +63,7 @@ class StoreProviderWrapper {
 
   getDocumentsForContract = async (userAddress, hash) => {
     const userProfile = await this.getUserProfile(userAddress)
-    if (!userProfile) throw new Error("No profile found for address: " + userAddress)
+    if (!userProfile) throw new Error(`No profile found for address: ${userAddress}`)
 
     let contractData = _.filter(userProfile.contracts, (o) => {
       return o.hash === hash
@@ -65,6 +71,46 @@ class StoreProviderWrapper {
 
     if (contractData.length < 1) return null
     return JSON.parse(contractData[0].contentDocument)
+  }
+
+  getContract = async (userAddress, addressContract) => {
+    const userProfile = await this.getUserProfile(userAddress)
+
+    let contract = _.filter(userProfile.contracts, contract => {
+      return contract.address === addressContract
+    })
+
+    return contract[0]
+  }
+
+  updateContract = async (
+    address,
+    hashContract,
+    account,
+    partyB,
+    arbitrator,
+    timeout,
+    email,
+    description
+  ) => {
+    const userProfile = await this.getUserProfile(account)
+
+    const httpResponse = await this._makeRequest(
+      'POST',
+      `${this._storeUri}/${account}/contracts/${address}`,
+      JSON.stringify({
+        address,
+        hashContract,
+        account,
+        partyB,
+        arbitrator,
+        timeout,
+        email,
+        description
+      })
+    )
+
+    return httpResponse
   }
 }
 
