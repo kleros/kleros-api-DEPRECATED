@@ -80,6 +80,41 @@ class KlerosWrapper extends ContractWrapper {
       disputeData
     }
   }
+
+  /**
+   * buy pinakion FIXME isn't using blockchain
+   * @param amount number of pinakion to buy
+   * @param account address of user
+   * @return objects[]
+   */
+  buyPinakion = async (
+    amount,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    // TODO make tx to smart contract
+    const userProfile = await this._StoreProvider.getUserProfile(account)
+    // FIXME seems like a super hacky way to update store
+    userProfile.balance = (parseInt(userProfile.balance) ? userProfile.balance : 0) + parseInt(amount)
+    delete userProfile._id
+    delete userProfile.created_at
+    const response = await this._StoreProvider.newUserProfile(account, userProfile)
+    return userProfile.balance
+  }
+
+  /**
+   * buy pinakion FIXME isn't using blockchain
+   * @param amount number of pinakion to buy
+   * @param account address of user
+   * @return objects[]
+   */
+  getPNKBalance = async (
+    amount,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    // TODO make tx to smart contract
+    const userProfile = await this._StoreProvider.getUserProfile(account)
+    return userProfile.balance
+  }
 }
 
 export default KlerosWrapper

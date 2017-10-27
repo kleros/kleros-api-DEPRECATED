@@ -40,11 +40,11 @@ class StoreProviderWrapper {
     return JSON.parse(httpResponse)
   }
 
-  newUserProfile = async (userAddress, contractsData = {}, disputesData = {}) => {
+  newUserProfile = async (address, userProfile) => {
     const httpResponse = await this._makeRequest(
       'POST',
-      this._storeUri + '/' + userAddress,
-      JSON.stringify(Object.assign({}, {contracts: contractsData}, {disputes: disputesData}))
+      `${this._storeUri}/${address}`,
+      JSON.stringify(userProfile)
     )
     return httpResponse
   }
