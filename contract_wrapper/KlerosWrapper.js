@@ -53,8 +53,16 @@ class KlerosWrapper extends ContractWrapper {
   getDisputesForUser = async (
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    const profile = await this._StoreProvider.getUserProfile(account)
-    if (!profile) throw new Error("No user profile for " + account)
+    let profile
+    try {
+      profile = await this._StoreProvider.getUserProfile(account)
+    } catch (e) {
+      // if profile does not exist create new one
+      profile = await this._StoreProvider.newUserProfile({
+        address: account
+      })
+    }
+
     return profile.disputes
   }
 
