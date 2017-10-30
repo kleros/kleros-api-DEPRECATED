@@ -92,7 +92,15 @@ class KlerosWrapper extends ContractWrapper {
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     // TODO make tx to smart contract
-    const userProfile = await this._StoreProvider.getUserProfile(account)
+    let userProfile
+    try {
+      userProfile = await this._StoreProvider.getUserProfile(account)
+    } catch (e) {
+      userProfile = {
+        address: account
+      }
+    }
+
     // FIXME seems like a super hacky way to update store
     userProfile.balance = (parseInt(userProfile.balance) ? userProfile.balance : 0) + parseInt(amount)
     delete userProfile._id
@@ -112,7 +120,15 @@ class KlerosWrapper extends ContractWrapper {
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     // TODO make tx to smart contract
-    const userProfile = await this._StoreProvider.getUserProfile(account)
+    let userProfile
+    try {
+      userProfile = await this._StoreProvider.getUserProfile(account)
+    } catch (e) {
+      userProfile = {
+        balance: 0
+      }
+    }
+
     return userProfile.balance
   }
 }
