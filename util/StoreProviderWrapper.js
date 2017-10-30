@@ -34,11 +34,7 @@ class StoreProviderWrapper {
       `${this._storeUri}/${userAddress}`
     )
 
-    const jsonResponse = JSON.parse(httpResponse)
-    if (!jsonResponse)
-      throw new Error(`No profile found for address: ${userAddress}`)
-
-    return jsonResponse
+    return JSON.parse(httpResponse)
   }
 
   newUserProfile = async (address, userProfile) => {
