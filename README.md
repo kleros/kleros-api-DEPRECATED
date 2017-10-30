@@ -1,10 +1,8 @@
 # Kleros
 
-[![Join the chat at https://gitter.im/kleros/kleros-api](https://badges.gitter.im/kleros/kleros-api.svg)](https://gitter.im/kleros/kleros-api?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/kleros/kleros-api](https://badges.gitter.im/kleros/kleros-api.svg)](https://gitter.im/kleros/kleros-api?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![npm version](https://badge.fury.io/js/kleros-api.svg)](https://badge.fury.io/js/kleros-api) [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](https://github.com/standard/standard)
 
 This repository contains a Javascript library that makes it easy to build Relayers and other DApps that use the Kleros protocol.
-
-[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 ## Installation
 
