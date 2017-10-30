@@ -233,7 +233,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        throw new Error(err)
      })
 
-     const storeDataContract = await this._StoreProvider.getContract(partyA, address)
+     const storeDataContract = await this._StoreProvider.getContractByAddress(partyA, address)
 
      return {
        arbitrator,
