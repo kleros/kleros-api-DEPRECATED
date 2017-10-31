@@ -2,7 +2,7 @@ import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import arbitrableTransaction from 'kleros-interaction/build/contracts/ArbitrableTransaction'
-import kleros from 'kleros/build/contracts/MetaCoin' // FIXME mock
+import kleros from 'kleros/build/contracts/KlerosPOC' // FIXME mock
 import config from '../config'
 import disputes from './mockDisputes'
 
@@ -46,6 +46,24 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
+   * Load an existing contract
+   * @param address contract address
+   * @return Conract Instance | Error
+   */
+  load = async (
+    address
+  ) => {
+    try {
+      const contractInstance = await this._instantiateContractIfExistsAsync(kleros, address)
+      this.contractInstance = contractInstance
+      this.address = address
+      return contractInstance
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  /**
    * Get disputes
    * @param account address of user
    * @return objects[]
@@ -83,41 +101,67 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
-   * buy pinakion FIXME isn't using blockchain
    * @param amount number of pinakion to buy
    * @param account address of user
    * @return objects[]
    */
   buyPinakion = async (
     amount,
+    contractAddress, // address of KlerosPOC
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    // TODO make tx to smart contract
+    const contractInstance = await this.load(contractAddress)
+    try {
+      let txHashObj = await this.contractInstance.buyPinakion(
+        {
+          from: account,
+          gas: config.GAS,
+          value: this._Web3Wrapper.toWei(amount, 'ether'),
+        }
+      )
+    } catch (e) {
+      throw new Error(e)
+    }
+    // update store so user can get instantaneous feedback
     let userProfile = await this._StoreProvider.getUserProfile(account)
     if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
-
     // FIXME seems like a super hacky way to update store
     userProfile.balance = (parseInt(userProfile.balance) ? userProfile.balance : 0) + parseInt(amount)
     delete userProfile._id
     delete userProfile.created_at
     const response = await this._StoreProvider.newUserProfile(account, userProfile)
-    return userProfile.balance
+    return this.getPNKBalance()
   }
 
   /**
-   * buy pinakion FIXME isn't using blockchain
-   * @param amount number of pinakion to buy
+   * @param contractAddress address of KlerosPOC contract
    * @param account address of user
    * @return objects[]
    */
   getPNKBalance = async (
-    amount,
+    contractAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
+<<<<<<< HEAD
     // TODO make tx to smart contract
     let userProfile = await this._StoreProvider.getUserProfile(account)
     if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
 
+=======
+    const contractInstance = await this.load(contractAddress)
+    const juror = await contractInstance.jurors(account)
+    console.log(juror)
+    const contractBalance = juror.balance ? juror.balance.toNumber() : 0
+    console.log(contractBalance)
+    let userProfile = await this._StoreProvider.getUserProfile(account)
+    if (_.isNull(userProfile)) {
+      userProfile = await this._StoreProvider.newUserProfile(account)
+    }
+    // return {
+    //   pending: userProfile.balance - contractBalance,
+    //   balance: contractBalance
+    // }
+>>>>>>> wip
     return userProfile.balance ? userProfile.balance : 0
   }
 }
