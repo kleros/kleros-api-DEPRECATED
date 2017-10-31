@@ -25,33 +25,9 @@ class ContractWrapper {
   _instantiateContractIfExistsAsync = async (artifact, address) => {
     const c = await contract(artifact)
 
-    const providerObj = this._Web3Wrapper.getProvider()
+    const providerObj = await this._Web3Wrapper.getProvider()
 
-    c.setProvider(providerObj)
-
-    const networkIdIfExists = await this._Web3Wrapper._getNetworkIdIfExistsAsync()
-
-
-
-    const artifactNetworkConfigs = _.isUndefined(networkIdIfExists) ?
-                                   undefined :
-                                   artifact.networks[networkIdIfExists] // TODO fix
-
-    let contractAddress
-
-    if (!_.isUndefined(address)) {
-      contractAddress = address
-    } else if (!_.isUndefined(artifactNetworkConfigs)) {
-      contractAddress = artifactNetworkConfigs.address
-    }
-
-    if (!_.isUndefined(contractAddress)) {
-      const doesContractExist = await this._Web3Wrapper.doesContractExistAtAddressAsync(contractAddress)
-
-      if (!doesContractExist) {
-        throw new Error('ContractDoesNotExist')
-      }
-    }
+    await c.setProvider(providerObj)
 
     try {
       const contractInstance = _.isUndefined(address)

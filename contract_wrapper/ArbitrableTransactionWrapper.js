@@ -144,30 +144,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   }
 
   /**
-   * Create a dispute.
-   * @param account Ethereum account (default account[1])
-   * @param arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
-   * @return txHash Hash transaction | Error
-   */
-  raiseDispute = async (
-    account = this._Web3Wrapper.getAccount(1),
-    arbitrationCost = 10000,
-  ) => {
-    try {
-      let txHashObj = await this.contractInstance.raiseDispute(
-        {
-          from: account,
-          gas: config.GAS,
-          value: arbitrationCost,
-        }
-      )
-      return txHashObj.tx
-    } catch (e) {
-      throw new Error(e)
-    }
-  }
-
-  /**
    * Pay partyB if partyA fails to pay the fee.
    * @return txHash Hash transaction
    */
@@ -223,8 +199,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @return Object Data of the contract.
    */
    getDataContract = async address => {
-     let contractDeployed = await this.load(address)
-     let [
+    const contractDeployed = await this.load(address)
+
+     const [
        arbitrator,
        // hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
        timeout,
