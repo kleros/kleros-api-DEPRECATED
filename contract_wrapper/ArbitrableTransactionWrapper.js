@@ -145,15 +145,26 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
 
   /**
    * Create a dispute.
+   * @param account Ethereum account (default account[1])
    * @param arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
-   * @return txHash Hash transaction
+   * @return txHash Hash transaction | Error
    */
-  raiseDispute = async (arbitrationCost = 10000) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
-      }, 1000)
-    })
+  raiseDispute = async (
+    account = this._Web3Wrapper.getAccount(1),
+    arbitrationCost = 10000,
+  ) => {
+    try {
+      let txHashObj = await this.contractInstance.raiseDispute(
+        {
+          from: account,
+          gas: config.GAS,
+          value: arbitrationCost,
+        }
+      )
+      return txHashObj.tx
+    } catch (e) {
+      throw new Error(e)
+    }
   }
 
   /**

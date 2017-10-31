@@ -79,4 +79,38 @@ describe('Kleros', () => {
     expect(contractDataDeployed)
       .toEqual(contractData)
   })
+
+  test('partyA create a dispute', async () => {
+    let centralCourtDeployed = await centralCourt.deploy()
+
+    let contractData = {
+      arbitrator: centralCourtDeployed.address,
+      timeout: 3600,
+      partyA,
+      partyB,
+      arbitratorExtraData: '0x',
+      status: 0
+    }
+
+    let contractArbitrableTransaction = await arbitrableTransaction.deploy(
+      undefined, // use default account : account[0]
+      undefined, // use default value : 0
+      contractData.arbitrator,
+      contractData.partyA,
+      contractData.timeout,
+      contractData.partyB,
+      contractData.arbitratorExtraData,
+      'email',
+      'desc'
+    )
+
+    // use default parameters
+    // account: accounts[0]
+    // arbitration cost: 1000 wei
+    const txHashRaiseDisputeByPartyA = await arbitrableTransaction
+      .payArbitrationFeeByPartyA()
+
+    expect(txHashRaiseDisputeByPartyA)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+  })
 })
