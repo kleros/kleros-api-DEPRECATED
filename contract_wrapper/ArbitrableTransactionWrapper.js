@@ -106,13 +106,14 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     arbitrationCost = 10000,
   ) => {
     try {
-      let txHashObj = await this.contractInstance.payArbitrationFeeByPartyA(
+      const txHashObj = await this.contractInstance.payArbitrationFeeByPartyA(
         {
           from: account,
           gas: config.GAS,
           value: arbitrationCost,
         }
       )
+
       return txHashObj.tx
     } catch (e) {
       throw new Error(e)
@@ -130,13 +131,14 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     arbitrationCost = 10000,
   ) => {
     try {
-      let txHashObj = await this.contractInstance.payArbitrationFeeByPartyB(
+      const  txHashObj = await this.contractInstance.payArbitrationFeeByPartyB(
         {
           from: account,
           gas: config.GAS,
           value: arbitrationCost,
         }
       )
+
       return txHashObj.tx
     } catch (e) {
       throw new Error(e)
