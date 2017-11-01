@@ -53,6 +53,7 @@ class PinakionWrapper extends ContractWrapper {
       const contractInstance = await this._instantiateContractIfExistsAsync(PinakionPOC, address)
       this.contractInstance = contractInstance
       this.address = address
+
       return contractInstance
     } catch (e) {
       throw new Error(e)
@@ -77,6 +78,7 @@ class PinakionWrapper extends ContractWrapper {
     } catch (e) {
       throw new Error(e)
     }
+
     return txHashObj.tx
   }
 
@@ -85,10 +87,9 @@ class PinakionWrapper extends ContractWrapper {
     klerosAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    let txHashObj
     try {
       let contractInstance = await this.load(contractAddress)
-      txHashObj = await contractInstance.transferOwnership(
+      const txHashObj = await contractInstance.transferOwnership(
         klerosAddress,
         {
           from: account,
@@ -98,6 +99,7 @@ class PinakionWrapper extends ContractWrapper {
     } catch (e) {
       throw new Error(e)
     }
+
     return txHashObj.tx
   }
 
@@ -105,7 +107,7 @@ class PinakionWrapper extends ContractWrapper {
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    let contractInstance = await this.load(contractAddress)
+    const contractInstance = await this.load(contractAddress)
 
     const [
       owner,

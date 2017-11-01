@@ -30,7 +30,7 @@ class KlerosWrapper extends ContractWrapper {
    * @return  truffle-contract Object | err The contract object or error deploy
    */
   deploy = async (
-      rngAddress = '0xB7669d5774Cc4E33a056B2A24A7c7B7957556b37',
+      rngAddress,
       pnkAddress,
       account = this._Web3Wrapper.getAccount(0),
       value = config.VALUE,
@@ -62,6 +62,7 @@ class KlerosWrapper extends ContractWrapper {
       const contractInstance = await this._instantiateContractIfExistsAsync(kleros, address)
       this.contractInstance = contractInstance
       this.address = address
+
       return contractInstance
     } catch (e) {
       throw new Error(e)
@@ -116,9 +117,8 @@ class KlerosWrapper extends ContractWrapper {
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     const contractInstance = await this.load(contractAddress)
-    let txHashObj
     try {
-      txHashObj = await this.contractInstance.buyPinakion(
+      const txHashObj = await this.contractInstance.buyPinakion(
         {
           from: account,
           gas: config.GAS,
@@ -136,6 +136,7 @@ class KlerosWrapper extends ContractWrapper {
     delete userProfile._id
     delete userProfile.created_at
     const response = await this._StoreProvider.newUserProfile(account, userProfile)
+
     return this.getPNKBalance(contractAddress)
   }
 
@@ -153,6 +154,7 @@ class KlerosWrapper extends ContractWrapper {
     const contractBalance = juror[0] ? this._Web3Wrapper.fromWei(juror[0].toNumber(), 'ether') : 0
     let userProfile = await this._StoreProvider.getUserProfile(account)
     if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
+
     return {
       pending: userProfile.balance - contractBalance,
       balance: contractBalance
@@ -160,7 +162,7 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   getData = async (
-    contractAddress = '0x994bf7c41fe94000b2e388ed0a754FaD36dc5C0e',
+    contractAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     let contractInstance = await this.load(contractAddress)
