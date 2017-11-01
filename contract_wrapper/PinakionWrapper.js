@@ -60,8 +60,8 @@ class PinakionWrapper extends ContractWrapper {
   }
 
   setKleros = async (
-    contractAddress = '0xef5aA9F60eaec6F66824d6a4eda806551DEeA2Dc',
-    klerosAddress = '0x994bf7c41fe94000b2e388ed0a754FaD36dc5C0e',
+    contractAddress,
+    klerosAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     let txHashObj
@@ -81,8 +81,8 @@ class PinakionWrapper extends ContractWrapper {
   }
 
   transferOwnership = async (
-    contractAddress = '0xef5aA9F60eaec6F66824d6a4eda806551DEeA2Dc',
-    klerosAddress = '0x994bf7c41fe94000b2e388ed0a754FaD36dc5C0e',
+    contractAddress,
+    klerosAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     let txHashObj
@@ -102,7 +102,7 @@ class PinakionWrapper extends ContractWrapper {
   }
 
   getData = async (
-    contractAddress = '0xef5aA9F60eaec6F66824d6a4eda806551DEeA2Dc',
+    contractAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     let contractInstance = await this.load(contractAddress)

@@ -31,12 +31,10 @@ class KlerosWrapper extends ContractWrapper {
    */
   deploy = async (
       rngAddress = '0xB7669d5774Cc4E33a056B2A24A7c7B7957556b37',
-      pnkAddress = '0xef5aA9F60eaec6F66824d6a4eda806551DEeA2Dc',
+      pnkAddress,
       account = this._Web3Wrapper.getAccount(0),
       value = config.VALUE,
     ) => {
-
-    console.log(pnkAddress)
 
     const contractDeployed = await this._deployAsync(
       account,
@@ -128,7 +126,6 @@ class KlerosWrapper extends ContractWrapper {
         }
       )
     } catch (e) {
-      console.log(e)
       throw new Error(e)
     }
     // update store so user can get instantaneous feedback

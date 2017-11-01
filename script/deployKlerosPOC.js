@@ -22,9 +22,9 @@ let deployKlerosPOC = async () => {
   )
   console.log('Kleros POC court address: ', klerosCourt.address)
   const klerosSetHash = await KlerosInstance.pinakion.setKleros(PNK.address, klerosCourt.address)
-  console.log(klerosSetHash)
+  console.log("Kleros hash set")
   const ownershipSetHash = await KlerosInstance.pinakion.transferOwnership(PNK.address, klerosCourt.address)
-  console.log(ownershipSetHash)
+  console.log("PNK ownership changed to kleros contract")
 }
 
 deployKlerosPOC()

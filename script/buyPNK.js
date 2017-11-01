@@ -19,7 +19,7 @@ let buyPNK = async (courtAddress, amt) => {
 }
 
 if (process.argv.length <= 3) {
-    console.log('Usage: ' + __filename + ' COURT_ADDRESS');
+    console.log('Usage: ' + __filename + ' COURT_ADDRESS AMOUNT');
     process.exit(-1);
 }
 

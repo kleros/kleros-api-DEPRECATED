@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
-import RNG from 'kleros/build/contracts/RNG' // FIXME mock
+import RNG from 'kleros-interaction/build/contracts/RNG'
 import config from '../config'
 
 /**
@@ -38,8 +38,6 @@ class RNGWrapper extends ContractWrapper {
     )
 
     this.address = contractDeployed.address
-    console.log(contractDeployed)
-    console.log(contractDeployed.address)
 
     return contractDeployed
   }
