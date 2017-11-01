@@ -111,7 +111,7 @@ class KlerosWrapper extends ContractWrapper {
    * @param account address of user
    * @return objects[]
    */
-  buyPinakion = async (
+  buyPNK = async (
     amount,
     contractAddress, // address of KlerosPOC
     account = this._Web3Wrapper.getAccount(0)
