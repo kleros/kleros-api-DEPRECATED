@@ -30,17 +30,24 @@ class KlerosWrapper extends ContractWrapper {
    * @return  truffle-contract Object | err The contract object or error deploy
    */
   deploy = async (
+      rngAddress = '0xB7669d5774Cc4E33a056B2A24A7c7B7957556b37',
+      pnkAddress = '0xef5aA9F60eaec6F66824d6a4eda806551DEeA2Dc',
       account = this._Web3Wrapper.getAccount(0),
       value = config.VALUE,
     ) => {
 
+    console.log(pnkAddress)
+
     const contractDeployed = await this._deployAsync(
       account,
       value,
-      kleros
+      kleros,
+      pnkAddress,
+      rngAddress,
+      10000
     )
 
-    this.address = addressContractDeployed.address
+    this.address = contractDeployed.address
 
     return contractDeployed
   }
@@ -111,8 +118,9 @@ class KlerosWrapper extends ContractWrapper {
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     const contractInstance = await this.load(contractAddress)
+    let txHashObj
     try {
-      let txHashObj = await this.contractInstance.buyPinakion(
+      txHashObj = await this.contractInstance.buyPinakion(
         {
           from: account,
           gas: config.GAS,
@@ -120,6 +128,7 @@ class KlerosWrapper extends ContractWrapper {
         }
       )
     } catch (e) {
+      console.log(e)
       throw new Error(e)
     }
     // update store so user can get instantaneous feedback
@@ -130,7 +139,7 @@ class KlerosWrapper extends ContractWrapper {
     delete userProfile._id
     delete userProfile.created_at
     const response = await this._StoreProvider.newUserProfile(account, userProfile)
-    return this.getPNKBalance()
+    return this.getPNKBalance(contractAddress)
   }
 
   /**
@@ -142,27 +151,34 @@ class KlerosWrapper extends ContractWrapper {
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-<<<<<<< HEAD
-    // TODO make tx to smart contract
-    let userProfile = await this._StoreProvider.getUserProfile(account)
-    if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
-
-=======
     const contractInstance = await this.load(contractAddress)
     const juror = await contractInstance.jurors(account)
-    console.log(juror)
-    const contractBalance = juror.balance ? juror.balance.toNumber() : 0
-    console.log(contractBalance)
+    const contractBalance = juror[0] ? this._Web3Wrapper.fromWei(juror[0].toNumber(), 'ether') : 0
     let userProfile = await this._StoreProvider.getUserProfile(account)
-    if (_.isNull(userProfile)) {
-      userProfile = await this._StoreProvider.newUserProfile(account)
+    if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
+    return {
+      pending: userProfile.balance - contractBalance,
+      balance: contractBalance
     }
-    // return {
-    //   pending: userProfile.balance - contractBalance,
-    //   balance: contractBalance
-    // }
->>>>>>> wip
-    return userProfile.balance ? userProfile.balance : 0
+  }
+
+  getData = async (
+    contractAddress = '0x994bf7c41fe94000b2e388ed0a754FaD36dc5C0e',
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    let contractInstance = await this.load(contractAddress)
+
+    const [
+      pinakion
+    ] = await Promise.all([
+      contractInstance.pinakion.call()
+    ]).catch(err => {
+      throw new Error(err)
+    })
+
+    return {
+      pinakion
+    }
   }
 }
 

@@ -13,11 +13,18 @@ let deployKlerosPOC = async () => {
 
   let KlerosInstance = await new Kleros(provider, storeProvider)
 
-  court = await KlerosInstance.centralCourt
-
-  let klerosCourt = await court.deploy()
-
+  let PNK = await KlerosInstance.pinakion.deploy()
+  console.log('pinakion address: ', PNK.address)
+  court = await KlerosInstance.court
+  let klerosCourt = await court.deploy(
+    undefined,
+    PNK.address
+  )
   console.log('Kleros POC court address: ', klerosCourt.address)
+  const klerosSetHash = await KlerosInstance.pinakion.setKleros(PNK.address, klerosCourt.address)
+  console.log(klerosSetHash)
+  const ownershipSetHash = await KlerosInstance.pinakion.transferOwnership(PNK.address, klerosCourt.address)
+  console.log(ownershipSetHash)
 }
 
 deployKlerosPOC()

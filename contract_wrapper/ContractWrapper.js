@@ -67,7 +67,8 @@ class ContractWrapper {
     const provider = await this._Web3Wrapper.getProvider()
 
     MyContract.setProvider(provider)
-
+    console.log("here we go")
+    console.log(...args)
     try {
       let contractDeployed = await MyContract.new(
         ...args,

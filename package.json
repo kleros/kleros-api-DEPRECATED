@@ -15,7 +15,8 @@
     "getDataFromArbitrableTransaction": "./node_modules/.bin/babel-node script/getDataFromArbitrableTransaction.js",
     "postDataToStore": "./node_modules/.bin/babel-node script/postDataToStore.js",
     "getDataFromStore": "./node_modules/.bin/babel-node script/getDataFromStore.js",
-    "deployKlerosPOC": "./node_modules/.bin/babel-node script/deployKlerosPOC.js"
+    "deployKlerosPOC": "./node_modules/.bin/babel-node script/deployKlerosPOC.js",
+    "buyPNK": "./node_modules/.bin/babel-node script/buyPNK.js"
   },
   "jest": {
     "testEnvironment": "node",
