@@ -2,7 +2,7 @@ import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import arbitrableTransaction from 'kleros-interaction/build/contracts/ArbitrableTransaction'
-import kleros from 'kleros/build/contracts/MetaCoin' // FIXME mock
+import kleros from 'kleros/build/contracts/KlerosPOC' // FIXME mock
 import config from '../config'
 import disputes from './mockDisputes'
 
@@ -30,6 +30,8 @@ class KlerosWrapper extends ContractWrapper {
    * @return  truffle-contract Object | err The contract object or error deploy
    */
   deploy = async (
+      rngAddress,
+      pnkAddress,
       account = this._Web3Wrapper.getAccount(0),
       value = config.VALUE,
     ) => {
@@ -37,12 +39,34 @@ class KlerosWrapper extends ContractWrapper {
     const contractDeployed = await this._deployAsync(
       account,
       value,
-      kleros
+      kleros,
+      pnkAddress,
+      rngAddress,
+      10000
     )
 
-    this.address = addressContractDeployed.address
+    this.address = contractDeployed.address
 
     return contractDeployed
+  }
+
+  /**
+   * Load an existing contract
+   * @param address contract address
+   * @return Conract Instance | Error
+   */
+  load = async (
+    address
+  ) => {
+    try {
+      const contractInstance = await this._instantiateContractIfExistsAsync(kleros, address)
+      this.contractInstance = contractInstance
+      this.address = address
+
+      return contractInstance
+    } catch (e) {
+      throw new Error(e)
+    }
   }
 
   /**
@@ -83,42 +107,77 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
-   * buy pinakion FIXME isn't using blockchain
    * @param amount number of pinakion to buy
    * @param account address of user
    * @return objects[]
    */
   buyPinakion = async (
     amount,
+    contractAddress, // address of KlerosPOC
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    // TODO make tx to smart contract
+    const contractInstance = await this.load(contractAddress)
+    try {
+      const txHashObj = await this.contractInstance.buyPinakion(
+        {
+          from: account,
+          gas: config.GAS,
+          value: this._Web3Wrapper.toWei(amount, 'ether'),
+        }
+      )
+    } catch (e) {
+      throw new Error(e)
+    }
+    // update store so user can get instantaneous feedback
     let userProfile = await this._StoreProvider.getUserProfile(account)
     if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
-
     // FIXME seems like a super hacky way to update store
     userProfile.balance = (parseInt(userProfile.balance) ? userProfile.balance : 0) + parseInt(amount)
     delete userProfile._id
     delete userProfile.created_at
     const response = await this._StoreProvider.newUserProfile(account, userProfile)
-    return userProfile.balance
+
+    return this.getPNKBalance(contractAddress)
   }
 
   /**
-   * buy pinakion FIXME isn't using blockchain
-   * @param amount number of pinakion to buy
+   * @param contractAddress address of KlerosPOC contract
    * @param account address of user
    * @return objects[]
    */
   getPNKBalance = async (
-    amount,
+    contractAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    // TODO make tx to smart contract
+    const contractInstance = await this.load(contractAddress)
+    const juror = await contractInstance.jurors(account)
+    const contractBalance = juror[0] ? this._Web3Wrapper.fromWei(juror[0].toNumber(), 'ether') : 0
     let userProfile = await this._StoreProvider.getUserProfile(account)
     if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
 
-    return userProfile.balance ? userProfile.balance : 0
+    return {
+      pending: userProfile.balance - contractBalance,
+      balance: contractBalance
+    }
+  }
+
+  getData = async (
+    contractAddress,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    let contractInstance = await this.load(contractAddress)
+
+    const [
+      pinakion
+    ] = await Promise.all([
+      contractInstance.pinakion.call()
+    ]).catch(err => {
+      throw new Error(err)
+    })
+
+    return {
+      pinakion
+    }
   }
 }
 

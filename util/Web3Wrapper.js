@@ -18,6 +18,10 @@ class Web3Wrapper {
 
   getCoinbase = () => this._web3.eth.coinbase
 
+  toWei = (amount, unit) => this._web3.toWei(amount, unit)
+
+  fromWei = (amount, unit) => this._web3.fromWei(amount, unit)
+
   doesContractExistAtAddressAsync = async address => {
     const code = await this._web3.eth.getCode(address)
     // Regex matches 0x0, 0x00, 0x in order to accommodate poorly implemented clients

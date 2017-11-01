@@ -1,6 +1,6 @@
 {
   "name": "kleros-api",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "Kleros API",
   "main": "lib/kleros-api.js",
   "scripts": {
@@ -14,7 +14,9 @@
     "getDisputeDataFromCentralCourt": "./node_modules/.bin/babel-node script/getDisputeDataFromCentralCourt.js",
     "getDataFromArbitrableTransaction": "./node_modules/.bin/babel-node script/getDataFromArbitrableTransaction.js",
     "postDataToStore": "./node_modules/.bin/babel-node script/postDataToStore.js",
-    "getDataFromStore": "./node_modules/.bin/babel-node script/getDataFromStore.js"
+    "getDataFromStore": "./node_modules/.bin/babel-node script/getDataFromStore.js",
+    "deployKlerosPOC": "./node_modules/.bin/babel-node script/deployKlerosPOC.js",
+    "buyPNK": "./node_modules/.bin/babel-node script/buyPNK.js"
   },
   "jest": {
     "testEnvironment": "node",
