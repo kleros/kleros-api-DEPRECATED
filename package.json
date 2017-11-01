@@ -1,6 +1,6 @@
 {
   "name": "kleros-api",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "description": "Kleros API",
   "main": "lib/kleros-api.js",
   "scripts": {
@@ -16,7 +16,8 @@
     "postDataToStore": "./node_modules/.bin/babel-node script/postDataToStore.js",
     "getDataFromStore": "./node_modules/.bin/babel-node script/getDataFromStore.js",
     "deployKlerosPOC": "./node_modules/.bin/babel-node script/deployKlerosPOC.js",
-    "buyPNK": "./node_modules/.bin/babel-node script/buyPNK.js"
+    "buyPNK": "./node_modules/.bin/babel-node script/buyPNK.js",
+    "activatePNK": "./node_modules/.bin/babel-node script/activatePNK.js"
   },
   "jest": {
     "testEnvironment": "node",

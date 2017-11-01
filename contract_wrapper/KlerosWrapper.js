@@ -111,7 +111,7 @@ class KlerosWrapper extends ContractWrapper {
    * @param account address of user
    * @return objects[]
    */
-  buyPinakion = async (
+  buyPNK = async (
     amount,
     contractAddress, // address of KlerosPOC
     account = this._Web3Wrapper.getAccount(0)
@@ -151,14 +151,42 @@ class KlerosWrapper extends ContractWrapper {
   ) => {
     const contractInstance = await this.load(contractAddress)
     const juror = await contractInstance.jurors(account)
-    const contractBalance = juror[0] ? this._Web3Wrapper.fromWei(juror[0].toNumber(), 'ether') : 0
-    let userProfile = await this._StoreProvider.getUserProfile(account)
-    if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
+    // total tokens stored in contract
+    const contractBalance = juror ? this._Web3Wrapper.fromWei(juror[0].toNumber(), 'ether') : 0
+    // tokens activated in court session
+    const activatedTokens = juror ? this._Web3Wrapper.fromWei((juror[4].toNumber() - juror[3].toNumber()), 'ether') : 0
+    // tokens locked into disputes
+    const lockedTokens = juror ? this._Web3Wrapper.fromWei(juror[2].toNumber(), 'ether') : 0
 
     return {
-      pending: userProfile.balance - contractBalance,
+      activatedTokens,
+      lockedTokens,
       balance: contractBalance
     }
+  }
+
+  activatePNK = async (
+    amount, // amount in ether
+    contractAddress, // klerosPOC contract address
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    const contractInstance = await this.load(contractAddress)
+    try {
+      await this.contractInstance.activateTokens(
+        this._Web3Wrapper.toWei(amount, 'ether'),
+        {
+          from: account,
+          gas: config.GAS
+        }
+      )
+    } catch (e) {
+      throw new Error(e)
+    }
+
+    return this.getPNKBalance(
+      contractAddress,
+      account
+    )
   }
 
   getData = async (
