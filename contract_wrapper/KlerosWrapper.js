@@ -183,7 +183,10 @@ class KlerosWrapper extends ContractWrapper {
       throw new Error(e)
     }
 
-    return this.getPNKBalance()
+    return this.getPNKBalance(
+      contractAddress,
+      account
+    )
   }
 
   getData = async (
