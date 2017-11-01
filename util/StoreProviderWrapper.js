@@ -34,9 +34,6 @@ class StoreProviderWrapper {
       `${this._storeUri}/${userAddress}`
     )
 
-    if (!httpResponse)
-      throw new Error(`No profile found for address: ${userAddress}`)
-
     return JSON.parse(httpResponse)
   }
 
