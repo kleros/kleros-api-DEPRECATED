@@ -32,6 +32,7 @@ class KlerosWrapper extends ContractWrapper {
   deploy = async (
       rngAddress,
       pnkAddress,
+      timesPerPeriod = [1,1,1,1,1],
       account = this._Web3Wrapper.getAccount(0),
       value = config.VALUE,
     ) => {
@@ -42,7 +43,7 @@ class KlerosWrapper extends ContractWrapper {
       kleros,
       pnkAddress,
       rngAddress,
-      10000
+      timesPerPeriod
     )
 
     this.address = contractDeployed.address
@@ -161,7 +162,7 @@ class KlerosWrapper extends ContractWrapper {
     return {
       activatedTokens,
       lockedTokens,
-      balance: contractBalance
+      tokenBalance: contractBalance
     }
   }
 
@@ -189,6 +190,24 @@ class KlerosWrapper extends ContractWrapper {
     )
   }
 
+  passPeriod = async (
+    contractAddress,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    const contractInstance = this.load(contractAddress)
+    try {
+      await contractInstance.passPeriod(
+        {
+          from: account
+        }
+      )
+    } catch (e) {
+      throw new Error(e)
+    }
+
+    return this.getData()
+  }
+
   getData = async (
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)
@@ -196,15 +215,21 @@ class KlerosWrapper extends ContractWrapper {
     let contractInstance = await this.load(contractAddress)
 
     const [
-      pinakion
+      pinakion,
+      rng,
+      period
     ] = await Promise.all([
-      contractInstance.pinakion.call()
+      contractInstance.pinakion.call(),
+      contractInstance.rng.call(),
+      contractInstance.period.call(),
     ]).catch(err => {
       throw new Error(err)
     })
 
     return {
-      pinakion
+      pinakion,
+      rng,
+      period
     }
   }
 }
