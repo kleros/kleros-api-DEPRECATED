@@ -108,7 +108,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    ) => {
      try {
        const contractInstance = await this.load(contractAddress)
-       const txHashObj = await this.contractInstance
+       const txHashObj = await contractInstance
          .payArbitrationFeeByPartyA(
          {
            from: account,
@@ -136,7 +136,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    ) => {
      try {
        const contractInstance = await this.load(contractAddress)
-       const txHashObj = await this.contractInstance
+       const txHashObj = await contractInstance
          .payArbitrationFeeByPartyB(
          {
            from: account,
