@@ -110,7 +110,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
         {
           from: account,
           gas: config.GAS,
-          value: arbitrationCost,
+          value: arbitrationCost
         }
       )
 
@@ -131,11 +131,11 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     arbitrationCost = 10000,
   ) => {
     try {
-      const  txHashObj = await this.contractInstance.payArbitrationFeeByPartyB(
+      const txHashObj = await this.contractInstance.payArbitrationFeeByPartyB(
         {
           from: account,
           gas: config.GAS,
-          value: arbitrationCost,
+          value: arbitrationCost
         }
       )
 
