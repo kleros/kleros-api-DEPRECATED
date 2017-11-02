@@ -15,7 +15,7 @@ let buyPNK = async (courtAddress, amt) => {
 
   const court = await KlerosInstance.court
   // deploy contract with defaults (testRPC + localhost addresses)
-  const result = await court.buyPinakion(amt, courtAddress)
+  const result = await court.buyPNK(amt, courtAddress)
 }
 
 if (process.argv.length <= 3) {
