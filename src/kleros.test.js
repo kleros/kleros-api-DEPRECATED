@@ -108,7 +108,10 @@ describe('Kleros', () => {
     // account: accounts[0]
     // arbitration cost: 1000 wei
     const txHashRaiseDisputeByPartyA = await arbitrableTransaction
-      .payArbitrationFeeByPartyA()
+      .payArbitrationFeeByPartyA(
+        undefined,
+        contractArbitrableTransaction.address
+      )
 
     expect(txHashRaiseDisputeByPartyA)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash

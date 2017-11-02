@@ -101,24 +101,27 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @param arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
    * @return txHash hash transaction | Error
    */
-  payArbitrationFeeByPartyA = async (
-    account = this._Web3Wrapper.getAccount(0),
-    arbitrationCost = 10000,
-  ) => {
-    try {
-      const txHashObj = await this.contractInstance.payArbitrationFeeByPartyA(
-        {
-          from: account,
-          gas: config.GAS,
-          value: arbitrationCost
-        }
-      )
+   payArbitrationFeeByPartyA = async (
+     account = this._Web3Wrapper.getAccount(0),
+     contractAddress, // ethereum address of the contract
+     arbitrationCost = 10000,
+   ) => {
+     try {
+       const contractInstance = await this.load(contractAddress)
+       const txHashObj = await this.contractInstance
+         .payArbitrationFeeByPartyA(
+         {
+           from: account,
+           gas: config.GAS,
+           value: arbitrationCost,
+         }
+       )
 
-      return txHashObj.tx
-    } catch (e) {
-      throw new Error(e)
-    }
-  }
+       return txHashObj.tx
+     } catch (e) {
+       throw new Error(e)
+     }
+   }
 
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the party B.
@@ -126,24 +129,27 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @param arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
    * @return txHash hash transaction | Error
    */
-  payArbitrationFeeByPartyB = async (
-    account = this._Web3Wrapper.getAccount(1),
-    arbitrationCost = 10000,
-  ) => {
-    try {
-      const txHashObj = await this.contractInstance.payArbitrationFeeByPartyB(
-        {
-          from: account,
-          gas: config.GAS,
-          value: arbitrationCost
-        }
-      )
+   payArbitrationFeeByPartyB = async (
+     account = this._Web3Wrapper.getAccount(0),
+     contractAddress, // ethereum address of the contract
+     arbitrationCost = 10000,
+   ) => {
+     try {
+       const contractInstance = await this.load(contractAddress)
+       const txHashObj = await this.contractInstance
+         .payArbitrationFeeByPartyB(
+         {
+           from: account,
+           gas: config.GAS,
+           value: arbitrationCost,
+         }
+       )
 
-      return txHashObj.tx
-    } catch (e) {
-      throw new Error(e)
-    }
-  }
+       return txHashObj.tx
+     } catch (e) {
+       throw new Error(e)
+     }
+   }
 
   /**
    * Pay partyB if partyA fails to pay the fee.
