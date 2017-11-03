@@ -194,7 +194,7 @@ class KlerosWrapper extends ContractWrapper {
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    const contractInstance = this.load(contractAddress)
+    const contractInstance = await this.load(contractAddress)
     try {
       await contractInstance.passPeriod(
         {
@@ -229,7 +229,7 @@ class KlerosWrapper extends ContractWrapper {
     return {
       pinakion,
       rng,
-      period
+      period: period.toNumber()
     }
   }
 }
