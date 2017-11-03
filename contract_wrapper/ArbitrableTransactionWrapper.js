@@ -104,7 +104,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    payArbitrationFeeByPartyA = async (
      account = this._Web3Wrapper.getAccount(0),
      contractAddress, // ethereum address of the contract
-     arbitrationCost = 10000,
+     arbitrationCost = 150000000,
    ) => {
      try {
        const contractInstance = await this.load(contractAddress)
@@ -115,6 +115,20 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
            gas: config.GAS,
            value: arbitrationCost,
          }
+       )
+
+       const dataContract = await contractInstance.getDataContract(contractAddress)
+
+       await this._StoreProvider.updateContract(
+         contractAddress,
+         dataContract.hashContract,
+         dataContract.account,
+         dataContract.partyB,
+         dataContract.arbitrator,
+         dataContract.timeout,
+         dataContract.email,
+         dataContract.description,
+         dataContract.disputeId
        )
 
        return txHashObj.tx
@@ -132,7 +146,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    payArbitrationFeeByPartyB = async (
      account = this._Web3Wrapper.getAccount(0),
      contractAddress, // ethereum address of the contract
-     arbitrationCost = 10000,
+     arbitrationCost = 150000000,
    ) => {
      try {
        const contractInstance = await this.load(contractAddress)
@@ -141,8 +155,22 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
          {
            from: account,
            gas: config.GAS,
-           value: arbitrationCost,
+           value: arbitrationCost
          }
+       )
+
+       const dataContract = await contractInstance.getDataContract(contractAddress)
+
+       await this._StoreProvider.updateContract(
+         contractAddress,
+         dataContract.hashContract,
+         dataContract.account,
+         dataContract.partyB,
+         dataContract.arbitrator,
+         dataContract.timeout,
+         dataContract.email,
+         dataContract.description,
+         dataContract.disputeId
        )
 
        return txHashObj.tx
@@ -216,7 +244,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        partyA,
        partyB,
        status,
-       arbitratorExtraData
+       arbitratorExtraData,
+       disputeId
      ] = await Promise.all([
        contractDeployed.arbitrator.call(),
        // contractDeployed.hashContract.call(),
@@ -224,7 +253,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        contractDeployed.partyA.call(),
        contractDeployed.partyB.call(),
        contractDeployed.status.call(),
-       contractDeployed.arbitratorExtraData.call()
+       contractDeployed.arbitratorExtraData.call(),
+       contractDeployed.disputeID.call()
      ]).catch(err => {
        throw new Error(err)
      })
@@ -240,7 +270,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        status: status.toNumber(),
        arbitratorExtraData,
        email: storeDataContract.email,
-       description: storeDataContract.description
+       description: storeDataContract.description,
+       disputeId
      }
    }
 }

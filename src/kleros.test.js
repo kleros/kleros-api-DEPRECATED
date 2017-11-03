@@ -58,6 +58,10 @@ describe('Kleros', () => {
       status: 0
     }
 
+    contractData.email = 'email'
+    contractData.description = 'desc'
+    contractData.disputeId = 0
+
     let contractArbitrableTransaction = await arbitrableTransaction.deploy(
       undefined, // use default account : account[0]
       undefined, // use default value : 0
@@ -73,8 +77,7 @@ describe('Kleros', () => {
     let contractDataDeployed = await arbitrableTransaction
       .getDataContract(contractArbitrableTransaction.address)
 
-    contractData.email = 'email'
-    contractData.description = 'desc'
+    contractDataDeployed.disputeId = contractDataDeployed.disputeId.toNumber()
 
     expect(contractDataDeployed)
       .toEqual(contractData)
@@ -89,7 +92,7 @@ describe('Kleros', () => {
       partyA,
       partyB,
       arbitratorExtraData: '0x',
-      status: 0
+      status: 0,
     }
 
     let contractArbitrableTransaction = await arbitrableTransaction.deploy(
@@ -104,13 +107,17 @@ describe('Kleros', () => {
       'desc'
     )
 
+    let contractDataDeployed = await arbitrableTransaction
+      .getDataContract(contractArbitrableTransaction.address)
+
     // use default parameters
     // account: accounts[0]
     // arbitration cost: 1000 wei
     const txHashRaiseDisputeByPartyA = await arbitrableTransaction
       .payArbitrationFeeByPartyA(
         undefined,
-        contractArbitrableTransaction.address
+        contractArbitrableTransaction.address,
+        150000000
       )
 
     expect(txHashRaiseDisputeByPartyA)

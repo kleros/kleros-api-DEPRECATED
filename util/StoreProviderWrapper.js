@@ -89,7 +89,8 @@ class StoreProviderWrapper {
     arbitrator,
     timeout,
     email,
-    description
+    description,
+    disputeId
   ) => {
     const userProfile = await this.getUserProfile(account)
 
@@ -104,7 +105,8 @@ class StoreProviderWrapper {
         arbitrator,
         timeout,
         email,
-        description
+        description,
+        disputeId
       })
     )
 
