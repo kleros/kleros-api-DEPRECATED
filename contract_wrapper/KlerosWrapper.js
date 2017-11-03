@@ -86,6 +86,9 @@ class KlerosWrapper extends ContractWrapper {
     // user profile
     let profile = await this._StoreProvider.getUserProfile(account)
     if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)
+    const period = (await contractInstance.period()).toNumber()
+    // new jurors have not been chosen yet. don't update
+    if (period < 3) return profile.disputes
 
     const currentSession = (await contractInstance.session()).toNumber()
     if (currentSession != profile.session) {
@@ -144,7 +147,6 @@ class KlerosWrapper extends ContractWrapper {
         arbitrableTransactionInstance = await ArbitrableTransaction.getDataContract(dispute.arbitrated)
 
         // compute end date
-        const period = (await contractInstance.period()).toNumber()
         const startTime = (await contractInstance.lastPeriodChange()).toNumber()
         const length = (await contractInstance.timePerPeriod(period)).toNumber()
 
