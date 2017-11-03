@@ -107,17 +107,13 @@ describe('Kleros', () => {
       'desc'
     )
 
-    let contractDataDeployed = await arbitrableTransaction
-      .getDataContract(contractArbitrableTransaction.address)
-
     // use default parameters
     // account: accounts[0]
-    // arbitration cost: 1000 wei
+    // arbitration cost: 150000000000000000 wei
     const txHashRaiseDisputeByPartyA = await arbitrableTransaction
       .payArbitrationFeeByPartyA(
-        undefined,
-        contractArbitrableTransaction.address,
-        150000000
+        partyA,
+        contractArbitrableTransaction.address
       )
 
     expect(txHashRaiseDisputeByPartyA)
