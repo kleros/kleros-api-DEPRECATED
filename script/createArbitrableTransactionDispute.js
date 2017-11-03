@@ -22,10 +22,16 @@ let createArbitrableTransactionDispute = async contractAddress => {
 
   // pay dispute fees
   console.log('paying party A dispute fee...')
-  let partyAFeeTxHash = await arbitrableTransaction.payArbitrationFeeByPartyA()
+  let partyAFeeTxHash = await arbitrableTransaction.payArbitrationFeeByPartyA(
+    undefined,
+    contractAddress
+  )
   console.log('tx hash: ' + partyAFeeTxHash)
   console.log('paying party B dispute fee...')
-  let partyBFeeTxHash = await arbitrableTransaction.payArbitrationFeeByPartyB()
+  let partyBFeeTxHash = await arbitrableTransaction.payArbitrationFeeByPartyB(
+    undefined,
+    contractAddress
+  )
   console.log('tx hash: ' + partyBFeeTxHash)
 
   console.log('Dispute successfully started')

@@ -76,12 +76,42 @@ class KlerosWrapper extends ContractWrapper {
    * @return objects[]
    */
   getDisputesForUser = async (
-    account = this._Web3Wrapper.getAccount(0)
+    contractAddress,
+    account = this._Web3Wrapper.getAccount(0),
   ) => {
+    // contract instance
+    const contractInstance = await this.load(contractAddress)
+
+    // user profile
     let profile = await this._StoreProvider.getUserProfile(account)
     if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)
 
+    const currentSession = await contractInstance.session()
+    if (currentSession != profile.session) {
+      let index = 0
+      let dispute = await contractInstance.disputes(index)
+      while (dispute[0] !== "0x") {
+        // if dispute not in current session skip
+        if (dispute[1] !== currentSession) {
+          index++
+          continue
+        }
+
+
+      }
+    }
+
     return profile.disputes
+  }
+
+  _getDisputesForJuror = async (
+    contractAddress,
+    account = this._Web3Wrapper.getAccount(0),
+  ) => {
+    // contract instance
+    const contractInstance = await this.load(contractAddress)
+
+    while
   }
 
   /**
@@ -205,7 +235,7 @@ class KlerosWrapper extends ContractWrapper {
       throw new Error(e)
     }
 
-    return this.getData()
+    return this.getData(contractAddress)
   }
 
   getData = async (

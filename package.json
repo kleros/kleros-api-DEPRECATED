@@ -17,7 +17,8 @@
     "getDataFromStore": "./node_modules/.bin/babel-node script/getDataFromStore.js",
     "deployKlerosPOC": "./node_modules/.bin/babel-node script/deployKlerosPOC.js",
     "buyPNK": "./node_modules/.bin/babel-node script/buyPNK.js",
-    "activatePNK": "./node_modules/.bin/babel-node script/activatePNK.js"
+    "activatePNK": "./node_modules/.bin/babel-node script/activatePNK.js",
+    "passPeriod": "./node_modules/.bin/babel-node script/passPeriod.js"
   },
   "jest": {
     "testEnvironment": "node",

@@ -104,7 +104,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    payArbitrationFeeByPartyA = async (
      account = this._Web3Wrapper.getAccount(0),
      contractAddress, // ethereum address of the contract
-     arbitrationCost = 150000000000000000
+     arbitrationCost = 0.15,
    ) => {
      try {
        this.contractInstance = await this.load(contractAddress)
@@ -113,7 +113,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
          {
            from: account,
            gas: config.GAS,
-           value: arbitrationCost
+           value: this._Web3Wrapper.toWei(arbitrationCost, 'ether'),
          }
        )
 
@@ -155,7 +155,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
          {
            from: account,
            gas: config.GAS,
-           value: arbitrationCost
+           value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
          }
        )
 

@@ -29,7 +29,7 @@ class ConstantNGWrapper extends ContractWrapper {
    */
   deploy = async (
       account = this._Web3Wrapper.getAccount(0),
-      constant = 1 // constant that it always returns
+      constant = 23 // constant that it always returns
     ) => {
 
     const contractDeployed = await this._deployAsync(
@@ -59,6 +59,26 @@ class ConstantNGWrapper extends ContractWrapper {
       return contractInstance
     } catch (e) {
       throw new Error(e)
+    }
+  }
+
+  getData = async (
+    contractAddress,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    const contractInstance = await this.load("0xe13535B17c7e46Bb13D3f9e5518537C1Ab4A4cF9")
+
+    const [
+      number
+    ] = await Promise.all([
+      contractInstance.number.call()
+    ]).catch(err => {
+      throw new Error(err)
+    })
+
+    console.log(number)
+    return {
+      number: number.toNumber()
     }
   }
 }
