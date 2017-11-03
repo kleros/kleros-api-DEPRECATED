@@ -112,7 +112,7 @@ describe('Kleros', () => {
     // arbitration cost: 150000000000000000 wei
     const txHashRaiseDisputeByPartyA = await arbitrableTransaction
       .payArbitrationFeeByPartyA(
-        partyA,
+        undefined,
         contractArbitrableTransaction.address,
         150000000000000000
       )
