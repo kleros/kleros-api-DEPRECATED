@@ -91,7 +91,7 @@ describe('Kleros', () => {
       timeout: 3600,
       partyA,
       partyB,
-      arbitratorExtraData: '0x',
+      arbitratorExtraData: 0,
       status: 0,
     }
 
@@ -113,7 +113,8 @@ describe('Kleros', () => {
     const txHashRaiseDisputeByPartyA = await arbitrableTransaction
       .payArbitrationFeeByPartyA(
         partyA,
-        contractArbitrableTransaction.address
+        contractArbitrableTransaction.address,
+        150000000000000000
       )
 
     expect(txHashRaiseDisputeByPartyA)
