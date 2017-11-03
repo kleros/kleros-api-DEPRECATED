@@ -78,7 +78,7 @@ class PinakionWrapper extends ContractWrapper {
       throw new Error(e)
     }
 
-    return this.getData()
+    return this.getData(contractAddress)
   }
 
   transferOwnership = async (
@@ -88,7 +88,7 @@ class PinakionWrapper extends ContractWrapper {
   ) => {
     try {
       const contractInstance = await this.load(contractAddress)
-      txHashObj = await contractInstance.transferOwnership(
+      const txHashObj = await contractInstance.transferOwnership(
         klerosAddress,
         {
           from: account,
@@ -99,7 +99,7 @@ class PinakionWrapper extends ContractWrapper {
       throw new Error(e)
     }
 
-    return this.getData()
+    return this.getData(contractAddress)
   }
 
   getData = async (

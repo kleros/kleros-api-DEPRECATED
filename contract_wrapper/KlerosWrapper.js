@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
-import arbitrableTransaction from 'kleros-interaction/build/contracts/ArbitrableTransaction'
+import ArbitrableTransactionWrapper from './ArbitrableTransactionWrapper'
 import kleros from 'kleros/build/contracts/KlerosPOC' // FIXME mock
 import config from '../config'
 import disputes from './mockDisputes'
@@ -71,15 +71,126 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
-   * Get disputes
+  * FIXME this is a massive function. Break into smaller pieces
+   * Get disputes // FIXME really could use a test
    * @param account address of user
    * @return objects[]
    */
   getDisputesForUser = async (
-    account = this._Web3Wrapper.getAccount(0)
+    contractAddress,
+    account = this._Web3Wrapper.getAccount(0),
   ) => {
+    // contract instance
+    const contractInstance = await this.load(contractAddress)
+
+    // user profile
     let profile = await this._StoreProvider.getUserProfile(account)
     if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)
+    const period = (await contractInstance.period()).toNumber()
+    // new jurors have not been chosen yet. don't update
+    if (period < 3) return profile.disputes
+
+    const currentSession = (await contractInstance.session()).toNumber()
+    if (currentSession != profile.session) {
+      const newDisputes = []
+      let disputeId = 0
+      let numberOfJurors = 0
+      const myDisputes = []
+      let dispute = await contractInstance.disputes(disputeId)
+      while (dispute[0] !== "0x") {
+        // if dispute not in current session skip
+        const disputeSession = dispute[1].toNumber()
+        if (disputeSession !== currentSession) {
+          disputeId++
+          dispute = await contractInstance.disputes(disputeId)
+          continue
+        }
+
+        numberOfJurors = await contractInstance.amountJurors(disputeId)
+        for (let draw=1; draw<=numberOfJurors; draw++) {
+          // check if you are juror for dispute
+          const isJuror = await contractInstance.isDrawn(disputeId, account, draw)
+          if (isJuror) {
+            let toAdd = true
+            // if dispute already in myDipsutes add new draw number
+            myDisputes.map((disputeObject) => {
+              if (disputeObject.id === disputeId) {
+                disputeObject.votes.push(draw)
+                toAdd = false
+              }
+            })
+
+            // if dispute not already in array add it
+            if (toAdd) myDisputes.push({
+              id: disputeId,
+              arbitrated: dispute[0],
+              session: dispute[1].toNumber(),
+              appeals: dispute[2].toNumber(),
+              choices: dispute[3].toNumber(),
+              initialNumberJurors: dispute[4].toNumber(),
+              arbitrationFeePerJuror: dispute[5].toNumber(),
+              votes: [draw]
+            })
+          }
+        }
+
+        // check next dispute
+        disputeId += 1
+        dispute = await contractInstance.disputes(disputeId)
+      }
+
+      const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
+      let arbitrableTransactionInstance
+      for (let i=0; i<myDisputes.length; i++) {
+        dispute = myDisputes[i]
+        // get the contract data from the disputed contract
+        arbitrableTransactionInstance = await ArbitrableTransaction.getDataContract(dispute.arbitrated)
+
+        // compute end date
+        const startTime = (await contractInstance.lastPeriodChange()).toNumber()
+        const length = (await contractInstance.timePerPeriod(period)).toNumber()
+
+        // FIXME this is all UTC for now. Timezones are a pain
+        const deadline = new Date(0);
+        deadline.setUTCSeconds(startTime)
+        deadline.setSeconds(deadline.getSeconds() + length);
+
+        newDisputes.push({
+          votes: dispute.votes,
+          // hash not being stored in contract atm
+          // hash : arbitrableTransactionInstance.hashContract,
+          hash: contractAddress,
+          partyA: arbitrableTransactionInstance.partyA,
+          partyB: arbitrableTransactionInstance.partyB,
+          title: 'TODO users title',
+          deadline: `${deadline.getUTCDate()}/${deadline.getUTCMonth()}/${deadline.getFullYear()}`,
+          status: period,
+          contractAddress: contractAddress,
+          justification: 'justification',
+          fee: dispute.arbitrationFeePerJuror,
+          // FIXME hardcode this for now
+          resolutionOptions: [
+            {
+              name: `Reimburse ${arbitrableTransactionInstance.partyA}`,
+              description: `Release funds to ${arbitrableTransactionInstance.partyA}`,
+              value: 1
+            },
+            {
+              name: `Reimburse ${arbitrableTransactionInstance.partyB}`,
+              description: `Release funds to ${arbitrableTransactionInstance.partyB}`,
+              value: 2
+            }
+          ]
+        })
+      }
+
+      // add to store
+      profile.session = currentSession
+      profile.disputes = newDisputes
+      delete profile._id
+      delete profile.created_at
+      await this._StoreProvider.newUserProfile(account, profile)
+    }
 
     return profile.disputes
   }
@@ -205,7 +316,7 @@ class KlerosWrapper extends ContractWrapper {
       throw new Error(e)
     }
 
-    return this.getData()
+    return this.getData(contractAddress)
   }
 
   getData = async (
