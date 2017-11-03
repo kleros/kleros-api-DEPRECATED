@@ -88,7 +88,7 @@ class KlerosWrapper extends ContractWrapper {
     if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)
     const period = (await contractInstance.period()).toNumber()
     // new jurors have not been chosen yet. don't update
-    if (period < 3) return profile.disputes
+    if (period < 2) return profile.disputes
 
     const currentSession = (await contractInstance.session()).toNumber()
     if (currentSession != profile.session) {
@@ -328,11 +328,13 @@ class KlerosWrapper extends ContractWrapper {
     const [
       pinakion,
       rng,
-      period
+      period,
+      session
     ] = await Promise.all([
       contractInstance.pinakion.call(),
       contractInstance.rng.call(),
       contractInstance.period.call(),
+      contractInstance.session.call(),
     ]).catch(err => {
       throw new Error(err)
     })
@@ -340,7 +342,8 @@ class KlerosWrapper extends ContractWrapper {
     return {
       pinakion,
       rng,
-      period: period.toNumber()
+      period: period.toNumber(),
+      session: session.toNumber()
     }
   }
 }
