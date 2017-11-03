@@ -43,7 +43,7 @@ class StoreProviderWrapper {
       `${this._storeUri}/${address}`,
       JSON.stringify(userProfile)
     )
-    return httpResponse
+    return JSON.parse(httpResponse)
   }
 
   getDisputeData = async (userAddress, hash) => {

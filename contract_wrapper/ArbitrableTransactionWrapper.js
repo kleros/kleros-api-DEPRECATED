@@ -237,43 +237,44 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   getDataContract = async address => {
     const contractDeployed = await this.load(address)
 
-    const [
-      arbitrator,
-      // hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
-      timeout,
-      partyA,
-      partyB,
-      status,
-      arbitratorExtraData,
-      disputeId
-      ] = await Promise.all([
-      contractDeployed.arbitrator.call(),
-      // contractDeployed.hashContract.call(),
-      contractDeployed.timeout.call(),
-      contractDeployed.partyA.call(),
-      contractDeployed.partyB.call(),
-      contractDeployed.status.call(),
-      contractDeployed.arbitratorExtraData.call(),
-      contractDeployed.disputeID.call()
-    ]).catch(err => {
-      throw new Error(err)
-    })
+     const [
+       arbitrator,
+       // hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
+       timeout,
+       partyA,
+       partyB,
+       status,
+       arbitratorExtraData,
+       disputeId
+     ] = await Promise.all([
+       contractDeployed.arbitrator.call(),
+      //  contractDeployed.hashContract.call(),
+       contractDeployed.timeout.call(),
+       contractDeployed.partyA.call(),
+       contractDeployed.partyB.call(),
+       contractDeployed.status.call(),
+       contractDeployed.arbitratorExtraData.call(),
+       contractDeployed.disputeID.call()
+     ]).catch(err => {
+       throw new Error(err)
+     })
 
-    const storeDataContract = await this._StoreProvider.getContractByAddress(partyA, address)
+     let storeDataContract = await this._StoreProvider.getContractByAddress(partyA, address)
+     if (!storeDataContract) storeDataContract = {}
 
-    return {
-      arbitrator,
-      //hashContract,
-      timeout: timeout.toNumber(),
-      partyA,
-      partyB,
-      status: status.toNumber(),
-      arbitratorExtraData,
-      email: storeDataContract.email,
-      description: storeDataContract.description,
-      disputeId
-    }
-  }
+     return {
+       arbitrator,
+      //  hashContract,
+       timeout: timeout.toNumber(),
+       partyA,
+       partyB,
+       status: status.toNumber(),
+       arbitratorExtraData,
+       email: storeDataContract.email,
+       description: storeDataContract.description,
+       disputeId
+     }
+   }
 }
 
 export default ArbitrableTransactionWrapper
