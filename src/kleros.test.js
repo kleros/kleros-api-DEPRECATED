@@ -44,7 +44,7 @@ describe('Kleros', () => {
 
     expect(contractArbitrableTransactionAddress.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-  })
+  }, 10000)
 
   test('get data of a arbitrableTransaction contract', async () => {
     let centralCourtDeployed = await centralCourt.deploy()
@@ -74,14 +74,14 @@ describe('Kleros', () => {
       'desc'
     )
 
-    let contractDataDeployed = await arbitrableTransaction
+    const contractDataDeployed = await arbitrableTransaction
       .getDataContract(contractArbitrableTransaction.address)
 
     contractDataDeployed.disputeId = contractDataDeployed.disputeId.toNumber()
 
     expect(contractDataDeployed)
       .toEqual(contractData)
-  })
+  }, 10000)
 
   test('partyA create a dispute', async () => {
     let centralCourtDeployed = await centralCourt.deploy()
@@ -104,8 +104,15 @@ describe('Kleros', () => {
       contractData.partyB,
       contractData.arbitratorExtraData,
       'email',
-      'desc'
+      'description'
     )
+
+    const partyAFeeContractInstance = await contractArbitrableTransaction
+      .partyAFee()
+
+    const arbitrationCost = await centralCourtDeployed.arbitrationCost(
+      partyAFeeContractInstance.toNumber()
+   )
 
     // use default parameters
     // account: accounts[0]
@@ -114,10 +121,10 @@ describe('Kleros', () => {
       .payArbitrationFeeByPartyA(
         undefined,
         contractArbitrableTransaction.address,
-        150000000000000000
+        arbitrationCost - partyAFeeContractInstance
       )
 
     expect(txHashRaiseDisputeByPartyA)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-  })
+  }, 10000)
 })
