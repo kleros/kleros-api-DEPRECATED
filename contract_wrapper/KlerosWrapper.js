@@ -59,7 +59,11 @@ class KlerosWrapper extends ContractWrapper {
   load = async (
     address
   ) => {
+    // return contract instance if already loaded
+    if (this.contractInstance.address === address) return this.contractInstance
+
     try {
+      // instantiate new contract instance from address
       const contractInstance = await this._instantiateContractIfExistsAsync(kleros, address)
       this.contractInstance = contractInstance
       this.address = address
@@ -71,8 +75,8 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
-  * FIXME this is a massive function. Break into smaller pieces
-   * Get disputes // FIXME really could use a test
+   * Get disputes for user with extra data from arbitrated transaction and store
+   * @param contractAddress address of Kleros contract
    * @param account address of user
    * @return objects[]
    */
@@ -83,116 +87,114 @@ class KlerosWrapper extends ContractWrapper {
     // contract instance
     const contractInstance = await this.load(contractAddress)
 
-    // user profile
+    // fetch user profile
     let profile = await this._StoreProvider.getUserProfile(account)
     if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)
+    // fetch current contract period
     const period = (await contractInstance.period()).toNumber()
+
     // new jurors have not been chosen yet. don't update
     if (period < 2) return profile.disputes
 
     const currentSession = (await contractInstance.session()).toNumber()
     if (currentSession != profile.session) {
-      const newDisputes = []
-      let disputeId = 0
-      let numberOfJurors = 0
-      const myDisputes = []
-      let dispute = await contractInstance.disputes(disputeId)
-      while (dispute[0] !== "0x") {
-        // if dispute not in current session skip
-        const disputeSession = dispute[1].toNumber()
-        if (disputeSession !== currentSession) {
-          disputeId++
-          dispute = await contractInstance.disputes(disputeId)
-          continue
-        }
+      // get disputes for juror
+      myDisputes = await this.getDisputesForJuror(contractAddress, account)
 
-        numberOfJurors = await contractInstance.amountJurors(disputeId)
-        for (let draw=1; draw<=numberOfJurors; draw++) {
-          // check if you are juror for dispute
-          const isJuror = await contractInstance.isDrawn(disputeId, account, draw)
-          if (isJuror) {
-            let toAdd = true
-            // if dispute already in myDipsutes add new draw number
-            myDisputes.map((disputeObject) => {
-              if (disputeObject.id === disputeId) {
-                disputeObject.votes.push(draw)
-                toAdd = false
-              }
-            })
-
-            // if dispute not already in array add it
-            if (toAdd) myDisputes.push({
-              id: disputeId,
-              arbitrated: dispute[0],
-              session: dispute[1].toNumber(),
-              appeals: dispute[2].toNumber(),
-              choices: dispute[3].toNumber(),
-              initialNumberJurors: dispute[4].toNumber(),
-              arbitrationFeePerJuror: dispute[5].toNumber(),
-              votes: [draw]
-            })
-          }
-        }
-
-        // check next dispute
-        disputeId += 1
-        dispute = await contractInstance.disputes(disputeId)
-      }
-
+      // FIXME allow for other contract types
       const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
-      let arbitrableTransactionInstance
-      for (let i=0; i<myDisputes.length; i++) {
-        dispute = myDisputes[i]
-        // get the contract data from the disputed contract
-        arbitrableTransactionInstance = await ArbitrableTransaction.getDataContract(dispute.arbitrated)
 
-        // compute end date
-        const startTime = (await contractInstance.lastPeriodChange()).toNumber()
-        const length = (await contractInstance.timePerPeriod(period)).toNumber()
-
-        // FIXME this is all UTC for now. Timezones are a pain
-        const deadline = new Date(0);
-        deadline.setUTCSeconds(startTime)
-        deadline.setSeconds(deadline.getSeconds() + length);
-
-        newDisputes.push({
-          votes: dispute.votes,
-          // hash not being stored in contract atm
-          // hash : arbitrableTransactionInstance.hashContract,
-          hash: contractAddress,
-          partyA: arbitrableTransactionInstance.partyA,
-          partyB: arbitrableTransactionInstance.partyB,
-          title: 'TODO users title',
-          deadline: `${deadline.getUTCDate()}/${deadline.getUTCMonth()}/${deadline.getFullYear()}`,
-          status: period,
-          contractAddress: contractAddress,
-          justification: 'justification',
-          fee: dispute.arbitrationFeePerJuror,
-          // FIXME hardcode this for now
-          resolutionOptions: [
-            {
-              name: `Reimburse ${arbitrableTransactionInstance.partyA}`,
-              description: `Release funds to ${arbitrableTransactionInstance.partyA}`,
-              value: 1
-            },
-            {
-              name: `Reimburse ${arbitrableTransactionInstance.partyB}`,
-              description: `Release funds to ${arbitrableTransactionInstance.partyB}`,
-              value: 2
-            }
-          ]
-        })
-      }
+      // const newDisputes = await _.map(myDisputes, asnyc (dispute) => {
+      //   // get data for contract
+      //   const contractData = ArbitrableTransaction.getDataContractForDispute(dispute.arbitrated, dispute)
+      //
+      //   // compute end date
+      //   const startTime = (await contractInstance.lastPeriodChange()).toNumber()
+      //   const length = (await contractInstance.timePerPeriod(period)).toNumber()
+      //
+      //   // FIXME this is all UTC for now. Timezones are a pain
+      //   const deadline = new Date(0);
+      //   deadline.setUTCSeconds(startTime)
+      //   deadline.setSeconds(deadline.getSeconds() + length);
+      //
+      //   // set deadline
+      //   contractData.deadline = `${deadline.getUTCDate()}/${deadline.getUTCMonth()}/${deadline.getFullYear()}`
+      //
+      //   return contractData
+      // })
 
       // add to store
       profile.session = currentSession
       profile.disputes = newDisputes
-      delete profile._id
+      delete profile._id // FIXME abstract this
       delete profile.created_at
       await this._StoreProvider.newUserProfile(account, profile)
     }
 
     return profile.disputes
+  }
+
+  /**
+   * Get disputes from Kleros contract
+   * @param contractAddress address of Kleros contract
+   * @param account address of user
+   * @return objects[]
+   */
+  getDisputesForJuror = async (
+    contractAddress,
+    address,
+  ) => {
+    const contractInstance = await this.load(contractAddress)
+    const myDisputes = []
+    let disputeId = 0
+    let numberOfJurors = 0
+    const currentSession = (await contractInstance.session()).toNumber()
+
+    // iterate over all disputes (FIXME inefficient)
+    let dispute = await contractInstance.disputes(disputeId)
+    while (dispute[0] !== "0x") {
+      const disputeSession = dispute[1].toNumber()
+      // if dispute not in current session skip
+      if (disputeSession !== currentSession) {
+        disputeId++
+        dispute = await contractInstance.disputes(disputeId)
+        continue
+      }
+
+      numberOfJurors = await contractInstance.amountJurors(disputeId)
+      for (let draw=1; draw<=numberOfJurors; draw++) {
+        // check if you are juror for dispute
+        const isJuror = await contractInstance.isDrawn(disputeId, account, draw)
+        if (isJuror) {
+          let toAdd = true
+          // if dispute already in myDipsutes add new draw number
+          myDisputes.map((disputeObject) => {
+            if (disputeObject.id === disputeId) {
+              disputeObject.votes.push(draw)
+              toAdd = false
+            }
+          })
+
+          // if dispute not already in array add it
+          if (toAdd) myDisputes.push({
+            id: disputeId,
+            arbitrated: dispute[0],
+            session: dispute[1].toNumber(),
+            appeals: dispute[2].toNumber(),
+            choices: dispute[3].toNumber(),
+            initialNumberJurors: dispute[4].toNumber(),
+            arbitrationFeePerJuror: dispute[5].toNumber(),
+            votes: [draw]
+          })
+        }
+      }
+
+      // check next dispute
+      disputeId += 1
+      dispute = await contractInstance.disputes(disputeId)
+    }
+
+    return myDisputes
   }
 
   /**
@@ -331,10 +333,10 @@ class KlerosWrapper extends ContractWrapper {
       period,
       session
     ] = await Promise.all([
-      contractInstance.pinakion.call(),
-      contractInstance.rng.call(),
-      contractInstance.period.call(),
-      contractInstance.session.call(),
+      contractInstance.pinakion(),
+      contractInstance.rng(),
+      contractInstance.period(),
+      contractInstance.session(),
     ]).catch(err => {
       throw new Error(err)
     })
