@@ -121,7 +121,7 @@ describe('KlerosWrapper', () => {
   })
 
   test('getDisputesForJuror wrong session', async () => {
-    const isJuror = false
+    const isJuror = true
     const session = 1
     const expectedResult = {
       arbitrated: 'fake-contract-address',
