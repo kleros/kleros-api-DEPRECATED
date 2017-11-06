@@ -277,6 +277,13 @@ class KlerosWrapper extends ContractWrapper {
     }
   }
 
+  /**
+   * Activate Pinakion tokens to be eligible to be a juror
+   * @param amount number of tokens to activate
+   * @param contractAddress address of KlerosPOC contract
+   * @param account address of user
+   * @return object | Error
+   */
   activatePNK = async (
     amount, // amount in ether
     contractAddress, // klerosPOC contract address
@@ -301,6 +308,12 @@ class KlerosWrapper extends ContractWrapper {
     )
   }
 
+  /**
+   * Call contract to move on to the next period
+   * @param contractAddress address of KlerosPOC contract
+   * @param account address of user
+   * @return object | Error
+   */
   passPeriod = async (
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)
@@ -319,6 +332,47 @@ class KlerosWrapper extends ContractWrapper {
     return this.getData(contractAddress)
   }
 
+  /**
+   * Submit votes. Note can only be called during Voting period (Period 2)
+   * @param contractAddress address of KlerosPOC contract
+   * @param disputeId index of the dispute
+   * @param ruling int representing the jurors decision
+   * @param votes int[] of drawn votes for dispute
+   * @param account address of user
+   * @return object | Error
+   */
+  submitVotes = async (
+    contractAddress,
+    disputeId,
+    ruling,
+    votes,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    const contractInstance = await this.load(contractAddress)
+
+    try {
+      txHashObj = await contractInstance.voteRuling(
+        disputeId,
+        ruling,
+        votes,
+        {
+          from: account,
+          gas: config.GAS
+        }
+      )
+
+      return txHashObj
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  /**
+   * Get data from Kleros contract
+   * @param contractAddress address of KlerosPOC contract
+   * @param account address of user
+   * @return object
+   */
   getData = async (
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)
