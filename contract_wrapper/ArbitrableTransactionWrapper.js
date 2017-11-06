@@ -81,7 +81,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    */
   load = async address => {
     // return contract instance if already loaded
-    if (this.contractInstance.address === address) return this.contractInstance
+    if (this.contractInstance && this.contractInstance.address === address) return this.contractInstance
 
     try {
       const contractInstance = await this._instantiateContractIfExistsAsync(

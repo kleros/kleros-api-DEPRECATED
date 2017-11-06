@@ -60,7 +60,7 @@ class KlerosWrapper extends ContractWrapper {
     address
   ) => {
     // return contract instance if already loaded
-    if (this.contractInstance.address === address) return this.contractInstance
+    if (this.contractInstance && this.contractInstance.address === address) return this.contractInstance
 
     try {
       // instantiate new contract instance from address
@@ -104,24 +104,26 @@ class KlerosWrapper extends ContractWrapper {
       // FIXME allow for other contract types
       const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
 
-      // const newDisputes = await _.map(myDisputes, asnyc (dispute) => {
-      //   // get data for contract
-      //   const contractData = ArbitrableTransaction.getDataContractForDispute(dispute.arbitrated, dispute)
-      //
-      //   // compute end date
-      //   const startTime = (await contractInstance.lastPeriodChange()).toNumber()
-      //   const length = (await contractInstance.timePerPeriod(period)).toNumber()
-      //
-      //   // FIXME this is all UTC for now. Timezones are a pain
-      //   const deadline = new Date(0);
-      //   deadline.setUTCSeconds(startTime)
-      //   deadline.setSeconds(deadline.getSeconds() + length);
-      //
-      //   // set deadline
-      //   contractData.deadline = `${deadline.getUTCDate()}/${deadline.getUTCMonth()}/${deadline.getFullYear()}`
-      //
-      //   return contractData
-      // })
+      newDisputes = []
+      for (let i=0; i<myDisputes.length; i++) {
+        dispute = myDisputes[i]
+        // get data for contract
+        const contractData = ArbitrableTransaction.getDataContractForDispute(dispute.arbitrated, dispute)
+
+        // compute end date
+        const startTime = (await contractInstance.lastPeriodChange()).toNumber()
+        const length = (await contractInstance.timePerPeriod(period)).toNumber()
+
+        // FIXME this is all UTC for now. Timezones are a pain
+        const deadline = new Date(0);
+        deadline.setUTCSeconds(startTime)
+        deadline.setSeconds(deadline.getSeconds() + length);
+
+        // set deadline
+        contractData.deadline = `${deadline.getUTCDate()}/${deadline.getUTCMonth()}/${deadline.getFullYear()}`
+
+        newDisputes.push(contractData)
+      }
 
       // add to store
       profile.session = currentSession
