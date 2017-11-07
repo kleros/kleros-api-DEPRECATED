@@ -25,9 +25,9 @@ describe('KlerosWrapper', () => {
   }
 
   beforeAll(async () => {
-    address = "0xDcB2db3E3fA7a6cba5dFE964408099d860246D7Z"
+    address = '0xDcB2db3E3fA7a6cba5dFE964408099d860246D7Z'
     klerosInstance = new KlerosWrapper(mockWeb3, mockStore, address)
-    BigNumber = (new Web3()).toBigNumber(0).constructor;
+    BigNumber = (new Web3()).toBigNumber(0).constructor
   })
 
   beforeEach(async () => {
