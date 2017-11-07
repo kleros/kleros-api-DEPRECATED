@@ -1,14 +1,15 @@
-import Kleros from './Kleros'
+import Kleros from '../Kleros'
 import Web3 from 'web3'
 import contract from 'truffle-contract'
-import {LOCALHOST_PROVIDER} from '../constants'
-import config from '../config'
-import mockDisputes from '../contract_wrapper/mockDisputes'
+import {LOCALHOST_PROVIDER} from '../../constants'
+import config from '../../config'
+import mockDisputes from '../../contract_wrapper/mockDisputes'
 
 
 describe('Kleros', () => {
   let partyA
   let partyB
+  let web3
   let court
   let centralCourt
   let arbitrableTransaction
@@ -19,7 +20,7 @@ describe('Kleros', () => {
 
     let KlerosInstance = await new Kleros(provider)
 
-    let web3 = await new Web3(provider)
+    web3 = await new Web3(provider)
 
     partyA = web3.eth.accounts[0]
     partyB = web3.eth.accounts[1]
@@ -121,7 +122,7 @@ describe('Kleros', () => {
       .payArbitrationFeeByPartyA(
         undefined,
         contractArbitrableTransaction.address,
-        arbitrationCost - partyAFeeContractInstance
+        web3.fromWei(arbitrationCost - partyAFeeContractInstance, 'ether')
       )
 
     expect(txHashRaiseDisputeByPartyA)

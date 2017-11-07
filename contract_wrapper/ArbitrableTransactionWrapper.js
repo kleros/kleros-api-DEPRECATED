@@ -80,6 +80,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @return contractInstance | Error
    */
   load = async address => {
+    // return contract instance if already loaded
+    if (this.contractInstance && this.contractInstance.address === address) return this.contractInstance
+
     try {
       const contractInstance = await this._instantiateContractIfExistsAsync(
         arbitrableTransaction,
@@ -274,6 +277,48 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        description: storeDataContract.description,
        disputeId
      }
+   }
+
+   /**
+    * FIXME this belongs in a higher order Dispute object
+    * get data from contract for dispute
+    * @param contractAddress address for arbitable transaction
+    * @param dispute object that is representation of dispute
+    * @return Object Data of the contract.
+    */
+   getDataContractForDispute = async (
+     contractAddress,
+     dispute
+   ) => {
+     const contractDeployed = await this.load(contractAddress)
+     // get the contract data from the disputed contract
+     const arbitrableTransactionData = await ArbitrableTransaction.getDataContract(contractAddress)
+
+     return ({
+       votes: dispute.votes,
+       // FIXME hash not being stored in contract atm
+       hash: contractAddress,
+       partyA: arbitrableTransactionData.partyA,
+       partyB: arbitrableTransactionData.partyB,
+       title: 'TODO users title',
+       status: period,
+       contractAddress: contractAddress,
+       justification: 'justification',
+       fee: dispute.arbitrationFeePerJuror,
+       // FIXME hardcode this for now
+       resolutionOptions: [
+         {
+           name: `Pay ${arbitrableTransactionData.partyA}`,
+           description: `Release funds to ${arbitrableTransactionData.partyA}`,
+           value: 1
+         },
+         {
+           name: `Pay ${arbitrableTransactionData.partyB}`,
+           description: `Release funds to ${arbitrableTransactionData.partyB}`,
+           value: 2
+         }
+       ]
+     })
    }
 }
 
