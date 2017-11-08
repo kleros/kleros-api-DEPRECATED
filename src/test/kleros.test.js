@@ -92,7 +92,7 @@ describe('Kleros', () => {
       timeout: 3600,
       partyA,
       partyB,
-      arbitratorExtraData: 0,
+      arbitratorExtraData: 0x00,
       status: 0,
     }
 
@@ -108,24 +108,56 @@ describe('Kleros', () => {
       'description'
     )
 
+    // return a bigint
     const partyAFeeContractInstance = await contractArbitrableTransaction
       .partyAFee()
 
-    const arbitrationCost = await centralCourtDeployed.arbitrationCost(
-      partyAFeeContractInstance.toNumber()
-   )
+    // return bytes
+    let extraDataContractInstance = await contractArbitrableTransaction
+      .arbitratorExtraData()
+
+    if (extraDataContractInstance === undefined)
+      extraDataContractInstance = 0
+
+    // return a bigint with the default value : 10000 wei fees
+    const arbitrationCost = await centralCourtDeployed
+      .arbitrationCost(partyAFeeContractInstance.toNumber())
+
 
     // use default parameters
     // account: accounts[0]
-    // arbitration cost: 150000000000000000 wei
+    // arbitration cost: 10000 wei
     const txHashRaiseDisputeByPartyA = await arbitrableTransaction
       .payArbitrationFeeByPartyA(
         undefined,
         contractArbitrableTransaction.address,
-        web3.fromWei(arbitrationCost - partyAFeeContractInstance, 'ether')
+        web3.fromWei(arbitrationCost - partyAFeeContractInstance.toNumber(), 'ether')
       )
-
+    //
     expect(txHashRaiseDisputeByPartyA)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    // return a bigint
+    const partyBFeeContractInstance = await contractArbitrableTransaction
+      .partyBFee()
+
+    // use default parameters
+    // account: accounts[0]
+    // arbitration cost: 10000 wei
+    const txHashRaiseDisputeByPartyB = await arbitrableTransaction
+      .payArbitrationFeeByPartyB(
+        undefined,
+        contractArbitrableTransaction.address,
+        web3.fromWei(arbitrationCost - partyBFeeContractInstance.toNumber(), 'ether')
+      )
+    //
+    expect(txHashRaiseDisputeByPartyB)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    // TODO fix this
+    // const dispute = await centralCourtDeployed.disputes(0)
+    //
+    // expect(dispute[0])
+    //   .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
   }, 10000)
 })
