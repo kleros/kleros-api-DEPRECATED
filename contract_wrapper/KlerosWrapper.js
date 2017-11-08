@@ -355,7 +355,7 @@ class KlerosWrapper extends ContractWrapper {
     const contractInstance = await this.load(contractAddress)
 
     try {
-      txHashObj = await contractInstance.voteRuling(
+      const txHashObj = await contractInstance.voteRuling(
         disputeId,
         ruling,
         votes,
@@ -365,7 +365,7 @@ class KlerosWrapper extends ContractWrapper {
         }
       )
 
-      return txHashObj
+      return txHashObj.tx
     } catch (e) {
       throw new Error(e)
     }
