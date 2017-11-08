@@ -1,4 +1,4 @@
-import Kleros from '../Kleros'
+import Kleros from '../kleros'
 import Web3 from 'web3'
 import contract from 'truffle-contract'
 import {LOCALHOST_PROVIDER} from '../../constants'
