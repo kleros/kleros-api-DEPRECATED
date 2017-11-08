@@ -66,7 +66,7 @@ class ConstantNGWrapper extends ContractWrapper {
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    const contractInstance = await this.load("0xe13535B17c7e46Bb13D3f9e5518537C1Ab4A4cF9")
+    const contractInstance = await this.load(contractAddress)
 
     const [
       number
@@ -76,7 +76,6 @@ class ConstantNGWrapper extends ContractWrapper {
       throw new Error(err)
     })
 
-    console.log(number)
     return {
       number: number.toNumber()
     }

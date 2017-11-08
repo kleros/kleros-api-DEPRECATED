@@ -81,7 +81,7 @@ describe('KlerosWrapper', () => {
   test('getDisputesForJuror not juror', async () => {
     const isJuror = false
     const session = 1
-    const expectedResult = {
+    const disputeData = {
       arbitrated: 'fake-contract-address',
       appeals: 0,
       session: session,
@@ -94,12 +94,12 @@ describe('KlerosWrapper', () => {
 
     const mockDisputes = [
       [
-        expectedResult.arbitrated,
-        new BigNumber(expectedResult.session),
-        new BigNumber(expectedResult.appeals),
-        new BigNumber(expectedResult.choices),
-        new BigNumber(expectedResult.initialNumberJurors),
-        new BigNumber(expectedResult.arbitrationFeePerJuror),
+        disputeData.arbitrated,
+        new BigNumber(disputeData.session),
+        new BigNumber(disputeData.appeals),
+        new BigNumber(disputeData.choices),
+        new BigNumber(disputeData.initialNumberJurors),
+        new BigNumber(disputeData.arbitrationFeePerJuror),
       ],
       [
         '0x',                         // signals no more disputes
@@ -123,7 +123,7 @@ describe('KlerosWrapper', () => {
   test('getDisputesForJuror wrong session', async () => {
     const isJuror = true
     const session = 1
-    const expectedResult = {
+    const disputeData = {
       arbitrated: 'fake-contract-address',
       appeals: 0,
       session: session - 1,
@@ -136,12 +136,12 @@ describe('KlerosWrapper', () => {
 
     const mockDisputes = [
       [
-        expectedResult.arbitrated,
-        new BigNumber(expectedResult.session),
-        new BigNumber(expectedResult.appeals),
-        new BigNumber(expectedResult.choices),
-        new BigNumber(expectedResult.initialNumberJurors),
-        new BigNumber(expectedResult.arbitrationFeePerJuror),
+        disputeData.arbitrated,
+        new BigNumber(disputeData.session),
+        new BigNumber(disputeData.appeals),
+        new BigNumber(disputeData.choices),
+        new BigNumber(disputeData.initialNumberJurors),
+        new BigNumber(disputeData.arbitrationFeePerJuror),
       ],
       [
         '0x',                         // signals no more disputes
