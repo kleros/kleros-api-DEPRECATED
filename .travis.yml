@@ -7,7 +7,6 @@ cache:
 script:
   - yarn build
   - yarn test
-
 addons:
   apt:
     sources:
@@ -15,7 +14,8 @@ addons:
     packages:
       - gcc-4.7
       - g++-4.7
-
+install:
+  - nohup yarn run testrpc &
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then
       export CC="gcc-4.7";
