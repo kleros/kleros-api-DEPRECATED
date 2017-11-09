@@ -2602,9 +2602,9 @@ kleros-interaction@0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/kleros-interaction/-/kleros-interaction-0.0.7.tgz#d588d245b99f03fc8b0d5fb57a683d0e2500efb9"
 
-kleros-interaction@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/kleros-interaction/-/kleros-interaction-0.0.6.tgz#4f51eb117bd64c87e4c151293c657486499716b0"
+kleros-interaction@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/kleros-interaction/-/kleros-interaction-0.0.8.tgz#84e6db47126b9782687ea332e4cee5120d2efa50"
 
 kleros@^0.0.4:
   version "0.0.4"
