@@ -200,6 +200,21 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
+   * Get all contracts TODO do we need to get contract data from blockchain?
+   * @param account address of user
+   * @return objects[]
+   */
+  getContractsForUser = async (
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    // fetch user profile
+    let userProfile = await this._StoreProvider.getUserProfile(account)
+    if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
+
+    return userProfile.contracts
+  }
+
+  /**
    * Get dispute by id FIXME isn't calling blockchain
    * @param disputeHash hash of the dispute
    * @param account address of user

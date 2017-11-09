@@ -15,11 +15,11 @@ let deployKlerosPOC = async () => {
 
   const PNK = await KlerosInstance.pinakion.deploy()
   console.log('pinakion address: ', PNK.address)
-  // const RNG = await KlerosInstance.rng.deploy()
-  // console.log('rng address: ', RNG.address)
+  const RNG = await KlerosInstance.rng.deploy()
+  console.log('rng address: ', RNG.address)
   court = await KlerosInstance.court
   const klerosCourt = await court.deploy(
-    RNG_ADDRESS,
+    RNG.address,
     PNK.address
   )
   console.log('Kleros POC court address: ', klerosCourt.address)
