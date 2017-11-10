@@ -88,11 +88,49 @@ describe('Kleros', () => {
       .toEqual(contractData)
   }, 10000)
 
-  test('partyA create a dispute', async () => {
-    let centralCourtDeployed = await centralCourt.deploy()
+  test('KlerosPOC dispute resolution flow', async () => {
+    // initialize RNG and Pinakion contracts
+    const number = 1
+    const rngInstance = await rng.deploy(
+      undefined,
+      number
+    )
+    expect(rngInstance.transactionHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+    const rngData = await rng.getData(rngInstance.address)
+    expect(rngData.number).toEqual(number)
 
+    const pinakionInstance = await pinakion.deploy()
+    expect(pinakionInstance.transactionHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    // initialize KlerosPOC
+    const klerosCourt = await court.deploy(rngInstance.address, pinakionInstance.address)
+    expect(klerosCourt.transactionHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    // transfer ownership and set kleros instance
+    let data = await pinakion.setKleros(pinakionInstance.address, klerosCourt.address)
+    expect(data.kleros).toEqual(klerosCourt.address)
+    data = await pinakion.transferOwnership(pinakionInstance.address, klerosCourt.address)
+    expect(data.owner).toEqual(klerosCourt.address)
+
+    // should have no balance to start with
+    const initialBalance = await court.getPNKBalance(klerosCourt.address)
+    expect(initialBalance.tokenBalance).toEqual('0')
+
+    // buy 1 PNK
+    const newBalance = await court.buyPNK(1, klerosCourt.address)
+    expect(newBalance.tokenBalance).toEqual('1')
+
+    // activate PNK
+    const balance = await court.activatePNK(0.5, klerosCourt.address)
+    expect(balance.tokenBalance).toEqual('1')
+    expect(balance.activatedTokens).toEqual('0.5')
+
+    // create a new dispute
     let contractData = {
-      arbitrator: centralCourtDeployed.address,
+      arbitrator: klerosCourt.address,
       timeout: 3600,
       partyA,
       partyB,
@@ -124,9 +162,8 @@ describe('Kleros', () => {
       extraDataContractInstance = 0
 
     // return a bigint with the default value : 10000 wei fees
-    const arbitrationCost = await centralCourtDeployed
+    const arbitrationCost = await klerosCourt
       .arbitrationCost(partyAFeeContractInstance.toNumber())
-
 
     // use default parameters
     // account: accounts[0]
@@ -158,97 +195,6 @@ describe('Kleros', () => {
     expect(txHashRaiseDisputeByPartyB)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
-    // TODO fix this
-    // const dispute = await centralCourtDeployed.disputes(0)
-    //
-    // expect(dispute[0])
-    //   .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-  }, 10000)
-
-  test('rng deployed correctly', async () => {
-    const number = 1
-    const rngInstance = await rng.deploy(
-      undefined,
-      number
-    )
-    expect(rngInstance.transactionHash)
-      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-
-    const rngData = await rng.getData(rngInstance.address)
-    expect(rngData.number).toEqual(number)
-  })
-
-  test('buy pinakion', async () => {
-    const rngInstance = await rng.deploy()
-    expect(rngInstance.transactionHash)
-      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-    const pinakionInstance = await pinakion.deploy()
-    expect(pinakionInstance.transactionHash)
-      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-    const klerosCourt = await court.deploy(rngInstance.address, pinakionInstance.address)
-    expect(klerosCourt.transactionHash)
-      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-
-    // transfer ownership and set kleros instance
-    let data = await pinakion.setKleros(pinakionInstance.address, klerosCourt.address)
-    expect(data.kleros).toEqual(klerosCourt.address)
-    data = await pinakion.transferOwnership(pinakionInstance.address, klerosCourt.address)
-    expect(data.owner).toEqual(klerosCourt.address)
-
-    // should have no balance to start with
-    const initialBalance = await court.getPNKBalance(klerosCourt.address)
-    expect(initialBalance.tokenBalance).toEqual('0')
-
-    // buy 1 PNK
-    const newBalance = await court.buyPNK(1, klerosCourt.address)
-    expect(newBalance.tokenBalance).toEqual('1')
-  }, 10000)
-
-  test('activate pinakion', async () => {
-    const rngInstance = await rng.deploy()
-    expect(rngInstance.transactionHash)
-      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-    const pinakionInstance = await pinakion.deploy()
-    expect(pinakionInstance.transactionHash)
-      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-    const klerosCourt = await court.deploy(rngInstance.address, pinakionInstance.address)
-    expect(klerosCourt.transactionHash)
-      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-
-    // transfer ownership and set kleros instance
-    let data = await pinakion.setKleros(pinakionInstance.address, klerosCourt.address)
-    expect(data.kleros).toEqual(klerosCourt.address)
-    data = await pinakion.transferOwnership(pinakionInstance.address, klerosCourt.address)
-    expect(data.owner).toEqual(klerosCourt.address)
-
-    // buy 1 PNK
-    let balance = await court.buyPNK(1, klerosCourt.address)
-    expect(balance.tokenBalance).toEqual('1')
-    expect(balance.activatedTokens).toEqual('0')
-
-    // activate PNK
-    balance = await court.activatePNK(0.5, klerosCourt.address)
-    expect(balance.tokenBalance).toEqual('1')
-    expect(balance.activatedTokens).toEqual('0.5')
-  }, 10000)
-
-  test('pass period', async () => {
-    const rngInstance = await rng.deploy()
-    expect(rngInstance.transactionHash)
-      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-    const pinakionInstance = await pinakion.deploy()
-    expect(pinakionInstance.transactionHash)
-      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-    const klerosCourt = await court.deploy(rngInstance.address, pinakionInstance.address)
-    expect(klerosCourt.transactionHash)
-      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-
-    // transfer ownership and set kleros instance
-    let data = await pinakion.setKleros(pinakionInstance.address, klerosCourt.address)
-    expect(data.kleros).toEqual(klerosCourt.address)
-    data = await pinakion.transferOwnership(pinakionInstance.address, klerosCourt.address)
-    expect(data.owner).toEqual(klerosCourt.address)
-
     // check initial state of contract
     const initialState = await court.getData(klerosCourt.address)
     expect(initialState.session).toEqual(1)
@@ -263,16 +209,33 @@ describe('Kleros', () => {
     }
 
     let newState
-    for (let i=1; i<5; i++) {
+    // pass state so jurors are selected
+    for (let i=1; i<3; i++) {
       // delay a second so period is eligible to be passed
       await delaySecond()
       newState = await court.passPeriod(klerosCourt.address)
       expect(newState.period).toEqual(i)
     }
 
-    // pass period one more time to start new session
-    newState = await court.passPeriod(klerosCourt.address)
-    expect(newState.period).toEqual(0)
-    expect(newState.session).toEqual(2)
-  }, 20000)
+    const isJuror = await klerosCourt.isDrawn(0, web3.eth.accounts[0], 1)
+    expect(isJuror).toEqual(true)
+
+    const ruling = 1
+    const submitTxHash = await court.submitVotes(
+      klerosCourt.address,
+      0,
+      ruling,
+      [1]
+    )
+    expect(submitTxHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    // delay 1 second
+    await delaySecond()
+    // move to appeal period
+    await court.passPeriod(klerosCourt.address)
+
+    const currentRuling = await klerosCourt.currentRuling(0)
+    expect(`${currentRuling}`).toEqual(`${ruling}`)
+  }, 50000)
 })
