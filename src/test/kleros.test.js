@@ -97,6 +97,7 @@ describe('Kleros', () => {
     )
     expect(rngInstance.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
     const rngData = await rng.getData(rngInstance.address)
     expect(rngData.number).toEqual(number)
 
@@ -105,14 +106,27 @@ describe('Kleros', () => {
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
     // initialize KlerosPOC
-    const klerosCourt = await court.deploy(rngInstance.address, pinakionInstance.address)
+    const klerosCourt = await court.deploy(
+      rngInstance.address,
+      pinakionInstance.address
+    )
+
     expect(klerosCourt.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
     // transfer ownership and set kleros instance
-    let data = await pinakion.setKleros(pinakionInstance.address, klerosCourt.address)
+    let data = await pinakion.setKleros(
+      pinakionInstance.address,
+      klerosCourt.address
+    )
+
     expect(data.kleros).toEqual(klerosCourt.address)
-    data = await pinakion.transferOwnership(pinakionInstance.address, klerosCourt.address)
+
+    data = await pinakion.transferOwnership(
+      pinakionInstance.address,
+      klerosCourt.address
+    )
+
     expect(data.owner).toEqual(klerosCourt.address)
 
     // should have no balance to start with
@@ -172,9 +186,11 @@ describe('Kleros', () => {
       .payArbitrationFeeByPartyA(
         undefined,
         contractArbitrableTransaction.address,
-        web3.fromWei(arbitrationCost - partyAFeeContractInstance.toNumber(), 'ether')
+        web3.fromWei(
+          arbitrationCost - partyAFeeContractInstance.toNumber(), 'ether'
+        )
       )
-    //
+
     expect(txHashRaiseDisputeByPartyA)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
@@ -189,11 +205,18 @@ describe('Kleros', () => {
       .payArbitrationFeeByPartyB(
         undefined,
         contractArbitrableTransaction.address,
-        web3.fromWei(arbitrationCost - partyBFeeContractInstance.toNumber(), 'ether')
+        web3.fromWei(
+          arbitrationCost - partyBFeeContractInstance.toNumber(), 'ether'
+        )
       )
-    //
+
     expect(txHashRaiseDisputeByPartyB)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    const dispute = await klerosCourt.disputes(0)
+
+    // dispute created
+    expect(dispute[0]).toEqual(expect.stringMatching(/^0x[a-f0-9]{40}$/)) // tx hash
 
     // check initial state of contract
     const initialState = await court.getData(klerosCourt.address)
@@ -227,6 +250,7 @@ describe('Kleros', () => {
       ruling,
       [1]
     )
+
     expect(submitTxHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
@@ -237,5 +261,10 @@ describe('Kleros', () => {
 
     const currentRuling = await klerosCourt.currentRuling(0)
     expect(`${currentRuling}`).toEqual(`${ruling}`)
+
+    const contracts = await court.getContractsForUser()
+
+    expect(contracts).toBeTruthy()
+
   }, 50000)
 })
