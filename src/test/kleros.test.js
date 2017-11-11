@@ -172,12 +172,9 @@ describe('Kleros', () => {
     let extraDataContractInstance = await contractArbitrableTransaction
       .arbitratorExtraData()
 
-    if (extraDataContractInstance === undefined)
-      extraDataContractInstance = 0
-
     // return a bigint with the default value : 10000 wei fees
     const arbitrationCost = await klerosCourt
-      .arbitrationCost(partyAFeeContractInstance.toNumber())
+      .arbitrationCost(extraDataContractInstance)
 
     // use default parameters
     // account: accounts[0]
@@ -219,6 +216,7 @@ describe('Kleros', () => {
     expect(dispute[0]).toEqual(expect.stringMatching(/^0x[a-f0-9]{40}$/)) // tx hash
 
     // check initial state of contract
+    // FIXME var must be more explicit
     const initialState = await court.getData(klerosCourt.address)
     expect(initialState.session).toEqual(1)
     expect(initialState.period).toEqual(0)
