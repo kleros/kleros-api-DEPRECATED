@@ -165,10 +165,12 @@ describe('Kleros', () => {
     )
 
     // return a bigint
+    // FIXME use arbitrableTransaction
     const partyAFeeContractInstance = await contractArbitrableTransaction
       .partyAFee()
 
     // return bytes
+    // FIXME use arbitrableTransaction
     let extraDataContractInstance = await contractArbitrableTransaction
       .arbitratorExtraData()
 
@@ -192,6 +194,7 @@ describe('Kleros', () => {
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
     // return a bigint
+    // FIXME use arbitrableTransaction
     const partyBFeeContractInstance = await contractArbitrableTransaction
       .partyBFee()
 
@@ -214,6 +217,17 @@ describe('Kleros', () => {
 
     // dispute created
     expect(dispute[0]).toEqual(expect.stringMatching(/^0x[a-f0-9]{40}$/)) // tx hash
+
+    // add an evidence
+    // FIXME use arbitrableTransaction
+    const txHashAddEvidence = await arbitrableTransaction
+      .submitEvidence(
+        undefined,
+        contractArbitrableTransaction.address
+      )
+
+    expect(txHashAddEvidence)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
     // check initial state of contract
     // FIXME var must be more explicit

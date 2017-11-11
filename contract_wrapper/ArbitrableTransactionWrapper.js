@@ -199,12 +199,23 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @param evidence A link to an evidence using its URI.
    * @return txHash Hash transaction
    */
-  submitEvidence = async evidence => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
-      }, 1000)
-    })
+  submitEvidence = async (
+    account = this._Web3Wrapper.getAccount(0),
+    contractAddress,
+    evidence = 'this is an evidence'
+  ) => {
+    this.contractInstance = await this.load(contractAddress)
+    const txHashObj = await this.contractInstance
+      .submitEvidence(
+        evidence,
+        {
+          from: account,
+          gas: config.GAS,
+          value: 0
+        }
+      )
+
+    return txHashObj.tx
   }
 
   /**
