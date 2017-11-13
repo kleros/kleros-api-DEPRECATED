@@ -65,7 +65,7 @@ describe('KlerosWrapper', () => {
     ]
 
     mockContractInstance.session = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(session)))
-    mockContractInstance.amountJurors = jest.fn().mockReturnValue(_asyncMockResponse(3))
+    mockContractInstance.amountJurors = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(3)))
     mockContractInstance.isDrawn = jest.fn().mockReturnValue(_asyncMockResponse(isJuror))
     mockContractInstance.disputes = async index => {
       return _asyncMockResponse(mockDisputes[index])
@@ -107,7 +107,7 @@ describe('KlerosWrapper', () => {
     ]
 
     mockContractInstance.session = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(session)))
-    mockContractInstance.amountJurors = jest.fn().mockReturnValue(_asyncMockResponse(3))
+    mockContractInstance.amountJurors = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(3)))
     mockContractInstance.isDrawn = jest.fn().mockReturnValue(_asyncMockResponse(isJuror))
     mockContractInstance.disputes = async index => {
       return _asyncMockResponse(mockDisputes[index])
@@ -149,7 +149,7 @@ describe('KlerosWrapper', () => {
     ]
 
     mockContractInstance.session = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(session)))
-    mockContractInstance.amountJurors = jest.fn().mockReturnValue(_asyncMockResponse(3))
+    mockContractInstance.amountJurors = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(3)))
     mockContractInstance.isDrawn = jest.fn().mockReturnValue(_asyncMockResponse(isJuror))
     mockContractInstance.disputes = async index => {
       return _asyncMockResponse(mockDisputes[index])
