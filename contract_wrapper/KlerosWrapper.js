@@ -104,9 +104,7 @@ class KlerosWrapper extends ContractWrapper {
       // FIXME allow for other contract types
       const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
 
-      const newDisputes = []
-      for (let i=0; i<myDisputes.length; i++) {
-        const dispute = myDisputes[i]
+      const newDisputes = myDisputes.map(async dispute => {
         // get data for contract
         const contractData = await ArbitrableTransaction.getDataContractForDispute(dispute.arbitrated, dispute)
         // compute end date
@@ -121,8 +119,8 @@ class KlerosWrapper extends ContractWrapper {
         // set deadline
         contractData.deadline = `${deadline.getUTCDate()}/${deadline.getUTCMonth()}/${deadline.getFullYear()}`
 
-        newDisputes.push(contractData)
-      }
+        return contractData
+      })
 
       // add to store
       profile.session = currentSession
@@ -162,7 +160,7 @@ class KlerosWrapper extends ContractWrapper {
         continue
       }
 
-      numberOfJurors = await contractInstance.amountJurors(disputeId)
+      numberOfJurors = (await contractInstance.amountJurors(disputeId)).toNumber()
       for (let draw=1; draw<=numberOfJurors; draw++) {
         // check if you are juror for dispute
         const isJuror = await contractInstance.isDrawn(disputeId, account, draw)

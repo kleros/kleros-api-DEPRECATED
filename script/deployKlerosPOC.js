@@ -13,19 +13,19 @@ let deployKlerosPOC = async () => {
 
   let KlerosInstance = await new Kleros(provider, storeProvider)
 
-  const PNK = await KlerosInstance.pinakion.deploy()
-  console.log('pinakion address: ', PNK.address)
-  const RNG = await KlerosInstance.rng.deploy()
-  console.log('rng address: ', RNG.address)
+  const pnkContractDeployed = await KlerosInstance.pinakion.deploy()
+  console.log('pinakion address: ', pnkContractDeployed.address)
+  const rngContractDeployed = await KlerosInstance.rng.deploy()
+  console.log('rng address: ', rngContractDeployed.address)
   court = await KlerosInstance.court
   const klerosCourt = await court.deploy(
-    RNG.address,
-    PNK.address
+    rngContractDeployed.address,
+    pnkContractDeployed.address
   )
   console.log('Kleros POC court address: ', klerosCourt.address)
-  const klerosSetHash = await KlerosInstance.pinakion.setKleros(PNK.address, klerosCourt.address)
+  const klerosSetHash = await KlerosInstance.pinakion.setKleros(pnkContractDeployed.address, klerosCourt.address)
   console.log("Kleros hash set")
-  const ownershipSetHash = await KlerosInstance.pinakion.transferOwnership(PNK.address, klerosCourt.address)
+  const ownershipSetHash = await KlerosInstance.pinakion.transferOwnership(pnkContractDeployed.address, klerosCourt.address)
   console.log("PNK ownership changed to kleros contract")
 }
 

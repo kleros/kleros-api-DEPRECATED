@@ -77,7 +77,6 @@ class ContractWrapper {
       )
       return contractDeployed
     } catch (e) {
-      console.log(e)
       throw new Error(e)
     }
   }

@@ -92,7 +92,6 @@ class StoreProviderWrapper {
     description,
     disputeId
   ) => {
-    console.log(this._storeUri)
     const httpResponse = await this._makeRequest(
       'POST',
       `${this._storeUri}/${account}/contracts/${address}`,
