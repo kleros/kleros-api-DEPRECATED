@@ -46,6 +46,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       description = ''
     ) => {
 
+    console.log("starting....")
     const contractDeployed = await this._deployAsync(
       account,
       value,
@@ -58,8 +59,10 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     )
 
     this.address = contractDeployed.address
+    console.log(contractDeployed.address)
     this.contractInstance = contractDeployed
 
+    console.log("here we go")
     await this._StoreProvider.updateContract(
       this.address,
       hashContract,
@@ -259,7 +262,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        partyB,
        status,
        arbitratorExtraData,
-       disputeId
+       disputeId,
+       partyAFee,
+       partyBFee,
      ] = await Promise.all([
        contractDeployed.arbitrator.call(),
       //  contractDeployed.hashContract.call(),
@@ -268,17 +273,25 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        contractDeployed.partyB.call(),
        contractDeployed.status.call(),
        contractDeployed.arbitratorExtraData.call(),
-       contractDeployed.disputeID.call()
+       contractDeployed.disputeID.call(),
+       contractDeployed.partyAFee.call(),
+       contractDeployed.partyBFee.call(),
      ]).catch(err => {
        throw new Error(err)
      })
 
-     let storeDataContract = await this._StoreProvider.getContractByAddress(partyA, address)
-     if (!storeDataContract) storeDataContract = {}
+     let storeDataContract
+     try {
+       storeDataContract = await this._StoreProvider.getContractByAddress(partyA, address)
+       if (!storeDataContract) storeDataContract = {}
+     } catch(e) {
+       storeDataContract = {}
+     }
 
      return {
        arbitrator,
       //  hashContract,
+       address,
        timeout: timeout.toNumber(),
        partyA,
        partyB,
@@ -286,7 +299,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        arbitratorExtraData,
        email: storeDataContract.email,
        description: storeDataContract.description,
-       disputeId
+       disputeId,
+       partyAFee: partyAFee.toNumber(),
+       partyBFee: partyBFee.toNumber()
      }
    }
 
@@ -303,7 +318,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    ) => {
      const contractDeployed = await this.load(contractAddress)
      // get the contract data from the disputed contract
-     const arbitrableTransactionData = await ArbitrableTransaction.getDataContract(contractAddress)
+     const arbitrableTransactionData = await this.getDataContract(contractAddress)
 
      return ({
        votes: dispute.votes,
@@ -312,7 +327,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        partyA: arbitrableTransactionData.partyA,
        partyB: arbitrableTransactionData.partyB,
        title: 'TODO users title',
-       status: period,
+       status: arbitrableTransactionData.status,
        contractAddress: contractAddress,
        justification: 'justification',
        fee: dispute.arbitrationFeePerJuror,

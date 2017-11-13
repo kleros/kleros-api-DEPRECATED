@@ -99,17 +99,16 @@ class KlerosWrapper extends ContractWrapper {
     const currentSession = (await contractInstance.session()).toNumber()
     if (currentSession != profile.session) {
       // get disputes for juror
-      myDisputes = await this.getDisputesForJuror(contractAddress, account)
+      const myDisputes = await this.getDisputesForJuror(contractAddress, account)
 
       // FIXME allow for other contract types
       const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
 
-      newDisputes = []
+      const newDisputes = []
       for (let i=0; i<myDisputes.length; i++) {
-        dispute = myDisputes[i]
+        const dispute = myDisputes[i]
         // get data for contract
-        const contractData = ArbitrableTransaction.getDataContractForDispute(dispute.arbitrated, dispute)
-
+        const contractData = await ArbitrableTransaction.getDataContractForDispute(dispute.arbitrated, dispute)
         // compute end date
         const startTime = (await contractInstance.lastPeriodChange()).toNumber()
         const length = (await contractInstance.timePerPeriod(period)).toNumber()
@@ -341,7 +340,8 @@ class KlerosWrapper extends ContractWrapper {
     try {
       await contractInstance.passPeriod(
         {
-          from: account
+          from: account,
+          gas: config.GAS
         }
       )
     } catch (e) {
