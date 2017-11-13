@@ -85,7 +85,7 @@ describe('Kleros', () => {
     contractDataDeployed.disputeId = contractDataDeployed.disputeId.toNumber()
 
     expect(contractDataDeployed)
-      .toEqual(contractData)
+      .toEqual(expect.objectContaining(contractData))
   }, 10000)
 
   test('KlerosPOC dispute resolution flow', async () => {

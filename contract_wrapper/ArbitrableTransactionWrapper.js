@@ -46,7 +46,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       description = ''
     ) => {
 
-    console.log("starting....")
     const contractDeployed = await this._deployAsync(
       account,
       value,
@@ -59,10 +58,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     )
 
     this.address = contractDeployed.address
-    console.log(contractDeployed.address)
     this.contractInstance = contractDeployed
 
-    console.log("here we go")
     await this._StoreProvider.updateContract(
       this.address,
       hashContract,
