@@ -16,7 +16,7 @@ Platform:
 npm manifest: 
   {
     "name": "kleros-api",
-    "version": "0.0.25",
+    "version": "0.0.32",
     "description": "Kleros API",
     "main": "lib/kleros-api.js",
     "scripts": {
@@ -33,7 +33,9 @@ npm manifest:
       "getDataFromStore": "./node_modules/.bin/babel-node script/getDataFromStore.js",
       "deployKlerosPOC": "./node_modules/.bin/babel-node script/deployKlerosPOC.js",
       "buyPNK": "./node_modules/.bin/babel-node script/buyPNK.js",
-      "activatePNK": "./node_modules/.bin/babel-node script/activatePNK.js"
+      "activatePNK": "./node_modules/.bin/babel-node script/activatePNK.js",
+      "passPeriod": "./node_modules/.bin/babel-node script/passPeriod.js",
+      "getDisputesForUser": "./node_modules/.bin/babel-node script/getDisputesForUser.js"
     },
     "jest": {
       "testEnvironment": "node",
@@ -83,7 +85,7 @@ npm manifest:
       "global": "^4.3.2",
       "jest": "^20.0.4",
       "kleros": "^0.0.4",
-      "kleros-interaction": "^0.0.6",
+      "kleros-interaction": "^0.0.8",
       "lodash": "^4.17.4",
       "truffle-contract": "^2.0.5",
       "web3": "^0.20.1"
@@ -2698,9 +2700,9 @@ Lockfile:
     version "0.0.7"
     resolved "https://registry.yarnpkg.com/kleros-interaction/-/kleros-interaction-0.0.7.tgz#d588d245b99f03fc8b0d5fb57a683d0e2500efb9"
   
-  kleros-interaction@^0.0.6:
-    version "0.0.6"
-    resolved "https://registry.yarnpkg.com/kleros-interaction/-/kleros-interaction-0.0.6.tgz#4f51eb117bd64c87e4c151293c657486499716b0"
+  kleros-interaction@^0.0.8:
+    version "0.0.8"
+    resolved "https://registry.yarnpkg.com/kleros-interaction/-/kleros-interaction-0.0.8.tgz#84e6db47126b9782687ea332e4cee5120d2efa50"
   
   kleros@^0.0.4:
     version "0.0.4"
@@ -4234,7 +4236,7 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/zeppelin-solidity/-/zeppelin-solidity-1.3.0.tgz#066ab35d7e07510da391d1dbaaf319e0d06fcfc6"
 
 Trace: 
-  Error: https://registry.yarnpkg.com/kleros-api: You cannot publish over the previously published version 0.0.25.
+  Error: https://registry.yarnpkg.com/kleros-api: You cannot publish over the previously published version 0.0.32.
       at Request.params.callback [as _callback] (/usr/local/lib/node_modules/yarn/lib/cli.js:61779:18)
       at Request.self.callback (/usr/local/lib/node_modules/yarn/lib/cli.js:121917:22)
       at emitTwo (events.js:125:13)
