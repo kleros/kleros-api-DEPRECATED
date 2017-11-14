@@ -92,15 +92,13 @@ class StoreProviderWrapper {
     description,
     disputeId
   ) => {
-    const userProfile = await this.getUserProfile(account)
-
     const httpResponse = await this._makeRequest(
       'POST',
       `${this._storeUri}/${account}/contracts/${address}`,
       JSON.stringify({
         address,
         hashContract,
-        account,
+        partyA: account,
         partyB,
         arbitrator,
         timeout,

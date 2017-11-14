@@ -99,17 +99,14 @@ class KlerosWrapper extends ContractWrapper {
     const currentSession = (await contractInstance.session()).toNumber()
     if (currentSession != profile.session) {
       // get disputes for juror
-      myDisputes = await this.getDisputesForJuror(contractAddress, account)
+      const myDisputes = await this.getDisputesForJuror(contractAddress, account)
 
       // FIXME allow for other contract types
       const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
 
-      newDisputes = []
-      for (let i=0; i<myDisputes.length; i++) {
-        dispute = myDisputes[i]
+      const newDisputes = myDisputes.map(async dispute => {
         // get data for contract
-        const contractData = ArbitrableTransaction.getDataContractForDispute(dispute.arbitrated, dispute)
-
+        const contractData = await ArbitrableTransaction.getDataContractForDispute(dispute.arbitrated, dispute)
         // compute end date
         const startTime = (await contractInstance.lastPeriodChange()).toNumber()
         const length = (await contractInstance.timePerPeriod(period)).toNumber()
@@ -122,8 +119,8 @@ class KlerosWrapper extends ContractWrapper {
         // set deadline
         contractData.deadline = `${deadline.getUTCDate()}/${deadline.getUTCMonth()}/${deadline.getFullYear()}`
 
-        newDisputes.push(contractData)
-      }
+        return contractData
+      })
 
       // add to store
       profile.session = currentSession
@@ -163,7 +160,7 @@ class KlerosWrapper extends ContractWrapper {
         continue
       }
 
-      numberOfJurors = await contractInstance.amountJurors(disputeId)
+      numberOfJurors = (await contractInstance.amountJurors(disputeId)).toNumber()
       for (let draw=1; draw<=numberOfJurors; draw++) {
         // check if you are juror for dispute
         const isJuror = await contractInstance.isDrawn(disputeId, account, draw)
@@ -197,6 +194,21 @@ class KlerosWrapper extends ContractWrapper {
     }
 
     return myDisputes
+  }
+
+  /**
+   * Get all contracts TODO do we need to get contract data from blockchain?
+   * @param account address of user
+   * @return objects[]
+   */
+  getContractsForUser = async (
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    // fetch user profile
+    let userProfile = await this._StoreProvider.getUserProfile(account)
+    if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
+
+    return userProfile.contracts
   }
 
   /**
@@ -326,7 +338,8 @@ class KlerosWrapper extends ContractWrapper {
     try {
       await contractInstance.passPeriod(
         {
-          from: account
+          from: account,
+          gas: config.GAS
         }
       )
     } catch (e) {
