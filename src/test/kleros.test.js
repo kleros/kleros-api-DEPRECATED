@@ -229,6 +229,13 @@ describe('Kleros', () => {
     expect(txHashAddEvidence)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
+    const contractDataDeployed = await arbitrableTransaction
+      .getDataContract(contractArbitrableTransaction.address)
+
+    // FIXME this test does not work
+    // expect(contractDataDeployed.evidences[0].url)
+    //   .toBe('this is an evidence')
+
     // check initial state of contract
     // FIXME var must be more explicit
     const initialState = await court.getData(klerosCourt.address)

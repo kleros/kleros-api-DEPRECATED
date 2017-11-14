@@ -215,6 +215,14 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
         }
       )
 
+    const dataContract = await this.getDataContract(contractAddress)
+
+    await this._StoreProvider.addEvidenceContract(
+      contractAddress,
+      account,
+      evidence
+    )
+
     return txHashObj.tx
   }
 
@@ -261,7 +269,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        arbitratorExtraData,
        disputeId,
        partyAFee,
-       partyBFee,
+       partyBFee
      ] = await Promise.all([
        contractDeployed.arbitrator.call(),
       //  contractDeployed.hashContract.call(),
@@ -298,7 +306,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        description: storeDataContract.description,
        disputeId,
        partyAFee: partyAFee.toNumber(),
-       partyBFee: partyBFee.toNumber()
+       partyBFee: partyBFee.toNumber(),
+       evidences: storeDataContract.evidences
      }
    }
 

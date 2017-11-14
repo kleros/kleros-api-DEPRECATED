@@ -110,6 +110,22 @@ class StoreProviderWrapper {
 
     return httpResponse
   }
+
+  addEvidenceContract = async (
+    address,
+    account,
+    evidence
+  ) => {
+    const httpResponse = await this._makeRequest(
+      'POST',
+      `${this._storeUri}/${account}/contracts/${address}/evidence`,
+      JSON.stringify({
+        evidence
+      })
+    )
+
+    return httpResponse
+  }
 }
 
 export default StoreProviderWrapper
