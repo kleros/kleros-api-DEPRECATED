@@ -46,6 +46,17 @@ class StoreProviderWrapper {
     return JSON.parse(httpResponse)
   }
 
+  updateUserProfile = async (address, userProfile) => {
+    delete userProfile._id
+    delete userProfile.created_at
+    const httpResponse = await this._makeRequest(
+      'POST',
+      `${this._storeUri}/${address}`,
+      JSON.stringify(userProfile)
+    )
+    return JSON.parse(httpResponse)
+  }
+
   getDisputeData = async (userAddress, hash) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile) throw new Error(`No profile found for address: ${userAddress}`)
@@ -121,6 +132,52 @@ class StoreProviderWrapper {
       `${this._storeUri}/${account}/contracts/${address}/evidence`,
       JSON.stringify({
         url
+      })
+    )
+
+    return httpResponse
+  }
+
+  // FIXME very complicated to update
+  updateDispute = async (
+    account,
+    disputeId,
+    votes,
+    hash,
+    contractAddress,
+    partyA,
+    partyB,
+    title,
+    deadline,
+    status,
+    fee,
+    information,
+    justification,
+    isJuror,
+    hasRuled,
+    isActive,
+    resolutionOptions
+  ) => {
+    const httpResponse = await this._makeRequest(
+      'POST',
+      `${this._storeUri}/${account}/disputes/${hash}`,
+      JSON.stringify({
+        disputeId,
+        votes,
+        hash,
+        contractAddress,
+        partyA,
+        partyB,
+        title,
+        deadline,
+        status,
+        fee,
+        information,
+        justification,
+        isJuror,
+        hasRuled,
+        isActive,
+        resolutionOptions
       })
     )
 

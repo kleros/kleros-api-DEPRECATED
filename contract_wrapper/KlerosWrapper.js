@@ -129,9 +129,7 @@ class KlerosWrapper extends ContractWrapper {
       // add to store
       profile.session = currentSession
       profile.disputes = newDisputes
-      delete profile._id // FIXME abstract this
-      delete profile.created_at
-      await this._StoreProvider.newUserProfile(account, profile)
+      await this._StoreProvider.updateUserProfile(account, profile)
     }
 
     return profile.disputes
@@ -230,7 +228,8 @@ class KlerosWrapper extends ContractWrapper {
     if (!disputeData) throw new Error(`No dispute with hash ${disputeHash} for account ${account}`)
 
     // get contract data from partyA (should have same docs for both parties)
-    const contractData = await this._StoreProvider.getContractByAddress(disputeData.partyA, disputeData.contractAddress)
+    let contractData = await this._StoreProvider.getContractByAddress(disputeData.partyA, disputeData.contractAddress)
+    if (!contractData) contractData = {}
 
     return {
       contractData,
@@ -265,9 +264,7 @@ class KlerosWrapper extends ContractWrapper {
     if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
     // FIXME seems like a super hacky way to update store
     userProfile.balance = (parseInt(userProfile.balance) ? userProfile.balance : 0) + parseInt(amount)
-    delete userProfile._id
-    delete userProfile.created_at
-    const response = await this._StoreProvider.newUserProfile(account, userProfile)
+    await this._StoreProvider.updateUserProfile(account, profile)
 
     return this.getPNKBalance(contractAddress)
   }
@@ -382,6 +379,7 @@ class KlerosWrapper extends ContractWrapper {
           gas: config.GAS
         }
       )
+      await this._StoreProvider.updateUserProfile(account, userProfile)
 
       // update dispute as voted
       const userProfile = await this._StoreProvider.getUserProfile(account)
