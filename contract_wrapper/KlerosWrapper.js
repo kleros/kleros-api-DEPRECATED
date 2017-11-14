@@ -367,6 +367,7 @@ class KlerosWrapper extends ContractWrapper {
     disputeId,
     ruling,
     votes,
+    disputeHash,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     const contractInstance = await this.load(contractAddress)
@@ -381,6 +382,16 @@ class KlerosWrapper extends ContractWrapper {
           gas: config.GAS
         }
       )
+
+      // update dispute as voted
+      const userProfile = await this._StoreProvider.getUserProfile(account)
+      for (let i=0; i<userProfile.disputes; i++) {
+        const dispute = userProfile.disputes[i]
+        if (dispute.hash === disputeHash) {
+          userProfile.disputes[i].hasVoted = true
+          break
+        }
+      }
 
       return txHashObj.tx
     } catch (e) {
