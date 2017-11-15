@@ -232,9 +232,8 @@ describe('Kleros', () => {
     const contractDataDeployed = await arbitrableTransaction
       .getDataContract(contractArbitrableTransaction.address)
 
-    // FIXME this test does not work
-    // expect(contractDataDeployed.evidences[0].url)
-    //   .toBe('this is an evidence')
+    expect(contractDataDeployed.evidences[0].url)
+      .toBe('this is an evidence')
 
     // check initial state of contract
     // FIXME var must be more explicit
