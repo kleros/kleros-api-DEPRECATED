@@ -120,7 +120,10 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
          }
        )
 
-       const dataContract = await this.getDataContract(contractAddress)
+       const dataContract = await this.getDataContract(
+         account,
+         contractAddress
+       )
 
        await this._StoreProvider.updateContract(
          contractAddress,
@@ -162,7 +165,10 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
          }
        )
 
-       const dataContract = await this.getDataContract(contractAddress)
+       const dataContract = await this.getDataContract(
+         account,
+         contractAddress
+       )
 
        await this._StoreProvider.updateContract(
          contractAddress,
@@ -215,7 +221,10 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
         }
       )
 
-    const dataContract = await this.getDataContract(contractAddress)
+    const dataContract = await this.getDataContract(
+      account,
+      contractAddress
+    )
 
     await this._StoreProvider.addEvidenceContract(
       contractAddress,
@@ -253,10 +262,14 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
 
   /**
    * Data of the contract
+   * @param account Address of the party.
    * @param address Address of the ArbitrableTransaction contract.
    * @return Object Data of the contract.
    */
-  getDataContract = async address => {
+  getDataContract = async (
+    account = this._Web3Wrapper.getAccount(0),
+    address
+  ) => {
     const contractDeployed = await this.load(address)
 
      const [
@@ -287,7 +300,10 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
 
      let storeDataContract
      try {
-       storeDataContract = await this._StoreProvider.getContractByAddress(partyA, address)
+       storeDataContract = await this._StoreProvider.getContractByAddress(
+         account,
+         address
+       )
        if (!storeDataContract) storeDataContract = {}
      } catch(e) {
        storeDataContract = {}
@@ -314,17 +330,22 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    /**
     * FIXME this belongs in a higher order Dispute object
     * get data from contract for dispute
+    * @param account Address of the party.
     * @param contractAddress address for arbitable transaction
     * @param dispute object that is representation of dispute
     * @return Object Data of the contract.
     */
    getDataContractForDispute = async (
+     account = this._Web3Wrapper.getAccount(0),
      contractAddress,
      dispute
    ) => {
      const contractDeployed = await this.load(contractAddress)
      // get the contract data from the disputed contract
-     const arbitrableTransactionData = await this.getDataContract(contractAddress)
+     const arbitrableTransactionData = await this.getDataContract(
+       account,
+       contractAddress
+     )
 
      return ({
        votes: dispute.votes,

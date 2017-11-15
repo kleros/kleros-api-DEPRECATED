@@ -106,7 +106,11 @@ class KlerosWrapper extends ContractWrapper {
 
       const newDisputes = await Promise.all(myDisputes.map(async dispute => {
         // get data for contract
-        const contractData = await ArbitrableTransaction.getDataContractForDispute(dispute.arbitrated, dispute)
+        const contractData = await ArbitrableTransaction.getDataContractForDispute(
+          partyA,
+          dispute.arbitrated,
+          dispute
+        )
         // compute end date
         const startTime = (await contractInstance.lastPeriodChange()).toNumber()
         const length = (await contractInstance.timePerPeriod(period)).toNumber()

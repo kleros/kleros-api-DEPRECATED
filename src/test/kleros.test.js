@@ -80,7 +80,7 @@ describe('Kleros', () => {
     )
 
     const contractDataDeployed = await arbitrableTransaction
-      .getDataContract(contractArbitrableTransaction.address)
+      .getDataContract(partyA, contractArbitrableTransaction.address)
 
     contractDataDeployed.disputeId = contractDataDeployed.disputeId.toNumber()
 
@@ -230,7 +230,7 @@ describe('Kleros', () => {
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
     const contractDataDeployed = await arbitrableTransaction
-      .getDataContract(contractArbitrableTransaction.address)
+      .getDataContract(partyA, contractArbitrableTransaction.address)
 
     expect(contractDataDeployed.evidences[0].url)
       .toBe('this is an evidence')
