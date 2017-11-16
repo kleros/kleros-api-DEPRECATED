@@ -359,6 +359,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        justification: 'justification',
        fee: dispute.arbitrationFeePerJuror,
        disputeId: dispute.id,
+       session: dispute.session + dispute.appeals,
+       disputeId: dispute.id,
        // FIXME hardcode this for now
        resolutionOptions: [
          {

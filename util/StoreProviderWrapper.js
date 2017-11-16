@@ -66,7 +66,11 @@ class StoreProviderWrapper {
     })
 
     if (_.isEmpty(disputeData)) return null
-    return disputeData[0]
+    const httpResponse = await this._makeRequest(
+      'GET',
+      `${this._storeUri}/disputes/${disputeData[0].hash}`
+    )
+    return Object.assign({}, JSON.parse(httpResponse), disputeData[0])
   }
 
   getContractByHash = async (userAddress, hash) => {
@@ -139,10 +143,30 @@ class StoreProviderWrapper {
   }
 
   // FIXME very complicated to update
-  updateDispute = async (
+  updateDisputeProfile = async (
     account,
-    disputeId,
     votes,
+    hash,
+    isJuror,
+    hasRuled
+  ) => {
+    const httpResponse = await this._makeRequest(
+      'POST',
+      `${this._storeUri}/${account}/disputes/${hash}`,
+      JSON.stringify({
+        votes,
+        hash,
+        isJuror,
+        hasRuled
+      })
+    )
+
+    return httpResponse
+  }
+
+  // FIXME very complicated to update
+  updateDispute = async (
+    disputeId,
     hash,
     contractAddress,
     partyA,
@@ -153,17 +177,13 @@ class StoreProviderWrapper {
     fee,
     information,
     justification,
-    isJuror,
-    hasRuled,
-    isActive,
     resolutionOptions
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
-      `${this._storeUri}/${account}/disputes/${hash}`,
+      `${this._storeUri}/disputes/${hash}`,
       JSON.stringify({
         disputeId,
-        votes,
         hash,
         contractAddress,
         partyA,
@@ -174,14 +194,32 @@ class StoreProviderWrapper {
         fee,
         information,
         justification,
-        isJuror,
-        hasRuled,
-        isActive,
         resolutionOptions
       })
     )
 
     return httpResponse
+  }
+
+  getDiputesForUser = async address => {
+    const userProfile = await this.getUserProfile(address)
+    if (!userProfile) return []
+
+    const disputes = []
+    for (let i=0; i<userProfile.disputes.length; i++) {
+      const dispute = userProfile.disputes[i]
+      if (!dispute.hash) continue
+      // fetch dispute data
+      const httpResponse = await this._makeRequest(
+        'GET',
+        `${this._storeUri}/disputes/${dispute.hash}`
+      )
+      disputes.push(
+        Object.assign({}, JSON.parse(httpResponse), dispute)
+      )
+    }
+
+    return disputes
   }
 }
 

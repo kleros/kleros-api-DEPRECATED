@@ -92,9 +92,8 @@ class KlerosWrapper extends ContractWrapper {
     if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)
     // fetch current contract period
     const period = (await contractInstance.period()).toNumber()
-
     // new jurors have not been chosen yet. don't update
-    if (period < 2) return profile.disputes
+    if (period !== 2) return profile.disputes
 
     const currentSession = (await contractInstance.session()).toNumber()
     if (currentSession != profile.session) {
@@ -126,13 +125,45 @@ class KlerosWrapper extends ContractWrapper {
         return contractData
       }))
 
-      // add to store
+      let disputeObject
+      for (let i=0; i<newDisputes.length; i++) {
+        disputeObject = newDisputes[i]
+
+        // update dispute
+        await this._StoreProvider.updateDispute(
+          disputeObject.disputeId,
+          disputeObject.hash,
+          disputeObject.contractAddress,
+          disputeObject.partyA,
+          disputeObject.partyB,
+          disputeObject.title,
+          disputeObject.deadline,
+          disputeObject.status,
+          disputeObject.fee,
+          disputeObject.information,
+          disputeObject.justification,
+          disputeObject.resolutionOptions
+        )
+
+        // update profile
+        await this._StoreProvider.updateDisputeProfile(
+          account,
+          disputeObject.votes,
+          disputeObject.hash,
+          true,
+          false
+        )
+      }
+
+      // update session on profile
+      profile = await this._StoreProvider.getUserProfile(account)
       profile.session = currentSession
-      profile.disputes = newDisputes
       await this._StoreProvider.updateUserProfile(account, profile)
     }
 
-    return profile.disputes
+    // fetch user profile again after updates
+    const disputes = await this._StoreProvider.getDiputesForUser(account)
+    return disputes
   }
 
   /**
@@ -154,7 +185,8 @@ class KlerosWrapper extends ContractWrapper {
     // iterate over all disputes (FIXME inefficient)
     let dispute = await contractInstance.disputes(disputeId)
     while (dispute[0] !== "0x") {
-      const disputeSession = dispute[1].toNumber()
+      // session + number of appeals
+      const disputeSession = dispute[1].toNumber() + dispute[2].toNumber()
       // if dispute not in current session skip
       if (disputeSession !== currentSession) {
         disputeId++
@@ -264,7 +296,9 @@ class KlerosWrapper extends ContractWrapper {
     if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
     // FIXME seems like a super hacky way to update store
     userProfile.balance = (parseInt(userProfile.balance) ? userProfile.balance : 0) + parseInt(amount)
-    await this._StoreProvider.updateUserProfile(account, profile)
+    delete userProfile._id
+    delete userProfile.created_at
+    const response = await this._StoreProvider.newUserProfile(account, userProfile)
 
     return this.getPNKBalance(contractAddress)
   }
@@ -364,7 +398,6 @@ class KlerosWrapper extends ContractWrapper {
     disputeId,
     ruling,
     votes,
-    disputeHash,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     const contractInstance = await this.load(contractAddress)
@@ -379,17 +412,6 @@ class KlerosWrapper extends ContractWrapper {
           gas: config.GAS
         }
       )
-      await this._StoreProvider.updateUserProfile(account, userProfile)
-
-      // update dispute as voted
-      const userProfile = await this._StoreProvider.getUserProfile(account)
-      for (let i=0; i<userProfile.disputes; i++) {
-        const dispute = userProfile.disputes[i]
-        if (dispute.hash === disputeHash) {
-          userProfile.disputes[i].hasVoted = true
-          break
-        }
-      }
 
       return txHashObj.tx
     } catch (e) {
