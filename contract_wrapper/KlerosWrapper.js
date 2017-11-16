@@ -93,7 +93,10 @@ class KlerosWrapper extends ContractWrapper {
     // fetch current contract period
     const period = (await contractInstance.period()).toNumber()
     // new jurors have not been chosen yet. don't update
-    if (period !== 2) return profile.disputes
+    if (period !== 2) {
+      const disputes = await this._StoreProvider.getDisputesForUser(account)
+      return disputes
+    }
 
     const currentSession = (await contractInstance.session()).toNumber()
     if (currentSession != profile.session) {
