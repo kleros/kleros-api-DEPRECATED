@@ -5,6 +5,7 @@ import ArbitrableTransactionWrapper from './ArbitrableTransactionWrapper'
 import kleros from 'kleros/build/contracts/KlerosPOC' // FIXME mock
 import config from '../config'
 import disputes from './mockDisputes'
+import { VOTING_PERIOD } from '../constants'
 
 /**
  * Kleros API
@@ -93,7 +94,7 @@ class KlerosWrapper extends ContractWrapper {
     // fetch current contract period
     const period = (await contractInstance.period()).toNumber()
     // new jurors have not been chosen yet. don't update
-    if (period !== 2) {
+    if (period !== VOTING_PERIOD) {
       const disputes = await this._StoreProvider.getDisputesForUser(account)
       return disputes
     }
@@ -109,7 +110,7 @@ class KlerosWrapper extends ContractWrapper {
       const newDisputes = await Promise.all(myDisputes.map(async dispute => {
         // get data for contract
         const contractData = await ArbitrableTransaction.getDataContractForDispute(
-          partyA,
+          dispute.partyA,
           dispute.arbitrated,
           dispute
         )
@@ -165,7 +166,7 @@ class KlerosWrapper extends ContractWrapper {
     }
 
     // fetch user profile again after updates
-    const disputes = await this._StoreProvider.getDiputesForUser(account)
+    const disputes = await this._StoreProvider.getDisputesForUser(account)
     return disputes
   }
 
@@ -401,6 +402,7 @@ class KlerosWrapper extends ContractWrapper {
     disputeId,
     ruling,
     votes,
+    hash,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     const contractInstance = await this.load(contractAddress)
@@ -416,6 +418,14 @@ class KlerosWrapper extends ContractWrapper {
         }
       )
 
+      // mark in store that you have ruled on dispute
+      await this._StoreProvider.updateDisputeProfile(
+        account,
+        votes,
+        hash,
+        true,
+        true
+      )
       return txHashObj.tx
     } catch (e) {
       throw new Error(e)

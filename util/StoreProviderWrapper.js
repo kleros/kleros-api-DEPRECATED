@@ -201,7 +201,7 @@ class StoreProviderWrapper {
     return httpResponse
   }
 
-  getDiputesForUser = async address => {
+  getDisputesForUser = async address => {
     const userProfile = await this.getUserProfile(address)
     if (!userProfile) return []
 

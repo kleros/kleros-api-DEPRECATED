@@ -4,6 +4,7 @@ import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import arbitrableTransaction from 'kleros-interaction/build/contracts/ArbitrableTransaction'
 import config from '../config'
+import { DISPUTE_STATUS } from '../constants'
 
 /**
  * ArbitrableTransaction API
@@ -137,6 +138,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
          dataContract.disputeId
        )
 
+       // updated store if there is a dispute
+       await this._contractHasDispute(contractAddress)
+
        return txHashObj.tx
      } catch (e) {
        throw new Error(e)
@@ -182,9 +186,88 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
          dataContract.disputeId
        )
 
+       // updated store if there is a dispute
+       await this._contractHasDispute(contractAddress)
+
        return txHashObj.tx
      } catch (e) {
        throw new Error(e)
+     }
+   }
+
+   /**
+   * FIXME DRY this out with KlerosWrapper.getDisputesForUser
+   * If there is a dispute in contract update store
+   * @param contractAddress
+   * @param account
+   * @return Boolean
+   */
+   _contractHasDispute = async (
+     contractAddress
+   ) => {
+     this.contractInstance = await this.load(contractAddress)
+     const contractStatus = await this.contractInstance.status.call()
+
+     if (contractStatus === DISPUTE_STATUS) {
+       let disputeId = 0
+       let dispute = await contractInstance.disputes(disputeId)
+       while (dispute[0] !== '0x') {
+         // once we find our dispute stop
+         if (dispute[0] === contractAddress) break
+         disputeId += 1
+         dispute = await contractInstance.disputes(disputeId)
+       }
+
+       // make sure we didn't just go all the way through all the disputes
+       if (dispute[0] === '0x')
+       throw new Error('unable to find dispute for contract')
+
+       const myDispute = {
+         id: disputeId,
+         arbitrated: dispute[0],
+         session: dispute[1].toNumber(),
+         appeals: dispute[2].toNumber(),
+         choices: dispute[3].toNumber(),
+         initialNumberJurors: dispute[4].toNumber(),
+         arbitrationFeePerJuror: dispute[5].toNumber(),
+       }
+
+       const partyA = await this.contractInstance.partyA.call()
+       const disputeData = this.getDataContractForDispute(partyA, contractAddress, myDispute)
+
+       // update dispute
+       await this._StoreProvider.updateDispute(
+         disputeData.disputeId,
+         disputeData.hash,
+         disputeData.contractAddress,
+         disputeData.partyA,
+         disputeData.partyB,
+         disputeData.title,
+         disputeData.deadline,
+         disputeData.status,
+         disputeData.fee,
+         disputeData.information,
+         disputeData.justification,
+         disputeData.resolutionOptions
+       )
+
+       // update profile partyA
+       await this._StoreProvider.updateDisputeProfile(
+         disputeData.partyA,
+         disputeData.votes,
+         disputeData.hash,
+         false,
+         false
+       )
+
+       // update profile partyB
+       await this._StoreProvider.updateDisputeProfile(
+         disputeData.partyB,
+         disputeData.votes,
+         disputeData.hash,
+         false,
+         false
+       )
      }
    }
 
