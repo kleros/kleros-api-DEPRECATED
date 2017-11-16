@@ -46,6 +46,17 @@ class StoreProviderWrapper {
     return JSON.parse(httpResponse)
   }
 
+  updateUserProfile = async (address, userProfile) => {
+    delete userProfile._id
+    delete userProfile.created_at
+    const httpResponse = await this._makeRequest(
+      'POST',
+      `${this._storeUri}/${address}`,
+      JSON.stringify(userProfile)
+    )
+    return JSON.parse(httpResponse)
+  }
+
   getDisputeData = async (userAddress, hash) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile) throw new Error(`No profile found for address: ${userAddress}`)
@@ -55,7 +66,11 @@ class StoreProviderWrapper {
     })
 
     if (_.isEmpty(disputeData)) return null
-    return disputeData[0]
+    const httpResponse = await this._makeRequest(
+      'GET',
+      `${this._storeUri}/disputes/${disputeData[0].hash}`
+    )
+    return Object.assign({}, JSON.parse(httpResponse), disputeData[0])
   }
 
   getContractByHash = async (userAddress, hash) => {
@@ -125,6 +140,86 @@ class StoreProviderWrapper {
     )
 
     return httpResponse
+  }
+
+  // FIXME very complicated to update
+  updateDisputeProfile = async (
+    account,
+    votes,
+    hash,
+    isJuror,
+    hasRuled
+  ) => {
+    const httpResponse = await this._makeRequest(
+      'POST',
+      `${this._storeUri}/${account}/disputes/${hash}`,
+      JSON.stringify({
+        votes,
+        hash,
+        isJuror,
+        hasRuled
+      })
+    )
+
+    return httpResponse
+  }
+
+  // FIXME very complicated to update
+  updateDispute = async (
+    disputeId,
+    hash,
+    contractAddress,
+    partyA,
+    partyB,
+    title,
+    deadline,
+    status,
+    fee,
+    information,
+    justification,
+    resolutionOptions
+  ) => {
+    const httpResponse = await this._makeRequest(
+      'POST',
+      `${this._storeUri}/disputes/${hash}`,
+      JSON.stringify({
+        disputeId,
+        hash,
+        contractAddress,
+        partyA,
+        partyB,
+        title,
+        deadline,
+        status,
+        fee,
+        information,
+        justification,
+        resolutionOptions
+      })
+    )
+
+    return httpResponse
+  }
+
+  getDiputesForUser = async address => {
+    const userProfile = await this.getUserProfile(address)
+    if (!userProfile) return []
+
+    const disputes = []
+    for (let i=0; i<userProfile.disputes.length; i++) {
+      const dispute = userProfile.disputes[i]
+      if (!dispute.hash) continue
+      // fetch dispute data
+      const httpResponse = await this._makeRequest(
+        'GET',
+        `${this._storeUri}/disputes/${dispute.hash}`
+      )
+      disputes.push(
+        Object.assign({}, JSON.parse(httpResponse), dispute)
+      )
+    }
+
+    return disputes
   }
 }
 

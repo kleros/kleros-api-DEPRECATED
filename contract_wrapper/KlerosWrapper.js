@@ -92,9 +92,11 @@ class KlerosWrapper extends ContractWrapper {
     if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)
     // fetch current contract period
     const period = (await contractInstance.period()).toNumber()
-
     // new jurors have not been chosen yet. don't update
-    if (period < 2) return profile.disputes
+    if (period !== 2) {
+      const disputes = await this._StoreProvider.getDisputesForUser(account)
+      return disputes
+    }
 
     const currentSession = (await contractInstance.session()).toNumber()
     if (currentSession != profile.session) {
@@ -126,15 +128,45 @@ class KlerosWrapper extends ContractWrapper {
         return contractData
       }))
 
-      // add to store
+      let disputeObject
+      for (let i=0; i<newDisputes.length; i++) {
+        disputeObject = newDisputes[i]
+
+        // update dispute
+        await this._StoreProvider.updateDispute(
+          disputeObject.disputeId,
+          disputeObject.hash,
+          disputeObject.contractAddress,
+          disputeObject.partyA,
+          disputeObject.partyB,
+          disputeObject.title,
+          disputeObject.deadline,
+          disputeObject.status,
+          disputeObject.fee,
+          disputeObject.information,
+          disputeObject.justification,
+          disputeObject.resolutionOptions
+        )
+
+        // update profile
+        await this._StoreProvider.updateDisputeProfile(
+          account,
+          disputeObject.votes,
+          disputeObject.hash,
+          true,
+          false
+        )
+      }
+
+      // update session on profile
+      profile = await this._StoreProvider.getUserProfile(account)
       profile.session = currentSession
-      profile.disputes = newDisputes
-      delete profile._id // FIXME abstract this
-      delete profile.created_at
-      await this._StoreProvider.newUserProfile(account, profile)
+      await this._StoreProvider.updateUserProfile(account, profile)
     }
 
-    return profile.disputes
+    // fetch user profile again after updates
+    const disputes = await this._StoreProvider.getDiputesForUser(account)
+    return disputes
   }
 
   /**
@@ -156,7 +188,8 @@ class KlerosWrapper extends ContractWrapper {
     // iterate over all disputes (FIXME inefficient)
     let dispute = await contractInstance.disputes(disputeId)
     while (dispute[0] !== "0x") {
-      const disputeSession = dispute[1].toNumber()
+      // session + number of appeals
+      const disputeSession = dispute[1].toNumber() + dispute[2].toNumber()
       // if dispute not in current session skip
       if (disputeSession !== currentSession) {
         disputeId++
@@ -230,7 +263,8 @@ class KlerosWrapper extends ContractWrapper {
     if (!disputeData) throw new Error(`No dispute with hash ${disputeHash} for account ${account}`)
 
     // get contract data from partyA (should have same docs for both parties)
-    const contractData = await this._StoreProvider.getContractByAddress(disputeData.partyA, disputeData.contractAddress)
+    let contractData = await this._StoreProvider.getContractByAddress(disputeData.partyA, disputeData.contractAddress)
+    if (!contractData) contractData = {}
 
     return {
       contractData,
