@@ -2,6 +2,7 @@ import * as _ from 'lodash'
 import BigNumber from 'bignumber'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
+import KlerosWrapper from './KlerosWrapper'
 import arbitrableTransaction from 'kleros-interaction/build/contracts/ArbitrableTransaction'
 import config from '../config'
 import { DISPUTE_STATUS } from '../constants'
@@ -205,17 +206,22 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    _contractHasDispute = async (
      contractAddress
    ) => {
-     this.contractInstance = await this.load(contractAddress)
-     const contractStatus = await this.contractInstance.status.call()
+     const contractInstance = await this.load(contractAddress)
+     const contractStatus = (await this.contractInstance.status.call()).toNumber()
 
      if (contractStatus === DISPUTE_STATUS) {
+       // load court address FIXME messy
+       const klerosAddress = await contractInstance.arbitrator()
+       const KlerosCourt = new KlerosWrapper(this._Web3Wrapper, this._StoreProvider)
+       const klerosInstance = await KlerosCourt.load(klerosAddress)
+
        let disputeId = 0
-       let dispute = await contractInstance.disputes(disputeId)
+       let dispute = await klerosInstance.disputes(disputeId)
        while (dispute[0] !== '0x') {
          // once we find our dispute stop
          if (dispute[0] === contractAddress) break
          disputeId += 1
-         dispute = await contractInstance.disputes(disputeId)
+         dispute = await klerosInstance.disputes(disputeId)
        }
 
        // make sure we didn't just go all the way through all the disputes
@@ -232,8 +238,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
          arbitrationFeePerJuror: dispute[5].toNumber(),
        }
 
-       const partyA = await this.contractInstance.partyA.call()
-       const disputeData = this.getDataContractForDispute(partyA, contractAddress, myDispute)
+       const partyA = await contractInstance.partyA.call()
+       const disputeData = await this.getDataContractForDispute(partyA, contractAddress, myDispute)
 
        // update dispute
        await this._StoreProvider.updateDispute(

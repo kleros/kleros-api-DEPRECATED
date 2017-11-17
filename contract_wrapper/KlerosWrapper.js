@@ -166,7 +166,13 @@ class KlerosWrapper extends ContractWrapper {
     }
 
     // fetch user profile again after updates
-    const disputes = await this._StoreProvider.getDisputesForUser(account)
+    let disputes = await this._StoreProvider.getDisputesForUser(account)
+    // add on data about period and session
+    disputes = disputes.map((dispute) => {
+      dispute.period = period
+      dispute.session = currentSession
+      return dispute
+    })
     return disputes
   }
 
@@ -257,11 +263,19 @@ class KlerosWrapper extends ContractWrapper {
    */
   getDisputeByHash = async (
     disputeHash,
+    contractAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
+    const contractInstance = await this.load(contractAddress)
     // fetch dispute
     const disputeData = await this._StoreProvider.getDisputeData(account, disputeHash)
     if (!disputeData) throw new Error(`No dispute with hash ${disputeHash} for account ${account}`)
+    if (disputeData.disputeId) {
+      disputeData.ruling = (await contractInstance.currentRuling(disputeData.disputeId)).toNumber()
+    } else {
+      // 0 indicates that there is no decision
+      disputeData.ruling = 0
+    }
 
     // get contract data from partyA (should have same docs for both parties)
     let contractData = await this._StoreProvider.getContractByAddress(disputeData.partyA, disputeData.contractAddress)
@@ -453,7 +467,7 @@ class KlerosWrapper extends ContractWrapper {
       contractInstance.pinakion(),
       contractInstance.rng(),
       contractInstance.period(),
-      contractInstance.session(),
+      contractInstance.session()
     ]).catch(err => {
       throw new Error(err)
     })

@@ -34,6 +34,12 @@ describe('Kleros', () => {
     arbitrableTransaction = await KlerosInstance.arbitrableTransaction
   })
 
+  beforeEach(async () => {
+    // reset user profile in store
+    await court._StoreProvider.newUserProfile(partyA)
+    await court._StoreProvider.newUserProfile(partyB)
+  })
+
   test('deploy a arbitrableTransaction contract', async () => {
     let centralCourtDeployed = await centralCourt.deploy()
     expect(centralCourtDeployed.transactionHash)
@@ -214,7 +220,7 @@ describe('Kleros', () => {
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
     // check to see if store is updated
-    const userProfile = await arbitrableTransaction._StoreProvider.getUserProfile(web3.eth.accounts[0])
+    const userProfile = await arbitrableTransaction._StoreProvider.getUserProfile(partyA)
     expect(userProfile.disputes.length).toEqual(1)
 
     const dispute = await klerosCourt.disputes(0)
@@ -262,7 +268,7 @@ describe('Kleros', () => {
       expect(newState.period).toEqual(i)
     }
 
-    const isJuror = await klerosCourt.isDrawn(0, web3.eth.accounts[0], 1)
+    const isJuror = await klerosCourt.isDrawn(0, partyA, 1)
     expect(isJuror).toEqual(true)
 
     const ruling = 1
