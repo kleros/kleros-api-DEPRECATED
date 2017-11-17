@@ -452,6 +452,57 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
+   * Appeal ruling on dispute
+   * @param contractAddress address of KlerosPOC contract
+   * @param disputeId
+   * @param account address of user
+   * @return object
+   */
+  appealRuling = async (
+    contractAddress,
+    disputeId,
+    extraData,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    const contractInstance = await this.load(contractAddress)
+
+    const appealFee = (await contractInstance.appealCost(disputeId, extraData)).toNumber()
+    try {
+      const appealTxHash = await this.contractInstance.appeal(
+        disputeId,
+        extraData,
+        {
+          from: account,
+          value: appealFee
+          gas: config.GAS
+        }
+      )
+
+      return appealTxHash.tx
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  /**
+   * Execute ruling on dispute
+   * @param contractAddress address of KlerosPOC contract
+   * @param disputeId
+   * @param account address of user
+   * @return object
+   */
+  executeRuling = async (
+    contractAddress,
+    disputeId,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    const contractInstance = await this.load(contractAddress)
+    const executeTxHash = await this.contractInstance.executeRuling(disputeId)
+
+    return executeTxHash.tx
+  }
+
+  /**
    * Get data from Kleros contract
    * @param contractAddress address of KlerosPOC contract
    * @param account address of user
