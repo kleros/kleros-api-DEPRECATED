@@ -93,13 +93,18 @@ class KlerosWrapper extends ContractWrapper {
     if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)
     // fetch current contract period
     const period = (await contractInstance.period()).toNumber()
+    const currentSession = (await contractInstance.session()).toNumber()
     // new jurors have not been chosen yet. don't update
     if (period !== VOTING_PERIOD) {
-      const disputes = await this._StoreProvider.getDisputesForUser(account)
+      let disputes = await this._StoreProvider.getDisputesForUser(account)
+      disputes = disputes.map((dispute) => {
+        dispute.period = period
+        dispute.session = currentSession
+        return dispute
+      })
       return disputes
     }
 
-    const currentSession = (await contractInstance.session()).toNumber()
     if (currentSession != profile.session) {
       // get disputes for juror
       const myDisputes = await this.getDisputesForJuror(contractAddress, account)
