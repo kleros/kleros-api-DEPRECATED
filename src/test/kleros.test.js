@@ -213,6 +213,10 @@ describe('Kleros', () => {
     expect(txHashRaiseDisputeByPartyB)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
+    // check to see if store is updated
+    const userProfile = await arbitrableTransaction._StoreProvider.getUserProfile(web3.eth.accounts[0])
+    expect(userProfile.disputes.length).toEqual(1)
+
     const dispute = await klerosCourt.disputes(0)
 
     // dispute created
