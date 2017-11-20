@@ -496,9 +496,19 @@ class KlerosWrapper extends ContractWrapper {
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     const contractInstance = await this.load(contractAddress)
-    const executeTxHash = await this.contractInstance.executeRuling(disputeId)
-
-    return executeTxHash.tx
+    try {
+      const executeTxHash = await this.contractInstance.executeRuling(
+        disputeId,
+        {
+          from: account,
+          gas: config.GAS
+        }
+      )
+      
+      return executeTxHash.tx
+    } catch (e) {
+      throw e
+    }
   }
 
   /**
