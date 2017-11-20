@@ -283,8 +283,8 @@ class KlerosWrapper extends ContractWrapper {
     }
 
     // get contract data from partyA (should have same docs for both parties)
-    let contractData = await this._StoreProvider.getContractByAddress(disputeData.partyA, disputeData.contractAddress)
-    if (!contractData) contractData = {}
+    const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
+    let contractData = await ArbitrableTransaction.getDataContract(account, disputeData.contractAddress)
 
     return {
       contractData,
@@ -465,15 +465,14 @@ class KlerosWrapper extends ContractWrapper {
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     const contractInstance = await this.load(contractAddress)
-
-    const appealFee = (await contractInstance.appealCost(disputeId, extraData)).toNumber()
+    const appealFee = await contractInstance.appealCost(disputeId, extraData)
     try {
       const appealTxHash = await this.contractInstance.appeal(
         disputeId,
         extraData,
         {
           from: account,
-          value: appealFee
+          value: appealFee,
           gas: config.GAS
         }
       )

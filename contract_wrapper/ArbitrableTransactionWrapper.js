@@ -364,6 +364,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
      const [
        arbitrator,
        // hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
+       extraData,
        timeout,
        partyA,
        partyB,
@@ -374,6 +375,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        partyBFee
      ] = await Promise.all([
        contractDeployed.arbitrator.call(),
+       contractDeployed.arbitratorExtraData.call(),
       //  contractDeployed.hashContract.call(),
        contractDeployed.timeout.call(),
        contractDeployed.partyA.call(),
@@ -400,6 +402,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
 
      return {
        arbitrator,
+       extraData,
       //  hashContract,
        address,
        timeout: timeout.toNumber(),
