@@ -97,11 +97,15 @@ class KlerosWrapper extends ContractWrapper {
     // new jurors have not been chosen yet. don't update
     if (period !== VOTING_PERIOD) {
       let disputes = await this._StoreProvider.getDisputesForUser(account)
-      disputes = disputes.map((dispute) => {
+      disputes = await Promise.all(disputes.map(async (dispute) => {
+        // get dispute from store so that we have the same object returned for both methods
+        // FIXME inefficient
+        dispute = await this.getDisputeByHash(dispute.hash, contractAddress)
         dispute.period = period
         dispute.session = currentSession
         return dispute
-      })
+      }))
+
       return disputes
     }
 
@@ -173,11 +177,14 @@ class KlerosWrapper extends ContractWrapper {
     // fetch user profile again after updates
     let disputes = await this._StoreProvider.getDisputesForUser(account)
     // add on data about period and session
-    disputes = disputes.map((dispute) => {
+    disputes = await Promise.all(disputes.map(async (dispute) => {
+      // get dispute from store so that we have the same object returned for both methods
+      // FIXME inefficient
+      dispute = await this.getDisputeByHash(dispute.hash, contractAddress)
       dispute.period = period
       dispute.session = currentSession
       return dispute
-    })
+    }))
     return disputes
   }
 
