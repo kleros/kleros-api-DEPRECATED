@@ -497,6 +497,15 @@ class KlerosWrapper extends ContractWrapper {
   ) => {
     const contractInstance = await this.load(contractAddress)
     try {
+      // partition tokens
+      await contractInstance.oneShotTokenRepartition(
+        disputeId,
+        {
+          from: account,
+          gas: config.GAS
+        }
+      )
+      // execute ruling
       const executeTxHash = await this.contractInstance.executeRuling(
         disputeId,
         {
@@ -504,7 +513,7 @@ class KlerosWrapper extends ContractWrapper {
           gas: config.GAS
         }
       )
-      
+
       return executeTxHash.tx
     } catch (e) {
       throw e
