@@ -9,6 +9,8 @@ import mockDisputes from '../../contract_wrapper/mockDisputes'
 describe('Kleros', () => {
   let partyA
   let partyB
+  let juror
+  let other
   let web3
   let court
   let centralCourt
@@ -26,6 +28,8 @@ describe('Kleros', () => {
 
     partyA = web3.eth.accounts[0]
     partyB = web3.eth.accounts[1]
+    juror = web3.eth.accounts[3]
+    other = web3.eth.accounts[4]
 
     court = await KlerosInstance.court
     rng = await KlerosInstance.rng
@@ -75,7 +79,7 @@ describe('Kleros', () => {
 
     let contractArbitrableTransaction = await arbitrableTransaction.deploy(
       undefined, // use default account : account[0]
-      undefined, // use default value : 0
+      undefined,
       contractData.arbitrator,
       contractData.partyA,
       contractData.timeout,
@@ -135,16 +139,16 @@ describe('Kleros', () => {
 
     expect(data.owner).toEqual(klerosCourt.address)
 
-    // should have no balance to start with
-    const initialBalance = await court.getPNKBalance(klerosCourt.address)
+    // Juror should have no balance to start with
+    const initialBalance = await court.getPNKBalance(klerosCourt.address, juror)
     expect(initialBalance.tokenBalance).toEqual('0')
 
     // buy 1 PNK
-    const newBalance = await court.buyPNK(1, klerosCourt.address)
+    const newBalance = await court.buyPNK(1, klerosCourt.address, juror)
     expect(newBalance.tokenBalance).toEqual('1')
 
     // activate PNK
-    const balance = await court.activatePNK(0.5, klerosCourt.address)
+    const balance = await court.activatePNK(0.5, klerosCourt.address, juror)
     expect(balance.tokenBalance).toEqual('1')
     expect(balance.activatedTokens).toEqual('0.5')
 
@@ -158,9 +162,10 @@ describe('Kleros', () => {
       status: 0,
     }
 
+    const contractPaymentAmount = web3.toWei(1, 'ether') // contract payment be 1 ether
     let contractArbitrableTransaction = await arbitrableTransaction.deploy(
       undefined, // use default account : account[0]
-      undefined, // use default value : 0
+      contractPaymentAmount,
       contractData.arbitrator,
       contractData.partyA,
       contractData.timeout,
@@ -264,19 +269,22 @@ describe('Kleros', () => {
     for (let i=1; i<3; i++) {
       // delay a second so period is eligible to be passed
       await delaySecond()
-      newState = await court.passPeriod(klerosCourt.address)
+      newState = await court.passPeriod(klerosCourt.address, other)
       expect(newState.period).toEqual(i)
     }
 
-    const isJuror = await klerosCourt.isDrawn(0, partyA, 1)
+    const isJuror = await klerosCourt.isDrawn(0, juror, 1)
     expect(isJuror).toEqual(true)
 
+    // partyA wins
     const ruling = 1
     const submitTxHash = await court.submitVotes(
       klerosCourt.address,
       0,
       ruling,
-      [1]
+      [1],
+      contractArbitrableTransaction.address, // FIXME using address for hash right now
+      juror
     )
 
     expect(submitTxHash)
@@ -285,14 +293,32 @@ describe('Kleros', () => {
     // delay 1 second
     await delaySecond()
     // move to appeal period
-    await court.passPeriod(klerosCourt.address)
+    await court.passPeriod(klerosCourt.address, other)
 
     const currentRuling = await klerosCourt.currentRuling(0)
     expect(`${currentRuling}`).toEqual(`${ruling}`)
 
     const contracts = await court.getContractsForUser()
-
     expect(contracts).toBeTruthy()
 
+    // TODO test appeal
+
+    // delay 1 second
+    await delaySecond()
+    // move to execute period
+    await court.passPeriod(klerosCourt.address, other)
+    // balances before ruling is executed
+    const partyABalance = web3.eth.getBalance(partyA).toNumber()
+    const partyBBalance = web3.eth.getBalance(partyB).toNumber()
+    // execute ruling
+    await court.executeRuling(klerosCourt.address, 0, other)
+    // balances after ruling
+    // partyA wins so they should recieve their arbitration fee as well as the value locked in contract
+    expect(web3.eth.getBalance(partyA).toNumber() - partyABalance).toEqual(arbitrationCost.toNumber() + parseInt(contractPaymentAmount))
+    // partyB lost so their balance should remain the same
+    expect(web3.eth.getBalance(partyB).toNumber()).toEqual(partyBBalance)
+
+    const contractStatus = await contractArbitrableTransaction.status.call()
+    expect(parseInt(contractStatus)).toEqual(4)
   }, 50000)
 })

@@ -27,7 +27,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   /**
    * Deploy ArbitrableTransaction.
    * @param account Ethereum account (default account[0])
-   * @param value gas price value
+   * @param value funds to be placed in contract
    * @param arbitrator The arbitrator of the contract.
    *                   (default CentralizedArbitrator)
    * @param hashContract Keccak hash of the plain English contract. (default null hashed)

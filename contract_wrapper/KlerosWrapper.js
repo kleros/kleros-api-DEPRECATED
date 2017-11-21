@@ -323,7 +323,7 @@ class KlerosWrapper extends ContractWrapper {
     delete userProfile.created_at
     const response = await this._StoreProvider.newUserProfile(account, userProfile)
 
-    return this.getPNKBalance(contractAddress)
+    return this.getPNKBalance(contractAddress, account)
   }
 
   /**
