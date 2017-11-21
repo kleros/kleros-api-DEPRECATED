@@ -283,8 +283,8 @@ class KlerosWrapper extends ContractWrapper {
     }
 
     // get contract data from partyA (should have same docs for both parties)
-    let contractData = await this._StoreProvider.getContractByAddress(disputeData.partyA, disputeData.contractAddress)
-    if (!contractData) contractData = {}
+    const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
+    let contractData = await ArbitrableTransaction.getDataContract(account, disputeData.contractAddress)
 
     return {
       contractData,
@@ -448,6 +448,75 @@ class KlerosWrapper extends ContractWrapper {
       return txHashObj.tx
     } catch (e) {
       throw new Error(e)
+    }
+  }
+
+  /**
+   * Appeal ruling on dispute
+   * @param contractAddress address of KlerosPOC contract
+   * @param disputeId
+   * @param account address of user
+   * @return object
+   */
+  appealRuling = async (
+    contractAddress,
+    disputeId,
+    extraData,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    const contractInstance = await this.load(contractAddress)
+    const appealFee = await contractInstance.appealCost(disputeId, extraData)
+    try {
+      const appealTxHash = await this.contractInstance.appeal(
+        disputeId,
+        extraData,
+        {
+          from: account,
+          value: appealFee,
+          gas: config.GAS
+        }
+      )
+
+      return appealTxHash.tx
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  /**
+   * Execute ruling on dispute
+   * @param contractAddress address of KlerosPOC contract
+   * @param disputeId
+   * @param account address of user
+   * @return object
+   */
+  executeRuling = async (
+    contractAddress,
+    disputeId,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    const contractInstance = await this.load(contractAddress)
+    try {
+      // partition tokens
+      await contractInstance.oneShotTokenRepartition(
+        disputeId,
+        {
+          from: account,
+          gas: config.GAS
+        }
+      )
+      // execute ruling
+      const executeTxHash = await this.contractInstance.executeRuling(
+        disputeId,
+        {
+          from: account,
+          gas: config.GAS
+        }
+      )
+
+      return executeTxHash.tx
+    } catch (e) {
+      throw e
     }
   }
 
