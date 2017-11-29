@@ -34,6 +34,8 @@ describe('KlerosWrapper', () => {
     mockContractInstance = {
       address: address
     }
+
+    klerosInstance.contractInstance = mockContractInstance
   })
 
   test('getDisputesForJuror is juror', async () => {
@@ -64,14 +66,12 @@ describe('KlerosWrapper', () => {
       ]
     ]
 
-    mockContractInstance.session = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(session)))
-    mockContractInstance.amountJurors = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(3)))
-    mockContractInstance.isDrawn = jest.fn().mockReturnValue(_asyncMockResponse(isJuror))
-    mockContractInstance.disputes = async index => {
+    klerosInstance.contractInstance.session = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(session)))
+    klerosInstance.contractInstance.amountJurors = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(3)))
+    klerosInstance.contractInstance.isDrawn = jest.fn().mockReturnValue(_asyncMockResponse(isJuror))
+    klerosInstance.contractInstance.disputes = async index => {
       return _asyncMockResponse(mockDisputes[index])
     }
-
-    klerosInstance.contractInstance = mockContractInstance
 
     const disputes = await klerosInstance.getDisputesForJuror(address, address)
 
@@ -106,14 +106,12 @@ describe('KlerosWrapper', () => {
       ]
     ]
 
-    mockContractInstance.session = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(session)))
-    mockContractInstance.amountJurors = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(3)))
-    mockContractInstance.isDrawn = jest.fn().mockReturnValue(_asyncMockResponse(isJuror))
-    mockContractInstance.disputes = async index => {
+    klerosInstance.contractInstance.session = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(session)))
+    klerosInstance.contractInstance.amountJurors = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(3)))
+    klerosInstance.contractInstance.isDrawn = jest.fn().mockReturnValue(_asyncMockResponse(isJuror))
+    klerosInstance.contractInstance.disputes = async index => {
       return _asyncMockResponse(mockDisputes[index])
     }
-
-    klerosInstance.contractInstance = mockContractInstance
 
     const disputes = await klerosInstance.getDisputesForJuror(address, address)
 
@@ -148,14 +146,33 @@ describe('KlerosWrapper', () => {
       ]
     ]
 
-    mockContractInstance.session = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(session)))
-    mockContractInstance.amountJurors = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(3)))
-    mockContractInstance.isDrawn = jest.fn().mockReturnValue(_asyncMockResponse(isJuror))
-    mockContractInstance.disputes = async index => {
+    klerosInstance.contractInstance.session = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(session)))
+    klerosInstance.contractInstance.amountJurors = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(3)))
+    klerosInstance.contractInstance.isDrawn = jest.fn().mockReturnValue(_asyncMockResponse(isJuror))
+    klerosInstance.contractInstance.disputes = async index => {
       return _asyncMockResponse(mockDisputes[index])
     }
 
-    klerosInstance.contractInstance = mockContractInstance
+    const disputes = await klerosInstance.getDisputesForJuror(address, address)
+
+    expect(disputes).toEqual([])
+  })
+
+  test('getDisputeByHash', async () => {
+    const disputeData = {
+      arbitrated: 'fake-contract-address',
+      appeals: 0,
+      session: session - 1,
+      arbitrationFeePerJuror: 1,
+      choices: 2,
+      initialNumberJurors: 3,
+      votes: [1,2,3],
+      disputeId: 0
+    }
+    const mockRuling = 1
+
+    klerosInstance._StoreProvider.getDisputeData = jest.fn().mockReturnValue(_asyncMockResponse(disputeData))
+    klerosInstance.contractInstance.ruling = jest.fn().mockReturnValue(_asyncMockResponse(new BigNumber(mockRuling)))
 
     const disputes = await klerosInstance.getDisputesForJuror(address, address)
 

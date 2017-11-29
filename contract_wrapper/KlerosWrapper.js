@@ -268,7 +268,7 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
-   * Get dispute by id FIXME isn't calling blockchain
+   * Get dispute by id
    * @param disputeHash hash of the dispute
    * @param account address of user
    * @return objects[]
