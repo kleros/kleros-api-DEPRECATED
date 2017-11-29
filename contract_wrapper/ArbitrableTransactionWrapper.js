@@ -297,12 +297,18 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   submitEvidence = async (
     account = this._Web3Wrapper.getAccount(0),
     contractAddress,
-    evidence = 'this is an evidence'
+    name,
+    description = '',
+    url
   ) => {
     this.contractInstance = await this.load(contractAddress)
     const txHashObj = await this.contractInstance
       .submitEvidence(
-        evidence,
+        JSON.stringify(
+          name,
+          description,
+          url
+        ),
         {
           from: account,
           gas: config.GAS,
@@ -310,15 +316,12 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
         }
       )
 
-    const dataContract = await this.getDataContract(
-      account,
-      contractAddress
-    )
-
     await this._StoreProvider.addEvidenceContract(
       contractAddress,
       account,
-      evidence
+      name,
+      description,
+      url
     )
 
     return txHashObj.tx
