@@ -352,7 +352,7 @@ class KlerosWrapper extends ContractWrapper {
     // tokens activated in court session
     const currentSession = await contractInstance.session.call()
     let activatedTokens = 0
-    if (juror[3].toNumber() === currentSession.toNumber()) {
+    if (juror[2].toNumber() === currentSession.toNumber()) {
       activatedTokens = this._Web3Wrapper.fromWei((juror[4].toNumber() - juror[3].toNumber()), 'ether')
     }
     // tokens locked into disputes
@@ -364,7 +364,7 @@ class KlerosWrapper extends ContractWrapper {
       tokenBalance: contractBalance
     }
   }
-  
+
   /**
    * Activate Pinakion tokens to be eligible to be a juror
    * @param amount number of tokens to activate
