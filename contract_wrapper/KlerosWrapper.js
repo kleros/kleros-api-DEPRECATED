@@ -291,7 +291,7 @@ class KlerosWrapper extends ContractWrapper {
 
     // get contract data from partyA (should have same docs for both parties)
     const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
-    let contractData = await ArbitrableTransaction.getDataContract(account, disputeData.contractAddress)
+    let contractData = await ArbitrableTransaction.getDataContract(disputeData.partyA, disputeData.contractAddress)
 
     return {
       contractData,
@@ -343,13 +343,20 @@ class KlerosWrapper extends ContractWrapper {
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     const contractInstance = await this.load(contractAddress)
+
     const juror = await contractInstance.jurors(account)
+    if (!juror) throw new Error(`${account} is not a juror for contract ${contractAddress}`)
+
     // total tokens stored in contract
-    const contractBalance = juror ? this._Web3Wrapper.fromWei(juror[0].toNumber(), 'ether') : 0
+    const contractBalance = this._Web3Wrapper.fromWei(juror[0].toNumber(), 'ether')
     // tokens activated in court session
-    const activatedTokens = juror ? this._Web3Wrapper.fromWei((juror[4].toNumber() - juror[3].toNumber()), 'ether') : 0
+    const currentSession = await contractInstance.session.call()
+    let activatedTokens = 0
+    if (juror[2].toNumber() === currentSession.toNumber()) {
+      activatedTokens = this._Web3Wrapper.fromWei((juror[4].toNumber() - juror[3].toNumber()), 'ether')
+    }
     // tokens locked into disputes
-    const lockedTokens = juror ? this._Web3Wrapper.fromWei(juror[2].toNumber(), 'ether') : 0
+    const lockedTokens = this._Web3Wrapper.fromWei(juror[2].toNumber(), 'ether')
 
     return {
       activatedTokens,
