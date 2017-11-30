@@ -100,16 +100,11 @@ describe('Kleros', () => {
 
   test('KlerosPOC dispute resolution flow', async () => {
     // initialize RNG and Pinakion contracts
-    const number = 1
     const rngInstance = await rng.deploy(
-      undefined,
-      number
+      undefined
     )
     expect(rngInstance.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-
-    const rngData = await rng.getData(rngInstance.address)
-    expect(rngData.number).toEqual(number)
 
     const pinakionInstance = await pinakion.deploy()
     expect(pinakionInstance.transactionHash)
@@ -267,6 +262,8 @@ describe('Kleros', () => {
     let newState
     // pass state so jurors are selected
     for (let i=1; i<3; i++) {
+      // NOTE we need to make another block before we can generate the random number. Should not be an issue on main nets where avg block time < period length
+      if (i == 2) web3.eth.sendTransaction({from: partyA, to: partyB, value: 10000, data: '0x'})
       // delay a second so period is eligible to be passed
       await delaySecond()
       newState = await court.passPeriod(klerosCourt.address, other)

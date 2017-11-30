@@ -1,13 +1,13 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
-import RNG from 'kleros-interaction/build/contracts/ConstantNG'
+import RNG from 'kleros-interaction/build/contracts/BlockHashRNG'
 import config from '../config'
 
 /**
  * Kleros API
  */
-class ConstantNGWrapper extends ContractWrapper {
+class BlockHashRNGWrapper extends ContractWrapper {
   /**
    * Constructor Kleros.
    * @param web3 instance
@@ -29,14 +29,11 @@ class ConstantNGWrapper extends ContractWrapper {
    */
   deploy = async (
       account = this._Web3Wrapper.getAccount(0),
-      constant = 23 // constant that it always returns
     ) => {
-
     const contractDeployed = await this._deployAsync(
       account,
       config.value,
-      RNG,
-      constant
+      RNG
     )
 
     this.address = contractDeployed.address
@@ -61,25 +58,6 @@ class ConstantNGWrapper extends ContractWrapper {
       throw new Error(e)
     }
   }
-
-  getData = async (
-    contractAddress,
-    account = this._Web3Wrapper.getAccount(0)
-  ) => {
-    const contractInstance = await this.load(contractAddress)
-
-    const [
-      number
-    ] = await Promise.all([
-      contractInstance.number.call()
-    ]).catch(err => {
-      throw new Error(err)
-    })
-
-    return {
-      number: number.toNumber()
-    }
-  }
 }
 
-export default ConstantNGWrapper
+export default BlockHashRNGWrapper
