@@ -123,7 +123,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        )
 
        const dataContract = await this.getDataContract(
-         account,
          contractAddress
        )
 
@@ -171,7 +170,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        )
 
        const dataContract = await this.getDataContract(
-         account,
          contractAddress
        )
 
@@ -359,7 +357,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @return Object Data of the contract.
    */
   getDataContract = async (
-    account = this._Web3Wrapper.getAccount(0),
     address
   ) => {
     const contractDeployed = await this.load(address)
@@ -392,17 +389,26 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        throw new Error(err)
      })
 
-     let storeDataContract
+     let storeDataContractPartyA,
+         storeDataContractPartyB
      try {
-       storeDataContract = await this._StoreProvider.getContractByAddress(
-         account,
+       storeDataContractPartyA = await this._StoreProvider.getContractByAddress(
+         partyA,
          address
        )
-       if (!storeDataContract) storeDataContract = {}
+       storeDataContractPartyB = await this._StoreProvider.getContractByAddress(
+         partyB,
+         address
+       )
+       if (!storeDataContractPartyA) storeDataContractPartyA = {}
+       if (!storeDataContractPartyB) storeDataContractPartyB = {}
      } catch(e) {
-       storeDataContract = {}
+       storeDataContractPartyA = {}
+       storeDataContractPartyB = {}
      }
 
+     const partyAEvidence = storeDataContractPartyA.evidences ? storeDataContractPartyA.evidences : []
+     const partyBEvidence = storeDataContractPartyB.evidences ? storeDataContractPartyB.evidences : []
      return {
        arbitrator,
        extraData,
@@ -413,12 +419,15 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
        partyB,
        status: status.toNumber(),
        arbitratorExtraData,
-       email: storeDataContract.email,
-       description: storeDataContract.description,
+       email: storeDataContractPartyA.email,
+       description: storeDataContractPartyA.description,
        disputeId,
        partyAFee: partyAFee.toNumber(),
        partyBFee: partyBFee.toNumber(),
-       evidences: storeDataContract.evidences
+       evidences: [
+         ...partyAEvidence,
+         ...partyBEvidence
+       ]
      }
    }
 
@@ -438,7 +447,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
      const contractDeployed = await this.load(contractAddress)
      // get the contract data from the disputed contract
      const arbitrableTransactionData = await this.getDataContract(
-       account,
        contractAddress
      )
 
