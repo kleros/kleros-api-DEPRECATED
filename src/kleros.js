@@ -4,7 +4,7 @@ import KlerosWrapper from '../contract_wrapper/KlerosWrapper'
 import CentralizedArbitratorWrapper from '../contract_wrapper/CentralizedArbitratorWrapper'
 import ArbitrableTransactionWrapper from '../contract_wrapper/ArbitrableTransactionWrapper'
 import PinakionWrapper from '../contract_wrapper/PinakionWrapper'
-import ConstantNGWrapper from '../contract_wrapper/ConstantNGWrapper'
+import BlockHashRNGWrapper from '../contract_wrapper/BlockHashRNGWrapper'
 import {LOCALHOST_STORE_PROVIDER} from '../constants'
 
 class Kleros {
@@ -50,7 +50,7 @@ class Kleros {
     this.centralCourt = new CentralizedArbitratorWrapper(this._web3Wrapper, this._storeWrapper)
     this.arbitrableTransaction = new ArbitrableTransactionWrapper(this._web3Wrapper, this._storeWrapper)
     this.pinakion = new PinakionWrapper(this._web3Wrapper, this._storeWrapper)
-    this.rng = new ConstantNGWrapper(this._web3Wrapper, this._storeWrapper)
+    this.rng = new BlockHashRNGWrapper(this._web3Wrapper, this._storeWrapper)
   }
 
   getWeb3Wrapper = () => this._web3Wrapper
