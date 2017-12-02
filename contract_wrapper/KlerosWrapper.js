@@ -291,7 +291,7 @@ class KlerosWrapper extends ContractWrapper {
 
     // get contract data from partyA (should have same docs for both parties)
     const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
-    let contractData = await ArbitrableTransaction.getDataContract(disputeData.partyA, disputeData.contractAddress)
+    let contractData = await ArbitrableTransaction.getDataContract(disputeData.contractAddress)
 
     return {
       contractData,

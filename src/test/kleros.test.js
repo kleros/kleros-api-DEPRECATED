@@ -90,7 +90,7 @@ describe('Kleros', () => {
     )
 
     const contractDataDeployed = await arbitrableTransaction
-      .getDataContract(partyA, contractArbitrableTransaction.address)
+      .getDataContract(contractArbitrableTransaction.address)
 
     contractDataDeployed.disputeId = contractDataDeployed.disputeId.toNumber()
 
@@ -146,7 +146,6 @@ describe('Kleros', () => {
     const balance = await court.activatePNK(0.5, klerosCourt.address, juror)
     expect(balance.tokenBalance).toEqual('1')
     expect(balance.activatedTokens).toEqual('0.5')
-
     // create a new dispute
     let contractData = {
       arbitrator: klerosCourt.address,
@@ -218,7 +217,6 @@ describe('Kleros', () => {
 
     expect(txHashRaiseDisputeByPartyB)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-
     // check to see if store is updated
     const userProfile = await arbitrableTransaction._StoreProvider.getUserProfile(partyA)
     expect(userProfile.disputes.length).toEqual(1)
@@ -230,20 +228,26 @@ describe('Kleros', () => {
 
     // add an evidence
     // FIXME use arbitrableTransaction
+    const testName = 'test name'
+    const testDesc = 'test description'
+    const testURL = 'http://test.com'
     const txHashAddEvidence = await arbitrableTransaction
       .submitEvidence(
         undefined,
-        contractArbitrableTransaction.address
+        contractArbitrableTransaction.address,
+        testName,
+        testDesc,
+        testURL
       )
 
     expect(txHashAddEvidence)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
     const contractDataDeployed = await arbitrableTransaction
-      .getDataContract(partyA, contractArbitrableTransaction.address)
+      .getDataContract(contractArbitrableTransaction.address)
 
     expect(contractDataDeployed.evidences[0].url)
-      .toBe('this is an evidence')
+      .toBe(testURL)
 
     // check initial state of contract
     // FIXME var must be more explicit

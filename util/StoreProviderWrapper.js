@@ -129,12 +129,16 @@ class StoreProviderWrapper {
   addEvidenceContract = async (
     address,
     account,
+    name,
+    description,
     url
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
       `${this._storeUri}/${account}/contracts/${address}/evidence`,
       JSON.stringify({
+        name,
+        description,
         url
       })
     )
