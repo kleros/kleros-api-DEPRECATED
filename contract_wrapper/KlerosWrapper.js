@@ -5,7 +5,7 @@ import ArbitrableTransactionWrapper from './ArbitrableTransactionWrapper'
 import kleros from 'kleros/build/contracts/KlerosPOC' // FIXME mock
 import config from '../config'
 import disputes from './mockDisputes'
-import { VOTING_PERIOD } from '../constants'
+import { VOTING_PERIOD, DISPUTE_STATE_INDEX } from '../constants'
 
 /**
  * Kleros API
@@ -284,6 +284,8 @@ class KlerosWrapper extends ContractWrapper {
     if (!disputeData) throw new Error(`No dispute with hash ${disputeHash} for account ${account}`)
     if (disputeData.disputeId) {
       disputeData.ruling = (await contractInstance.currentRuling(disputeData.disputeId)).toNumber()
+      const disputeRaw = await contractInstance.disputes(disputeData.disputeId)
+      disputeData.state = disputeRaw[DISPUTE_STATE_INDEX].toNumber()
     } else {
       // 0 indicates that there is no decision
       disputeData.ruling = 0
@@ -498,6 +500,35 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
+   * Repartition juror tokens
+   * @param contractAddress address of KlerosPOC contract
+   * @param disputeId
+   * @param account address of user
+   * @return object
+   */
+  repartitionJurorTokens = async (
+    contractAddress,
+    disputeId,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    const contractInstance = await this.load(contractAddress)
+    try {
+      // partition tokens
+      const repartitionTxHash = await contractInstance.oneShotTokenRepartition(
+        disputeId,
+        {
+          from: account,
+          gas: config.GAS
+        }
+      )
+
+      return repartitionTxHash.tx
+    } catch (e) {
+      throw e
+    }
+  }
+
+  /**
    * Execute ruling on dispute
    * @param contractAddress address of KlerosPOC contract
    * @param disputeId
@@ -511,14 +542,6 @@ class KlerosWrapper extends ContractWrapper {
   ) => {
     const contractInstance = await this.load(contractAddress)
     try {
-      // partition tokens
-      await contractInstance.oneShotTokenRepartition(
-        disputeId,
-        {
-          from: account,
-          gas: config.GAS
-        }
-      )
       // execute ruling
       const executeTxHash = await this.contractInstance.executeRuling(
         disputeId,

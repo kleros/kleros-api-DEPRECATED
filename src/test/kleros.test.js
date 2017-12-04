@@ -311,6 +311,8 @@ describe('Kleros', () => {
     // balances before ruling is executed
     const partyABalance = web3.eth.getBalance(partyA).toNumber()
     const partyBBalance = web3.eth.getBalance(partyB).toNumber()
+    // repartition tokens
+    await court.repartitionJurorTokens(klerosCourt.address, 0, other)
     // execute ruling
     await court.executeRuling(klerosCourt.address, 0, other)
     // balances after ruling
