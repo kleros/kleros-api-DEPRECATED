@@ -1,9 +1,11 @@
+import { NULL_ADDRESS, VOTING_PERIOD } from '../../constants'
+
 /**
- * Disputes object
+ * Disputes api
  */
 class Disputes {
   /**
-   * Constructor Kleros.
+   * Constructor Disputes.
    * @param web3Provider web3 wrapper object
    * @param storeProvider store provider object
    * @param arbitratorWrapper arbitrator contract wrapper object
@@ -16,10 +18,18 @@ class Disputes {
     this._Arbitrable = arbitrableWrapper
   }
 
+  /**
+  * set Arbitrator wrapper
+  * @param arbitratorWrapper wrapper for arbitrator contract
+  */
   setArbitrator = arbitratorWrapper => {
     this._Arbitrator = arbitratorWrapper
   }
 
+  /**
+  * set Arbitrable wrapper
+  * @param arbitrableWrapper wrapper for arbitrable contract
+  */
   setArbitrable = arbitrableWrapper => {
     this._Arbitrable = arbitrableWrapper
   }
@@ -54,6 +64,41 @@ class Disputes {
   }
 
   /**
+   * Get dispute from store by hash
+   * @param disputeHash hash of the dispute
+   * @param account address of user
+   * @return objects[]
+   */
+  getDisputeByHash = async (
+    disputeHash,
+    arbitratorAddress,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
+    const contractInstance = await this.load(contractAddress)
+    // fetch dispute
+    const disputeData = await this._StoreProvider.getDisputeData(account, disputeHash)
+    if (!disputeData) throw new Error(`No dispute with hash ${disputeHash} for account ${account}`)
+    if (disputeData.disputeId) {
+      disputeData.ruling = await this._Arbitrator.currentRulingForDispute(disputeData.disputeId, arbitratorAddress)
+      const dispute = await this._Arbitrator.getDispute(disputeData.disputeId, arbitratorAddress)
+      // should we just merge both objects?
+      disputeData.state = dispute.state
+    } else {
+      // 0 indicates that there is no decision
+      disputeData.ruling = 0
+      disputeData.state = 0
+    }
+
+    // get contract data from partyA (should have same docs for both parties)
+    let contractData = await this._Arbitrable.getDataContract(disputeData.contractAddress)
+
+    return {
+      contractData,
+      disputeData
+    }
+  }
+
+  /**
    * Get disputes for user with extra data from arbitrated transaction and store
    * @param arbitratorAddress address of Kleros contract
    * @param account address of user
@@ -63,15 +108,17 @@ class Disputes {
     arbitratorAddress,
     account = this._Web3Wrapper.getAccount(0),
   ) => {
-    // contract instance
-    const arbitratorInstance = await this._loadArbitratorInstance(arbitratorAddress)
+    // FIXME don't like having to call this every fnc
+    this._checkContractWrappersSet()
+    // contract data
+    const arbitratorData = await this._Arbitrator.getData(arbitratorAddress, account)
 
     // fetch user profile
     let profile = await this._StoreProvider.getUserProfile(account)
     if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)
     // fetch current contract period
-    const period = (await arbitratorInstance.period()).toNumber()
-    const currentSession = (await arbitratorInstance.session()).toNumber()
+    const period = arbitratorData.period
+    const currentSession = arbitratorData.session
     // new jurors have not been chosen yet. don't update
     if (period !== VOTING_PERIOD) {
       let disputes = await this._StoreProvider.getDisputesForUser(account)
@@ -99,8 +146,8 @@ class Disputes {
           dispute
         )
         // compute end date
-        const startTime = (await arbitratorInstance.lastPeriodChange()).toNumber()
-        const length = (await arbitratorInstance.timePerPeriod(period)).toNumber()
+        const startTime = arbitratorData.lastPeriodChange
+        const length = await this._Arbitrator.getTimeForPeriod(period)
 
         // FIXME this is all UTC for now. Timezones are a pain
         const deadline = new Date(0);
@@ -165,36 +212,39 @@ class Disputes {
 
   /**
    * Get disputes from Kleros contract
-   * @param contractAddress address of Kleros contract
+   * @param arbitratorAddress address of Kleros contract
    * @param account address of user
    * @return objects[]
    */
   getDisputesForJuror = async (
-    contractAddress,
+    arbitratorAddress,
     account,
   ) => {
-    const contractInstance = await this.load(contractAddress)
+    // FIXME don't like having to call this every fnc
+    this._checkContractWrappersSet()
+    // contract data
+    const arbitratorData = await this._Arbitrator.getData(arbitratorAddress, account)
     const myDisputes = []
     let disputeId = 0
     let numberOfJurors = 0
-    const currentSession = (await contractInstance.session()).toNumber()
+    const currentSession = arbitratorData.session
 
     // iterate over all disputes (FIXME inefficient)
-    let dispute = await contractInstance.disputes(disputeId)
-    while (dispute[0] !== "0x") {
+    let dispute = await this._Arbitrator.getDispute(disputeId, arbitratorAddress)
+    while (dispute.arbitratedContract !== NULL_ADDRESS) {
       // session + number of appeals
-      const disputeSession = dispute[1].toNumber() + dispute[2].toNumber()
+      const disputeSession = dispute.firstSession + dispute.numberOfAppeals
       // if dispute not in current session skip
       if (disputeSession !== currentSession) {
         disputeId++
-        dispute = await contractInstance.disputes(disputeId)
+        dispute = await this._Arbitrator.getDispute(disputeId, arbitratorAddress)
         continue
       }
 
-      numberOfJurors = (await contractInstance.amountJurors(disputeId)).toNumber()
+      numberOfJurors = await this._Arbitrator.getAmountOfJurorsForDispute(disputeId, arbitratorAddress)
       for (let draw=1; draw<=numberOfJurors; draw++) {
         // check if you are juror for dispute
-        const isJuror = await contractInstance.isDrawn(disputeId, account, draw)
+        const isJuror = await this._Arbitrator.isJurorDrawnForDispute(disputeID, draw, arbitratorAddress, account)
         if (isJuror) {
           let toAdd = true
           // if dispute already in myDipsutes add new draw number
@@ -208,20 +258,15 @@ class Disputes {
           // if dispute not already in array add it
           if (toAdd) myDisputes.push({
             id: disputeId,
-            arbitrated: dispute[0],
-            session: dispute[1].toNumber(),
-            appeals: dispute[2].toNumber(),
-            choices: dispute[3].toNumber(),
-            initialNumberJurors: dispute[4].toNumber(),
-            arbitrationFeePerJuror: dispute[5].toNumber(),
-            votes: [draw]
+            votes: [draw],
+            ...dispute
           })
         }
       }
 
       // check next dispute
       disputeId += 1
-      dispute = await contractInstance.disputes(disputeId)
+      dispute = await this._Arbitrator.getDispute(disputeId, arbitratorAddress)
     }
 
     return myDisputes

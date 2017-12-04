@@ -2,7 +2,7 @@ import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import ArbitrableTransactionWrapper from './ArbitrableTransactionWrapper'
-import kleros from 'kleros/build/contracts/KlerosPOC' // FIXME mock
+import kleros from 'kleros/build/contracts/KlerosPOC'
 import config from '../config'
 import disputes from './mockDisputes'
 import { VOTING_PERIOD, DISPUTE_STATE_INDEX } from '../constants'
@@ -76,237 +76,12 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
-   * Get disputes for user with extra data from arbitrated transaction and store
-   * @param contractAddress address of Kleros contract
-   * @param account address of user
-   * @return objects[]
-   */
-  getDisputesForUser = async (
-    contractAddress,
-    account = this._Web3Wrapper.getAccount(0),
-  ) => {
-    // contract instance
-    const contractInstance = await this.load(contractAddress)
-
-    // fetch user profile
-    let profile = await this._StoreProvider.getUserProfile(account)
-    if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)
-    // fetch current contract period
-    const period = (await contractInstance.period()).toNumber()
-    const currentSession = (await contractInstance.session()).toNumber()
-    // new jurors have not been chosen yet. don't update
-    if (period !== VOTING_PERIOD) {
-      let disputes = await this._StoreProvider.getDisputesForUser(account)
-      disputes = await Promise.all(disputes.map(async (dispute) => {
-        // get dispute from store so that we have the same object returned for both methods
-        // FIXME inefficient
-        dispute = await this.getDisputeByHash(dispute.hash, contractAddress)
-        dispute.period = period
-        dispute.session = currentSession
-        return dispute
-      }))
-
-      return disputes
-    }
-
-    if (currentSession != profile.session) {
-      // get disputes for juror
-      const myDisputes = await this.getDisputesForJuror(contractAddress, account)
-
-      // FIXME allow for other contract types
-      const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
-
-      const newDisputes = await Promise.all(myDisputes.map(async dispute => {
-        // get data for contract
-        const contractData = await ArbitrableTransaction.getDataContractForDispute(
-          dispute.partyA,
-          dispute.arbitrated,
-          dispute
-        )
-        // compute end date
-        const startTime = (await contractInstance.lastPeriodChange()).toNumber()
-        const length = (await contractInstance.timePerPeriod(period)).toNumber()
-
-        // FIXME this is all UTC for now. Timezones are a pain
-        const deadline = new Date(0);
-        deadline.setUTCSeconds(startTime)
-        deadline.setSeconds(deadline.getSeconds() + length);
-
-        // set deadline
-        contractData.deadline = `${deadline.getUTCDate()}/${deadline.getUTCMonth()}/${deadline.getFullYear()}`
-
-        return contractData
-      }))
-
-      let disputeObject
-      for (let i=0; i<newDisputes.length; i++) {
-        disputeObject = newDisputes[i]
-
-        // update dispute
-        await this._StoreProvider.updateDispute(
-          disputeObject.disputeId,
-          disputeObject.hash,
-          disputeObject.contractAddress,
-          disputeObject.partyA,
-          disputeObject.partyB,
-          disputeObject.title,
-          disputeObject.deadline,
-          disputeObject.status,
-          disputeObject.fee,
-          disputeObject.information,
-          disputeObject.justification,
-          disputeObject.resolutionOptions
-        )
-
-        // update profile
-        await this._StoreProvider.updateDisputeProfile(
-          account,
-          disputeObject.votes,
-          disputeObject.hash,
-          true,
-          false
-        )
-      }
-
-      // update session on profile
-      profile = await this._StoreProvider.getUserProfile(account)
-      profile.session = currentSession
-      await this._StoreProvider.updateUserProfile(account, profile)
-    }
-
-    // fetch user profile again after updates
-    let disputes = await this._StoreProvider.getDisputesForUser(account)
-    // add on data about period and session
-    disputes = await Promise.all(disputes.map(async (dispute) => {
-      // get dispute from store so that we have the same object returned for both methods
-      // FIXME inefficient
-      dispute = await this.getDisputeByHash(dispute.hash, contractAddress)
-      dispute.period = period
-      dispute.session = currentSession
-      return dispute
-    }))
-    return disputes
-  }
-
-  /**
-   * Get disputes from Kleros contract
-   * @param contractAddress address of Kleros contract
-   * @param account address of user
-   * @return objects[]
-   */
-  getDisputesForJuror = async (
-    contractAddress,
-    account,
-  ) => {
-    const contractInstance = await this.load(contractAddress)
-    const myDisputes = []
-    let disputeId = 0
-    let numberOfJurors = 0
-    const currentSession = (await contractInstance.session()).toNumber()
-
-    // iterate over all disputes (FIXME inefficient)
-    let dispute = await contractInstance.disputes(disputeId)
-    while (dispute[0] !== "0x") {
-      // session + number of appeals
-      const disputeSession = dispute[1].toNumber() + dispute[2].toNumber()
-      // if dispute not in current session skip
-      if (disputeSession !== currentSession) {
-        disputeId++
-        dispute = await contractInstance.disputes(disputeId)
-        continue
-      }
-
-      numberOfJurors = (await contractInstance.amountJurors(disputeId)).toNumber()
-      for (let draw=1; draw<=numberOfJurors; draw++) {
-        // check if you are juror for dispute
-        const isJuror = await contractInstance.isDrawn(disputeId, account, draw)
-        if (isJuror) {
-          let toAdd = true
-          // if dispute already in myDipsutes add new draw number
-          myDisputes.map((disputeObject) => {
-            if (disputeObject.id === disputeId) {
-              disputeObject.votes.push(draw)
-              toAdd = false
-            }
-          })
-
-          // if dispute not already in array add it
-          if (toAdd) myDisputes.push({
-            id: disputeId,
-            arbitrated: dispute[0],
-            session: dispute[1].toNumber(),
-            appeals: dispute[2].toNumber(),
-            choices: dispute[3].toNumber(),
-            initialNumberJurors: dispute[4].toNumber(),
-            arbitrationFeePerJuror: dispute[5].toNumber(),
-            votes: [draw]
-          })
-        }
-      }
-
-      // check next dispute
-      disputeId += 1
-      dispute = await contractInstance.disputes(disputeId)
-    }
-
-    return myDisputes
-  }
-
-  /**
-   * Get all contracts TODO do we need to get contract data from blockchain?
-   * @param account address of user
-   * @return objects[]
-   */
-  getContractsForUser = async (
-    account = this._Web3Wrapper.getAccount(0)
-  ) => {
-    // fetch user profile
-    let userProfile = await this._StoreProvider.getUserProfile(account)
-    if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
-
-    return userProfile.contracts
-  }
-
-  /**
-   * Get dispute by id
-   * @param disputeHash hash of the dispute
-   * @param account address of user
-   * @return objects[]
-   */
-  getDisputeByHash = async (
-    disputeHash,
-    contractAddress,
-    account = this._Web3Wrapper.getAccount(0)
-  ) => {
-    const contractInstance = await this.load(contractAddress)
-    // fetch dispute
-    const disputeData = await this._StoreProvider.getDisputeData(account, disputeHash)
-    if (!disputeData) throw new Error(`No dispute with hash ${disputeHash} for account ${account}`)
-    if (disputeData.disputeId) {
-      disputeData.ruling = (await contractInstance.currentRuling(disputeData.disputeId)).toNumber()
-      const disputeRaw = await contractInstance.disputes(disputeData.disputeId)
-      disputeData.state = disputeRaw[DISPUTE_STATE_INDEX].toNumber()
-    } else {
-      // 0 indicates that there is no decision
-      disputeData.ruling = 0
-    }
-
-    // get contract data from partyA (should have same docs for both parties)
-    const ArbitrableTransaction = new ArbitrableTransactionWrapper(this._Web3Wrapper, this._StoreProvider)
-    let contractData = await ArbitrableTransaction.getDataContract(disputeData.contractAddress)
-
-    return {
-      contractData,
-      disputeData
-    }
-  }
-
-  /**
+   * class Method. Use Arbitrator.buyPNK
    * @param amount number of pinakion to buy
    * @param account address of user
-   * @return objects[]
+   * @return txHash
    */
-  buyPNK = async (
+  _buyPNK = async (
     amount,
     contractAddress, // address of KlerosPOC
     account = this._Web3Wrapper.getAccount(0)
@@ -320,19 +95,10 @@ class KlerosWrapper extends ContractWrapper {
           value: this._Web3Wrapper.toWei(amount, 'ether'),
         }
       )
+      return txHashObj.tx
     } catch (e) {
       throw new Error(e)
     }
-    // update store so user can get instantaneous feedback
-    let userProfile = await this._StoreProvider.getUserProfile(account)
-    if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
-    // FIXME seems like a super hacky way to update store
-    userProfile.balance = (parseInt(userProfile.balance) ? userProfile.balance : 0) + parseInt(amount)
-    delete userProfile._id
-    delete userProfile.created_at
-    const response = await this._StoreProvider.newUserProfile(account, userProfile)
-
-    return this.getPNKBalance(contractAddress, account)
   }
 
   /**
@@ -558,7 +324,113 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
+  * Get time for a period
+  * @param periodNumber int representing period
+  * @param contractAddres address of KlerosPOC contract
+  * @return object | Error
+  */
+  getTimeForPeriod = async (
+    periodNumber,
+    contractAddres
+  ) => {
+    let contractInstance = await this.load(contractAddress)
+
+    const timePerPeriod = await contractInstance.timePerPeriod(periodNumber)
+
+    if (timePerPeriod) {
+      return timePerPeriod.toNumber()
+    } else {
+      throw new Error(`Period ${periodNumber} does not have a time associated with it. periodNumber out of range`)
+    }
+  }
+
+  /**
+  * Get dispute
+  * @param disputeId index of dispute
+  * @param contractAddres address of KlerosPOC contract
+  * @return object | Error
+  */
+  getDispute = async (
+    disputeId,
+    contractAddres
+  ) => {
+    let contractInstance = await this.load(contractAddress)
+
+    const dispute = await contractInstance.disputes(disputeId)
+
+    return {
+      arbitratedContract: dispute[0],
+      firstSession: dispute[1].toNumber(),
+      numberOfAppeals: dispute[2].toNumber(),
+      rulingChoices: dispute[3].toNumber(),
+      initialNumberJurors: dispute[4].toNumber(),
+      arbitrationFeePerJuror: dispute[5].toNumber(),
+      state: dispute[6].toNumber()
+    }
+  }
+
+  /**
+  * Get number of jurors for a dispute
+  * @param disputeId index of dispute
+  * @param contractAddres address of KlerosPOC contract
+  * @return object | Error
+  */
+  getAmountOfJurorsForDispute = async (
+    disputeId,
+    contractAddres
+  ) => {
+    let contractInstance = await this.load(contractAddress)
+
+    const amountOfJurors = await contractInstance.amountJurors(disputeId)
+
+    if (amountOfJurors) {
+      return amountOfJurors.toNumber()
+    } else {
+      throw new Error(`Dispute ${disputeId} does not exist`)
+    }
+  }
+
+  /**
+  * Get number of jurors for a dispute
+  * @param disputeId index of dispute
+  * @param draw int for draw
+  * @param contractAddres address of KlerosPOC contract
+  * @param jurorAddress address of juror
+  * @return bool | Error
+  */
+  isJurorDrawnForDispute = async (
+    disputeId,
+    draw,
+    contractAddres,
+    jurorAddress = this._Web3Wrapper.getAccount(0)
+  ) => {
+    let contractInstance = await this.load(contractAddress)
+
+    const isDrawn = await contractInstance.isDrawn(disputeId, jurorAddress, draw)
+
+    return isDrawn
+  }
+
+  /**
+  * Get number of jurors for a dispute
+  * @param disputeId index of dispute
+  * @param contractAddres address of KlerosPOC contract
+  * @return int | Error
+  */
+  currentRulingForDispute = async (
+    disputeId,
+    contractAddres,
+  ) => {
+    let contractInstance = await this.load(contractAddress)
+
+    const currentRuling = await contractInstance.currentRuling(disputeId)
+
+    return currentRuling.toNumber()
+  }
+
+  /**
    * Get data from Kleros contract
+   * TODO split these into their own methods for more flexability and speed
    * @param contractAddress address of KlerosPOC contract
    * @param account address of user
    * @return object
@@ -570,24 +442,27 @@ class KlerosWrapper extends ContractWrapper {
     let contractInstance = await this.load(contractAddress)
 
     const [
-      pinakion,
-      rng,
+      pinakionContractAddress,
+      rngContractAddress,
       period,
-      session
+      session,
+      lastPeriodChange
     ] = await Promise.all([
       contractInstance.pinakion(),
       contractInstance.rng(),
       contractInstance.period(),
-      contractInstance.session()
+      contractInstance.session(),
+      contractInstance.lastPeriodChange(),
     ]).catch(err => {
       throw new Error(err)
     })
 
     return {
-      pinakion,
-      rng,
+      pinakionContractAddress,
+      rngContractAddress,
       period: period.toNumber(),
-      session: session.toNumber()
+      session: session.toNumber(),
+      lastPeriodChange: lastPeriodChange.toNumber(),
     }
   }
 }

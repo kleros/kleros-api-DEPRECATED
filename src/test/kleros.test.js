@@ -15,6 +15,7 @@ describe('Kleros', () => {
   let court
   let centralCourt
   let arbitrableTransaction
+  let disputesApi
   let rng
   let pinakion
 
@@ -36,6 +37,7 @@ describe('Kleros', () => {
     pinakion = await KlerosInstance.pinakion
     centralCourt = await KlerosInstance.centralCourt
     arbitrableTransaction = await KlerosInstance.arbitrableTransaction
+    disputesApi = await KlerosInstance.disputes
   })
 
   beforeEach(async () => {
