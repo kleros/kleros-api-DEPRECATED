@@ -23,7 +23,7 @@ class Disputes extends AbstractWrapper {
   /**
   * Pay the arbitration fee to raise a dispute. To be called by the party A.
   * @param account Ethereum account
-  * @param arbitrableContractAddress address of arbitrable contract
+  * @param arbitrableContract Address address of arbitrable contract
   * @param arbitrationCost Amount to pay the arbitrator
   * @return txHash hash transaction | Error
   */
@@ -51,7 +51,7 @@ class Disputes extends AbstractWrapper {
   /**
   * Pay the arbitration fee to raise a dispute. To be called by the party B.
   * @param account Ethereum account
-  * @param arbitrableContractAddress address of arbitrable contract
+  * @param arbitrableContract Address address of arbitrable contract
   * @param arbitrationCost Amount to pay the arbitrator
   * @return txHash hash transaction | Error
   */
@@ -288,7 +288,7 @@ class Disputes extends AbstractWrapper {
 
   /**
   * update store with new dispute data
-  * @param arbitrableContractAddress address of arbitrable contract
+  * @param arbitrableContract Address address of arbitrable contract
   * @param jurorAddress <optional> address of juror
   */
   _updateStoreForDispute = async (
@@ -348,7 +348,7 @@ class Disputes extends AbstractWrapper {
 
   /**
   * get data for a dispute
-  * @param arbitrableContractAddress address for arbitrable contract
+  * @param arbitrableContract Address address for arbitrable contract
   * @param account <optional> jurors address
   */
   getDataForDispute = async (

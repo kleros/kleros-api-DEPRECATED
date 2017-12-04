@@ -79,6 +79,37 @@ class ArbitrableContract extends AbstractWrapper {
     // return contract data
     return await this._ArbitrableContract.getData(contractInstance.address)
   }
+
+  /**
+   * Submit evidence
+   * @param evidence A link to an evidence using its URI.
+   * @return txHash Hash transaction
+   */
+  submitEvidence = async (
+    account,
+    contractAddress,
+    name,
+    description = '',
+    url
+  ) => {
+    const txHash = await this._ArbitrableContract.submitEvidence(
+      account,
+      contractAddress,
+      name,
+      description,
+      url
+    )
+
+    await this._StoreProvider.addEvidenceContract(
+      contractAddress,
+      account,
+      name,
+      description,
+      url
+    )
+
+    return txHash
+  }
 }
 
 export default ArbitrableContract

@@ -318,7 +318,7 @@ class KlerosWrapper extends ContractWrapper {
   /**
   * Get time for a period
   * @param periodNumber int representing period
-  * @param contractAddres address of KlerosPOC contract
+  * @param contractAddressaddress of KlerosPOC contract
   * @return object | Error
   */
   getTimeForPeriod = async (
@@ -339,7 +339,7 @@ class KlerosWrapper extends ContractWrapper {
   /**
   * Get dispute
   * @param disputeId index of dispute
-  * @param contractAddres address of KlerosPOC contract
+  * @param contractAddressaddress of KlerosPOC contract
   * @return object | Error
   */
   getDispute = async (
@@ -364,7 +364,7 @@ class KlerosWrapper extends ContractWrapper {
   /**
   * Get number of jurors for a dispute
   * @param disputeId index of dispute
-  * @param contractAddres address of KlerosPOC contract
+  * @param contractAddressaddress of KlerosPOC contract
   * @return object | Error
   */
   getAmountOfJurorsForDispute = async (
@@ -386,7 +386,7 @@ class KlerosWrapper extends ContractWrapper {
   * Get number of jurors for a dispute
   * @param disputeId index of dispute
   * @param draw int for draw
-  * @param contractAddres address of KlerosPOC contract
+  * @param contractAddressaddress of KlerosPOC contract
   * @param jurorAddress address of juror
   * @return bool | Error
   */
@@ -406,7 +406,7 @@ class KlerosWrapper extends ContractWrapper {
   /**
   * Get number of jurors for a dispute
   * @param disputeId index of dispute
-  * @param contractAddres address of KlerosPOC contract
+  * @param contractAddressaddress of KlerosPOC contract
   * @return int | Error
   */
   currentRulingForDispute = async (

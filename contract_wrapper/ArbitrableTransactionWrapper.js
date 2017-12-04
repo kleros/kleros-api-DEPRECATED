@@ -169,14 +169,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
         }
       )
 
-    await this._StoreProvider.addEvidenceContract(
-      contractAddress,
-      account,
-      name,
-      description,
-      url
-    )
-
     return txHashObj.tx
   }
 
