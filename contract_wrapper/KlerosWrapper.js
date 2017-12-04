@@ -16,8 +16,8 @@ class KlerosWrapper extends ContractWrapper {
    * @param web3 instance
    * @param address of the contract (optionnal)
    */
-  constructor(web3Provider, storeProvider, address) {
-    super(web3Provider, storeProvider)
+  constructor(web3Provider, address) {
+    super(web3Provider)
     if (!_.isUndefined(address)) {
       this.address = address
     }
@@ -76,12 +76,12 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
-   * class Method. Use Arbitrator.buyPNK
+   * Use Arbitrator.buyPNK
    * @param amount number of pinakion to buy
    * @param account address of user
    * @return txHash
    */
-  _buyPNK = async (
+  buyPNK = async (
     amount,
     contractAddress, // address of KlerosPOC
     account = this._Web3Wrapper.getAccount(0)
@@ -219,14 +219,6 @@ class KlerosWrapper extends ContractWrapper {
         }
       )
 
-      // mark in store that you have ruled on dispute
-      await this._StoreProvider.updateDisputeProfile(
-        account,
-        votes,
-        hash,
-        true,
-        true
-      )
       return txHashObj.tx
     } catch (e) {
       throw new Error(e)
@@ -333,7 +325,7 @@ class KlerosWrapper extends ContractWrapper {
     periodNumber,
     contractAddres
   ) => {
-    let contractInstance = await this.load(contractAddress)
+    const contractInstance = await this.load(contractAddress)
 
     const timePerPeriod = await contractInstance.timePerPeriod(periodNumber)
 
@@ -354,7 +346,7 @@ class KlerosWrapper extends ContractWrapper {
     disputeId,
     contractAddres
   ) => {
-    let contractInstance = await this.load(contractAddress)
+    const contractInstance = await this.load(contractAddress)
 
     const dispute = await contractInstance.disputes(disputeId)
 
@@ -379,7 +371,7 @@ class KlerosWrapper extends ContractWrapper {
     disputeId,
     contractAddres
   ) => {
-    let contractInstance = await this.load(contractAddress)
+    const contractInstance = await this.load(contractAddress)
 
     const amountOfJurors = await contractInstance.amountJurors(disputeId)
 
@@ -404,7 +396,7 @@ class KlerosWrapper extends ContractWrapper {
     contractAddres,
     jurorAddress = this._Web3Wrapper.getAccount(0)
   ) => {
-    let contractInstance = await this.load(contractAddress)
+    const contractInstance = await this.load(contractAddress)
 
     const isDrawn = await contractInstance.isDrawn(disputeId, jurorAddress, draw)
 
@@ -421,7 +413,7 @@ class KlerosWrapper extends ContractWrapper {
     disputeId,
     contractAddres,
   ) => {
-    let contractInstance = await this.load(contractAddress)
+    const contractInstance = await this.load(contractAddress)
 
     const currentRuling = await contractInstance.currentRuling(disputeId)
 
@@ -439,7 +431,7 @@ class KlerosWrapper extends ContractWrapper {
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    let contractInstance = await this.load(contractAddress)
+    const contractInstance = await this.load(contractAddress)
 
     const [
       pinakionContractAddress,

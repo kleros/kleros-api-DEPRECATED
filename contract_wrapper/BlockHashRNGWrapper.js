@@ -13,8 +13,8 @@ class BlockHashRNGWrapper extends ContractWrapper {
    * @param web3 instance
    * @param address of the contract (optionnal)
    */
-  constructor(web3Provider, storeProvider, address) {
-    super(web3Provider, storeProvider)
+  constructor(web3Provider, address) {
+    super(web3Provider)
     if (!_.isUndefined(address)) {
       this.address = address
     }

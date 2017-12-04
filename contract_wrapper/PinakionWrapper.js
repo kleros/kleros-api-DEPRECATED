@@ -13,8 +13,8 @@ class PinakionWrapper extends ContractWrapper {
    * @param web3 instance
    * @param address of the contract (optionnal)
    */
-  constructor(web3Provider, storeProvider, address) {
-    super(web3Provider, storeProvider)
+  constructor(web3Provider, address) {
+    super(web3Provider)
     if (!_.isUndefined(address)) {
       this.address = address
     }
@@ -74,11 +74,11 @@ class PinakionWrapper extends ContractWrapper {
           gas: config.GAS,
         }
       )
+
+      return txHashObj.tx
     } catch (e) {
       throw new Error(e)
     }
-
-    return this.getData(contractAddress)
   }
 
   transferOwnership = async (
@@ -95,11 +95,11 @@ class PinakionWrapper extends ContractWrapper {
           gas: config.GAS,
         }
       )
+
+      return txHashObj.tx
     } catch (e) {
       throw new Error(e)
     }
-
-    return this.getData(contractAddress)
   }
 
   getData = async (
