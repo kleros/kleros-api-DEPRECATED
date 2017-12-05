@@ -2,7 +2,8 @@ import AbstractWrapper from '../AbstractWrapper'
 import {
   NULL_ADDRESS,
   VOTING_PERIOD,
-  DEFAULT_ARBITRATION_COST
+  DEFAULT_ARBITRATION_COST,
+  DISPUTE_STATUS
 } from '../../../constants'
 
 /**
@@ -88,7 +89,7 @@ class Disputes extends AbstractWrapper {
     this._checkArbitratorWrappersSet()
     this._checkArbitrableWrappersSet()
 
-    const arbitrableContractData = await this._ArbitrableContract.getData()
+    const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)
 
     if (arbitrableContractData.status === DISPUTE_STATUS) {
       this._updateStoreForDispute(arbitrableContractAddress, account)
@@ -357,7 +358,7 @@ class Disputes extends AbstractWrapper {
     this._checkArbitratorWrappersSet()
     this._checkArbitrableWrappersSet()
 
-    const arbitrableContractData = this._ArbitrableContract.getData()
+    const arbitrableContractData = this._ArbitrableContract.getData(arbitrableContractAddress)
     const arbitratorAddress = arbitrableContractData.arbitrator
     const storeData = await this._StoreProvider.getContractByAddress(
       arbitrableContractData.partyA,
@@ -365,7 +366,7 @@ class Disputes extends AbstractWrapper {
     )
 
     const disputeId = arbitrableContractData.disputeId
-    if (!disputeId) throw new Error(`Arbitrable contract ${arbitrableContractAddress} does not have a dispute`)
+    if (disputeId === undefined) throw new Error(`Arbitrable contract ${arbitrableContractAddress} does not have a dispute`)
 
     const dispute = this._Arbitrator.getDispute(disputeId)
 

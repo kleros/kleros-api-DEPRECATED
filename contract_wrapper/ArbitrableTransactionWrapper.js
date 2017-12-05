@@ -223,7 +223,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       partyB,
       status: status.toNumber(),
       arbitratorExtraData,
-      disputeId,
+      disputeId: disputeId.toNumber(),
       partyAFee: partyAFee.toNumber(),
       partyBFee: partyBFee.toNumber(),
     }

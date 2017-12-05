@@ -1,4 +1,5 @@
 import AbstractWrapper from '../AbstractWrapper'
+import _ from 'lodash'
 
 /**
  * Arbitrator api
@@ -13,17 +14,9 @@ class Arbitrator extends AbstractWrapper {
     super(storeProvider, arbitratorWrapper, undefined)
   }
 
-  // default to arbitrator method if none exists
-  __noSuchMethod__ = async (id, args) => {
-    this.__checkArbitratorWrappersSet()
-
-    arbitratorMethod = this._Arbitrator[id]
-    if (arbitratorMethod) {
-      return await arbitratorMethod(...args)
-    } else {
-      throw new Error(`Arbitrator has no method ${id}`)
-    }
-  }
+  // passthroughs
+  getPNKBalance = this._Arbitrator.getPNKBalance
+  activatePNK = this._Arbitrator.activatePNK
 
   /**
    * @param amount number of pinakion to buy
@@ -35,7 +28,7 @@ class Arbitrator extends AbstractWrapper {
     arbitratorAddress, // address of KlerosPOC
     account
   ) => {
-    txHash = await this._Arbitrator.buyPNK(amount, arbitratorAddress, account)
+    const txHash = await this._Arbitrator.buyPNK(amount, arbitratorAddress, account)
     if (txHash) {
       // update store so user can get instantaneous feedback
       let userProfile = await this._StoreProvider.getUserProfile(account)
@@ -46,7 +39,7 @@ class Arbitrator extends AbstractWrapper {
       delete userProfile.created_at
       const response = await this._StoreProvider.newUserProfile(account, userProfile)
 
-      return this.getPNKBalance(contractAddress, account)
+      return this.getPNKBalance(arbitratorAddress, account)
     } else {
       throw new Error("unable to buy PNK")
     }

@@ -14,18 +14,6 @@ class ArbitrableContract extends AbstractWrapper {
     super(storeProvider, undefined, arbitrableWrapper)
   }
 
-  // default to arbitrator method if none exists
-  __noSuchMethod__ = async (id, args) => {
-    this._checkArbitrableWrappersSet()
-
-    arbitrableMethod = this._ArbitrableContract[id]
-    if (arbitrableMethod) {
-      return await arbitrableMethod(...args)
-    } else {
-      throw new Error(`Arbitrable Contract has no method ${id}`)
-    }
-  }
-
   /**
   * Deploy a contract and add to the Store
   * @param account Ethereum address
