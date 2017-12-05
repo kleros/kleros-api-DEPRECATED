@@ -16,8 +16,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @param web3 instance
    * @param address of the contract (optional)
    */
-  constructor(web3Provider, storeProvider, address) {
-    super(web3Provider, storeProvider)
+  constructor(web3Provider, address) {
+    super(web3Provider)
     if (!_.isUndefined(address)) {
       this.address = address
     }
@@ -28,9 +28,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * Deploy ArbitrableTransaction.
    * @param account Ethereum account (default account[0])
    * @param value funds to be placed in contract
-   * @param arbitrator The arbitrator of the contract.
-   *                   (default CentralizedArbitrator)
    * @param hashContract Keccak hash of the plain English contract. (default null hashed)
+   * @param arbitratorAddress The address of the arbitrator contract
    * @param timeout Time after which a party automatically loose a dispute. (default 3600)
    * @param partyB The recipient of the transaction. (default account[1])
    * @param arbitratorExtraData Extra data for the arbitrator. (default empty string)
@@ -39,20 +38,18 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   deploy = async (
       account = this._Web3Wrapper.getAccount(0),
       value = config.VALUE,
-      arbitrator,
       hashContract = 0x6aa0bb2779ab006be0739900654a89f1f8a2d7373ed38490a7cbab9c9392e1ff,
+      arbitratorAddress,
       timeout = 100,
       partyB = this._Web3Wrapper.getAccount(1),
       arbitratorExtraData = '',
-      email = '',
-      description = ''
     ) => {
 
     const contractDeployed = await this._deployAsync(
       account,
       value,
       arbitrableTransaction,
-      arbitrator,
+      arbitratorAddress,
       hashContract,
       timeout,
       partyB,
@@ -61,17 +58,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
 
     this.address = contractDeployed.address
     this.contractInstance = contractDeployed
-
-    await this._StoreProvider.updateContract(
-      this.address,
-      hashContract,
-      account,
-      partyB,
-      arbitrator,
-      timeout,
-      email,
-      description
-    )
 
     return contractDeployed
   }
@@ -122,25 +108,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
          }
        )
 
-       const dataContract = await this.getDataContract(
-         contractAddress
-       )
-
-       await this._StoreProvider.updateContract(
-         contractAddress,
-         dataContract.hashContract,
-         dataContract.account,
-         dataContract.partyB,
-         dataContract.arbitrator,
-         dataContract.timeout,
-         dataContract.email,
-         dataContract.description,
-         dataContract.disputeId
-       )
-
-       // updated store if there is a dispute
-       await this._contractHasDispute(contractAddress)
-
        return txHashObj.tx
      } catch (e) {
        throw new Error(e)
@@ -169,123 +136,11 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
          }
        )
 
-       const dataContract = await this.getDataContract(
-         contractAddress
-       )
-
-       await this._StoreProvider.updateContract(
-         contractAddress,
-         dataContract.hashContract,
-         dataContract.account,
-         dataContract.partyB,
-         dataContract.arbitrator,
-         dataContract.timeout,
-         dataContract.email,
-         dataContract.description,
-         dataContract.disputeId
-       )
-
-       // updated store if there is a dispute
-       await this._contractHasDispute(contractAddress)
-
        return txHashObj.tx
      } catch (e) {
        throw new Error(e)
      }
    }
-
-   /**
-   * FIXME DRY this out with KlerosWrapper.getDisputesForUser
-   * If there is a dispute in contract update store
-   * @param contractAddress
-   * @param account
-   * @return Boolean
-   */
-   _contractHasDispute = async (
-     contractAddress
-   ) => {
-     const contractInstance = await this.load(contractAddress)
-     const contractStatus = (await this.contractInstance.status.call()).toNumber()
-
-     if (contractStatus === DISPUTE_STATUS) {
-       // load court address FIXME messy
-       const klerosAddress = await contractInstance.arbitrator()
-       const KlerosCourt = new KlerosWrapper(this._Web3Wrapper, this._StoreProvider)
-       const klerosInstance = await KlerosCourt.load(klerosAddress)
-
-       let disputeId = 0
-       let dispute = await klerosInstance.disputes(disputeId)
-       while (dispute[0] !== '0x') {
-         // once we find our dispute stop
-         if (dispute[0] === contractAddress) break
-         disputeId += 1
-         dispute = await klerosInstance.disputes(disputeId)
-       }
-
-       // make sure we didn't just go all the way through all the disputes
-       if (dispute[0] === '0x')
-       throw new Error('unable to find dispute for contract')
-
-       const myDispute = {
-         id: disputeId,
-         arbitrated: dispute[0],
-         session: dispute[1].toNumber(),
-         appeals: dispute[2].toNumber(),
-         choices: dispute[3].toNumber(),
-         initialNumberJurors: dispute[4].toNumber(),
-         arbitrationFeePerJuror: dispute[5].toNumber(),
-       }
-
-       const partyA = await contractInstance.partyA.call()
-       const disputeData = await this.getDataContractForDispute(partyA, contractAddress, myDispute)
-
-       // update dispute
-       await this._StoreProvider.updateDispute(
-         disputeData.disputeId,
-         disputeData.hash,
-         disputeData.contractAddress,
-         disputeData.partyA,
-         disputeData.partyB,
-         disputeData.title,
-         disputeData.deadline,
-         disputeData.status,
-         disputeData.fee,
-         disputeData.information,
-         disputeData.justification,
-         disputeData.resolutionOptions
-       )
-
-       // update profile partyA
-       await this._StoreProvider.updateDisputeProfile(
-         disputeData.partyA,
-         disputeData.votes,
-         disputeData.hash,
-         false,
-         false
-       )
-
-       // update profile partyB
-       await this._StoreProvider.updateDisputeProfile(
-         disputeData.partyB,
-         disputeData.votes,
-         disputeData.hash,
-         false,
-         false
-       )
-     }
-   }
-
-  /**
-   * Pay partyB if partyA fails to pay the fee.
-   * @return txHash Hash transaction
-   */
-  timeOutByPartyB = async () => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
-      }, 1000)
-    })
-  }
 
   /**
    * Submit a reference to evidence. EVENT.
@@ -314,170 +169,65 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
         }
       )
 
-    await this._StoreProvider.addEvidenceContract(
-      contractAddress,
-      account,
-      name,
-      description,
-      url
-    )
-
     return txHashObj.tx
   }
 
   /**
-   * Pay the party B. To be called when the good is delivered or the service rendered.
-   * @return txHash Hash transaction
-   */
-  pay = async () => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
-      }, 1000)
-    })
-  }
-
-  /**
-   * Reimburse party A. To be called if the good or service can't be fully provided.
-   * @param amountReimbursed Amount to reimburse in wei.
-   * @return txHash Hash transaction
-   */
-  reimburse = async amountReimbursed => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(0xeb3447da6db41b9b86570c02c97c35d8645175e9d2bb0d19ba8e486c8c78255d)
-      }, 1000)
-    })
-  }
-
-  /**
-   * Data of the contract
-   * @param account Address of the party.
-   * @param address Address of the ArbitrableTransaction contract.
-   * @return Object Data of the contract.
-   */
-  getDataContract = async (
+  * Data of the contract
+  * @param account Address of the party.
+  * @param address Address of the ArbitrableTransaction contract.
+  * @return Object Data of the contract.
+  */
+  getData = async (
     address
   ) => {
-    const contractDeployed = await this.load(address)
+    const contractInstance = await this.load(address)
 
-     const [
-       arbitrator,
-       // hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
-       extraData,
-       timeout,
-       partyA,
-       partyB,
-       status,
-       arbitratorExtraData,
-       disputeId,
-       partyAFee,
-       partyBFee
-     ] = await Promise.all([
-       contractDeployed.arbitrator.call(),
-       contractDeployed.arbitratorExtraData.call(),
-      //  contractDeployed.hashContract.call(),
-       contractDeployed.timeout.call(),
-       contractDeployed.partyA.call(),
-       contractDeployed.partyB.call(),
-       contractDeployed.status.call(),
-       contractDeployed.arbitratorExtraData.call(),
-       contractDeployed.disputeID.call(),
-       contractDeployed.partyAFee.call(),
-       contractDeployed.partyBFee.call(),
-     ]).catch(err => {
-       throw new Error(err)
-     })
+    const [
+      arbitrator,
+      // hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
+      extraData,
+      timeout,
+      partyA,
+      partyB,
+      status,
+      arbitratorExtraData,
+      disputeId,
+      partyAFee,
+      partyBFee
+      ] = await Promise.all(
+        [
+          contractInstance.arbitrator.call(),
+          contractInstance.arbitratorExtraData.call(),
+          //  contractInstance.hashContract.call(),
+          contractInstance.timeout.call(),
+          contractInstance.partyA.call(),
+          contractInstance.partyB.call(),
+          contractInstance.status.call(),
+          contractInstance.arbitratorExtraData.call(),
+          contractInstance.disputeID.call(),
+          contractInstance.partyAFee.call(),
+          contractInstance.partyBFee.call(),
+        ]
+      ).catch(err => {
+        throw new Error(err)
+      })
 
-     let storeDataContractPartyA,
-         storeDataContractPartyB
-     try {
-       storeDataContractPartyA = await this._StoreProvider.getContractByAddress(
-         partyA,
-         address
-       )
-       storeDataContractPartyB = await this._StoreProvider.getContractByAddress(
-         partyB,
-         address
-       )
-       if (!storeDataContractPartyA) storeDataContractPartyA = {}
-       if (!storeDataContractPartyB) storeDataContractPartyB = {}
-     } catch(e) {
-       storeDataContractPartyA = {}
-       storeDataContractPartyB = {}
-     }
-
-     const partyAEvidence = storeDataContractPartyA.evidences ? storeDataContractPartyA.evidences : []
-     const partyBEvidence = storeDataContractPartyB.evidences ? storeDataContractPartyB.evidences : []
-     return {
-       arbitrator,
-       extraData,
-      //  hashContract,
-       address,
-       timeout: timeout.toNumber(),
-       partyA,
-       partyB,
-       status: status.toNumber(),
-       arbitratorExtraData,
-       email: storeDataContractPartyA.email,
-       description: storeDataContractPartyA.description,
-       disputeId,
-       partyAFee: partyAFee.toNumber(),
-       partyBFee: partyBFee.toNumber(),
-       evidences: [
-         ...partyAEvidence,
-         ...partyBEvidence
-       ]
-     }
-   }
-
-   /**
-    * FIXME this belongs in a higher order Dispute object
-    * get data from contract for dispute
-    * @param account Address of the party.
-    * @param contractAddress address for arbitable transaction
-    * @param dispute object that is representation of dispute
-    * @return Object Data of the contract.
-    */
-   getDataContractForDispute = async (
-     account = this._Web3Wrapper.getAccount(0),
-     contractAddress,
-     dispute
-   ) => {
-     const contractDeployed = await this.load(contractAddress)
-     // get the contract data from the disputed contract
-     const arbitrableTransactionData = await this.getDataContract(
-       contractAddress
-     )
-
-     return ({
-       votes: dispute.votes,
-       // FIXME hash not being stored in contract atm
-       hash: contractAddress,
-       partyA: arbitrableTransactionData.partyA,
-       partyB: arbitrableTransactionData.partyB,
-       title: 'TODO users title',
-       status: arbitrableTransactionData.status,
-       contractAddress: contractAddress,
-       justification: 'justification',
-       fee: dispute.arbitrationFeePerJuror,
-       disputeId: dispute.id,
-       session: dispute.session + dispute.appeals,
-       // FIXME hardcode this for now
-       resolutionOptions: [
-         {
-           name: `Pay ${arbitrableTransactionData.partyA}`,
-           description: `Release funds to ${arbitrableTransactionData.partyA}`,
-           value: 1
-         },
-         {
-           name: `Pay ${arbitrableTransactionData.partyB}`,
-           description: `Release funds to ${arbitrableTransactionData.partyB}`,
-           value: 2
-         }
-       ]
-     })
-   }
+    return {
+      address,
+      arbitrator,
+      extraData,
+      address,
+      timeout: timeout.toNumber(),
+      partyA,
+      partyB,
+      status: status.toNumber(),
+      arbitratorExtraData,
+      disputeId: disputeId.toNumber(),
+      partyAFee: partyAFee.toNumber(),
+      partyBFee: partyBFee.toNumber(),
+    }
+  }
 }
 
 export default ArbitrableTransactionWrapper
