@@ -12,20 +12,14 @@ describe('Kleros', () => {
   let juror
   let other
   let web3
-  let klerosPOC
-  let centralCourt
-  let arbitrableTransaction
-  let disputesApi
-  let arbitratorApi
-  let arbitrableContractApi
-  let blockHashRng
-  let pinakion
+  let KlerosInstance
+  let storeProvider
 
   beforeAll(async () => {
     // use testRPC
     const provider = await new Web3.providers.HttpProvider(LOCALHOST_PROVIDER)
 
-    let KlerosInstance = await new Kleros(provider)
+    KlerosInstance = await new Kleros(provider)
 
     web3 = await new Web3(provider)
 
@@ -34,35 +28,29 @@ describe('Kleros', () => {
     juror = web3.eth.accounts[3]
     other = web3.eth.accounts[4]
 
-    klerosPOC = await KlerosInstance.klerosPOC
-    blockHashRng = await KlerosInstance.blockHashRng
-    pinakion = await KlerosInstance.pinakion
-    arbitrableTransaction = await KlerosInstance.arbitrableTransaction
-    disputesApi = await KlerosInstance.disputes
-    arbitratorApi = await KlerosInstance.arbitrator
-    arbitrableContractApi = await KlerosInstance.arbitrableContract
+    storeProvider = await KlerosInstance.getStoreWrapper()
   })
 
   beforeEach(async () => {
     // reset user profile in store
-    await disputesApi._StoreProvider.newUserProfile(partyA, {address: partyA})
-    await disputesApi._StoreProvider.newUserProfile(partyB, {address: partyB})
+    await storeProvider.newUserProfile(partyA, {address: partyA})
+    await storeProvider.newUserProfile(partyB, {address: partyB})
   })
 
   test('deploy a arbitrableTransaction contract', async () => {
     // initialize Kleros
-    const rngInstance = await blockHashRng.deploy(
+    const rngInstance = await KlerosInstance.blockHashRng.deploy(
       undefined
     )
     expect(rngInstance.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
-    const pinakionInstance = await pinakion.deploy()
+    const pinakionInstance = await KlerosInstance.pinakion.deploy()
     expect(pinakionInstance.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
     // initialize KlerosPOC
-    const klerosCourt = await klerosPOC.deploy(
+    const klerosCourt = await KlerosInstance.klerosPOC.deploy(
       rngInstance.address,
       pinakionInstance.address
     )
@@ -75,7 +63,7 @@ describe('Kleros', () => {
     const mockArbitratorExtraData = ''
     const mockEmail = 'test@kleros.io'
     const mockDescription = 'test description'
-    let contractArbitrableTransactionData = await arbitrableContractApi
+    let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
       .deployContract(
         partyA,
         undefined, // use default value (0)
@@ -100,18 +88,18 @@ describe('Kleros', () => {
 
   test('KlerosPOC dispute resolution flow', async () => {
     // initialize RNG and Pinakion contracts
-    const rngInstance = await blockHashRng.deploy(
+    const rngInstance = await KlerosInstance.blockHashRng.deploy(
       undefined
     )
     expect(rngInstance.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
-    const pinakionInstance = await pinakion.deploy()
+    const pinakionInstance = await KlerosInstance.pinakion.deploy()
     expect(pinakionInstance.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
     // initialize KlerosPOC
-    const klerosCourt = await klerosPOC.deploy(
+    const klerosCourt = await KlerosInstance.klerosPOC.deploy(
       rngInstance.address,
       pinakionInstance.address
     )
@@ -119,34 +107,34 @@ describe('Kleros', () => {
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
     // transfer ownership and set kleros instance
-    const setKlerosHash = await pinakion.setKleros(
+    const setKlerosHash = await KlerosInstance.pinakion.setKleros(
       pinakionInstance.address,
       klerosCourt.address
     )
     expect(setKlerosHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
-    const transferOwnershipHash = await pinakion.transferOwnership(
+    const transferOwnershipHash = await KlerosInstance.pinakion.transferOwnership(
       pinakionInstance.address,
       klerosCourt.address
     )
     expect(transferOwnershipHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
-    const pnkData = await pinakion.getData(pinakionInstance.address)
+    const pnkData = await KlerosInstance.pinakion.getData(pinakionInstance.address)
     expect(pnkData.owner).toEqual(klerosCourt.address)
     expect(pnkData.kleros).toEqual(klerosCourt.address)
 
     // Juror should have no balance to start with
-    const initialBalance = await arbitratorApi.getPNKBalance(klerosCourt.address, juror)
+    const initialBalance = await KlerosInstance.arbitrator.getPNKBalance(klerosCourt.address, juror)
     expect(initialBalance.tokenBalance).toEqual('0')
 
     // buy 1 PNK
-    const newBalance = await arbitratorApi.buyPNK(1, klerosCourt.address, juror)
+    const newBalance = await KlerosInstance.arbitrator.buyPNK(1, klerosCourt.address, juror)
     expect(newBalance.tokenBalance).toEqual('1')
 
     // activate PNK
-    const balance = await arbitratorApi.activatePNK(0.5, klerosCourt.address, juror)
+    const balance = await KlerosInstance.arbitrator.activatePNK(0.5, klerosCourt.address, juror)
     expect(balance.tokenBalance).toEqual('1')
     expect(balance.activatedTokens).toEqual('0.5')
 
@@ -156,7 +144,7 @@ describe('Kleros', () => {
     const mockArbitratorExtraData = ''
     const mockEmail = 'test@kleros.io'
     const mockDescription = 'test description'
-    let contractArbitrableTransactionData = await arbitrableContractApi
+    let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
       .deployContract(
         partyA,
         undefined, // use default value (0)
@@ -180,7 +168,7 @@ describe('Kleros', () => {
 
     // return a bigint
     // FIXME use arbitrableTransaction
-    const arbitrableContractInstance = await arbitrableTransaction.load(contractArbitrableTransactionData.address)
+    const arbitrableContractInstance = await KlerosInstance.arbitrableTransaction.load(contractArbitrableTransactionData.address)
     const partyAFeeContractInstance = await arbitrableContractInstance
       .partyAFee()
 
@@ -194,7 +182,7 @@ describe('Kleros', () => {
       .arbitrationCost(extraDataContractInstance)
 
     // raise dispute party A
-    const txHashRaiseDisputeByPartyA = await disputesApi
+    const txHashRaiseDisputeByPartyA = await KlerosInstance.disputes
       .raiseDisputePartyA(
         partyA,
         contractArbitrableTransactionData.address,
@@ -210,10 +198,7 @@ describe('Kleros', () => {
     const partyBFeeContractInstance = await arbitrableContractInstance
       .partyBFee()
 
-    // use default parameters
-    // account: accounts[0]
-    // arbitration cost: 10000 wei
-    const txHashRaiseDisputeByPartyB = await disputesApi
+    const txHashRaiseDisputeByPartyB = await KlerosInstance.disputes
       .raiseDisputePartyB(
         partyB,
         contractArbitrableTransactionData.address,
@@ -221,21 +206,21 @@ describe('Kleros', () => {
           arbitrationCost - partyBFeeContractInstance.toNumber(), 'ether'
         )
       )
-
     expect(txHashRaiseDisputeByPartyB)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
+    // const data = await KlerosInstance.arbitrableContract.getData(contractArbitrableTransactionData.address)
+    // console.log(data)
+
     // check to see if store is updated
-    const userProfile = await disputesApi._StoreProvider.getUserProfile(partyA)
+    const userProfile = await storeProvider.getUserProfile(partyA)
     expect(userProfile.disputes.length).toEqual(1)
 
-    const dispute = await klerosPOC.getDispute(0)
-    //
-    // dispute created
+    const dispute = await KlerosInstance.klerosPOC.getDispute(klerosCourt.address, 0)
     expect(dispute.arbitratedContract).toEqual(contractArbitrableTransactionData.address)
-    //
-    // // add an evidence
-    // // FIXME use arbitrableTransaction
+
+    // add an evidence
+    // FIXME use arbitrableTransaction
     // const testName = 'test name'
     // const testDesc = 'test description'
     // const testURL = 'http://test.com'
@@ -250,7 +235,7 @@ describe('Kleros', () => {
     //
     // expect(txHashAddEvidence)
     //   .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-    //
+
     // const contractDataDeployed = await arbitrableTransaction
     //   .getDataContract(contractArbitrableTransaction.address)
     //

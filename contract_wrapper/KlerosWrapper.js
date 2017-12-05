@@ -165,6 +165,24 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
+  *
+  */
+  getArbitrationCost = async (
+    contractAddress,
+    contractExtraData
+  ) => {
+    const contractInstance = await this.load(contractAddress)
+
+    try {
+      const arbitrationCost = await contractInstance.arbitrationCost(contractExtraData)
+
+      return arbitrationCost.toNumber()
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  /**
    * Call contract to move on to the next period
    * @param contractAddress address of KlerosPOC contract
    * @param account address of user
@@ -317,13 +335,13 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
   * Get time for a period
+  * @param contractAddress address of KlerosPOC contract
   * @param periodNumber int representing period
-  * @param contractAddressaddress of KlerosPOC contract
   * @return object | Error
   */
   getTimeForPeriod = async (
-    periodNumber,
-    contractAddres
+    contractAddress,
+    periodNumber
   ) => {
     const contractInstance = await this.load(contractAddress)
 
@@ -338,26 +356,29 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
   * Get dispute
+  * @param contractAddress address of KlerosPOC contract
   * @param disputeId index of dispute
-  * @param contractAddressaddress of KlerosPOC contract
   * @return object | Error
   */
   getDispute = async (
-    disputeId,
-    contractAddres
+    contractAddress,
+    disputeId
   ) => {
     const contractInstance = await this.load(contractAddress)
+    try {
+      const dispute = await contractInstance.disputes(disputeId)
 
-    const dispute = await contractInstance.disputes(disputeId)
-
-    return {
-      arbitratedContract: dispute[0],
-      firstSession: dispute[1].toNumber(),
-      numberOfAppeals: dispute[2].toNumber(),
-      rulingChoices: dispute[3].toNumber(),
-      initialNumberJurors: dispute[4].toNumber(),
-      arbitrationFeePerJuror: dispute[5].toNumber(),
-      state: dispute[6].toNumber()
+      return {
+        arbitratedContract: dispute[0],
+        firstSession: dispute[1].toNumber(),
+        numberOfAppeals: dispute[2].toNumber(),
+        rulingChoices: dispute[3].toNumber(),
+        initialNumberJurors: dispute[4].toNumber(),
+        arbitrationFeePerJuror: dispute[5].toNumber(),
+        state: dispute[6].toNumber()
+      }
+    } catch (e) {
+      throw new Error(e)
     }
   }
 
@@ -369,7 +390,7 @@ class KlerosWrapper extends ContractWrapper {
   */
   getAmountOfJurorsForDispute = async (
     disputeId,
-    contractAddres
+    contractAddress
   ) => {
     const contractInstance = await this.load(contractAddress)
 

@@ -92,7 +92,7 @@ class Disputes extends AbstractWrapper {
     const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)
 
     if (arbitrableContractData.status === DISPUTE_STATUS) {
-      this._updateStoreForDispute(arbitrableContractAddress, account)
+      await this._updateStoreForDispute(arbitrableContractAddress, account)
     }
   }
 
@@ -135,7 +135,7 @@ class Disputes extends AbstractWrapper {
 
       // update store for each dispute
       for (let i=0; i<myDisputes.length; i++) {
-        this._updateStoreForDispute(myDisputes[i].arbitrableContractAddress, account)
+        await this._updateStoreForDispute(myDisputes[i].arbitrableContractAddress, account)
       }
 
       // update session on profile
@@ -156,15 +156,17 @@ class Disputes extends AbstractWrapper {
   /**
   * get the deadline for dispute
   * @param arbitratorAddress address of arbitrator contract
+  * @param period default to voting period
   * @return date object
   */
   getDeadlineForDispute = async (
-    arbitratorAddress
+    arbitratorAddress,
+    period = VOTING_PERIOD
   ) => {
     const arbitratorData = await this._Arbitrator.getData(arbitratorAddress)
     // compute end date
     const startTime = arbitratorData.lastPeriodChange
-    const length = await this._Arbitrator.getTimeForPeriod(period)
+    const length = await this._Arbitrator.getTimeForPeriod(arbitratorAddress, period)
 
     // FIXME this is all UTC for now. Timezones are a pain
     const deadline = new Date(0);
@@ -194,14 +196,14 @@ class Disputes extends AbstractWrapper {
     const currentSession = arbitratorData.session
 
     // iterate over all disputes (FIXME inefficient)
-    let dispute = await this._Arbitrator.getDispute(disputeId, arbitratorAddress)
+    let dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
     while (dispute.arbitratedContract !== NULL_ADDRESS) {
       // session + number of appeals
       const disputeSession = dispute.firstSession + dispute.numberOfAppeals
       // if dispute not in current session skip
       if (disputeSession !== currentSession) {
         disputeId++
-        dispute = await this._Arbitrator.getDispute(disputeId, arbitratorAddress)
+        dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
         continue
       }
 
@@ -215,7 +217,7 @@ class Disputes extends AbstractWrapper {
 
       // check next dispute
       disputeId += 1
-      dispute = await this._Arbitrator.getDispute(disputeId, arbitratorAddress)
+      dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
     }
 
     return myDisputes
@@ -302,18 +304,18 @@ class Disputes extends AbstractWrapper {
 
     // update dispute
     await this._StoreProvider.updateDispute(
-      disputeObject.disputeId,
-      disputeObject.hash,
-      disputeObject.arbitrableContractAddress,
-      disputeObject.partyA,
-      disputeObject.partyB,
-      disputeObject.title,
-      disputeObject.deadline,
-      disputeObject.status,
-      disputeObject.fee,
-      disputeObject.information,
-      disputeObject.justification,
-      disputeObject.resolutionOptions
+      disputeData.disputeId,
+      disputeData.hash,
+      disputeData.arbitrableContractAddress,
+      disputeData.partyA,
+      disputeData.partyB,
+      disputeData.title,
+      disputeData.deadline,
+      disputeData.status,
+      disputeData.fee,
+      disputeData.information,
+      disputeData.justification,
+      disputeData.resolutionOptions
     )
 
     // update profile partyA
@@ -358,7 +360,7 @@ class Disputes extends AbstractWrapper {
     this._checkArbitratorWrappersSet()
     this._checkArbitrableWrappersSet()
 
-    const arbitrableContractData = this._ArbitrableContract.getData(arbitrableContractAddress)
+    const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)
     const arbitratorAddress = arbitrableContractData.arbitrator
     const storeData = await this._StoreProvider.getContractByAddress(
       arbitrableContractData.partyA,
@@ -368,7 +370,7 @@ class Disputes extends AbstractWrapper {
     const disputeId = arbitrableContractData.disputeId
     if (disputeId === undefined) throw new Error(`Arbitrable contract ${arbitrableContractAddress} does not have a dispute`)
 
-    const dispute = this._Arbitrator.getDispute(disputeId)
+    const dispute = this._Arbitrator.getDispute(arbitratorAddress, disputeId)
 
     let votes = []
     if (account) {
@@ -392,13 +394,13 @@ class Disputes extends AbstractWrapper {
       // FIXME
       resolutionOptions: [
         {
-          name: `Pay ${arbitrableTransactionData.partyA}`,
-          description: `Release funds to ${arbitrableTransactionData.partyA}`,
+          name: `Pay ${arbitrableContractData.partyA}`,
+          description: `Release funds to ${arbitrableContractData.partyA}`,
           value: 1
         },
         {
-          name: `Pay ${arbitrableTransactionData.partyB}`,
-          description: `Release funds to ${arbitrableTransactionData.partyB}`,
+          name: `Pay ${arbitrableContractData.partyB}`,
+          description: `Release funds to ${arbitrableContractData.partyB}`,
           value: 2
         }
       ],
