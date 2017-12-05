@@ -192,7 +192,6 @@ class Disputes extends AbstractWrapper {
     let disputeId = 0
     const currentSession = arbitratorData.session
 
-
     let dispute
     while (1) {
       // iterate over all disputes (FIXME inefficient)

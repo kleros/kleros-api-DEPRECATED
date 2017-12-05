@@ -49,11 +49,15 @@ describe('Disputes', () => {
         initialNumberJurors: 3,
         arbitrationFeePerJuror: DEFAULT_ARBITRATION_COST,
         state: 0
-      },
-      {
-        arbitratedContract: NULL_ADDRESS
       }
     ]
+    const fetchDispute = (disputeID) => {
+      if (fakeDisputes[disputeID]) {
+        return fakeDisputes[disputeID]
+      } else {
+        throw new Error("no dispute")
+      }
+    }
 
     // mock get data
     disputesInstance._Arbitrator.getData = jest.fn().mockReturnValue(_asyncMockResponse(
@@ -63,8 +67,8 @@ describe('Disputes', () => {
     ))
 
     // mock get dispute
-    const mockGetDispute = async disputeId => {
-      return fakeDisputes[disputeId]
+    const mockGetDispute = async (contractAddress, disputeId) => {
+      return fetchDispute(disputeId)
     }
     disputesInstance._Arbitrator.getDispute = mockGetDispute
 
@@ -99,11 +103,15 @@ describe('Disputes', () => {
         initialNumberJurors: 3,
         arbitrationFeePerJuror: DEFAULT_ARBITRATION_COST,
         state: 0
-      },
-      {
-        arbitratedContract: NULL_ADDRESS
       }
     ]
+    const fetchDispute = (disputeID) => {
+      if (fakeDisputes[disputeID]) {
+        return fakeDisputes[disputeID]
+      } else {
+        throw new Error("no dispute")
+      }
+    }
 
     // mock get data
     disputesInstance._Arbitrator.getData = jest.fn().mockReturnValue(_asyncMockResponse(
@@ -113,8 +121,8 @@ describe('Disputes', () => {
     ))
 
     // mock get dispute
-    const mockGetDispute = async disputeId => {
-      return fakeDisputes[disputeId]
+    const mockGetDispute = async (contractAddress, disputeId) => {
+      return fetchDispute(disputeId)
     }
     disputesInstance._Arbitrator.getDispute = mockGetDispute
 
@@ -147,11 +155,15 @@ describe('Disputes', () => {
         initialNumberJurors: 3,
         arbitrationFeePerJuror: DEFAULT_ARBITRATION_COST,
         state: 0
-      },
-      {
-        arbitratedContract: NULL_ADDRESS
       }
     ]
+    const fetchDispute = (disputeID) => {
+      if (fakeDisputes[disputeID]) {
+        return fakeDisputes[disputeID]
+      } else {
+        throw new Error("no dispute")
+      }
+    }
 
     // mock get data
     disputesInstance._Arbitrator.getData = jest.fn().mockReturnValue(_asyncMockResponse(
@@ -161,8 +173,8 @@ describe('Disputes', () => {
     ))
 
     // mock get dispute
-    const mockGetDispute = async disputeId => {
-      return fakeDisputes[disputeId]
+    const mockGetDispute = async (contractAddress, disputeId) => {
+      return fetchDispute(disputeId)
     }
     disputesInstance._Arbitrator.getDispute = mockGetDispute
 
@@ -197,11 +209,15 @@ describe('Disputes', () => {
         initialNumberJurors: 3,
         arbitrationFeePerJuror: DEFAULT_ARBITRATION_COST,
         state: 0
-      },
-      {
-        arbitratedContract: NULL_ADDRESS
       }
     ]
+    const fetchDispute = (disputeID) => {
+      if (fakeDisputes[disputeID]) {
+        return fakeDisputes[disputeID]
+      } else {
+        throw new Error("no dispute")
+      }
+    }
 
     // mock get data
     disputesInstance._Arbitrator.getData = jest.fn().mockReturnValue(_asyncMockResponse(
@@ -211,8 +227,8 @@ describe('Disputes', () => {
     ))
 
     // mock get dispute
-    const mockGetDispute = async disputeId => {
-      return fakeDisputes[disputeId]
+    const mockGetDispute = async (contractAddress, disputeId) => {
+      return fetchDispute(disputeId)
     }
     disputesInstance._Arbitrator.getDispute = mockGetDispute
 
