@@ -2,7 +2,7 @@ import AbstractWrapper from '../AbstractWrapper'
 import { DEFAULT_ARBITRATION_COST } from '../../../constants'
 
 /**
- * Arbitrable api
+ * Arbitrable Contract api
  */
 class ArbitrableContract extends AbstractWrapper {
   /**
@@ -58,7 +58,7 @@ class ArbitrableContract extends AbstractWrapper {
       account,
       value,
       hashContract,
-      arbitratorAddress
+      arbitratorAddress,
       timeout,
       partyB,
       arbitratorExtraData,
@@ -77,7 +77,7 @@ class ArbitrableContract extends AbstractWrapper {
     )
 
     // return contract data
-    return await this._ArbitrableContract.getData(contractInstance.address)
+    return await this.getData(contractInstance.address, account)
   }
 
   /**
@@ -109,6 +109,17 @@ class ArbitrableContract extends AbstractWrapper {
     )
 
     return txHash
+  }
+
+  getData = async (
+    contractAddress,
+    account
+  ) => {
+    const contractData = await this._ArbitrableContract.getData(contractAddress)
+
+    const storeData = await this._StoreProvider.getContractByAddress(account, contractAddress)
+
+    return Object.assign({}, storeData, contractData)
   }
 }
 

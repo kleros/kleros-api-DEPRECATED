@@ -214,6 +214,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       })
 
     return {
+      address,
       arbitrator,
       extraData,
       address,

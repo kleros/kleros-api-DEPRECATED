@@ -393,7 +393,7 @@ class KlerosWrapper extends ContractWrapper {
   isJurorDrawnForDispute = async (
     disputeId,
     draw,
-    contractAddres,
+    contractAddress,
     jurorAddress = this._Web3Wrapper.getAccount(0)
   ) => {
     const contractInstance = await this.load(contractAddress)
@@ -411,7 +411,7 @@ class KlerosWrapper extends ContractWrapper {
   */
   currentRulingForDispute = async (
     disputeId,
-    contractAddres,
+    contractAddress,
   ) => {
     const contractInstance = await this.load(contractAddress)
 

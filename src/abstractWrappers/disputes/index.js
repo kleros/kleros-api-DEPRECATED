@@ -122,7 +122,7 @@ class Disputes extends AbstractWrapper {
     if (period !== VOTING_PERIOD) {
       let disputes = await this._StoreProvider.getDisputesForUser(account)
       disputes = await Promise.all(disputes.map(async (dispute) => {
-        return await this.getDataForDispute(dispute.contractAddres, account)
+        return await this.getDataForDispute(dispute.contractAddress, account)
       }))
 
       return disputes
@@ -146,7 +146,7 @@ class Disputes extends AbstractWrapper {
     // return array of all disputes for user
     let disputes = await this._StoreProvider.getDisputesForUser(account)
     disputes = await Promise.all(disputes.map(async (dispute) => {
-      return await this.getDataForDispute(dispute.contractAddres, account)
+      return await this.getDataForDispute(dispute.contractAddress, account)
     }))
 
     return disputes

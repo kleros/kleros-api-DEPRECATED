@@ -1,7 +1,7 @@
 import AbstractWrapper from '../AbstractWrapper'
 
 /**
- * Disputes api
+ * Arbitrator api
  */
 class Arbitrator extends AbstractWrapper {
   /**
@@ -16,7 +16,7 @@ class Arbitrator extends AbstractWrapper {
   // default to arbitrator method if none exists
   __noSuchMethod__ = async (id, args) => {
     this.__checkArbitratorWrappersSet()
-    
+
     arbitratorMethod = this._Arbitrator[id]
     if (arbitratorMethod) {
       return await arbitratorMethod(...args)
@@ -52,3 +52,5 @@ class Arbitrator extends AbstractWrapper {
     }
   }
 }
+
+export default Arbitrator
