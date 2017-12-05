@@ -5,6 +5,7 @@ import {
   DEFAULT_ARBITRATION_COST,
   DISPUTE_STATUS
 } from '../../../constants'
+import _ from 'lodash'
 
 /**
  * Disputes api
@@ -132,12 +133,10 @@ class Disputes extends AbstractWrapper {
     if (currentSession != profile.session) {
       // get disputes for juror
       myDisputes = await this.getDisputesForJuror(arbitratorAddress, account)
-
       // update store for each dispute
       for (let i=0; i<myDisputes.length; i++) {
         await this._updateStoreForDispute(myDisputes[i].arbitrableContractAddress, account)
       }
-
       // update session on profile
       profile = await this._StoreProvider.getUserProfile(account)
       profile.session = currentSession
@@ -167,7 +166,6 @@ class Disputes extends AbstractWrapper {
     // compute end date
     const startTime = arbitratorData.lastPeriodChange
     const length = await this._Arbitrator.getTimeForPeriod(arbitratorAddress, period)
-
     // FIXME this is all UTC for now. Timezones are a pain
     const deadline = new Date(0);
     deadline.setUTCSeconds(startTime)
@@ -192,32 +190,37 @@ class Disputes extends AbstractWrapper {
     const arbitratorData = await this._Arbitrator.getData(arbitratorAddress, account)
     const myDisputes = []
     let disputeId = 0
-    let numberOfJurors = 0
     const currentSession = arbitratorData.session
 
-    // iterate over all disputes (FIXME inefficient)
-    let dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
-    while (dispute.arbitratedContract !== NULL_ADDRESS) {
-      // session + number of appeals
-      const disputeSession = dispute.firstSession + dispute.numberOfAppeals
-      // if dispute not in current session skip
-      if (disputeSession !== currentSession) {
-        disputeId++
-        dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
-        continue
-      }
 
-      const votes = await this.getVotesForJuror(disputeId, arbitratorAddress, account)
-      if (votes.length > 0) {
-        const disputeData = await this.getDataForDispute(dispute.arbitratedContract, account)
-        myDisputes.push(
-          disputeData
-        )
-      }
+    let dispute
+    while (1) {
+      // iterate over all disputes (FIXME inefficient)
+      try {
+         dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
 
-      // check next dispute
-      disputeId += 1
-      dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
+         // session + number of appeals
+         const disputeSession = dispute.firstSession + dispute.numberOfAppeals
+         // if dispute not in current session skip
+         if (disputeSession !== currentSession) {
+           disputeId++
+           dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
+           continue
+         }
+
+         const votes = await this.getVotesForJuror(disputeId, arbitratorAddress, account)
+         if (votes.length > 0) {
+           const disputeData = await this.getDataForDispute(dispute.arbitratedContract, account)
+           myDisputes.push(
+             disputeData
+           )
+         }
+         // check next dispute
+         disputeId += 1
+      } catch (e) {
+        // getDispute(n) throws an error if index out of range
+        break
+      }
     }
 
     return myDisputes
@@ -234,12 +237,12 @@ class Disputes extends AbstractWrapper {
     arbitratorAddress,
     account
   ) => {
-    numberOfJurors = await this._Arbitrator.getAmountOfJurorsForDispute(disputeId, arbitratorAddress)
+    const numberOfJurors = await this._Arbitrator.getAmountOfJurorsForDispute(arbitratorAddress, disputeId)
     const votes = []
     for (let draw=1; draw<=numberOfJurors; draw++) {
       const isJuror = await this._Arbitrator.isJurorDrawnForDispute(disputeId, draw, arbitratorAddress, account)
       if (isJuror) {
-        votes.push(i)
+        votes.push(draw)
       }
     }
 
@@ -374,7 +377,7 @@ class Disputes extends AbstractWrapper {
 
     let votes = []
     if (account) {
-      votes = getVotesForJuror(disputeId, arbitratorAddress, account)
+      votes = await this.getVotesForJuror(disputeId, arbitratorAddress, account)
     }
 
     const deadline = await this.getDeadlineForDispute(arbitratorAddress)

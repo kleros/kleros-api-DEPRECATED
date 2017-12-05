@@ -367,7 +367,6 @@ class KlerosWrapper extends ContractWrapper {
     const contractInstance = await this.load(contractAddress)
     try {
       const dispute = await contractInstance.disputes(disputeId)
-
       return {
         arbitratedContract: dispute[0],
         firstSession: dispute[1].toNumber(),
@@ -384,13 +383,13 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
   * Get number of jurors for a dispute
+  * @param contractAddress address of KlerosPOC contract
   * @param disputeId index of dispute
-  * @param contractAddressaddress of KlerosPOC contract
   * @return object | Error
   */
   getAmountOfJurorsForDispute = async (
-    disputeId,
-    contractAddress
+    contractAddress,
+    disputeId
   ) => {
     const contractInstance = await this.load(contractAddress)
 
@@ -449,8 +448,7 @@ class KlerosWrapper extends ContractWrapper {
    * @return object
    */
   getData = async (
-    contractAddress,
-    account = this._Web3Wrapper.getAccount(0)
+    contractAddress
   ) => {
     const contractInstance = await this.load(contractAddress)
 

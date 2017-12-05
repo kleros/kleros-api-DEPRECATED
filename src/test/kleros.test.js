@@ -35,6 +35,8 @@ describe('Kleros', () => {
     // reset user profile in store
     await storeProvider.newUserProfile(partyA, {address: partyA})
     await storeProvider.newUserProfile(partyB, {address: partyB})
+    await storeProvider.newUserProfile(juror, {address: juror})
+    await storeProvider.newUserProfile(other, {address: other})
   })
 
   test('deploy a arbitrableTransaction contract', async () => {
@@ -144,10 +146,11 @@ describe('Kleros', () => {
     const mockArbitratorExtraData = ''
     const mockEmail = 'test@kleros.io'
     const mockDescription = 'test description'
+    const contractPaymentAmount = web3.toWei(1, 'ether') // contract payment be 1 ether
     let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
       .deployContract(
         partyA,
-        undefined, // use default value (0)
+        contractPaymentAmount, // use default value (0)
         mockHash,
         klerosCourt.address,
         mockTimeout,
@@ -209,9 +212,6 @@ describe('Kleros', () => {
     expect(txHashRaiseDisputeByPartyB)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
-    // const data = await KlerosInstance.arbitrableContract.getData(contractArbitrableTransactionData.address)
-    // console.log(data)
-
     // check to see if store is updated
     const userProfile = await storeProvider.getUserProfile(partyA)
     expect(userProfile.disputes.length).toEqual(1)
@@ -219,102 +219,106 @@ describe('Kleros', () => {
     const dispute = await KlerosInstance.klerosPOC.getDispute(klerosCourt.address, 0)
     expect(dispute.arbitratedContract).toEqual(contractArbitrableTransactionData.address)
 
-    // add an evidence
+    // add an evidence for partyA
     // FIXME use arbitrableTransaction
-    // const testName = 'test name'
-    // const testDesc = 'test description'
-    // const testURL = 'http://test.com'
-    // const txHashAddEvidence = await arbitrableTransaction
-    //   .submitEvidence(
-    //     undefined,
-    //     contractArbitrableTransaction.address,
-    //     testName,
-    //     testDesc,
-    //     testURL
-    //   )
-    //
-    // expect(txHashAddEvidence)
-    //   .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+    const testName = 'test name'
+    const testDesc = 'test description'
+    const testURL = 'http://test.com'
+    const txHashAddEvidence = await KlerosInstance.arbitrableContract
+      .submitEvidence(
+        partyA,
+        contractArbitrableTransactionData.address,
+        testName,
+        testDesc,
+        testURL
+      )
+    expect(txHashAddEvidence)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
-    // const contractDataDeployed = await arbitrableTransaction
-    //   .getDataContract(contractArbitrableTransaction.address)
-    //
-    // expect(contractDataDeployed.evidences[0].url)
-    //   .toBe(testURL)
-    //
-    // // check initial state of contract
-    // // FIXME var must be more explicit
-    // const initialState = await court.getData(klerosCourt.address)
-    // expect(initialState.session).toEqual(1)
-    // expect(initialState.period).toEqual(0)
-    //
-    // const delaySecond = async () => {
-    //   return new Promise((resolve, reject) => {
-    //     setTimeout(() => {
-    //       resolve(true)
-    //     }, 1000)
-    //   })
-    // }
-    //
-    // let newState
-    // // pass state so jurors are selected
-    // for (let i=1; i<3; i++) {
-    //   // NOTE we need to make another block before we can generate the random number. Should not be an issue on main nets where avg block time < period length
-    //   if (i == 2) web3.eth.sendTransaction({from: partyA, to: partyB, value: 10000, data: '0x'})
-    //   // delay a second so period is eligible to be passed
-    //   await delaySecond()
-    //   newState = await court.passPeriod(klerosCourt.address, other)
-    //   expect(newState.period).toEqual(i)
-    // }
-    //
-    // const isJuror = await klerosCourt.isDrawn(0, juror, 1)
-    // expect(isJuror).toEqual(true)
-    //
-    // // partyA wins
-    // const ruling = 1
-    // const submitTxHash = await court.submitVotes(
-    //   klerosCourt.address,
-    //   0,
-    //   ruling,
-    //   [1],
-    //   contractArbitrableTransaction.address, // FIXME using address for hash right now
-    //   juror
-    // )
-    //
-    // expect(submitTxHash)
-    //   .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
-    //
-    // // delay 1 second
-    // await delaySecond()
-    // // move to appeal period
-    // await court.passPeriod(klerosCourt.address, other)
-    //
-    // const currentRuling = await klerosCourt.currentRuling(0)
-    // expect(`${currentRuling}`).toEqual(`${ruling}`)
-    //
-    // const contracts = await court.getContractsForUser()
-    // expect(contracts).toBeTruthy()
-    //
-    // // TODO test appeal
-    //
-    // // delay 1 second
-    // await delaySecond()
-    // // move to execute period
-    // await court.passPeriod(klerosCourt.address, other)
-    // // balances before ruling is executed
-    // const partyABalance = web3.eth.getBalance(partyA).toNumber()
-    // const partyBBalance = web3.eth.getBalance(partyB).toNumber()
-    // // repartition tokens
-    // await court.repartitionJurorTokens(klerosCourt.address, 0, other)
-    // // execute ruling
-    // await court.executeRuling(klerosCourt.address, 0, other)
-    // // balances after ruling
-    // // partyA wins so they should recieve their arbitration fee as well as the value locked in contract
-    // expect(web3.eth.getBalance(partyA).toNumber() - partyABalance).toEqual(arbitrationCost.toNumber() + parseInt(contractPaymentAmount))
-    // // partyB lost so their balance should remain the same
-    // expect(web3.eth.getBalance(partyB).toNumber()).toEqual(partyBBalance)
-    //
-    // const contractStatus = await contractArbitrableTransaction.status.call()
-    // expect(parseInt(contractStatus)).toEqual(4)
+    let contracts = await KlerosInstance.arbitrator.getContractsForUser(partyA)
+    expect(contracts).toBeTruthy()
+
+    const contractStoreData = await KlerosInstance.arbitrableContract
+      .getData(contractArbitrableTransactionData.address, partyA)
+
+    expect(contractStoreData.evidences[0].url)
+      .toBe(testURL)
+
+    // check initial state of contract
+    // FIXME var must be more explicit
+    const initialState = await KlerosInstance.arbitrator.getData(klerosCourt.address)
+    expect(initialState.session).toEqual(1)
+    expect(initialState.period).toEqual(0)
+
+    const delaySecond = async () => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(true)
+        }, 1000)
+      })
+    }
+
+    let newState
+    // pass state so jurors are selected
+    for (let i=1; i<3; i++) {
+      // NOTE we need to make another block before we can generate the random number. Should not be an issue on main nets where avg block time < period length
+      if (i == 2) web3.eth.sendTransaction({from: partyA, to: partyB, value: 10000, data: '0x'})
+      // delay a second so period is eligible to be passed
+      await delaySecond()
+      newState = await KlerosInstance.arbitrator.passPeriod(klerosCourt.address, other)
+      expect(newState.period).toEqual(i)
+    }
+
+    const disputesForJuror = await KlerosInstance.disputes.getDisputesForUser(klerosCourt.address, juror)
+    expect(disputesForJuror.length).toEqual(1)
+    expect(disputesForJuror[0].arbitrableContractAddress).toEqual(contractArbitrableTransactionData.address)
+    expect(disputesForJuror[0].votes).toEqual([1,2,3])
+
+    // partyA wins
+    const ruling = 1
+    const submitTxHash = await KlerosInstance.disputes.submitVotesForDispute(
+      klerosCourt.address,
+      0,
+      ruling,
+      [1],
+      contractArbitrableTransactionData.address, // FIXME using address for hash right now
+      juror
+    )
+
+    expect(submitTxHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    // delay 1 second
+    await delaySecond()
+    // move to appeal period
+    await KlerosInstance.arbitrator.passPeriod(klerosCourt.address, other)
+
+    const currentRuling = await klerosCourt.currentRuling(0)
+    expect(`${currentRuling}`).toEqual(`${ruling}`)
+
+    contracts = await KlerosInstance.arbitrator.getContractsForUser(partyA)
+    expect(contracts).toBeTruthy()
+
+    // TODO test appeal
+
+    // delay 1 second
+    await delaySecond()
+    // move to execute period
+    await KlerosInstance.arbitrator.passPeriod(klerosCourt.address, other)
+    // balances before ruling is executed
+    const partyABalance = web3.eth.getBalance(partyA).toNumber()
+    const partyBBalance = web3.eth.getBalance(partyB).toNumber()
+    // repartition tokens
+    await KlerosInstance.klerosPOC.repartitionJurorTokens(klerosCourt.address, 0, other)
+    // execute ruling
+    await KlerosInstance.klerosPOC.executeRuling(klerosCourt.address, 0, other)
+    // balances after ruling
+    // partyA wins so they should recieve their arbitration fee as well as the value locked in contract
+    expect(web3.eth.getBalance(partyA).toNumber() - partyABalance).toEqual(arbitrationCost.toNumber() + parseInt(contractPaymentAmount))
+    // partyB lost so their balance should remain the same
+    expect(web3.eth.getBalance(partyB).toNumber()).toEqual(partyBBalance)
+
+    const updatedContractData = await KlerosInstance.arbitrableContract.getData(contractArbitrableTransactionData.address)
+    expect(parseInt(updatedContractData.status)).toEqual(4)
   }, 50000)
 })

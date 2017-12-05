@@ -17,6 +17,8 @@ class Arbitrator extends AbstractWrapper {
   // passthroughs
   getPNKBalance = this._Arbitrator.getPNKBalance
   activatePNK = this._Arbitrator.activatePNK
+  getData = this._Arbitrator.getData
+  passPeriod = this._Arbitrator.passPeriod
 
   /**
    * @param amount number of pinakion to buy
@@ -43,6 +45,21 @@ class Arbitrator extends AbstractWrapper {
     } else {
       throw new Error("unable to buy PNK")
     }
+  }
+
+  /**
+   * Get all contracts TODO do we need to get contract data from blockchain?
+   * @param account address of user
+   * @return objects[]
+   */
+  getContractsForUser = async (
+    account
+  ) => {
+    // fetch user profile
+    let userProfile = await this._StoreProvider.getUserProfile(account)
+    if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
+
+    return userProfile.contracts
   }
 }
 
