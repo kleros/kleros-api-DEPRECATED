@@ -2,8 +2,7 @@ import AbstractWrapper from '../AbstractWrapper'
 import {
   NULL_ADDRESS,
   VOTING_PERIOD,
-  DEFAULT_ARBITRATION_COST,
-  DEFAULT_RESOLUTION_OPTIONS
+  DEFAULT_ARBITRATION_COST
 } from '../../../constants'
 
 /**
@@ -118,7 +117,7 @@ class Disputes extends AbstractWrapper {
     // fetch current contract period
     const period = arbitratorData.period
     const currentSession = arbitratorData.session
-    const myDisputes = []
+    let myDisputes = []
     // new jurors have not been chosen yet. don't update
     if (period !== VOTING_PERIOD) {
       let disputes = await this._StoreProvider.getDisputesForUser(account)
@@ -205,9 +204,9 @@ class Disputes extends AbstractWrapper {
         continue
       }
 
-      const votes = this.getVotesForJuror(disputeId, arbitratorAddress, account)
+      const votes = await this.getVotesForJuror(disputeId, arbitratorAddress, account)
       if (votes.length > 0) {
-        const disputeData = await this.getDisputeData(arbitratorAddress, dispute.arbitrated, disputeId)
+        const disputeData = await this.getDataForDispute(dispute.arbitratedContract, account)
         myDisputes.push(
           disputeData
         )
@@ -384,13 +383,24 @@ class Disputes extends AbstractWrapper {
       partyB: arbitrableContractData.partyB,
       status: arbitrableContractData.status,
       arbitrableContractAddress: arbitrableContractAddress,
-      arbitratorAddress: arbitratorAddress
+      arbitratorAddress: arbitratorAddress,
       fee: dispute.arbitrationFeePerJuror,
       disputeId: disputeId,
       votes: votes,
       session: dispute.session + dispute.appeals,
       // FIXME
-      resolutionOptions: DEFAULT_RESOLUTION_OPTIONS,
+      resolutionOptions: [
+        {
+          name: `Pay ${arbitrableTransactionData.partyA}`,
+          description: `Release funds to ${arbitrableTransactionData.partyA}`,
+          value: 1
+        },
+        {
+          name: `Pay ${arbitrableTransactionData.partyB}`,
+          description: `Release funds to ${arbitrableTransactionData.partyB}`,
+          value: 2
+        }
+      ],
       deadline: deadline,
       // store data
       description: storeData.description,
