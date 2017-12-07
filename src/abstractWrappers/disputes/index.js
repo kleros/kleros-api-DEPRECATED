@@ -351,6 +351,27 @@ class Disputes extends AbstractWrapper {
   }
 
   /**
+  * get user data for a dispute from the store
+  * @param arbitrableContract Address address for arbitrable contract
+  * @param account <optional> jurors address
+  */
+  getUserDisputeFromStore = async (
+    arbitrableContractAddress,
+    account
+  ) => {
+    const userProfile = await this._StoreProvider.getUserProfile(account)
+
+    const disputeArray = _.filter(userProfile.disputes, (dispute) => {
+      // FIXME update store to use arbitrableContractAddress instead of hash
+      return dispute.hash === arbitrableContractAddress
+    })
+
+    if (_.isEmpty(disputeArray)) throw new Error(`User ${account} does not have store data for dispute`)
+
+    return disputeArray[0]
+  }
+
+  /**
   * get data for a dispute
   * @param arbitrableContract Address address for arbitrable contract
   * @param account <optional> jurors address
@@ -364,7 +385,7 @@ class Disputes extends AbstractWrapper {
 
     const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)
     const arbitratorAddress = arbitrableContractData.arbitrator
-    const storeData = await this._StoreProvider.getContractByAddress(
+    const constractStoreData = await this._StoreProvider.getContractByAddress(
       arbitrableContractData.partyA,
       arbitrableContractAddress
     )
@@ -375,8 +396,13 @@ class Disputes extends AbstractWrapper {
     const dispute = this._Arbitrator.getDispute(arbitratorAddress, disputeId)
 
     let votes = []
+    let isJuror = false
+    let hasRuled = false
     if (account) {
       votes = await this.getVotesForJuror(disputeId, arbitratorAddress, account)
+      const userData = await this.getUserDisputeFromStore(arbitrableContractAddress, account)
+      isJuror = userData.isJuror
+      hasRuled = userData.hasRuled
     }
 
     const deadline = await this.getDeadlineForDispute(arbitratorAddress)
@@ -386,12 +412,12 @@ class Disputes extends AbstractWrapper {
       hash: arbitrableContractAddress,
       partyA: arbitrableContractData.partyA,
       partyB: arbitrableContractData.partyB,
-      status: arbitrableContractData.status,
+      arbitrableContractStatus: arbitrableContractData.status,
+      disputeState: dispute.state,
       arbitrableContractAddress: arbitrableContractAddress,
       arbitratorAddress: arbitratorAddress,
       fee: dispute.arbitrationFeePerJuror,
       disputeId: disputeId,
-      votes: votes,
       session: dispute.session + dispute.appeals,
       // FIXME
       resolutionOptions: [
@@ -408,8 +434,11 @@ class Disputes extends AbstractWrapper {
       ],
       deadline: deadline,
       // store data
-      description: storeData.description,
-      email: storeData.email
+      description: constractStoreData ? constractStoreData.description : undefined,
+      email: constractStoreData ? constractStoreData.email : undefined,
+      votes: votes,
+      isJuror: isJuror,
+      hasRuled: hasRuled
     })
   }
 }
