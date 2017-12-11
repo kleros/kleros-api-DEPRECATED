@@ -42,7 +42,7 @@ class Disputes extends AbstractWrapper {
         arbitrationCost
       )
 
-      if (!txHash) throw new Error("unable to pay arbitration fee for party A")
+      if (!txHash) throw new Error('unable to pay arbitration fee for party A')
 
       // update store if there is a dispute
       await this._storeNewDispute(arbitrableContractAddress, account)
@@ -73,7 +73,7 @@ class Disputes extends AbstractWrapper {
       arbitrationCost
     )
 
-    if (!txHash) throw new Error("unable to pay arbitration fee for party B")
+    if (!txHash) throw new Error('unable to pay arbitration fee for party B')
 
     // update store if there is a dispute
     await this._storeNewDispute(arbitrableContractAddress)
@@ -265,7 +265,7 @@ class Disputes extends AbstractWrapper {
 
       return txHash
     } else {
-      throw new Error("unable to submit votes")
+      throw new Error('unable to submit votes')
     }
   }
 
