@@ -143,7 +143,6 @@ class StoreProviderWrapper {
       })
     )
 
-    console.log(httpResponse)
     return httpResponse
   }
 

@@ -127,6 +127,9 @@ describe('Kleros', () => {
     expect(pnkData.owner).toEqual(klerosCourt.address)
     expect(pnkData.kleros).toEqual(klerosCourt.address)
 
+    // set instance of kleros court for assertions
+    const klerosPOCInstance = await KlerosInstance.klerosPOC.load(klerosCourt.address)
+
     // Juror should have no balance to start with
     const initialBalance = await KlerosInstance.arbitrator.getPNKBalance(klerosCourt.address, juror)
     expect(initialBalance.tokenBalance).toEqual('0')
@@ -136,9 +139,14 @@ describe('Kleros', () => {
     expect(newBalance.tokenBalance).toEqual('1')
 
     // activate PNK
-    const balance = await KlerosInstance.arbitrator.activatePNK(0.5, klerosCourt.address, juror)
+    const activatedTokenAmount = 0.5
+    const balance = await KlerosInstance.arbitrator.activatePNK(activatedTokenAmount, klerosCourt.address, juror)
     expect(balance.tokenBalance).toEqual('1')
     expect(balance.activatedTokens).toEqual('0.5')
+
+    const jurorData = await klerosPOCInstance.jurors(juror)
+    expect(jurorData[2].toNumber()).toEqual((await klerosPOCInstance.session()).toNumber())
+    expect((jurorData[4].toNumber() - jurorData[3].toNumber())).toEqual(parseInt(web3.toWei(activatedTokenAmount, 'ether')))
 
     // deploy a contract and create dispute
     const mockHash = 'mock-hash-contract'
@@ -218,6 +226,8 @@ describe('Kleros', () => {
 
     const dispute = await KlerosInstance.klerosPOC.getDispute(klerosCourt.address, 0)
     expect(dispute.arbitratedContract).toEqual(contractArbitrableTransactionData.address)
+    expect(dispute.firstSession).toEqual((await klerosPOCInstance.session()).toNumber())
+    expect(dispute.numberOfAppeals).toEqual(0)
 
     // add an evidence for partyA
     // FIXME use arbitrableTransaction
@@ -268,6 +278,8 @@ describe('Kleros', () => {
       newState = await KlerosInstance.arbitrator.passPeriod(klerosCourt.address, other)
       expect(newState.period).toEqual(i)
     }
+    const randomNumber = (await klerosPOCInstance.randomNumber()).toNumber()
+    const shouldBeJuror = await klerosPOCInstance.isDrawn(0, juror, 1)
 
     const disputesForJuror = await KlerosInstance.disputes.getDisputesForUser(klerosCourt.address, juror)
     expect(disputesForJuror.length).toEqual(1)

@@ -80,7 +80,6 @@ class ArbitrableContract extends AbstractWrapper {
     description = '',
     url
   ) => {
-    console.log("going in")
     const txHash = await this._ArbitrableContract.submitEvidence(
       account,
       contractAddress,
@@ -89,8 +88,6 @@ class ArbitrableContract extends AbstractWrapper {
       url
     )
 
-    console.log(txHash)
-    console.log("updating store")
     await this._StoreProvider.addEvidenceContract(
       contractAddress,
       account,
