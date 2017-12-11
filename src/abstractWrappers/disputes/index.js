@@ -137,9 +137,10 @@ class Disputes extends AbstractWrapper {
       // get disputes for juror
       const myDisputeContracts = await this.getDisputeContractsForJuror(arbitratorAddress, account)
       // update store for each dispute
-      for (let i=0; i<myDisputeContracts.length; i++) {
-        await this._updateStoreForDispute(myDisputeContracts[i], account)
-      }
+      await Promise.all(myDisputeContracts.map(async contractAddress => {
+        await this._updateStoreForDispute(contractAddress, account)
+      }))
+  
       // update session on profile
       profile = await this._StoreProvider.getUserProfile(account)
       profile.session = currentSession
@@ -217,6 +218,7 @@ class Disputes extends AbstractWrapper {
   ) => {
     const numberOfJurors = await this._Arbitrator.getAmountOfJurorsForDispute(arbitratorAddress, disputeId)
     const votes = []
+    // FIXME map doesn't seem to make sense here. would need to construct array of possible choices and then filter?
     for (let draw=1; draw<=numberOfJurors; draw++) {
       const isJuror = await this._Arbitrator.isJurorDrawnForDispute(disputeId, draw, arbitratorAddress, account)
       if (isJuror) {
