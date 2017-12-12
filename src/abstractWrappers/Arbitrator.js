@@ -1,4 +1,4 @@
-import AbstractWrapper from '../AbstractWrapper'
+import AbstractWrapper from './AbstractWrapper'
 import _ from 'lodash'
 
 /**
@@ -7,8 +7,8 @@ import _ from 'lodash'
 class Arbitrator extends AbstractWrapper {
   /**
    * Arbitrator Constructor
-   * @param storeProvider store provider object
-   * @param arbitratorWrapper arbitrator contract wrapper object
+   * @param {object} storeProvider store provider object
+   * @param {object} arbitratorWrapper arbitrator contract wrapper object
    */
   constructor(storeProvider, arbitratorWrapper) {
     super(storeProvider, arbitratorWrapper, undefined)
@@ -21,9 +21,9 @@ class Arbitrator extends AbstractWrapper {
   passPeriod = this._Arbitrator.passPeriod
 
   /**
-   * @param amount number of pinakion to buy
-   * @param account address of user
-   * @return objects[]
+   * @param {number} amount number of pinakion to buy
+   * @param {address} account address of user
+   * @return {object[]} balance of user
    */
   buyPNK = async (
     amount,
@@ -49,8 +49,8 @@ class Arbitrator extends AbstractWrapper {
 
   /**
    * Get all contracts TODO do we need to get contract data from blockchain?
-   * @param account address of user
-   * @return objects[]
+   * @param {string} account address of user
+   * @return {object[]} contract data from store
    */
   getContractsForUser = async (
     account

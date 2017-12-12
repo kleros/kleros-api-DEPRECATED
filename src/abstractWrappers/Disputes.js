@@ -1,10 +1,10 @@
-import AbstractWrapper from '../AbstractWrapper'
+import AbstractWrapper from './AbstractWrapper'
 import {
   NULL_ADDRESS,
   VOTING_PERIOD,
   DEFAULT_ARBITRATION_COST,
   DISPUTE_STATUS
-} from '../../../constants'
+} from '../../constants'
 import _ from 'lodash'
 
 /**
@@ -13,9 +13,9 @@ import _ from 'lodash'
 class Disputes extends AbstractWrapper {
   /**
    * Disputes Constructor
-   * @param storeProvider store provider object
-   * @param arbitratorWrapper arbitrator contract wrapper object
-   * @param arbitrableWrapper arbitrable contract wrapper object
+   * @param {object} storeProvider store provider object
+   * @param {object} arbitratorWrapper arbitrator contract wrapper object
+   * @param {object} arbitrableWrapper arbitrable contract wrapper object
    */
   constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
     super(storeProvider, arbitratorWrapper, arbitrableWrapper)
@@ -23,10 +23,10 @@ class Disputes extends AbstractWrapper {
 
   /**
   * Pay the arbitration fee to raise a dispute. To be called by the party A.
-  * @param account Ethereum account
-  * @param arbitrableContract Address address of arbitrable contract
-  * @param arbitrationCost Amount to pay the arbitrator
-  * @return txHash hash transaction | Error
+  * @param {string} account Ethereum account
+  * @param {string} arbitrableContract Address address of arbitrable contract
+  * @param {number} arbitrationCost Amount to pay the arbitrator
+  * @return {string} txHash hash transaction | Error
   */
   raiseDisputePartyA = async (
     account,
@@ -55,10 +55,10 @@ class Disputes extends AbstractWrapper {
 
   /**
   * Pay the arbitration fee to raise a dispute. To be called by the party B.
-  * @param account Ethereum account
-  * @param arbitrableContract Address address of arbitrable contract
-  * @param arbitrationCost Amount to pay the arbitrator
-  * @return txHash hash transaction | Error
+  * @param {string} account Ethereum account
+  * @param {string} arbitrableContract Address address of arbitrable contract
+  * @param {number} arbitrationCost Amount to pay the arbitrator
+  * @return {string} txHash hash of the transaction | Error
   */
   raiseDisputePartyB = async (
     account,
@@ -83,9 +83,8 @@ class Disputes extends AbstractWrapper {
 
   /**
   * If there is a dispute in contract update store
-  * @param contractAddress
-  * @param account
-  * @return Boolean
+  * @param {string} contractAddress
+  * @param {string} account
   */
   _storeNewDispute = async (
     arbitrableContractAddress,
@@ -103,9 +102,9 @@ class Disputes extends AbstractWrapper {
 
   /**
    * Get disputes for user with extra data from arbitrated transaction and store
-   * @param arbitratorAddress address of Kleros contract
-   * @param account address of user
-   * @return objects[]
+   * @param {string} arbitratorAddress address of Kleros contract
+   * @param {string} account address of user
+   * @return {object[]} dispute data objects for user
    */
   getDisputesForUser = async (
     arbitratorAddress,
@@ -157,9 +156,9 @@ class Disputes extends AbstractWrapper {
 
   /**
    * Get disputes from Kleros contract
-   * @param arbitratorAddress address of Kleros contract
-   * @param account address of user
-   * @return [] contract addresses
+   * @param {string} arbitratorAddress address of Kleros contract
+   * @param {string} account address of user
+   * @return {string[]} array of contract addresses
    */
   getDisputeContractsForJuror = async (
     arbitratorAddress,
@@ -207,9 +206,10 @@ class Disputes extends AbstractWrapper {
 
   /**
   * Fetch the votes a juror has in a dispute
-  * @param disputeId id of the dispute
-  * @param arbitratorAddress address of the arbitrator contract
-  * @param account potential jurors address
+  * @param {number} disputeId id of the dispute
+  * @param {string} arbitratorAddress address of the arbitrator contract
+  * @param {string} account potential jurors address
+  * @return {number[]} array of integers indicating the draw
   */
   getVotesForJuror = async (
     disputeId,
@@ -231,12 +231,12 @@ class Disputes extends AbstractWrapper {
 
   /**
    * Submit votes. Note can only be called during Voting period (Period 2)
-   * @param contractAddress address of KlerosPOC contract
-   * @param disputeId index of the dispute
-   * @param ruling int representing the jurors decision
-   * @param votes int[] of drawn votes for dispute
-   * @param account address of user
-   * @return transaction hash | Error
+   * @param {string} contractAddress address of KlerosPOC contract
+   * @param {number} disputeId index of the dispute
+   * @param {number} ruling int representing the jurors decision
+   * @param {number[]} votes int[] of drawn votes for dispute
+   * @param {string} account address of user
+   * @return {string} transaction hash | Error
    */
   submitVotesForDispute = async (
     arbitratorAddress,
@@ -273,9 +273,9 @@ class Disputes extends AbstractWrapper {
 
   /**
   * get the deadline for dispute
-  * @param arbitratorAddress address of arbitrator contract
-  * @param period default to voting period
-  * @return date object
+  * @param {string} arbitratorAddress address of arbitrator contract
+  * @param {number} period default to voting period
+  * @return {string} date string in the form dd/mm/yyyy
   */
   getDeadlineForDispute = async (
     arbitratorAddress,
@@ -295,8 +295,8 @@ class Disputes extends AbstractWrapper {
 
   /**
   * update store with new dispute data
-  * @param arbitrableContract Address address of arbitrable contract
-  * @param jurorAddress <optional> address of juror
+  * @param {string} arbitrableContract Address address of arbitrable contract
+  * @param {string} jurorAddress <optional> address of juror
   */
   _updateStoreForDispute = async (
     arbitrableContractAddress,
@@ -355,8 +355,9 @@ class Disputes extends AbstractWrapper {
 
   /**
   * get user data for a dispute from the store
-  * @param arbitrableContract Address address for arbitrable contract
-  * @param account <optional> jurors address
+  * @param {string} arbitrableContract Address address for arbitrable contract
+  * @param {string} account <optional> jurors address
+  * @return {object} dispute data from store for user
   */
   getUserDisputeFromStore = async (
     arbitrableContractAddress,
@@ -376,8 +377,9 @@ class Disputes extends AbstractWrapper {
 
   /**
   * get evidence for contract
-  * @param arbitrableContract Address address for arbitrable contract
-  * @param account <optional> jurors address
+  * @param {string} arbitrableContract Address address for arbitrable contract
+  * @param {string} account <optional> jurors address
+  * @return {object[]} array of evidence objects
   */
   getEvidenceForArbitrableContract = async (
     arbitrableContractAddress
@@ -402,8 +404,9 @@ class Disputes extends AbstractWrapper {
 
   /**
   * get data for a dispute
-  * @param arbitrableContract Address address for arbitrable contract
-  * @param account <optional> jurors address
+  * @param {string} arbitrableContract Address address for arbitrable contract
+  * @param {string} account <optional> jurors address
+  * @return {Object} data object for dispute that uses data from the contract and store 
   */
   getDataForDispute = async (
     arbitrableContractAddress,

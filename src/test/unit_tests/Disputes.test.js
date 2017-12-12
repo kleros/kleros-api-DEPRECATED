@@ -1,4 +1,4 @@
-import DisputesApi from '../../abstractWrappers/disputes'
+import DisputesApi from '../../abstractWrappers/Disputes'
 import { NULL_ADDRESS, DEFAULT_ARBITRATION_COST } from '../../../constants'
 
 describe('Disputes', () => {

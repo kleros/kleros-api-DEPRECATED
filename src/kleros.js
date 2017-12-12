@@ -4,9 +4,9 @@ import KlerosWrapper from './contractWrappers/KlerosWrapper'
 import ArbitrableTransactionWrapper from './contractWrappers/ArbitrableTransactionWrapper'
 import PinakionWrapper from './contractWrappers/PinakionWrapper'
 import BlockHashRNGWrapper from './contractWrappers/BlockHashRNGWrapper'
-import DisputesApi from './abstractWrappers/disputes'
-import ArbitratorApi from './abstractWrappers/arbitrator'
-import ArbitrableContractApi from './abstractWrappers/arbitrableContract'
+import DisputesApi from './abstractWrappers/Disputes'
+import ArbitratorApi from './abstractWrappers/Arbitrator'
+import ArbitrableContractApi from './abstractWrappers/ArbitrableContract'
 import { LOCALHOST_STORE_PROVIDER, LOCALHOST_ETH_PROVIDER } from '../constants'
 
 class Kleros {

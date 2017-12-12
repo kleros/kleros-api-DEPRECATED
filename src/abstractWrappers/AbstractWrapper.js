@@ -3,9 +3,9 @@ class AbstractWrapper {
    * AbstractWrapper is the parent class for abstract classes that interact with the
    * store and the contract wrappers. The purpose of these classes are to separate the
    * metadata storage and retrieval logic from the on chain contracts.
-   * @param storeProvider store provider object
-   * @param arbitratorWrapper arbitrator contract wrapper object
-   * @param arbitrableWrapper arbitrable contract wrapper object
+   * @param {object} storeProvider store provider object
+   * @param {object} arbitratorWrapper arbitrator contract wrapper object
+   * @param {object} arbitrableWrapper arbitrable contract wrapper object
    */
   constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
     this._StoreProvider = storeProvider
@@ -15,7 +15,7 @@ class AbstractWrapper {
 
   /**
   * set store wrapper
-  * @param storeWrapper wrapper for store
+  * @param {object} storeWrapper wrapper for store
   */
   setStore = storeWrapper => {
     this._StoreProvider = storeWrapper
@@ -23,7 +23,7 @@ class AbstractWrapper {
 
   /**
   * set Arbitrator wrapper
-  * @param arbitratorWrapper wrapper for arbitrator contract
+  * @param {object} arbitratorWrapper wrapper for arbitrator contract
   */
   setArbitrator = arbitratorWrapper => {
     this._Arbitrator = arbitratorWrapper
@@ -31,7 +31,7 @@ class AbstractWrapper {
 
   /**
   * set Arbitrable wrapper
-  * @param arbitrableWrapper wrapper for arbitrable contract
+  * @param {object} arbitrableWrapper wrapper for arbitrable contract
   */
   setArbitrable = arbitrableWrapper => {
     this._ArbitrableContract = arbitrableWrapper
@@ -55,7 +55,7 @@ class AbstractWrapper {
 
   /**
   * Load instance of arbitrator contract
-  * @param arbitratorAddress address
+  * @param {string} arbitratorAddress address
   * @return instance of arbitrator contract wrapper
   */
   _loadArbitratorInstance = async arbitratorAddress => {
@@ -65,7 +65,7 @@ class AbstractWrapper {
 
   /**
   * Load instance of arbitrable contract
-  * @param arbitrableAddress address
+  * @param {string} arbitrableAddress address
   * @return instance of arbitrable contract wrapper
   */
   _loadArbitrableInstance = async arbitrableAddress => {
