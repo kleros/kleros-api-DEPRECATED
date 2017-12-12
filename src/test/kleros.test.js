@@ -3,7 +3,7 @@ import Web3 from 'web3'
 import contract from 'truffle-contract'
 import {LOCALHOST_PROVIDER} from '../../constants'
 import config from '../../config'
-import mockDisputes from '../../contract_wrapper/mockDisputes'
+import mockDisputes from '../contractWrappers/mockDisputes'
 
 
 describe('Kleros', () => {

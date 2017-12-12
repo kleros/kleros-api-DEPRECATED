@@ -1,5 +1,5 @@
-import AbstractWrapper from '../AbstractWrapper'
-import { DEFAULT_ARBITRATION_COST } from '../../../constants'
+import AbstractWrapper from './AbstractWrapper'
+import { DEFAULT_ARBITRATION_COST } from '../../constants'
 
 /**
  * Arbitrable Contract api
@@ -7,8 +7,8 @@ import { DEFAULT_ARBITRATION_COST } from '../../../constants'
 class ArbitrableContract extends AbstractWrapper {
   /**
    * Arbitrable Contract Constructor
-   * @param storeProvider store provider object
-   * @param arbitrableWrapper arbitrable contract wrapper object
+   * @param {object} storeProvider store provider object
+   * @param {object} arbitrableWrapper arbitrable contract wrapper object
    */
   constructor(storeProvider, arbitrableWrapper) {
     super(storeProvider, undefined, arbitrableWrapper)
@@ -16,15 +16,15 @@ class ArbitrableContract extends AbstractWrapper {
 
   /**
   * Deploy a contract and add to the Store
-  * @param account Ethereum address
-  * @param value funds to be placed in contract
-  * @param hashContract Keccak hash of the plain English contract
-  * @param arbitratorAddress The address of the arbitrator contract
-  * @param timeout Time after which a party automatically loose a dispute
-  * @param partyB Ethereum address of the other party in the contract
-  * @param arbitratorExtraData Extra data for the arbitrator
-  * @param email Email address of the contract creator (default empty string)
-  * @param description Description of what the contract is about (default empty string)
+  * @param {string} account Ethereum address
+  * @param {int} value funds to be placed in contract
+  * @param {string} hashContract Keccak hash of the plain English contract
+  * @param {string} arbitratorAddress The address of the arbitrator contract
+  * @param {int} timeout Time after which a party automatically loose a dispute
+  * @param {string} partyB Ethereum address of the other party in the contract
+  * @param {bytes} arbitratorExtraData Extra data for the arbitrator
+  * @param {string} email Email address of the contract creator (default empty string)
+  * @param {string} description Description of what the contract is about (default empty string)
   * @param args Extra arguments for the contract
   * @return object | Error
   */
@@ -70,8 +70,12 @@ class ArbitrableContract extends AbstractWrapper {
 
   /**
    * Submit evidence
-   * @param evidence A link to an evidence using its URI.
-   * @return txHash Hash transaction
+   * @param {string} account ETH address of user
+   * @param {string} contractAddress ETH address of contract
+   * @param {string} name name of evidence
+   * @param {string} description description of evidence
+   * @param {string} evidence A link to an evidence using its URI.
+   * @return {string} txHash Hash transaction
    */
   submitEvidence = async (
     account,
@@ -98,7 +102,13 @@ class ArbitrableContract extends AbstractWrapper {
 
     return txHash
   }
-
+  
+  /**
+  * Get data from the store and contract for Arbitrable Contract
+  * @param {string} contractAddress address of Arbitrable Contract
+  * @param {string} account ETH address of user
+  * @return {object} contract data
+  */ 
   getData = async (
     contractAddress,
     account
