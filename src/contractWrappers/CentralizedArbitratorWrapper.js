@@ -11,8 +11,8 @@ import config from '../../config'
 class CentralizedArbitratorWrapper extends ContractWrapper {
   /**
    * Constructor CentralizedArbitrator.
-   * @param web3 instance
-   * @param address of the contract (optionnal)
+   * @param {object} web3 instance
+   * @param {string} address of the contract (optionnal)
    */
   constructor(web3Provider, address) {
     super(web3Provider, storeProvider)
@@ -25,10 +25,10 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
 
   /**
    * Deploy CentralizedArbitrator.
-   * @param   account Ethereum account
-   * @param   value gas price value
-   * @param   price Set the initial arbitration price. (default: 10000 wei)
-   * @return  truffle-contract Object | err The contract object deployed or an error
+   * @param {string} account Ethereum account
+   * @param {number} value gas price value
+   * @param {number} priceArbitration Set the initial arbitration price. (default: 10000 wei)
+   * @return {object} truffle-contract Object | err The contract object deployed or an error
    */
   deploy = async (
       account,
@@ -50,8 +50,8 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
 
   /**
    * Load an existing contract
-   * @param address contract address
-   * @return Conract Instance | Error
+   * @param {string} address contract address
+   * @return {object} Conract Instance | Error
    */
   load = async (
     address

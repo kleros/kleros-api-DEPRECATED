@@ -13,8 +13,8 @@ import { VOTING_PERIOD, DISPUTE_STATE_INDEX } from '../../constants'
 class KlerosWrapper extends ContractWrapper {
   /**
    * Constructor Kleros.
-   * @param web3 instance
-   * @param address of the contract (optionnal)
+   * @param {object} web3 instance
+   * @param {string} address of the contract (optionnal)
    */
   constructor(web3Provider, address) {
     super(web3Provider)
@@ -26,9 +26,12 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
    * Kleros deploy.
-   * @param   account (default: accounts[0])
-   * @param   value (default: 10000)
-   * @return  truffle-contract Object | err The contract object or error deploy
+   * @param {string} rngAddress address of random number generator contract
+   * @param {string} pnkAddress address of pinakion contract
+   * @param {number[]} timesPerPeriod array of 5 ints indicating the time limit for each period of contract
+   * @param {string} account address of user
+   * @param {number} value (default: 10000)
+   * @return {object} truffle-contract Object | err The contract object or error deploy
    */
   deploy = async (
       rngAddress,
@@ -54,8 +57,8 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
    * Load an existing contract
-   * @param address contract address
-   * @return Conract Instance | Error
+   * @param {string} address contract address
+   * @return {object} Conract Instance | Error
    */
   load = async (
     address
@@ -77,9 +80,10 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
    * Use Arbitrator.buyPNK
-   * @param amount number of pinakion to buy
-   * @param account address of user
-   * @return txHash
+   * @param {string} amount number of pinakion to buy
+   * @param {string} contractAddress address of klerosPOC contract
+   * @param {string} account address of user
+   * @return {object} txHash
    */
   buyPNK = async (
     amount,
@@ -102,9 +106,9 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
-   * @param contractAddress address of KlerosPOC contract
-   * @param account address of user
-   * @return objects[]
+   * @param {string} contractAddress address of KlerosPOC contract
+   * @param {string} account address of user
+   * @return {object} balance information including total PNK balance and activated tokens
    */
   getPNKBalance = async (
     contractAddress,
@@ -135,10 +139,10 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
    * Activate Pinakion tokens to be eligible to be a juror
-   * @param amount number of tokens to activate
-   * @param contractAddress address of KlerosPOC contract
-   * @param account address of user
-   * @return object | Error
+   * @param {string} amount number of tokens to activate
+   * @param {string} contractAddress address of KlerosPOC contract
+   * @param {string} account address of user
+   * @return {object} PNK balance
    */
   activatePNK = async (
     amount, // amount in ether
@@ -165,7 +169,10 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
-  *
+  * Fetch the cost of arbitration
+  * @param {string} contractAddress address of kleros POC contract
+  * @param {bytes} contractExtraData extra data from arbitrable contract
+  * @return {number} cost of arbitration
   */
   getArbitrationCost = async (
     contractAddress,
@@ -184,9 +191,9 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
    * Call contract to move on to the next period
-   * @param contractAddress address of KlerosPOC contract
-   * @param account address of user
-   * @return object | Error
+   * @param {string} contractAddress address of KlerosPOC contract
+   * @param {string} account address of user
+   * @return {object} data for kleros POC
    */
   passPeriod = async (
     contractAddress,
@@ -209,12 +216,12 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
    * Submit votes. Note can only be called during Voting period (Period 2)
-   * @param contractAddress address of KlerosPOC contract
-   * @param disputeId index of the dispute
-   * @param ruling int representing the jurors decision
-   * @param votes int[] of drawn votes for dispute
-   * @param account address of user
-   * @return object | Error
+   * @param {string} contractAddress address of KlerosPOC contract
+   * @param {number} disputeId index of the dispute
+   * @param {number} ruling int representing the jurors decision
+   * @param {number[]} votes int[] of drawn votes for dispute
+   * @param {string} account address of user
+   * @return {string} tx hash
    */
   submitVotes = async (
     contractAddress,
@@ -245,10 +252,10 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
    * Appeal ruling on dispute
-   * @param contractAddress address of KlerosPOC contract
-   * @param disputeId
-   * @param account address of user
-   * @return object
+   * @param {string} contractAddress address of KlerosPOC contract
+   * @param {number} disputeId index of the dispute
+   * @param {string} account address of user
+   * @return {string} tx hash 
    */
   appealRuling = async (
     contractAddress,
@@ -277,10 +284,10 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
    * Repartition juror tokens
-   * @param contractAddress address of KlerosPOC contract
-   * @param disputeId
-   * @param account address of user
-   * @return object
+   * @param {string} contractAddress address of KlerosPOC contract
+   * @param {number} disputeId index of the dispute
+   * @param {string} account address of user
+   * @return {string} tx hash
    */
   repartitionJurorTokens = async (
     contractAddress,
@@ -306,10 +313,10 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
    * Execute ruling on dispute
-   * @param contractAddress address of KlerosPOC contract
-   * @param disputeId
-   * @param account address of user
-   * @return object
+   * @param {string} contractAddress address of KlerosPOC contract
+   * @param {number} disputeId index of the dispute
+   * @param {string} account address of user
+   * @return {string} tx hash
    */
   executeRuling = async (
     contractAddress,
@@ -335,9 +342,9 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
   * Get time for a period
-  * @param contractAddress address of KlerosPOC contract
-  * @param periodNumber int representing period
-  * @return object | Error
+  * @param {string} contractAddress address of KlerosPOC contract
+  * @param {number} periodNumber int representing period
+  * @return {number} seconds in the period
   */
   getTimeForPeriod = async (
     contractAddress,
@@ -356,9 +363,9 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
   * Get dispute
-  * @param contractAddress address of KlerosPOC contract
-  * @param disputeId index of dispute
-  * @return object | Error
+  * @param {string} contractAddress address of KlerosPOC contract
+  * @param {number} disputeId index of dispute
+  * @return {object} dispute data from contract
   */
   getDispute = async (
     contractAddress,
@@ -383,9 +390,9 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
   * Get number of jurors for a dispute
-  * @param contractAddress address of KlerosPOC contract
-  * @param disputeId index of dispute
-  * @return object | Error
+  * @param {string} contractAddress address of KlerosPOC contract
+  * @param {number} disputeId index of dispute
+  * @return {number} number of jurors for a dispute
   */
   getAmountOfJurorsForDispute = async (
     contractAddress,
@@ -404,11 +411,11 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
   * Get number of jurors for a dispute
-  * @param disputeId index of dispute
-  * @param draw int for draw
-  * @param contractAddressaddress of KlerosPOC contract
-  * @param jurorAddress address of juror
-  * @return bool | Error
+  * @param {number} disputeId index of dispute
+  * @param {number} draw int for draw
+  * @param {string} contractAddress address of KlerosPOC contract
+  * @param {string} jurorAddress address of juror
+  * @return {bool} true indicates juror has a vote for draw, false indicates they do not
   */
   isJurorDrawnForDispute = async (
     disputeId,
@@ -425,9 +432,9 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
   * Get number of jurors for a dispute
-  * @param disputeId index of dispute
-  * @param contractAddressaddress of KlerosPOC contract
-  * @return int | Error
+  * @param {number} disputeId index of dispute
+  * @param {string} contractAddress address of KlerosPOC contract
+  * @return {number} int indicating the ruling of the dispute
   */
   currentRulingForDispute = async (
     disputeId,
@@ -443,9 +450,9 @@ class KlerosWrapper extends ContractWrapper {
   /**
    * Get data from Kleros contract
    * TODO split these into their own methods for more flexability and speed
-   * @param contractAddress address of KlerosPOC contract
-   * @param account address of user
-   * @return object
+   * @param {string} contractAddress address of KlerosPOC contract
+   * @param {string} account address of user
+   * @return {object} data for kleros POC from contract
    */
   getData = async (
     contractAddress
