@@ -1,0 +1,4400 @@
+[
+  {
+    "__docId__": 1,
+    "kind": "external",
+    "name": "Infinity",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Infinity",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 2,
+    "kind": "external",
+    "name": "NaN",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~NaN",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 3,
+    "kind": "external",
+    "name": "undefined",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~undefined",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 4,
+    "kind": "external",
+    "name": "null",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~null",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 5,
+    "kind": "external",
+    "name": "Object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Object",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 6,
+    "kind": "external",
+    "name": "object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~object",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 7,
+    "kind": "external",
+    "name": "Function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Function",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 8,
+    "kind": "external",
+    "name": "function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~function",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 9,
+    "kind": "external",
+    "name": "Boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Boolean",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 10,
+    "kind": "external",
+    "name": "boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~boolean",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 11,
+    "kind": "external",
+    "name": "Symbol",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Symbol",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 12,
+    "kind": "external",
+    "name": "Error",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Error",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 13,
+    "kind": "external",
+    "name": "EvalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/EvalError",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~EvalError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 14,
+    "kind": "external",
+    "name": "InternalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/InternalError",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~InternalError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 15,
+    "kind": "external",
+    "name": "RangeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~RangeError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 16,
+    "kind": "external",
+    "name": "ReferenceError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~ReferenceError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 17,
+    "kind": "external",
+    "name": "SyntaxError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~SyntaxError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 18,
+    "kind": "external",
+    "name": "TypeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~TypeError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 19,
+    "kind": "external",
+    "name": "URIError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~URIError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 20,
+    "kind": "external",
+    "name": "Number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Number",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 21,
+    "kind": "external",
+    "name": "number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~number",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 22,
+    "kind": "external",
+    "name": "Date",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Date",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 23,
+    "kind": "external",
+    "name": "String",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~String",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 24,
+    "kind": "external",
+    "name": "string",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~string",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 25,
+    "kind": "external",
+    "name": "RegExp",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~RegExp",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 26,
+    "kind": "external",
+    "name": "Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 27,
+    "kind": "external",
+    "name": "Int8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int8Array",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Int8Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 28,
+    "kind": "external",
+    "name": "Uint8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Uint8Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 29,
+    "kind": "external",
+    "name": "Uint8ClampedArray",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Uint8ClampedArray",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 30,
+    "kind": "external",
+    "name": "Int16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int16Array",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Int16Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 31,
+    "kind": "external",
+    "name": "Uint16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint16Array",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Uint16Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 32,
+    "kind": "external",
+    "name": "Int32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int32Array",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Int32Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 33,
+    "kind": "external",
+    "name": "Uint32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Uint32Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 34,
+    "kind": "external",
+    "name": "Float32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Float32Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 35,
+    "kind": "external",
+    "name": "Float64Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float64Array",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Float64Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 36,
+    "kind": "external",
+    "name": "Map",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Map",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 37,
+    "kind": "external",
+    "name": "Set",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Set",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 38,
+    "kind": "external",
+    "name": "WeakMap",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~WeakMap",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 39,
+    "kind": "external",
+    "name": "WeakSet",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~WeakSet",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 40,
+    "kind": "external",
+    "name": "ArrayBuffer",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~ArrayBuffer",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 41,
+    "kind": "external",
+    "name": "DataView",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~DataView",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 42,
+    "kind": "external",
+    "name": "JSON",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~JSON",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 43,
+    "kind": "external",
+    "name": "Promise",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Promise",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 44,
+    "kind": "external",
+    "name": "Generator",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Generator",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 45,
+    "kind": "external",
+    "name": "GeneratorFunction",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GeneratorFunction",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~GeneratorFunction",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 46,
+    "kind": "external",
+    "name": "Reflect",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Reflect",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 47,
+    "kind": "external",
+    "name": "Proxy",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy",
+    "memberof": "src/.external-ecmascript.js",
+    "static": true,
+    "longname": "src/.external-ecmascript.js~Proxy",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 48,
+    "kind": "file",
+    "name": "src/abstractWrappers/AbstractWrapper.js",
+    "content": "class AbstractWrapper {\n  /**\n   * AbstractWrapper is the parent class for abstract classes that interact with the\n   * store and the contract wrappers. The purpose of these classes are to separate the\n   * metadata storage and retrieval logic from the on chain contracts.\n   * @param storeProvider store provider object\n   * @param arbitratorWrapper arbitrator contract wrapper object\n   * @param arbitrableWrapper arbitrable contract wrapper object\n   */\n  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {\n    this._StoreProvider = storeProvider\n    this._Arbitrator = arbitratorWrapper\n    this._ArbitrableContract = arbitrableWrapper\n  }\n\n  /**\n  * set store wrapper\n  * @param storeWrapper wrapper for store\n  */\n  setStore = storeWrapper => {\n    this._StoreProvider = storeWrapper\n  }\n\n  /**\n  * set Arbitrator wrapper\n  * @param arbitratorWrapper wrapper for arbitrator contract\n  */\n  setArbitrator = arbitratorWrapper => {\n    this._Arbitrator = arbitratorWrapper\n  }\n\n  /**\n  * set Arbitrable wrapper\n  * @param arbitrableWrapper wrapper for arbitrable contract\n  */\n  setArbitrable = arbitrableWrapper => {\n    this._ArbitrableContract = arbitrableWrapper\n  }\n\n  /**\n  * I can't wait for decorators\n  * throws an error if Arbitrator and Arbitable contract wrappers are not set yet\n  */\n  _checkArbitratorWrappersSet = () => {\n    if (!this._Arbitrator) throw new Error('No Arbitrator Contract Wrapper specified. Please call setArbitrator')\n  }\n\n  /**\n  * I can't wait for decorators\n  * throws an error if Arbitrator and Arbitable contract wrappers are not set yet\n  */\n  _checkArbitrableWrappersSet = () => {\n    if (!this._ArbitrableContract) throw new Error('No Arbitrable Contract Wrapper specified. Please call setArbitrable')\n  }\n\n  /**\n  * Load instance of arbitrator contract\n  * @param arbitratorAddress address\n  * @return instance of arbitrator contract wrapper\n  */\n  _loadArbitratorInstance = async arbitratorAddress => {\n    this._checkArbitratorWrappersSet()\n    return await this._Arbitrator.load(arbitratorAddress)\n  }\n\n  /**\n  * Load instance of arbitrable contract\n  * @param arbitrableAddress address\n  * @return instance of arbitrable contract wrapper\n  */\n  _loadArbitrableInstance = async arbitrableAddress => {\n    this._checkArbitrableWrappersSet()\n    return await this._ArbitrableContract.load(arbitrableAddress)\n  }\n}\n\nexport default AbstractWrapper\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/abstractWrappers/AbstractWrapper.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 49,
+    "kind": "class",
+    "name": "AbstractWrapper",
+    "memberof": "src/abstractWrappers/AbstractWrapper.js",
+    "static": true,
+    "longname": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper",
+    "access": "public",
+    "export": true,
+    "importPath": "kleros-api/src/abstractWrappers/AbstractWrapper.js",
+    "importStyle": "AbstractWrapper",
+    "description": null,
+    "lineNumber": 1,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 50,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper#constructor",
+    "access": "public",
+    "description": "AbstractWrapper is the parent class for abstract classes that interact with the\nstore and the contract wrappers. The purpose of these classes are to separate the\nmetadata storage and retrieval logic from the on chain contracts.",
+    "lineNumber": 10,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "storeProvider",
+        "description": "store provider object"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorWrapper",
+        "description": "arbitrator contract wrapper object"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrableWrapper",
+        "description": "arbitrable contract wrapper object"
+      }
+    ]
+  },
+  {
+    "__docId__": 51,
+    "kind": "member",
+    "name": "_StoreProvider",
+    "memberof": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper",
+    "static": false,
+    "longname": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper#_StoreProvider",
+    "access": "private",
+    "description": null,
+    "lineNumber": 11,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 52,
+    "kind": "member",
+    "name": "_Arbitrator",
+    "memberof": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper",
+    "static": false,
+    "longname": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper#_Arbitrator",
+    "access": "private",
+    "description": null,
+    "lineNumber": 12,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 53,
+    "kind": "member",
+    "name": "_ArbitrableContract",
+    "memberof": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper",
+    "static": false,
+    "longname": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper#_ArbitrableContract",
+    "access": "private",
+    "description": null,
+    "lineNumber": 13,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 54,
+    "kind": "member",
+    "name": "setStore",
+    "memberof": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper",
+    "static": false,
+    "longname": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper#setStore",
+    "access": "public",
+    "description": "set store wrapper",
+    "lineNumber": 20,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "storeWrapper",
+        "description": "wrapper for store"
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 56,
+    "kind": "member",
+    "name": "setArbitrator",
+    "memberof": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper",
+    "static": false,
+    "longname": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper#setArbitrator",
+    "access": "public",
+    "description": "set Arbitrator wrapper",
+    "lineNumber": 28,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorWrapper",
+        "description": "wrapper for arbitrator contract"
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 58,
+    "kind": "member",
+    "name": "setArbitrable",
+    "memberof": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper",
+    "static": false,
+    "longname": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper#setArbitrable",
+    "access": "public",
+    "description": "set Arbitrable wrapper",
+    "lineNumber": 36,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrableWrapper",
+        "description": "wrapper for arbitrable contract"
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 60,
+    "kind": "member",
+    "name": "_checkArbitratorWrappersSet",
+    "memberof": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper",
+    "static": false,
+    "longname": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper#_checkArbitratorWrappersSet",
+    "access": "private",
+    "description": "I can't wait for decorators\nthrows an error if Arbitrator and Arbitable contract wrappers are not set yet",
+    "lineNumber": 44,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 61,
+    "kind": "member",
+    "name": "_checkArbitrableWrappersSet",
+    "memberof": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper",
+    "static": false,
+    "longname": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper#_checkArbitrableWrappersSet",
+    "access": "private",
+    "description": "I can't wait for decorators\nthrows an error if Arbitrator and Arbitable contract wrappers are not set yet",
+    "lineNumber": 52,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 62,
+    "kind": "member",
+    "name": "_loadArbitratorInstance",
+    "memberof": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper",
+    "static": false,
+    "longname": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper#_loadArbitratorInstance",
+    "access": "private",
+    "description": "Load instance of arbitrator contract",
+    "lineNumber": 61,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorAddress",
+        "description": "address"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "instance of arbitrator contract wrapper"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 63,
+    "kind": "member",
+    "name": "_loadArbitrableInstance",
+    "memberof": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper",
+    "static": false,
+    "longname": "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper#_loadArbitrableInstance",
+    "access": "private",
+    "description": "Load instance of arbitrable contract",
+    "lineNumber": 71,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrableAddress",
+        "description": "address"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "instance of arbitrable contract wrapper"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 64,
+    "kind": "file",
+    "name": "src/abstractWrappers/arbitrableContract/index.js",
+    "content": "import AbstractWrapper from '../AbstractWrapper'\nimport { DEFAULT_ARBITRATION_COST } from '../../../constants'\n\n/**\n * Arbitrable Contract api\n */\nclass ArbitrableContract extends AbstractWrapper {\n  /**\n   * Arbitrable Contract Constructor\n   * @param storeProvider store provider object\n   * @param arbitrableWrapper arbitrable contract wrapper object\n   */\n  constructor(storeProvider, arbitrableWrapper) {\n    super(storeProvider, undefined, arbitrableWrapper)\n  }\n\n  /**\n  * Deploy a contract and add to the Store\n  * @param account Ethereum address\n  * @param value funds to be placed in contract\n  * @param hashContract Keccak hash of the plain English contract\n  * @param arbitratorAddress The address of the arbitrator contract\n  * @param timeout Time after which a party automatically loose a dispute\n  * @param partyB Ethereum address of the other party in the contract\n  * @param arbitratorExtraData Extra data for the arbitrator\n  * @param email Email address of the contract creator (default empty string)\n  * @param description Description of what the contract is about (default empty string)\n  * @param args Extra arguments for the contract\n  * @return object | Error\n  */\n  deployContract = async (\n    account,\n    value,\n    hashContract,\n    arbitratorAddress,\n    timeout,\n    partyB,\n    arbitratorExtraData = '',\n    email = '',\n    description = '',\n    ...args\n  ) => {\n    this._checkArbitrableWrappersSet()\n\n    const contractInstance = await this._ArbitrableContract.deploy(\n      account,\n      value,\n      hashContract,\n      arbitratorAddress,\n      timeout,\n      partyB,\n      arbitratorExtraData,\n      ...args\n    )\n\n    await this._StoreProvider.updateContract(\n      contractInstance.address,\n      hashContract,\n      account,\n      partyB,\n      arbitratorAddress,\n      timeout,\n      email,\n      description\n    )\n\n    // return contract data\n    return await this.getData(contractInstance.address, account)\n  }\n\n  /**\n   * Submit evidence\n   * @param evidence A link to an evidence using its URI.\n   * @return txHash Hash transaction\n   */\n  submitEvidence = async (\n    account,\n    contractAddress,\n    name,\n    description = '',\n    url\n  ) => {\n    const txHash = await this._ArbitrableContract.submitEvidence(\n      account,\n      contractAddress,\n      name,\n      description,\n      url\n    )\n\n    await this._StoreProvider.addEvidenceContract(\n      contractAddress,\n      account,\n      name,\n      description,\n      url\n    )\n\n    return txHash\n  }\n\n  getData = async (\n    contractAddress,\n    account\n  ) => {\n    const contractData = await this._ArbitrableContract.getData(contractAddress)\n\n    const storeData = await this._StoreProvider.getContractByAddress(account, contractAddress)\n\n    return Object.assign({}, storeData, contractData)\n  }\n}\n\nexport default ArbitrableContract\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/abstractWrappers/arbitrableContract/index.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 65,
+    "kind": "class",
+    "name": "ArbitrableContract",
+    "memberof": "src/abstractWrappers/arbitrableContract/index.js",
+    "static": true,
+    "longname": "src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract",
+    "access": "public",
+    "export": true,
+    "importPath": "kleros-api/src/abstractWrappers/arbitrableContract/index.js",
+    "importStyle": "ArbitrableContract",
+    "description": "Arbitrable Contract api",
+    "lineNumber": 7,
+    "interface": false,
+    "extends": [
+      "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper"
+    ]
+  },
+  {
+    "__docId__": 66,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract#constructor",
+    "access": "public",
+    "description": "Arbitrable Contract Constructor",
+    "lineNumber": 13,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "storeProvider",
+        "description": "store provider object"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrableWrapper",
+        "description": "arbitrable contract wrapper object"
+      }
+    ]
+  },
+  {
+    "__docId__": 67,
+    "kind": "member",
+    "name": "deployContract",
+    "memberof": "src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract",
+    "static": false,
+    "longname": "src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract#deployContract",
+    "access": "public",
+    "description": "Deploy a contract and add to the Store",
+    "lineNumber": 31,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "Ethereum address"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "value",
+        "description": "funds to be placed in contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "hashContract",
+        "description": "Keccak hash of the plain English contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorAddress",
+        "description": "The address of the arbitrator contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "timeout",
+        "description": "Time after which a party automatically loose a dispute"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "partyB",
+        "description": "Ethereum address of the other party in the contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorExtraData",
+        "description": "Extra data for the arbitrator"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "email",
+        "description": "Email address of the contract creator (default empty string)"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "description",
+        "description": "Description of what the contract is about (default empty string)"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "args",
+        "description": "Extra arguments for the contract"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "object | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 68,
+    "kind": "member",
+    "name": "submitEvidence",
+    "memberof": "src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract",
+    "static": false,
+    "longname": "src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract#submitEvidence",
+    "access": "public",
+    "description": "Submit evidence",
+    "lineNumber": 76,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "evidence",
+        "description": "A link to an evidence using its URI."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "txHash Hash transaction"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 69,
+    "kind": "member",
+    "name": "getData",
+    "memberof": "src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract",
+    "static": false,
+    "longname": "src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract#getData",
+    "access": "public",
+    "description": null,
+    "lineNumber": 102,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 70,
+    "kind": "file",
+    "name": "src/abstractWrappers/arbitrator/index.js",
+    "content": "import AbstractWrapper from '../AbstractWrapper'\nimport _ from 'lodash'\n\n/**\n * Arbitrator api\n */\nclass Arbitrator extends AbstractWrapper {\n  /**\n   * Arbitrator Constructor\n   * @param storeProvider store provider object\n   * @param arbitratorWrapper arbitrator contract wrapper object\n   */\n  constructor(storeProvider, arbitratorWrapper) {\n    super(storeProvider, arbitratorWrapper, undefined)\n  }\n\n  // passthroughs\n  getPNKBalance = this._Arbitrator.getPNKBalance\n  activatePNK = this._Arbitrator.activatePNK\n  getData = this._Arbitrator.getData\n  passPeriod = this._Arbitrator.passPeriod\n\n  /**\n   * @param amount number of pinakion to buy\n   * @param account address of user\n   * @return objects[]\n   */\n  buyPNK = async (\n    amount,\n    arbitratorAddress, // address of KlerosPOC\n    account\n  ) => {\n    const txHash = await this._Arbitrator.buyPNK(amount, arbitratorAddress, account)\n    if (txHash) {\n      // update store so user can get instantaneous feedback\n      let userProfile = await this._StoreProvider.getUserProfile(account)\n      if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)\n      // FIXME seems like a super hacky way to update store\n      userProfile.balance = (parseInt(userProfile.balance) ? userProfile.balance : 0) + parseInt(amount)\n      delete userProfile._id\n      delete userProfile.created_at\n      const response = await this._StoreProvider.newUserProfile(account, userProfile)\n\n      return this.getPNKBalance(arbitratorAddress, account)\n    } else {\n      throw new Error(\"unable to buy PNK\")\n    }\n  }\n\n  /**\n   * Get all contracts TODO do we need to get contract data from blockchain?\n   * @param account address of user\n   * @return objects[]\n   */\n  getContractsForUser = async (\n    account\n  ) => {\n    // fetch user profile\n    let userProfile = await this._StoreProvider.getUserProfile(account)\n    if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)\n\n    return userProfile.contracts\n  }\n}\n\nexport default Arbitrator\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/abstractWrappers/arbitrator/index.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 71,
+    "kind": "class",
+    "name": "Arbitrator",
+    "memberof": "src/abstractWrappers/arbitrator/index.js",
+    "static": true,
+    "longname": "src/abstractWrappers/arbitrator/index.js~Arbitrator",
+    "access": "public",
+    "export": true,
+    "importPath": "kleros-api/src/abstractWrappers/arbitrator/index.js",
+    "importStyle": "Arbitrator",
+    "description": "Arbitrator api",
+    "lineNumber": 7,
+    "interface": false,
+    "extends": [
+      "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper"
+    ]
+  },
+  {
+    "__docId__": 72,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "src/abstractWrappers/arbitrator/index.js~Arbitrator",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/abstractWrappers/arbitrator/index.js~Arbitrator#constructor",
+    "access": "public",
+    "description": "Arbitrator Constructor",
+    "lineNumber": 13,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "storeProvider",
+        "description": "store provider object"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorWrapper",
+        "description": "arbitrator contract wrapper object"
+      }
+    ]
+  },
+  {
+    "__docId__": 73,
+    "kind": "member",
+    "name": "getPNKBalance",
+    "memberof": "src/abstractWrappers/arbitrator/index.js~Arbitrator",
+    "static": false,
+    "longname": "src/abstractWrappers/arbitrator/index.js~Arbitrator#getPNKBalance",
+    "access": "public",
+    "description": null,
+    "lineNumber": 18,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 74,
+    "kind": "member",
+    "name": "activatePNK",
+    "memberof": "src/abstractWrappers/arbitrator/index.js~Arbitrator",
+    "static": false,
+    "longname": "src/abstractWrappers/arbitrator/index.js~Arbitrator#activatePNK",
+    "access": "public",
+    "description": null,
+    "lineNumber": 19,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 75,
+    "kind": "member",
+    "name": "getData",
+    "memberof": "src/abstractWrappers/arbitrator/index.js~Arbitrator",
+    "static": false,
+    "longname": "src/abstractWrappers/arbitrator/index.js~Arbitrator#getData",
+    "access": "public",
+    "description": null,
+    "lineNumber": 20,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 76,
+    "kind": "member",
+    "name": "passPeriod",
+    "memberof": "src/abstractWrappers/arbitrator/index.js~Arbitrator",
+    "static": false,
+    "longname": "src/abstractWrappers/arbitrator/index.js~Arbitrator#passPeriod",
+    "access": "public",
+    "description": null,
+    "lineNumber": 21,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 77,
+    "kind": "member",
+    "name": "buyPNK",
+    "memberof": "src/abstractWrappers/arbitrator/index.js~Arbitrator",
+    "static": false,
+    "longname": "src/abstractWrappers/arbitrator/index.js~Arbitrator#buyPNK",
+    "access": "public",
+    "description": "",
+    "lineNumber": 28,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "amount",
+        "description": "number of pinakion to buy"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "objects[]"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 78,
+    "kind": "member",
+    "name": "getContractsForUser",
+    "memberof": "src/abstractWrappers/arbitrator/index.js~Arbitrator",
+    "static": false,
+    "longname": "src/abstractWrappers/arbitrator/index.js~Arbitrator#getContractsForUser",
+    "access": "public",
+    "description": "Get all contracts TODO do we need to get contract data from blockchain?",
+    "lineNumber": 55,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "objects[]"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 79,
+    "kind": "file",
+    "name": "src/abstractWrappers/disputes/index.js",
+    "content": "import AbstractWrapper from '../AbstractWrapper'\nimport {\n  NULL_ADDRESS,\n  VOTING_PERIOD,\n  DEFAULT_ARBITRATION_COST,\n  DISPUTE_STATUS\n} from '../../../constants'\nimport _ from 'lodash'\n\n/**\n * Disputes api\n */\nclass Disputes extends AbstractWrapper {\n  /**\n   * Disputes Constructor\n   * @param storeProvider store provider object\n   * @param arbitratorWrapper arbitrator contract wrapper object\n   * @param arbitrableWrapper arbitrable contract wrapper object\n   */\n  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {\n    super(storeProvider, arbitratorWrapper, arbitrableWrapper)\n  }\n\n  /**\n  * Pay the arbitration fee to raise a dispute. To be called by the party A.\n  * @param account Ethereum account\n  * @param arbitrableContract Address address of arbitrable contract\n  * @param arbitrationCost Amount to pay the arbitrator\n  * @return txHash hash transaction | Error\n  */\n  raiseDisputePartyA = async (\n    account,\n    arbitrableContractAddress,\n    arbitrationCost = DEFAULT_ARBITRATION_COST\n  ) => {\n    this._checkArbitrableWrappersSet()\n    \n    try {\n      const txHash = await this._ArbitrableContract.payArbitrationFeeByPartyA(\n        account,\n        arbitrableContractAddress,\n        arbitrationCost\n      )\n\n      if (!txHash) throw new Error('unable to pay arbitration fee for party A')\n\n      // update store if there is a dispute\n      await this._storeNewDispute(arbitrableContractAddress, account)\n\n      return txHash\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n\n  /**\n  * Pay the arbitration fee to raise a dispute. To be called by the party B.\n  * @param account Ethereum account\n  * @param arbitrableContract Address address of arbitrable contract\n  * @param arbitrationCost Amount to pay the arbitrator\n  * @return txHash hash transaction | Error\n  */\n  raiseDisputePartyB = async (\n    account,\n    arbitrableContractAddress,\n    arbitrationCost = DEFAULT_ARBITRATION_COST\n  ) => {\n    this._checkArbitrableWrappersSet()\n\n    const txHash = await this._ArbitrableContract.payArbitrationFeeByPartyB(\n      account,\n      arbitrableContractAddress,\n      arbitrationCost\n    )\n\n    if (!txHash) throw new Error('unable to pay arbitration fee for party B')\n\n    // update store if there is a dispute\n    await this._storeNewDispute(arbitrableContractAddress)\n\n    return txHash\n  }\n\n  /**\n  * If there is a dispute in contract update store\n  * @param contractAddress\n  * @param account\n  * @return Boolean\n  */\n  _storeNewDispute = async (\n    arbitrableContractAddress,\n    account\n  ) => {\n    this._checkArbitratorWrappersSet()\n    this._checkArbitrableWrappersSet()\n\n    const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)\n\n    if (arbitrableContractData.status === DISPUTE_STATUS) {\n      await this._updateStoreForDispute(arbitrableContractAddress, account)\n    }\n  }\n\n  /**\n   * Get disputes for user with extra data from arbitrated transaction and store\n   * @param arbitratorAddress address of Kleros contract\n   * @param account address of user\n   * @return objects[]\n   */\n  getDisputesForUser = async (\n    arbitratorAddress,\n    account\n  ) => {\n    // FIXME don't like having to call this every fnc\n    this._checkArbitratorWrappersSet()\n    this._checkArbitrableWrappersSet()\n    // contract data\n    const arbitratorData = await this._Arbitrator.getData(arbitratorAddress, account)\n\n    // fetch user profile\n    let profile = await this._StoreProvider.getUserProfile(account)\n    if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)\n    // fetch current contract period\n    const period = arbitratorData.period\n    const currentSession = arbitratorData.session\n    // new jurors have not been chosen yet. don't update\n    if (period !== VOTING_PERIOD) {\n      let disputes = await this._StoreProvider.getDisputesForUser(account)\n      disputes = await Promise.all(disputes.map(async (dispute) => {\n        return await this.getDataForDispute(dispute.contractAddress, account)\n      }))\n\n      return disputes\n    }\n\n    if (currentSession != profile.session) {\n      // get disputes for juror\n      const myDisputeContracts = await this.getDisputeContractsForJuror(arbitratorAddress, account)\n      // update store for each dispute\n      await Promise.all(myDisputeContracts.map(async contractAddress => {\n        await this._updateStoreForDispute(contractAddress, account)\n      }))\n  \n      // update session on profile\n      profile = await this._StoreProvider.getUserProfile(account)\n      profile.session = currentSession\n      await this._StoreProvider.updateUserProfile(account, profile)\n    }\n    // return array of all disputes for user\n    let disputes = await this._StoreProvider.getDisputesForUser(account)\n    disputes = await Promise.all(disputes.map(async (dispute) => {\n      return await this.getDataForDispute(dispute.contractAddress, account)\n    }))\n\n    return disputes\n  }\n\n  /**\n   * Get disputes from Kleros contract\n   * @param arbitratorAddress address of Kleros contract\n   * @param account address of user\n   * @return [] contract addresses\n   */\n  getDisputeContractsForJuror = async (\n    arbitratorAddress,\n    account,\n  ) => {\n    // FIXME don't like having to call this every fnc\n    this._checkArbitratorWrappersSet()\n    // contract data\n    const arbitratorData = await this._Arbitrator.getData(arbitratorAddress, account)\n    const myDisputes = []\n    let disputeId = 0\n    const currentSession = arbitratorData.session\n\n    let dispute\n    while (1) {\n      // iterate over all disputes (FIXME inefficient)\n      try {\n         dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)\n         if (dispute.arbitratedContract === NULL_ADDRESS) break\n         // session + number of appeals\n         const disputeSession = dispute.firstSession + dispute.numberOfAppeals\n         // if dispute not in current session skip\n         if (disputeSession !== currentSession) {\n           disputeId++\n           dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)\n           continue\n         }\n\n         const votes = await this.getVotesForJuror(disputeId, arbitratorAddress, account)\n         if (votes.length > 0) {\n           myDisputes.push(\n             dispute.arbitratedContract\n           )\n         }\n         // check next dispute\n         disputeId += 1\n      } catch (e) {\n        // getDispute(n) throws an error if index out of range\n        break\n      }\n    }\n\n    return myDisputes\n  }\n\n  /**\n  * Fetch the votes a juror has in a dispute\n  * @param disputeId id of the dispute\n  * @param arbitratorAddress address of the arbitrator contract\n  * @param account potential jurors address\n  */\n  getVotesForJuror = async (\n    disputeId,\n    arbitratorAddress,\n    account\n  ) => {\n    const numberOfJurors = await this._Arbitrator.getAmountOfJurorsForDispute(arbitratorAddress, disputeId)\n    const votes = []\n    // FIXME map doesn't seem to make sense here. would need to construct array of possible choices and then filter?\n    for (let draw=1; draw<=numberOfJurors; draw++) {\n      const isJuror = await this._Arbitrator.isJurorDrawnForDispute(disputeId, draw, arbitratorAddress, account)\n      if (isJuror) {\n        votes.push(draw)\n      }\n    }\n\n    return votes\n  }\n\n  /**\n   * Submit votes. Note can only be called during Voting period (Period 2)\n   * @param contractAddress address of KlerosPOC contract\n   * @param disputeId index of the dispute\n   * @param ruling int representing the jurors decision\n   * @param votes int[] of drawn votes for dispute\n   * @param account address of user\n   * @return transaction hash | Error\n   */\n  submitVotesForDispute = async (\n    arbitratorAddress,\n    disputeId,\n    ruling,\n    votes,\n    hash,\n    account\n  ) => {\n    const txHash = await this._Arbitrator.submitVotes(\n      arbitratorAddress,\n      disputeId,\n      ruling,\n      votes,\n      hash,\n      account\n    )\n\n    if (txHash) {\n      // mark in store that you have ruled on dispute\n      await this._StoreProvider.updateDisputeProfile(\n        account,\n        votes,\n        hash,\n        true,\n        true\n      )\n\n      return txHash\n    } else {\n      throw new Error('unable to submit votes')\n    }\n  }\n\n  /**\n  * get the deadline for dispute\n  * @param arbitratorAddress address of arbitrator contract\n  * @param period default to voting period\n  * @return date object\n  */\n  getDeadlineForDispute = async (\n    arbitratorAddress,\n    period = VOTING_PERIOD\n  ) => {\n    const arbitratorData = await this._Arbitrator.getData(arbitratorAddress)\n    // compute end date\n    const startTime = arbitratorData.lastPeriodChange\n    const length = await this._Arbitrator.getTimeForPeriod(arbitratorAddress, period)\n    // FIXME this is all UTC for now. Timezones are a pain\n    const deadline = new Date(0);\n    deadline.setUTCSeconds(startTime)\n    deadline.setSeconds(deadline.getSeconds() + length);\n\n    return `${deadline.getUTCDate()}/${deadline.getUTCMonth()}/${deadline.getFullYear()}`\n  }\n\n  /**\n  * update store with new dispute data\n  * @param arbitrableContract Address address of arbitrable contract\n  * @param jurorAddress <optional> address of juror\n  */\n  _updateStoreForDispute = async (\n    arbitrableContractAddress,\n    jurorAddress\n  ) => {\n    const disputeData = await this.getDataForDispute(\n      arbitrableContractAddress,\n      jurorAddress\n    )\n\n    // update dispute\n    await this._StoreProvider.updateDispute(\n      disputeData.disputeId,\n      disputeData.hash,\n      disputeData.arbitrableContractAddress,\n      disputeData.partyA,\n      disputeData.partyB,\n      disputeData.title,\n      disputeData.deadline,\n      disputeData.status,\n      disputeData.fee,\n      disputeData.information,\n      disputeData.justification,\n      disputeData.resolutionOptions\n    )\n\n    // update profile partyA\n    await this._StoreProvider.updateDisputeProfile(\n      disputeData.partyA,\n      [],\n      disputeData.hash,\n      false,\n      false\n    )\n\n    // update profile partyB\n    await this._StoreProvider.updateDisputeProfile(\n      disputeData.partyB,\n      [],\n      disputeData.hash,\n      false,\n      false\n    )\n\n    if (jurorAddress) {\n      // update juror profile <optional>\n      await this._StoreProvider.updateDisputeProfile(\n        jurorAddress,\n        disputeData.votes,\n        disputeData.hash,\n        disputeData.votes.length > 0 ? true : false,\n        false\n      )\n    }\n  }\n\n  /**\n  * get user data for a dispute from the store\n  * @param arbitrableContract Address address for arbitrable contract\n  * @param account <optional> jurors address\n  */\n  getUserDisputeFromStore = async (\n    arbitrableContractAddress,\n    account\n  ) => {\n    const userProfile = await this._StoreProvider.getUserProfile(account)\n\n    const disputeArray = _.filter(userProfile.disputes, (dispute) => {\n      // FIXME update store to use arbitrableContractAddress instead of hash\n      return dispute.hash === arbitrableContractAddress\n    })\n\n    if (_.isEmpty(disputeArray)) throw new Error(`User ${account} does not have store data for dispute`)\n\n    return disputeArray[0]\n  }\n\n  /**\n  * get evidence for contract\n  * @param arbitrableContract Address address for arbitrable contract\n  * @param account <optional> jurors address\n  */\n  getEvidenceForArbitrableContract = async (\n    arbitrableContractAddress\n  ) => {\n    this._checkArbitrableWrappersSet()\n\n    const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)\n    const partyAContractData = await this._StoreProvider.getContractByAddress(\n      arbitrableContractData.partyA,\n      arbitrableContractAddress\n    )\n    const partyBContractData = await this._StoreProvider.getContractByAddress(\n      arbitrableContractData.partyB,\n      arbitrableContractAddress\n    )\n\n    const partyAEvidence = partyAContractData ? partyAContractData.evidences : []\n    const partyBEvidence = partyBContractData ? partyBContractData.evidences : []\n\n    return partyAEvidence.concat(partyBEvidence)\n  }\n\n  /**\n  * get data for a dispute\n  * @param arbitrableContract Address address for arbitrable contract\n  * @param account <optional> jurors address\n  */\n  getDataForDispute = async (\n    arbitrableContractAddress,\n    account\n  ) => {\n    this._checkArbitratorWrappersSet()\n    this._checkArbitrableWrappersSet()\n\n    const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)\n    const arbitratorAddress = arbitrableContractData.arbitrator\n    const constractStoreData = await this._StoreProvider.getContractByAddress(\n      arbitrableContractData.partyA,\n      arbitrableContractAddress\n    )\n\n    const disputeId = arbitrableContractData.disputeId\n    if (disputeId === undefined) throw new Error(`Arbitrable contract ${arbitrableContractAddress} does not have a dispute`)\n    const dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)\n\n    let votes = []\n    let isJuror = false\n    let hasRuled = false\n    if (account) {\n      votes = await this.getVotesForJuror(disputeId, arbitratorAddress, account)\n      try {\n        const userData = await this.getUserDisputeFromStore(arbitrableContractAddress, account)\n        isJuror = userData.isJuror\n        hasRuled = userData.hasRuled\n      } catch (e) {\n        isJuror = false\n        hasRuled = false\n      }\n    }\n\n    // get evidence\n    const evidence = await this.getEvidenceForArbitrableContract(arbitrableContractAddress)\n\n    // get deadline\n    const deadline = await this.getDeadlineForDispute(arbitratorAddress)\n\n    // get ruling\n    const ruling = await this._Arbitrator.currentRulingForDispute(disputeId, arbitratorAddress)\n\n    return ({\n      // FIXME hash not being stored in contract atm\n      hash: arbitrableContractAddress,\n      partyA: arbitrableContractData.partyA,\n      partyB: arbitrableContractData.partyB,\n      arbitrableContractStatus: arbitrableContractData.status,\n      disputeState: dispute.state,\n      arbitrableContractAddress: arbitrableContractAddress,\n      arbitratorAddress: arbitratorAddress,\n      fee: dispute.arbitrationFeePerJuror,\n      disputeId: disputeId,\n      session: dispute.firstSession + dispute.numberOfAppeals,\n      // FIXME\n      resolutionOptions: [\n        {\n          name: `Pay ${arbitrableContractData.partyA}`,\n          description: `Release funds to ${arbitrableContractData.partyA}`,\n          value: 1\n        },\n        {\n          name: `Pay ${arbitrableContractData.partyB}`,\n          description: `Release funds to ${arbitrableContractData.partyB}`,\n          value: 2\n        }\n      ],\n      deadline: deadline,\n      // store data\n      description: constractStoreData ? constractStoreData.description : undefined,\n      email: constractStoreData ? constractStoreData.email : undefined,\n      votes: votes,\n      isJuror: isJuror,\n      hasRuled: hasRuled,\n      ruling: ruling,\n      evidence: evidence\n    })\n  }\n}\n\nexport default Disputes\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/abstractWrappers/disputes/index.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 80,
+    "kind": "class",
+    "name": "Disputes",
+    "memberof": "src/abstractWrappers/disputes/index.js",
+    "static": true,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes",
+    "access": "public",
+    "export": true,
+    "importPath": "kleros-api/src/abstractWrappers/disputes/index.js",
+    "importStyle": "Disputes",
+    "description": "Disputes api",
+    "lineNumber": 13,
+    "interface": false,
+    "extends": [
+      "src/abstractWrappers/AbstractWrapper.js~AbstractWrapper"
+    ]
+  },
+  {
+    "__docId__": 81,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#constructor",
+    "access": "public",
+    "description": "Disputes Constructor",
+    "lineNumber": 20,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "storeProvider",
+        "description": "store provider object"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorWrapper",
+        "description": "arbitrator contract wrapper object"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrableWrapper",
+        "description": "arbitrable contract wrapper object"
+      }
+    ]
+  },
+  {
+    "__docId__": 82,
+    "kind": "member",
+    "name": "raiseDisputePartyA",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#raiseDisputePartyA",
+    "access": "public",
+    "description": "Pay the arbitration fee to raise a dispute. To be called by the party A.",
+    "lineNumber": 31,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "Ethereum account"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrableContract",
+        "description": "Address address of arbitrable contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrationCost",
+        "description": "Amount to pay the arbitrator"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "txHash hash transaction | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 83,
+    "kind": "member",
+    "name": "raiseDisputePartyB",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#raiseDisputePartyB",
+    "access": "public",
+    "description": "Pay the arbitration fee to raise a dispute. To be called by the party B.",
+    "lineNumber": 63,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "Ethereum account"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrableContract",
+        "description": "Address address of arbitrable contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrationCost",
+        "description": "Amount to pay the arbitrator"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "txHash hash transaction | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 84,
+    "kind": "member",
+    "name": "_storeNewDispute",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#_storeNewDispute",
+    "access": "private",
+    "description": "If there is a dispute in contract update store",
+    "lineNumber": 90,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": ""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "Boolean"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 85,
+    "kind": "member",
+    "name": "getDisputesForUser",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#getDisputesForUser",
+    "access": "public",
+    "description": "Get disputes for user with extra data from arbitrated transaction and store",
+    "lineNumber": 110,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorAddress",
+        "description": "address of Kleros contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "objects[]"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 86,
+    "kind": "member",
+    "name": "getDisputeContractsForJuror",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#getDisputeContractsForJuror",
+    "access": "public",
+    "description": "Get disputes from Kleros contract",
+    "lineNumber": 164,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorAddress",
+        "description": "address of Kleros contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "[] contract addresses"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 87,
+    "kind": "member",
+    "name": "getVotesForJuror",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#getVotesForJuror",
+    "access": "public",
+    "description": "Fetch the votes a juror has in a dispute",
+    "lineNumber": 214,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "disputeId",
+        "description": "id of the dispute"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorAddress",
+        "description": "address of the arbitrator contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "potential jurors address"
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 88,
+    "kind": "member",
+    "name": "submitVotesForDispute",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#submitVotesForDispute",
+    "access": "public",
+    "description": "Submit votes. Note can only be called during Voting period (Period 2)",
+    "lineNumber": 241,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": "address of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "disputeId",
+        "description": "index of the dispute"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "ruling",
+        "description": "int representing the jurors decision"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "votes",
+        "description": "int[] of drawn votes for dispute"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "transaction hash | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 89,
+    "kind": "member",
+    "name": "getDeadlineForDispute",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#getDeadlineForDispute",
+    "access": "public",
+    "description": "get the deadline for dispute",
+    "lineNumber": 280,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorAddress",
+        "description": "address of arbitrator contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "period",
+        "description": "default to voting period"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "date object"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 90,
+    "kind": "member",
+    "name": "_updateStoreForDispute",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#_updateStoreForDispute",
+    "access": "private",
+    "description": "update store with new dispute data",
+    "lineNumber": 301,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrableContract",
+        "description": "Address address of arbitrable contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "jurorAddress",
+        "description": "<optional> address of juror"
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 91,
+    "kind": "member",
+    "name": "getUserDisputeFromStore",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#getUserDisputeFromStore",
+    "access": "public",
+    "description": "get user data for a dispute from the store",
+    "lineNumber": 361,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrableContract",
+        "description": "Address address for arbitrable contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "<optional> jurors address"
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 92,
+    "kind": "member",
+    "name": "getEvidenceForArbitrableContract",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#getEvidenceForArbitrableContract",
+    "access": "public",
+    "description": "get evidence for contract",
+    "lineNumber": 382,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrableContract",
+        "description": "Address address for arbitrable contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "<optional> jurors address"
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 93,
+    "kind": "member",
+    "name": "getDataForDispute",
+    "memberof": "src/abstractWrappers/disputes/index.js~Disputes",
+    "static": false,
+    "longname": "src/abstractWrappers/disputes/index.js~Disputes#getDataForDispute",
+    "access": "public",
+    "description": "get data for a dispute",
+    "lineNumber": 408,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrableContract",
+        "description": "Address address for arbitrable contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "<optional> jurors address"
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 94,
+    "kind": "file",
+    "name": "src/contractWrappers/ArbitrableTransactionWrapper.js",
+    "content": "import * as _ from 'lodash'\nimport BigNumber from 'bignumber'\nimport contract from 'truffle-contract'\nimport ContractWrapper from './ContractWrapper'\nimport KlerosWrapper from './KlerosWrapper'\nimport arbitrableTransaction from 'kleros-interaction/build/contracts/ArbitrableTransaction'\nimport config from '../config'\nimport { DISPUTE_STATUS } from '../constants'\n\n/**\n * ArbitrableTransaction API\n */\nclass ArbitrableTransactionWrapper extends ContractWrapper {\n  /**\n   * Constructor ArbitrableTransaction.\n   * @param web3 instance\n   * @param address of the contract (optional)\n   */\n  constructor(web3Provider, address) {\n    super(web3Provider)\n    if (!_.isUndefined(address)) {\n      this.address = address\n    }\n    this.contractInstance = null\n  }\n\n  /**\n   * Deploy ArbitrableTransaction.\n   * @param account Ethereum account (default account[0])\n   * @param value funds to be placed in contract\n   * @param hashContract Keccak hash of the plain English contract. (default null hashed)\n   * @param arbitratorAddress The address of the arbitrator contract\n   * @param timeout Time after which a party automatically loose a dispute. (default 3600)\n   * @param partyB The recipient of the transaction. (default account[1])\n   * @param arbitratorExtraData Extra data for the arbitrator. (default empty string)\n   * @return truffle-contract Object | err The deployed contract or an error\n   */\n  deploy = async (\n      account = this._Web3Wrapper.getAccount(0),\n      value = config.VALUE,\n      hashContract = 0x6aa0bb2779ab006be0739900654a89f1f8a2d7373ed38490a7cbab9c9392e1ff,\n      arbitratorAddress,\n      timeout = 100,\n      partyB = this._Web3Wrapper.getAccount(1),\n      arbitratorExtraData = '',\n    ) => {\n\n    const contractDeployed = await this._deployAsync(\n      account,\n      value,\n      arbitrableTransaction,\n      arbitratorAddress,\n      hashContract,\n      timeout,\n      partyB,\n      arbitratorExtraData\n    )\n\n    this.address = contractDeployed.address\n    this.contractInstance = contractDeployed\n\n    return contractDeployed\n  }\n\n  /**\n   * Load an existing arbitrableTransaction contract\n   * @param address Contract address\n   * @return contractInstance | Error\n   */\n  load = async address => {\n    // return contract instance if already loaded\n    if (this.contractInstance && this.contractInstance.address === address) return this.contractInstance\n\n    try {\n      const contractInstance = await this._instantiateContractIfExistsAsync(\n        arbitrableTransaction,\n        address\n      )\n\n      this.contractInstance = contractInstance\n      this.address = address\n\n      return contractInstance\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n\n  /**\n   * Pay the arbitration fee to raise a dispute. To be called by the party A.\n   * @param account Ethereum account (default account[1])\n   * @param arbitrationCost Amount to pay the arbitrator. (default 10000 wei)\n   * @return txHash hash transaction | Error\n   */\n   payArbitrationFeeByPartyA = async (\n     account = this._Web3Wrapper.getAccount(0),\n     contractAddress, // ethereum address of the contract\n     arbitrationCost = 0.15,\n   ) => {\n     try {\n       this.contractInstance = await this.load(contractAddress)\n       const txHashObj = await this.contractInstance\n         .payArbitrationFeeByPartyA(\n         {\n           from: account,\n           gas: config.GAS,\n           value: this._Web3Wrapper.toWei(arbitrationCost, 'ether'),\n         }\n       )\n\n       return txHashObj.tx\n     } catch (e) {\n       throw new Error(e)\n     }\n   }\n\n  /**\n   * Pay the arbitration fee to raise a dispute. To be called by the party B.\n   * @param account Ethereum account (default account[1])\n   * @param arbitrationCost Amount to pay the arbitrator. (default 10000 wei)\n   * @return txHash hash transaction | Error\n   */\n   payArbitrationFeeByPartyB = async (\n     account = this._Web3Wrapper.getAccount(1),\n     contractAddress, // ethereum address of the contract\n     arbitrationCost = 0.15\n   ) => {\n     try {\n       this.contractInstance = await this.load(contractAddress)\n       const txHashObj = await this.contractInstance\n         .payArbitrationFeeByPartyB(\n         {\n           from: account,\n           gas: config.GAS,\n           value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')\n         }\n       )\n\n       return txHashObj.tx\n     } catch (e) {\n       throw new Error(e)\n     }\n   }\n\n  /**\n   * Submit a reference to evidence. EVENT.\n   * @param evidence A link to an evidence using its URI.\n   * @return txHash Hash transaction\n   */\n  submitEvidence = async (\n    account = this._Web3Wrapper.getAccount(0),\n    contractAddress,\n    name,\n    description = '',\n    url\n  ) => {\n    this.contractInstance = await this.load(contractAddress)\n    const txHashObj = await this.contractInstance\n      .submitEvidence(\n        JSON.stringify(\n          name,\n          description,\n          url\n        ),\n        {\n          from: account,\n          gas: config.GAS,\n          value: 0\n        }\n      )\n\n    return txHashObj.tx\n  }\n\n  /**\n  * Data of the contract\n  * @param account Address of the party.\n  * @param address Address of the ArbitrableTransaction contract.\n  * @return Object Data of the contract.\n  */\n  getData = async (\n    address\n  ) => {\n    const contractInstance = await this.load(address)\n\n    const [\n      arbitrator,\n      // hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19\n      extraData,\n      timeout,\n      partyA,\n      partyB,\n      status,\n      arbitratorExtraData,\n      disputeId,\n      partyAFee,\n      partyBFee\n      ] = await Promise.all(\n        [\n          contractInstance.arbitrator.call(),\n          contractInstance.arbitratorExtraData.call(),\n          //  contractInstance.hashContract.call(),\n          contractInstance.timeout.call(),\n          contractInstance.partyA.call(),\n          contractInstance.partyB.call(),\n          contractInstance.status.call(),\n          contractInstance.arbitratorExtraData.call(),\n          contractInstance.disputeID.call(),\n          contractInstance.partyAFee.call(),\n          contractInstance.partyBFee.call(),\n        ]\n      ).catch(err => {\n        throw new Error(err)\n      })\n\n    return {\n      address,\n      arbitrator,\n      extraData,\n      address,\n      timeout: timeout.toNumber(),\n      partyA,\n      partyB,\n      status: status.toNumber(),\n      arbitratorExtraData,\n      disputeId: disputeId.toNumber(),\n      partyAFee: partyAFee.toNumber(),\n      partyBFee: partyBFee.toNumber(),\n    }\n  }\n}\n\nexport default ArbitrableTransactionWrapper\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/contractWrappers/ArbitrableTransactionWrapper.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 95,
+    "kind": "class",
+    "name": "ArbitrableTransactionWrapper",
+    "memberof": "src/contractWrappers/ArbitrableTransactionWrapper.js",
+    "static": true,
+    "longname": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper",
+    "access": "public",
+    "export": true,
+    "importPath": "kleros-api/src/contractWrappers/ArbitrableTransactionWrapper.js",
+    "importStyle": "ArbitrableTransactionWrapper",
+    "description": "ArbitrableTransaction API",
+    "lineNumber": 13,
+    "interface": false,
+    "extends": [
+      "src/contractWrappers/ContractWrapper.js~ContractWrapper"
+    ]
+  },
+  {
+    "__docId__": 96,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper#constructor",
+    "access": "public",
+    "description": "Constructor ArbitrableTransaction.",
+    "lineNumber": 19,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "web3",
+        "description": "instance"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "address",
+        "description": "of the contract (optional)"
+      }
+    ]
+  },
+  {
+    "__docId__": 97,
+    "kind": "member",
+    "name": "address",
+    "memberof": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper#address",
+    "access": "public",
+    "description": null,
+    "lineNumber": 22,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 98,
+    "kind": "member",
+    "name": "contractInstance",
+    "memberof": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper#contractInstance",
+    "access": "public",
+    "description": null,
+    "lineNumber": 24,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 99,
+    "kind": "member",
+    "name": "deploy",
+    "memberof": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper#deploy",
+    "access": "public",
+    "description": "Deploy ArbitrableTransaction.",
+    "lineNumber": 38,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "Ethereum account (default account[0])"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "value",
+        "description": "funds to be placed in contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "hashContract",
+        "description": "Keccak hash of the plain English contract. (default null hashed)"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorAddress",
+        "description": "The address of the arbitrator contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "timeout",
+        "description": "Time after which a party automatically loose a dispute. (default 3600)"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "partyB",
+        "description": "The recipient of the transaction. (default account[1])"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitratorExtraData",
+        "description": "Extra data for the arbitrator. (default empty string)"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "truffle-contract Object | err The deployed contract or an error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 102,
+    "kind": "member",
+    "name": "load",
+    "memberof": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper#load",
+    "access": "public",
+    "description": "Load an existing arbitrableTransaction contract",
+    "lineNumber": 70,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "address",
+        "description": "Contract address"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "contractInstance | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 105,
+    "kind": "member",
+    "name": "payArbitrationFeeByPartyA",
+    "memberof": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper#payArbitrationFeeByPartyA",
+    "access": "public",
+    "description": "Pay the arbitration fee to raise a dispute. To be called by the party A.",
+    "lineNumber": 95,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "Ethereum account (default account[1])"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrationCost",
+        "description": "Amount to pay the arbitrator. (default 10000 wei)"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "txHash hash transaction | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 107,
+    "kind": "member",
+    "name": "payArbitrationFeeByPartyB",
+    "memberof": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper#payArbitrationFeeByPartyB",
+    "access": "public",
+    "description": "Pay the arbitration fee to raise a dispute. To be called by the party B.",
+    "lineNumber": 123,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "Ethereum account (default account[1])"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "arbitrationCost",
+        "description": "Amount to pay the arbitrator. (default 10000 wei)"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "txHash hash transaction | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 109,
+    "kind": "member",
+    "name": "submitEvidence",
+    "memberof": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper#submitEvidence",
+    "access": "public",
+    "description": "Submit a reference to evidence. EVENT.",
+    "lineNumber": 150,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "evidence",
+        "description": "A link to an evidence using its URI."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "txHash Hash transaction"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 111,
+    "kind": "member",
+    "name": "getData",
+    "memberof": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper#getData",
+    "access": "public",
+    "description": "Data of the contract",
+    "lineNumber": 181,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "Address of the party."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "address",
+        "description": "Address of the ArbitrableTransaction contract."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "Object Data of the contract."
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 112,
+    "kind": "file",
+    "name": "src/contractWrappers/BlockHashRNGWrapper.js",
+    "content": "import * as _ from 'lodash'\nimport contract from 'truffle-contract'\nimport ContractWrapper from './ContractWrapper'\nimport RNG from 'kleros-interaction/build/contracts/BlockHashRNG'\nimport config from '../config'\n\n/**\n * Kleros API\n */\nclass BlockHashRNGWrapper extends ContractWrapper {\n  /**\n   * Constructor Kleros.\n   * @param web3 instance\n   * @param address of the contract (optionnal)\n   */\n  constructor(web3Provider, address) {\n    super(web3Provider)\n    if (!_.isUndefined(address)) {\n      this.address = address\n    }\n    this.contractInstance = null\n  }\n\n  /**\n   * Kleros deploy.\n   * @param   account (default: accounts[0])\n   * @param   value (default: 10000)\n   * @return  truffle-contract Object | err The contract object or error deploy\n   */\n  deploy = async (\n      account = this._Web3Wrapper.getAccount(0),\n    ) => {\n    const contractDeployed = await this._deployAsync(\n      account,\n      config.value,\n      RNG\n    )\n\n    this.address = contractDeployed.address\n\n    return contractDeployed\n  }\n\n  /**\n   * Load an existing contract\n   * @param address contract address\n   * @return Conract Instance | Error\n   */\n  load = async (\n    address\n  ) => {\n    try {\n      const contractInstance = await this._instantiateContractIfExistsAsync(RNG, address)\n      this.contractInstance = contractInstance\n      this.address = address\n      return contractInstance\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n}\n\nexport default BlockHashRNGWrapper\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/contractWrappers/BlockHashRNGWrapper.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 113,
+    "kind": "class",
+    "name": "BlockHashRNGWrapper",
+    "memberof": "src/contractWrappers/BlockHashRNGWrapper.js",
+    "static": true,
+    "longname": "src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper",
+    "access": "public",
+    "export": true,
+    "importPath": "kleros-api/src/contractWrappers/BlockHashRNGWrapper.js",
+    "importStyle": "BlockHashRNGWrapper",
+    "description": "Kleros API",
+    "lineNumber": 10,
+    "interface": false,
+    "extends": [
+      "src/contractWrappers/ContractWrapper.js~ContractWrapper"
+    ]
+  },
+  {
+    "__docId__": 114,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper#constructor",
+    "access": "public",
+    "description": "Constructor Kleros.",
+    "lineNumber": 16,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "web3",
+        "description": "instance"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "address",
+        "description": "of the contract (optionnal)"
+      }
+    ]
+  },
+  {
+    "__docId__": 115,
+    "kind": "member",
+    "name": "address",
+    "memberof": "src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper#address",
+    "access": "public",
+    "description": null,
+    "lineNumber": 19,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 116,
+    "kind": "member",
+    "name": "contractInstance",
+    "memberof": "src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper#contractInstance",
+    "access": "public",
+    "description": null,
+    "lineNumber": 21,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 117,
+    "kind": "member",
+    "name": "deploy",
+    "memberof": "src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper#deploy",
+    "access": "public",
+    "description": "Kleros deploy.",
+    "lineNumber": 30,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "(default: accounts[0])"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "value",
+        "description": "(default: 10000)"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "truffle-contract Object | err The contract object or error deploy"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 119,
+    "kind": "member",
+    "name": "load",
+    "memberof": "src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper#load",
+    "access": "public",
+    "description": "Load an existing contract",
+    "lineNumber": 49,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "address",
+        "description": "contract address"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "Conract Instance | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 122,
+    "kind": "file",
+    "name": "src/contractWrappers/CentralizedArbitratorWrapper.js",
+    "content": "import * as _ from 'lodash'\nimport contract from 'truffle-contract'\nimport ContractWrapper from './ContractWrapper'\nimport ArbitrableTransactionWrapper from './ArbitrableTransactionWrapper'\nimport centralizedArbitrator from 'kleros-interaction/build/contracts/CentralizedArbitrator'\nimport config from '../config'\n\n/**\n * CentralizedArbitrator API\n */\nclass CentralizedArbitratorWrapper extends ContractWrapper {\n  /**\n   * Constructor CentralizedArbitrator.\n   * @param web3 instance\n   * @param address of the contract (optionnal)\n   */\n  constructor(web3Provider, address) {\n    super(web3Provider, storeProvider)\n\n    if (!_.isUndefined(address)) {\n      this.address = address\n    }\n    this.contractInstance = null\n  }\n\n  /**\n   * Deploy CentralizedArbitrator.\n   * @param   account Ethereum account\n   * @param   value gas price value\n   * @param   price Set the initial arbitration price. (default: 10000 wei)\n   * @return  truffle-contract Object | err The contract object deployed or an error\n   */\n  deploy = async (\n      account,\n      value = config.VALUE,\n      priceArbitration = 10000\n    ) => {\n\n    const contractDeployed = await this._deployAsync(\n      account,\n      value,\n      centralizedArbitrator,\n      priceArbitration\n    )\n\n    this.address = contractDeployed.address\n\n    return contractDeployed\n  }\n\n  /**\n   * Load an existing contract\n   * @param address contract address\n   * @return Conract Instance | Error\n   */\n  load = async (\n    address\n  ) => {\n    try {\n      const contractInstance = await this._instantiateContractIfExistsAsync(centralizedArbitrator, address)\n      this.contractInstance = contractInstance\n      this.address = address\n      return contractInstance\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n}\n\nexport default CentralizedArbitratorWrapper\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/contractWrappers/CentralizedArbitratorWrapper.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 123,
+    "kind": "class",
+    "name": "CentralizedArbitratorWrapper",
+    "memberof": "src/contractWrappers/CentralizedArbitratorWrapper.js",
+    "static": true,
+    "longname": "src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper",
+    "access": "public",
+    "export": true,
+    "importPath": "kleros-api/src/contractWrappers/CentralizedArbitratorWrapper.js",
+    "importStyle": "CentralizedArbitratorWrapper",
+    "description": "CentralizedArbitrator API",
+    "lineNumber": 11,
+    "interface": false,
+    "extends": [
+      "src/contractWrappers/ContractWrapper.js~ContractWrapper"
+    ]
+  },
+  {
+    "__docId__": 124,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper#constructor",
+    "access": "public",
+    "description": "Constructor CentralizedArbitrator.",
+    "lineNumber": 17,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "web3",
+        "description": "instance"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "address",
+        "description": "of the contract (optionnal)"
+      }
+    ]
+  },
+  {
+    "__docId__": 125,
+    "kind": "member",
+    "name": "address",
+    "memberof": "src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper#address",
+    "access": "public",
+    "description": null,
+    "lineNumber": 21,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 126,
+    "kind": "member",
+    "name": "contractInstance",
+    "memberof": "src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper#contractInstance",
+    "access": "public",
+    "description": null,
+    "lineNumber": 23,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 127,
+    "kind": "member",
+    "name": "deploy",
+    "memberof": "src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper#deploy",
+    "access": "public",
+    "description": "Deploy CentralizedArbitrator.",
+    "lineNumber": 33,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "Ethereum account"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "value",
+        "description": "gas price value"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "price",
+        "description": "Set the initial arbitration price. (default: 10000 wei)"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "truffle-contract Object | err The contract object deployed or an error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 129,
+    "kind": "member",
+    "name": "load",
+    "memberof": "src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper#load",
+    "access": "public",
+    "description": "Load an existing contract",
+    "lineNumber": 56,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "address",
+        "description": "contract address"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "Conract Instance | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 132,
+    "kind": "file",
+    "name": "src/contractWrappers/ContractWrapper.js",
+    "content": "import * as _ from 'lodash'\nimport contract from 'truffle-contract'\nimport config from '../config'\n\n/**\n * Contract wrapper\n */\nclass ContractWrapper {\n  /**\n   * Constructor contract wrapper\n   * @param web3Wrapper instance\n   */\n  constructor(web3Wrapper) {\n    this._Web3Wrapper = web3Wrapper\n  }\n\n  /**\n   * Instantiate contract.\n   * DEPRECATED use instead of _deployAsync()\n   * @param   artifact\n   * @param   address    The hex encoded contract Ethereum address\n   * @return  truffle-contract object | Error\n   */\n  _instantiateContractIfExistsAsync = async (artifact, address) => {\n    const c = await contract(artifact)\n\n    const providerObj = await this._Web3Wrapper.getProvider()\n\n    await c.setProvider(providerObj)\n\n    try {\n      const contractInstance = _.isUndefined(address)\n                              ? await c.deployed()\n                              : await c.at(address)\n\n      return contractInstance\n    } catch (err) {\n      const errMsg = `${err}`\n\n      if (_.includes(errMsg, 'not been deployed to detected network')) {\n        throw new Error('ContractDoesNotExist')\n      } else {\n        throw new Error('UnhandledError')\n      }\n    }\n  }\n\n  /**\n   * Deploy contract.\n   * @param   account\n   * @param   value\n   * @param   json artifact of the contract\n   * @param   rest arguments\n   * @return  truffle-contract Object | err The contract object or an error\n   */\n  _deployAsync = async (account, value, artifact, ...args) => {\n    if (_.isEmpty(account)) {\n      account = this._Web3Wrapper.getAccount(0)\n    }\n\n    const MyContract = contract({\n      abi: artifact.abi,\n      unlinked_binary: artifact.unlinked_binary,\n    })\n\n    const provider = await this._Web3Wrapper.getProvider()\n    MyContract.setProvider(provider)\n    try {\n      let contractDeployed = await MyContract.new(\n        ...args,\n        {\n          from: account,\n          value: value,\n          gas: config.GAS,\n        }\n      )\n      return contractDeployed\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n}\n\nexport default ContractWrapper\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/contractWrappers/ContractWrapper.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 133,
+    "kind": "class",
+    "name": "ContractWrapper",
+    "memberof": "src/contractWrappers/ContractWrapper.js",
+    "static": true,
+    "longname": "src/contractWrappers/ContractWrapper.js~ContractWrapper",
+    "access": "public",
+    "export": true,
+    "importPath": "kleros-api/src/contractWrappers/ContractWrapper.js",
+    "importStyle": "ContractWrapper",
+    "description": "Contract wrapper",
+    "lineNumber": 8,
+    "interface": false
+  },
+  {
+    "__docId__": 134,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "src/contractWrappers/ContractWrapper.js~ContractWrapper",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/contractWrappers/ContractWrapper.js~ContractWrapper#constructor",
+    "access": "public",
+    "description": "Constructor contract wrapper",
+    "lineNumber": 13,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "web3Wrapper",
+        "description": "instance"
+      }
+    ]
+  },
+  {
+    "__docId__": 135,
+    "kind": "member",
+    "name": "_Web3Wrapper",
+    "memberof": "src/contractWrappers/ContractWrapper.js~ContractWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/ContractWrapper.js~ContractWrapper#_Web3Wrapper",
+    "access": "private",
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 136,
+    "kind": "member",
+    "name": "_instantiateContractIfExistsAsync",
+    "memberof": "src/contractWrappers/ContractWrapper.js~ContractWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/ContractWrapper.js~ContractWrapper#_instantiateContractIfExistsAsync",
+    "access": "private",
+    "description": "Instantiate contract.\nDEPRECATED use instead of _deployAsync()",
+    "lineNumber": 24,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "artifact",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "address",
+        "description": "The hex encoded contract Ethereum address"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "truffle-contract object | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 137,
+    "kind": "member",
+    "name": "_deployAsync",
+    "memberof": "src/contractWrappers/ContractWrapper.js~ContractWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/ContractWrapper.js~ContractWrapper#_deployAsync",
+    "access": "private",
+    "description": "Deploy contract.",
+    "lineNumber": 56,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "value",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "json",
+        "description": "artifact of the contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "rest",
+        "description": "arguments"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "truffle-contract Object | err The contract object or an error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 138,
+    "kind": "file",
+    "name": "src/contractWrappers/KlerosWrapper.js",
+    "content": "import * as _ from 'lodash'\nimport contract from 'truffle-contract'\nimport ContractWrapper from './ContractWrapper'\nimport ArbitrableTransactionWrapper from './ArbitrableTransactionWrapper'\nimport kleros from 'kleros/build/contracts/KlerosPOC'\nimport config from '../config'\nimport disputes from './mockDisputes'\nimport { VOTING_PERIOD, DISPUTE_STATE_INDEX } from '../constants'\n\n/**\n * Kleros API\n */\nclass KlerosWrapper extends ContractWrapper {\n  /**\n   * Constructor Kleros.\n   * @param web3 instance\n   * @param address of the contract (optionnal)\n   */\n  constructor(web3Provider, address) {\n    super(web3Provider)\n    if (!_.isUndefined(address)) {\n      this.address = address\n    }\n    this.contractInstance = null\n  }\n\n  /**\n   * Kleros deploy.\n   * @param   account (default: accounts[0])\n   * @param   value (default: 10000)\n   * @return  truffle-contract Object | err The contract object or error deploy\n   */\n  deploy = async (\n      rngAddress,\n      pnkAddress,\n      timesPerPeriod = [1,1,1,1,1],\n      account = this._Web3Wrapper.getAccount(0),\n      value = config.VALUE,\n    ) => {\n\n    const contractDeployed = await this._deployAsync(\n      account,\n      value,\n      kleros,\n      pnkAddress,\n      rngAddress,\n      timesPerPeriod\n    )\n\n    this.address = contractDeployed.address\n\n    return contractDeployed\n  }\n\n  /**\n   * Load an existing contract\n   * @param address contract address\n   * @return Conract Instance | Error\n   */\n  load = async (\n    address\n  ) => {\n    // return contract instance if already loaded\n    if (this.contractInstance && this.contractInstance.address === address) return this.contractInstance\n\n    try {\n      // instantiate new contract instance from address\n      const contractInstance = await this._instantiateContractIfExistsAsync(kleros, address)\n      this.contractInstance = contractInstance\n      this.address = address\n\n      return contractInstance\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n\n  /**\n   * Use Arbitrator.buyPNK\n   * @param amount number of pinakion to buy\n   * @param account address of user\n   * @return txHash\n   */\n  buyPNK = async (\n    amount,\n    contractAddress, // address of KlerosPOC\n    account = this._Web3Wrapper.getAccount(0)\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n    try {\n      const txHashObj = await this.contractInstance.buyPinakion(\n        {\n          from: account,\n          gas: config.GAS,\n          value: this._Web3Wrapper.toWei(amount, 'ether'),\n        }\n      )\n      return txHashObj.tx\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n\n  /**\n   * @param contractAddress address of KlerosPOC contract\n   * @param account address of user\n   * @return objects[]\n   */\n  getPNKBalance = async (\n    contractAddress,\n    account = this._Web3Wrapper.getAccount(0)\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n\n    const juror = await contractInstance.jurors(account)\n    if (!juror) throw new Error(`${account} is not a juror for contract ${contractAddress}`)\n\n    // total tokens stored in contract\n    const contractBalance = this._Web3Wrapper.fromWei(juror[0].toNumber(), 'ether')\n    // tokens activated in court session\n    const currentSession = await contractInstance.session.call()\n    let activatedTokens = 0\n    if (juror[2].toNumber() === currentSession.toNumber()) {\n      activatedTokens = this._Web3Wrapper.fromWei((juror[4].toNumber() - juror[3].toNumber()), 'ether')\n    }\n    // tokens locked into disputes\n    const lockedTokens = this._Web3Wrapper.fromWei(juror[2].toNumber(), 'ether')\n\n    return {\n      activatedTokens,\n      lockedTokens,\n      tokenBalance: contractBalance\n    }\n  }\n\n  /**\n   * Activate Pinakion tokens to be eligible to be a juror\n   * @param amount number of tokens to activate\n   * @param contractAddress address of KlerosPOC contract\n   * @param account address of user\n   * @return object | Error\n   */\n  activatePNK = async (\n    amount, // amount in ether\n    contractAddress, // klerosPOC contract address\n    account = this._Web3Wrapper.getAccount(0)\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n    try {\n      await this.contractInstance.activateTokens(\n        this._Web3Wrapper.toWei(amount, 'ether'),\n        {\n          from: account,\n          gas: config.GAS\n        }\n      )\n    } catch (e) {\n      throw new Error(e)\n    }\n\n    return this.getPNKBalance(\n      contractAddress,\n      account\n    )\n  }\n\n  /**\n  *\n  */\n  getArbitrationCost = async (\n    contractAddress,\n    contractExtraData\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n\n    try {\n      const arbitrationCost = await contractInstance.arbitrationCost(contractExtraData)\n\n      return arbitrationCost.toNumber()\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n\n  /**\n   * Call contract to move on to the next period\n   * @param contractAddress address of KlerosPOC contract\n   * @param account address of user\n   * @return object | Error\n   */\n  passPeriod = async (\n    contractAddress,\n    account = this._Web3Wrapper.getAccount(0)\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n    try {\n      await contractInstance.passPeriod(\n        {\n          from: account,\n          gas: config.GAS\n        }\n      )\n    } catch (e) {\n      throw new Error(e)\n    }\n\n    return this.getData(contractAddress)\n  }\n\n  /**\n   * Submit votes. Note can only be called during Voting period (Period 2)\n   * @param contractAddress address of KlerosPOC contract\n   * @param disputeId index of the dispute\n   * @param ruling int representing the jurors decision\n   * @param votes int[] of drawn votes for dispute\n   * @param account address of user\n   * @return object | Error\n   */\n  submitVotes = async (\n    contractAddress,\n    disputeId,\n    ruling,\n    votes,\n    hash,\n    account = this._Web3Wrapper.getAccount(0)\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n\n    try {\n      const txHashObj = await contractInstance.voteRuling(\n        disputeId,\n        ruling,\n        votes,\n        {\n          from: account,\n          gas: config.GAS\n        }\n      )\n\n      return txHashObj.tx\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n\n  /**\n   * Appeal ruling on dispute\n   * @param contractAddress address of KlerosPOC contract\n   * @param disputeId\n   * @param account address of user\n   * @return object\n   */\n  appealRuling = async (\n    contractAddress,\n    disputeId,\n    extraData,\n    account = this._Web3Wrapper.getAccount(0)\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n    const appealFee = await contractInstance.appealCost(disputeId, extraData)\n    try {\n      const appealTxHash = await this.contractInstance.appeal(\n        disputeId,\n        extraData,\n        {\n          from: account,\n          value: appealFee,\n          gas: config.GAS\n        }\n      )\n\n      return appealTxHash.tx\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n\n  /**\n   * Repartition juror tokens\n   * @param contractAddress address of KlerosPOC contract\n   * @param disputeId\n   * @param account address of user\n   * @return object\n   */\n  repartitionJurorTokens = async (\n    contractAddress,\n    disputeId,\n    account = this._Web3Wrapper.getAccount(0)\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n    try {\n      // partition tokens\n      const repartitionTxHash = await contractInstance.oneShotTokenRepartition(\n        disputeId,\n        {\n          from: account,\n          gas: config.GAS\n        }\n      )\n\n      return repartitionTxHash.tx\n    } catch (e) {\n      throw e\n    }\n  }\n\n  /**\n   * Execute ruling on dispute\n   * @param contractAddress address of KlerosPOC contract\n   * @param disputeId\n   * @param account address of user\n   * @return object\n   */\n  executeRuling = async (\n    contractAddress,\n    disputeId,\n    account = this._Web3Wrapper.getAccount(0)\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n    try {\n      // execute ruling\n      const executeTxHash = await this.contractInstance.executeRuling(\n        disputeId,\n        {\n          from: account,\n          gas: config.GAS\n        }\n      )\n\n      return executeTxHash.tx\n    } catch (e) {\n      throw e\n    }\n  }\n\n  /**\n  * Get time for a period\n  * @param contractAddress address of KlerosPOC contract\n  * @param periodNumber int representing period\n  * @return object | Error\n  */\n  getTimeForPeriod = async (\n    contractAddress,\n    periodNumber\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n\n    const timePerPeriod = await contractInstance.timePerPeriod(periodNumber)\n\n    if (timePerPeriod) {\n      return timePerPeriod.toNumber()\n    } else {\n      throw new Error(`Period ${periodNumber} does not have a time associated with it. periodNumber out of range`)\n    }\n  }\n\n  /**\n  * Get dispute\n  * @param contractAddress address of KlerosPOC contract\n  * @param disputeId index of dispute\n  * @return object | Error\n  */\n  getDispute = async (\n    contractAddress,\n    disputeId\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n    try {\n      const dispute = await contractInstance.disputes(disputeId)\n      return {\n        arbitratedContract: dispute[0],\n        firstSession: dispute[1].toNumber(),\n        numberOfAppeals: dispute[2].toNumber(),\n        rulingChoices: dispute[3].toNumber(),\n        initialNumberJurors: dispute[4].toNumber(),\n        arbitrationFeePerJuror: dispute[5].toNumber(),\n        state: dispute[6].toNumber()\n      }\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n\n  /**\n  * Get number of jurors for a dispute\n  * @param contractAddress address of KlerosPOC contract\n  * @param disputeId index of dispute\n  * @return object | Error\n  */\n  getAmountOfJurorsForDispute = async (\n    contractAddress,\n    disputeId\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n\n    const amountOfJurors = await contractInstance.amountJurors(disputeId)\n\n    if (amountOfJurors) {\n      return amountOfJurors.toNumber()\n    } else {\n      throw new Error(`Dispute ${disputeId} does not exist`)\n    }\n  }\n\n  /**\n  * Get number of jurors for a dispute\n  * @param disputeId index of dispute\n  * @param draw int for draw\n  * @param contractAddressaddress of KlerosPOC contract\n  * @param jurorAddress address of juror\n  * @return bool | Error\n  */\n  isJurorDrawnForDispute = async (\n    disputeId,\n    draw,\n    contractAddress,\n    jurorAddress = this._Web3Wrapper.getAccount(0)\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n\n    const isDrawn = await contractInstance.isDrawn(disputeId, jurorAddress, draw)\n\n    return isDrawn\n  }\n\n  /**\n  * Get number of jurors for a dispute\n  * @param disputeId index of dispute\n  * @param contractAddressaddress of KlerosPOC contract\n  * @return int | Error\n  */\n  currentRulingForDispute = async (\n    disputeId,\n    contractAddress,\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n\n    const currentRuling = await contractInstance.currentRuling(disputeId)\n\n    return currentRuling.toNumber()\n  }\n\n  /**\n   * Get data from Kleros contract\n   * TODO split these into their own methods for more flexability and speed\n   * @param contractAddress address of KlerosPOC contract\n   * @param account address of user\n   * @return object\n   */\n  getData = async (\n    contractAddress\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n\n    const [\n      pinakionContractAddress,\n      rngContractAddress,\n      period,\n      session,\n      lastPeriodChange\n    ] = await Promise.all([\n      contractInstance.pinakion(),\n      contractInstance.rng(),\n      contractInstance.period(),\n      contractInstance.session(),\n      contractInstance.lastPeriodChange(),\n    ]).catch(err => {\n      throw new Error(err)\n    })\n\n    return {\n      pinakionContractAddress,\n      rngContractAddress,\n      period: period.toNumber(),\n      session: session.toNumber(),\n      lastPeriodChange: lastPeriodChange.toNumber(),\n    }\n  }\n}\n\nexport default KlerosWrapper\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/contractWrappers/KlerosWrapper.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 139,
+    "kind": "class",
+    "name": "KlerosWrapper",
+    "memberof": "src/contractWrappers/KlerosWrapper.js",
+    "static": true,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "access": "public",
+    "export": true,
+    "importPath": "kleros-api/src/contractWrappers/KlerosWrapper.js",
+    "importStyle": "KlerosWrapper",
+    "description": "Kleros API",
+    "lineNumber": 13,
+    "interface": false,
+    "extends": [
+      "src/contractWrappers/ContractWrapper.js~ContractWrapper"
+    ]
+  },
+  {
+    "__docId__": 140,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#constructor",
+    "access": "public",
+    "description": "Constructor Kleros.",
+    "lineNumber": 19,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "web3",
+        "description": "instance"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "address",
+        "description": "of the contract (optionnal)"
+      }
+    ]
+  },
+  {
+    "__docId__": 141,
+    "kind": "member",
+    "name": "address",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#address",
+    "access": "public",
+    "description": null,
+    "lineNumber": 22,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 142,
+    "kind": "member",
+    "name": "contractInstance",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#contractInstance",
+    "access": "public",
+    "description": null,
+    "lineNumber": 24,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 143,
+    "kind": "member",
+    "name": "deploy",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#deploy",
+    "access": "public",
+    "description": "Kleros deploy.",
+    "lineNumber": 33,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "(default: accounts[0])"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "value",
+        "description": "(default: 10000)"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "truffle-contract Object | err The contract object or error deploy"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 145,
+    "kind": "member",
+    "name": "load",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#load",
+    "access": "public",
+    "description": "Load an existing contract",
+    "lineNumber": 60,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "address",
+        "description": "contract address"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "Conract Instance | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 148,
+    "kind": "member",
+    "name": "buyPNK",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#buyPNK",
+    "access": "public",
+    "description": "Use Arbitrator.buyPNK",
+    "lineNumber": 84,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "amount",
+        "description": "number of pinakion to buy"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "txHash"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 149,
+    "kind": "member",
+    "name": "getPNKBalance",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#getPNKBalance",
+    "access": "public",
+    "description": "",
+    "lineNumber": 109,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": "address of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "objects[]"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 150,
+    "kind": "member",
+    "name": "activatePNK",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#activatePNK",
+    "access": "public",
+    "description": "Activate Pinakion tokens to be eligible to be a juror",
+    "lineNumber": 143,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "amount",
+        "description": "number of tokens to activate"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": "address of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "object | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 151,
+    "kind": "member",
+    "name": "getArbitrationCost",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#getArbitrationCost",
+    "access": "public",
+    "description": "",
+    "lineNumber": 170,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 152,
+    "kind": "member",
+    "name": "passPeriod",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#passPeriod",
+    "access": "public",
+    "description": "Call contract to move on to the next period",
+    "lineNumber": 191,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": "address of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "object | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 153,
+    "kind": "member",
+    "name": "submitVotes",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#submitVotes",
+    "access": "public",
+    "description": "Submit votes. Note can only be called during Voting period (Period 2)",
+    "lineNumber": 219,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": "address of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "disputeId",
+        "description": "index of the dispute"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "ruling",
+        "description": "int representing the jurors decision"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "votes",
+        "description": "int[] of drawn votes for dispute"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "object | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 154,
+    "kind": "member",
+    "name": "appealRuling",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#appealRuling",
+    "access": "public",
+    "description": "Appeal ruling on dispute",
+    "lineNumber": 253,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": "address of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "disputeId",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "object"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 155,
+    "kind": "member",
+    "name": "repartitionJurorTokens",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#repartitionJurorTokens",
+    "access": "public",
+    "description": "Repartition juror tokens",
+    "lineNumber": 285,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": "address of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "disputeId",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "object"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 156,
+    "kind": "member",
+    "name": "executeRuling",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#executeRuling",
+    "access": "public",
+    "description": "Execute ruling on dispute",
+    "lineNumber": 314,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": "address of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "disputeId",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "object"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 157,
+    "kind": "member",
+    "name": "getTimeForPeriod",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#getTimeForPeriod",
+    "access": "public",
+    "description": "Get time for a period",
+    "lineNumber": 342,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": "address of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "periodNumber",
+        "description": "int representing period"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "object | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 158,
+    "kind": "member",
+    "name": "getDispute",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#getDispute",
+    "access": "public",
+    "description": "Get dispute",
+    "lineNumber": 363,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": "address of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "disputeId",
+        "description": "index of dispute"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "object | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 159,
+    "kind": "member",
+    "name": "getAmountOfJurorsForDispute",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#getAmountOfJurorsForDispute",
+    "access": "public",
+    "description": "Get number of jurors for a dispute",
+    "lineNumber": 390,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": "address of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "disputeId",
+        "description": "index of dispute"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "object | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 160,
+    "kind": "member",
+    "name": "isJurorDrawnForDispute",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#isJurorDrawnForDispute",
+    "access": "public",
+    "description": "Get number of jurors for a dispute",
+    "lineNumber": 413,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "disputeId",
+        "description": "index of dispute"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "draw",
+        "description": "int for draw"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddressaddress",
+        "description": "of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "jurorAddress",
+        "description": "address of juror"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "bool | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 161,
+    "kind": "member",
+    "name": "currentRulingForDispute",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#currentRulingForDispute",
+    "access": "public",
+    "description": "Get number of jurors for a dispute",
+    "lineNumber": 432,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "disputeId",
+        "description": "index of dispute"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddressaddress",
+        "description": "of KlerosPOC contract"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "int | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 162,
+    "kind": "member",
+    "name": "getData",
+    "memberof": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/KlerosWrapper.js~KlerosWrapper#getData",
+    "access": "public",
+    "description": "Get data from Kleros contract\nTODO split these into their own methods for more flexability and speed",
+    "lineNumber": 450,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "contractAddress",
+        "description": "address of KlerosPOC contract"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "address of user"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "object"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 163,
+    "kind": "file",
+    "name": "src/contractWrappers/PinakionWrapper.js",
+    "content": "import * as _ from 'lodash'\nimport contract from 'truffle-contract'\nimport ContractWrapper from './ContractWrapper'\nimport PinakionPOC from 'kleros/build/contracts/PinakionPOC' // FIXME mock\nimport config from '../config'\n\n/**\n * Kleros API\n */\nclass PinakionWrapper extends ContractWrapper {\n  /**\n   * Constructor Kleros.\n   * @param web3 instance\n   * @param address of the contract (optionnal)\n   */\n  constructor(web3Provider, address) {\n    super(web3Provider)\n    if (!_.isUndefined(address)) {\n      this.address = address\n    }\n    this.contractInstance = null\n  }\n\n  /**\n   * Kleros deploy.\n   * @param   account (default: accounts[0])\n   * @return  truffle-contract Object | err The contract object or error deploy\n   */\n  deploy = async (\n      account = this._Web3Wrapper.getAccount(0),\n    ) => {\n\n    const contractDeployed = await this._deployAsync(\n      account,\n      config.value,\n      PinakionPOC\n    )\n\n    this.address = contractDeployed.address\n\n    return contractDeployed\n  }\n\n  /**\n   * Load an existing contract\n   * @param address contract address\n   * @return Conract Instance | Error\n   */\n  load = async (\n    address\n  ) => {\n    try {\n      const contractInstance = await this._instantiateContractIfExistsAsync(PinakionPOC, address)\n      this.contractInstance = contractInstance\n      this.address = address\n\n      return contractInstance\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n\n  setKleros = async (\n    contractAddress,\n    klerosAddress,\n    account = this._Web3Wrapper.getAccount(0)\n  ) => {\n    try {\n      let contractInstance = await this.load(contractAddress)\n      const txHashObj = await contractInstance.setKleros(\n        klerosAddress,\n        {\n          from: account,\n          gas: config.GAS,\n        }\n      )\n\n      return txHashObj.tx\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n\n  transferOwnership = async (\n    contractAddress,\n    klerosAddress,\n    account = this._Web3Wrapper.getAccount(0)\n  ) => {\n    try {\n      const contractInstance = await this.load(contractAddress)\n      const txHashObj = await contractInstance.transferOwnership(\n        klerosAddress,\n        {\n          from: account,\n          gas: config.GAS,\n        }\n      )\n\n      return txHashObj.tx\n    } catch (e) {\n      throw new Error(e)\n    }\n  }\n\n  getData = async (\n    contractAddress,\n    account = this._Web3Wrapper.getAccount(0)\n  ) => {\n    const contractInstance = await this.load(contractAddress)\n\n    const [\n      owner,\n      kleros\n    ] = await Promise.all([\n      contractInstance.owner.call(),\n      contractInstance.kleros.call()\n    ]).catch(err => {\n      throw new Error(err)\n    })\n\n    return {\n      owner,\n      kleros\n    }\n  }\n}\n\nexport default PinakionWrapper\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/contractWrappers/PinakionWrapper.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 164,
+    "kind": "class",
+    "name": "PinakionWrapper",
+    "memberof": "src/contractWrappers/PinakionWrapper.js",
+    "static": true,
+    "longname": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper",
+    "access": "public",
+    "export": true,
+    "importPath": "kleros-api/src/contractWrappers/PinakionWrapper.js",
+    "importStyle": "PinakionWrapper",
+    "description": "Kleros API",
+    "lineNumber": 10,
+    "interface": false,
+    "extends": [
+      "src/contractWrappers/ContractWrapper.js~ContractWrapper"
+    ]
+  },
+  {
+    "__docId__": 165,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper#constructor",
+    "access": "public",
+    "description": "Constructor Kleros.",
+    "lineNumber": 16,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "web3",
+        "description": "instance"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "address",
+        "description": "of the contract (optionnal)"
+      }
+    ]
+  },
+  {
+    "__docId__": 166,
+    "kind": "member",
+    "name": "address",
+    "memberof": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper#address",
+    "access": "public",
+    "description": null,
+    "lineNumber": 19,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 167,
+    "kind": "member",
+    "name": "contractInstance",
+    "memberof": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper#contractInstance",
+    "access": "public",
+    "description": null,
+    "lineNumber": 21,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 168,
+    "kind": "member",
+    "name": "deploy",
+    "memberof": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper#deploy",
+    "access": "public",
+    "description": "Kleros deploy.",
+    "lineNumber": 29,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "account",
+        "description": "(default: accounts[0])"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "truffle-contract Object | err The contract object or error deploy"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 170,
+    "kind": "member",
+    "name": "load",
+    "memberof": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper#load",
+    "access": "public",
+    "description": "Load an existing contract",
+    "lineNumber": 49,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "*"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "address",
+        "description": "contract address"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "Conract Instance | Error"
+    },
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 173,
+    "kind": "member",
+    "name": "setKleros",
+    "memberof": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper#setKleros",
+    "access": "public",
+    "description": null,
+    "lineNumber": 63,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 174,
+    "kind": "member",
+    "name": "transferOwnership",
+    "memberof": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper#transferOwnership",
+    "access": "public",
+    "description": null,
+    "lineNumber": 84,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 175,
+    "kind": "member",
+    "name": "getData",
+    "memberof": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper",
+    "static": false,
+    "longname": "src/contractWrappers/PinakionWrapper.js~PinakionWrapper#getData",
+    "access": "public",
+    "description": null,
+    "lineNumber": 105,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 176,
+    "kind": "file",
+    "name": "src/contractWrappers/mockDisputes.js",
+    "content": "const disputes = [\n  {\n    title: 'Unknown website owner',\n    description: 'Party A hired Party B to do task C. Party A thinks that Party B did not satisfy the terms of the contract',\n    category: 'Category',\n    arbitrationFee: 1,\n    deadline: '28/1/2018',\n    caseId: '1',\n    parties: ['Party A', 'Party B'],\n    status: 'Vote',\n    evidence: [{\n      name: 'Contract',\n      description: 'short description about evidence',\n      downloadLink: ''\n    }, {\n      name: 'Denial',\n      description: 'short description',\n      downloadLink: ''\n    }],\n    resolutionOptions: [\n      {\n        name: 'Reimburse Party A',\n        description: 'This option transfers funds to Party A.',\n        value: '0'\n      },\n      {\n        name: 'Pay Party B',\n        description: 'This option transfers funds to Party B address.',\n        value: '1'\n      }\n    ]\n  },\n  {\n    title: 'Uncomplete software product',\n    description: 'Giselle is an entrepreneur based on France. She contracts Miguel, a programmer from Guatemala, at a p2p freelancing platform to build a new website for her company. After they agree on a price, terms and conditions, Miguel gets to work. A couple of weeks later, he delivers the product. But Giselle is not satisfied. She argues that the quality of Miguel’s work is considerably lower than expected. Miguel replies that he did exactly what was in the agreement.',\n    category: 'Web, Ecommerce',\n    arbitrationFee: 0.5,\n    deadline: '28/1/2018',\n    caseId: '2',\n    parties: ['Miguel Lorem Ipsum', 'Giselle Bexter'],\n    status: 'Opportunity to appeal',\n    evidence: [{\n      name: 'Contract',\n      description: 'short description about evidence',\n      downloadLink: ''\n    }, {\n      name: 'Denial',\n      description: 'short description',\n      downloadLink: ''\n    },\n    {\n      name: 'Various',\n      description: 'short description',\n      downloadLink: ''\n    },\n    {\n      name: 'Website Drafts',\n      description: 'short description',\n      downloadLink: ''\n    },\n    {\n      name: 'Website Designs',\n      description: 'short description',\n      downloadLink: ''\n    },\n    {\n      name: 'Testimony',\n      description: 'short description',\n      downloadLink: ''\n    }],\n    resolutionOptions: [\n      {\n        name: 'Reimburse Giselle',\n        description: 'This option transfers funds to Giselle.',\n        value: '0'\n      },\n      {\n        name: 'Give Miguel one extra week to finish the website',\n        description: 'This option blocks new disputes for one week and removes this option from further dispute.',\n        value: '1'\n      },\n      {\n        name: 'Pay Miguel',\n        description: 'This option transfers funds to Miguel address.',\n        value: '2'\n      }\n    ]\n  },\n  {\n    title: 'Unknown website owner',\n    description: 'Party A hired Party B to do task C. Party A thinks that Party B did not satisfy the terms of the contract',\n    category: 'Web, Ecommerce',\n    arbitrationFee: 0.1,\n    deadline: '10/9/2017',\n    caseId: '3',\n    parties: ['Party A', 'Party B'],\n    status: 'Execution',\n    evidence: [{\n      name: 'Contract',\n      description: 'short description about evidence',\n      downloadLink: ''\n    }, {\n      name: 'Denial',\n      description: 'short description',\n      downloadLink: ''\n    }],\n    resolutionOptions: [\n      {\n        name: 'Reimburse Party A',\n        description: 'This option transfers funds to Party A.',\n        value: '0'\n      },\n      {\n        name: 'Pay Party B',\n        description: 'This option transfers funds to Party B address.',\n        value: '1'\n      }\n    ]\n  },\n  {\n    title: 'Stolen logo',\n    description: 'Party A hired Party B to do task C. Party A thinks that Party B did not satisfy the terms of the contract',\n    category: 'Category',\n    arbitrationFee: 0.3,\n    deadline: '28/1/2018',\n    caseId: '4',\n    parties: ['Party A', 'Party B'],\n    status: 'Execution',\n    evidence: [{\n      name: 'Contract',\n      description: 'short description about evidence',\n      downloadLink: ''\n    }, {\n      name: 'Denial',\n      description: 'short description',\n      downloadLink: ''\n    }],\n    resolutionOptions: [\n      {\n        name: 'Reimburse Party A',\n        description: 'This option transfers funds to Party A.',\n        value: '0'\n      },\n      {\n        name: 'Pay Party B',\n        description: 'This option transfers funds to Party B address.',\n        value: '1'\n      }\n    ]\n  },\n  {\n    title: 'Unknown website owner',\n    description: 'Party A hired Party B to do task C. Party A thinks that Party B did not satisfy the terms of the contract',\n    category: 'Category',\n    arbitrationFee: 0.2,\n    deadline: '28/1/2018',\n    caseId: '5',\n    parties: ['Party A', 'Party B'],\n    status: 'Vote',\n    evidence: [{\n      name: 'Contract',\n      description: 'short description about evidence',\n      downloadLink: ''\n    }, {\n      name: 'Denial',\n      description: 'short description',\n      downloadLink: ''\n    }],\n    resolutionOptions: [\n      {\n        name: 'Reimburse Party A',\n        description: 'This option transfers funds to Party A.',\n        value: '0'\n      },\n      {\n        name: 'Pay Party B',\n        description: 'This option transfers funds to Party B address.',\n        value: '1'\n      }\n    ]\n  },\n  {\n    title: 'Stolen logo',\n    description: 'Party A hired Party B to do task C. Party A thinks that Party B did not satisfy the terms of the contract',\n    category: 'Category',\n    arbitrationFee: 0.2,\n    deadline: '28/1/2018',\n    caseId: '6',\n    parties: ['Party A', 'Party B'],\n    status: 'Vote',\n    evidence: [{\n      name: 'Contract',\n      description: 'short description about evidence',\n      downloadLink: ''\n    }, {\n      name: 'Denial',\n      description: 'short description',\n      downloadLink: ''\n    }],\n    resolutionOptions: [\n      {\n        name: 'Reimburse Party A',\n        description: 'This option transfers funds to Party A.',\n        value: '0'\n      },\n      {\n        name: 'Pay Party B',\n        description: 'This option transfers funds to Party B address.',\n        value: '1'\n      }\n    ]\n  },\n  {\n    title: 'Stolen logo',\n    description: 'Party A hired Party B to do task C. Party A thinks that Party B did not satisfy the terms of the contract',\n    category: 'Category',\n    arbitrationFee: 2,\n    deadline: '28/1/2018',\n    caseId: '7',\n    parties: ['Party A', 'Party B'],\n    status: 'Vote',\n    evidence: [{\n      name: 'Contract',\n      description: 'short description about evidence',\n      downloadLink: ''\n    }, {\n      name: 'Denial',\n      description: 'short description',\n      downloadLink: ''\n    }],\n    resolutionOptions: [\n      {\n        name: 'Reimburse Party A',\n        description: 'This option transfers funds to Party A.',\n        value: '0'\n      },\n      {\n        name: 'Pay Party B',\n        description: 'This option transfers funds to Party B address.',\n        value: '1'\n      }\n    ]\n  }\n]\n\nexport default disputes\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/contractWrappers/mockDisputes.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 177,
+    "kind": "variable",
+    "name": "disputes",
+    "memberof": "src/contractWrappers/mockDisputes.js",
+    "static": true,
+    "longname": "src/contractWrappers/mockDisputes.js~disputes",
+    "access": "public",
+    "export": true,
+    "importPath": "kleros-api/src/contractWrappers/mockDisputes.js",
+    "importStyle": "disputes",
+    "description": null,
+    "lineNumber": 1,
+    "undocument": true,
+    "type": {
+      "types": [
+        "undefined[]"
+      ]
+    }
+  },
+  {
+    "__docId__": 178,
+    "kind": "file",
+    "name": "src/index.js",
+    "content": "import Kleros from './kleros.js'\nexport {Kleros}\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/index.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 179,
+    "kind": "file",
+    "name": "src/kleros.js",
+    "content": "import Web3Wrapper from '../util/Web3Wrapper'\nimport StoreProviderWrapper from '../util/StoreProviderWrapper'\nimport KlerosWrapper from './contractWrappers/KlerosWrapper'\nimport ArbitrableTransactionWrapper from './contractWrappers/ArbitrableTransactionWrapper'\nimport PinakionWrapper from './contractWrappers/PinakionWrapper'\nimport BlockHashRNGWrapper from './contractWrappers/BlockHashRNGWrapper'\nimport DisputesApi from './abstractWrappers/disputes'\nimport ArbitratorApi from './abstractWrappers/arbitrator'\nimport ArbitrableContractApi from './abstractWrappers/arbitrableContract'\nimport { LOCALHOST_STORE_PROVIDER, LOCALHOST_ETH_PROVIDER } from '../constants'\n\nclass Kleros {\n  _web3Wrapper = {}\n\n  _storeWrapper = {}\n\n  /**\n   * Instantiates a new Kelros instance that provides the public interface\n   * to Kleros contracts and library.\n   * @param {string} ethereumProvider The Web3.js Provider instance you would like the\n   *                 Kleros.js library to use for interacting with the\n   *                 Ethereum network.\n   * @param {string} storeProvider The storage provider instance used by the contract to\n   *                      get data from the cloud. e.g. Kleros-Store,\n   *                      IPFS, Swarm etc.\n   * @return {object} A n instance of the Kleros.js class.\n   */\n  constructor(\n    ethereumProvider = LOCALHOST_ETH_PROVIDER,\n    storeProvider = LOCALHOST_STORE_PROVIDER\n  ) {\n    this._web3Wrapper = new Web3Wrapper(ethereumProvider)\n    this._storeWrapper = new StoreProviderWrapper(storeProvider)\n    // low level contract api\n    this.klerosPOC = new KlerosWrapper(this._web3Wrapper)\n    this.arbitrableTransaction = new ArbitrableTransactionWrapper(this._web3Wrapper)\n    this.pinakion = new PinakionWrapper(this._web3Wrapper)\n    this.blockHashRng = new BlockHashRNGWrapper(this._web3Wrapper)\n    // abstracted api\n    // FIXME allow user to pass which court and arbitrable contract they are using\n    this.disputes = new DisputesApi(this._storeWrapper, this.klerosPOC, this.arbitrableTransaction)\n    this.arbitrator = new ArbitratorApi(this._storeWrapper, this.klerosPOC)\n    this.arbitrableContract = new ArbitrableContractApi(this._storeWrapper, this.arbitrableTransaction)\n  }\n\n  getWeb3Wrapper = () => this._web3Wrapper\n  getStoreWrapper = () => this._storeWrapper\n}\n\nexport default Kleros\n",
+    "static": true,
+    "longname": "/Users/samvitello/work/kleros/kleros-api/src/kleros.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 180,
+    "kind": "class",
+    "name": "Kleros",
+    "memberof": "src/kleros.js",
+    "static": true,
+    "longname": "src/kleros.js~Kleros",
+    "access": "public",
+    "export": true,
+    "importPath": "kleros-api/src/kleros.js",
+    "importStyle": "Kleros",
+    "description": null,
+    "lineNumber": 12,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 181,
+    "kind": "member",
+    "name": "_web3Wrapper",
+    "memberof": "src/kleros.js~Kleros",
+    "static": false,
+    "longname": "src/kleros.js~Kleros#_web3Wrapper",
+    "access": "private",
+    "description": null,
+    "lineNumber": 13,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 182,
+    "kind": "member",
+    "name": "_storeWrapper",
+    "memberof": "src/kleros.js~Kleros",
+    "static": false,
+    "longname": "src/kleros.js~Kleros#_storeWrapper",
+    "access": "private",
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 183,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "src/kleros.js~Kleros",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/kleros.js~Kleros#constructor",
+    "access": "public",
+    "description": "Instantiates a new Kelros instance that provides the public interface\nto Kleros contracts and library.",
+    "lineNumber": 28,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "ethereumProvider",
+        "description": "The Web3.js Provider instance you would like the\n                Kleros.js library to use for interacting with the\n                Ethereum network."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "storeProvider",
+        "description": "The storage provider instance used by the contract to\n                     get data from the cloud. e.g. Kleros-Store,\n                     IPFS, Swarm etc."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "object"
+      ],
+      "spread": false,
+      "description": "A n instance of the Kleros.js class."
+    }
+  },
+  {
+    "__docId__": 186,
+    "kind": "member",
+    "name": "klerosPOC",
+    "memberof": "src/kleros.js~Kleros",
+    "static": false,
+    "longname": "src/kleros.js~Kleros#klerosPOC",
+    "access": "public",
+    "description": null,
+    "lineNumber": 35,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 187,
+    "kind": "member",
+    "name": "arbitrableTransaction",
+    "memberof": "src/kleros.js~Kleros",
+    "static": false,
+    "longname": "src/kleros.js~Kleros#arbitrableTransaction",
+    "access": "public",
+    "description": null,
+    "lineNumber": 36,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 188,
+    "kind": "member",
+    "name": "pinakion",
+    "memberof": "src/kleros.js~Kleros",
+    "static": false,
+    "longname": "src/kleros.js~Kleros#pinakion",
+    "access": "public",
+    "description": null,
+    "lineNumber": 37,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 189,
+    "kind": "member",
+    "name": "blockHashRng",
+    "memberof": "src/kleros.js~Kleros",
+    "static": false,
+    "longname": "src/kleros.js~Kleros#blockHashRng",
+    "access": "public",
+    "description": null,
+    "lineNumber": 38,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 190,
+    "kind": "member",
+    "name": "disputes",
+    "memberof": "src/kleros.js~Kleros",
+    "static": false,
+    "longname": "src/kleros.js~Kleros#disputes",
+    "access": "public",
+    "description": null,
+    "lineNumber": 41,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 191,
+    "kind": "member",
+    "name": "arbitrator",
+    "memberof": "src/kleros.js~Kleros",
+    "static": false,
+    "longname": "src/kleros.js~Kleros#arbitrator",
+    "access": "public",
+    "description": null,
+    "lineNumber": 42,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 192,
+    "kind": "member",
+    "name": "arbitrableContract",
+    "memberof": "src/kleros.js~Kleros",
+    "static": false,
+    "longname": "src/kleros.js~Kleros#arbitrableContract",
+    "access": "public",
+    "description": null,
+    "lineNumber": 43,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 193,
+    "kind": "member",
+    "name": "getWeb3Wrapper",
+    "memberof": "src/kleros.js~Kleros",
+    "static": false,
+    "longname": "src/kleros.js~Kleros#getWeb3Wrapper",
+    "access": "public",
+    "description": null,
+    "lineNumber": 46,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 194,
+    "kind": "member",
+    "name": "getStoreWrapper",
+    "memberof": "src/kleros.js~Kleros",
+    "static": false,
+    "longname": "src/kleros.js~Kleros#getStoreWrapper",
+    "access": "public",
+    "description": null,
+    "lineNumber": 47,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "index",
+    "content": "# Kleros\n\n\n[![Build Status](https://travis-ci.org/kleros/kleros-api.svg?branch=master)](https://travis-ci.org/kleros/kleros-api) [![Join the chat at https://gitter.im/kleros/kleros-api](https://badges.gitter.im/kleros/kleros-api.svg)](https://gitter.im/kleros/kleros-api?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![npm version](https://badge.fury.io/js/kleros-api.svg)](https://badge.fury.io/js/kleros-api) [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](https://github.com/standard/standard)\n\nThis repository contains a Javascript library that makes it easy to build Relayers and other DApps that use the Kleros protocol.\n\n## Installation\n\nWe assume that you have npm and yarn installed.\n\n```\nyarn install\n```\n\n## Build\n\n```\nyarn build\n```\n\n## Deploy\n\n```\nyarn deploy\n```\n\n## Test\n\nTestrpc must be installed (https://github.com/ethereumjs/testrpc).\n\n```\ntestrpc\nyarn test\n```\n\n## Smart contract commands (testrpc)\n\n```\nyarn deployCentralCourt\nyarn deployArbitrableTransaction\nyarn createArbitrableTransactionDispute\nyarn getDisputeDataFromCentralCourt\nyarn getDataFromArbitrableTransaction\nyarn postDataToStore\nyarn getDataFromStore\nyarn deployKlerosPOC\nyarn buyPNK\nyarn activatePNK\nyarn passPeriod\nyarn getDisputesForUser\n```\n",
+    "longname": "/Users/samvitello/work/kleros/kleros-api/README.md",
+    "name": "./README.md",
+    "static": true,
+    "access": "public"
+  },
+  {
+    "kind": "packageJSON",
+    "content": "{\n  \"name\": \"kleros-api\",\n  \"version\": \"0.0.46\",\n  \"description\": \"Kleros API\",\n  \"main\": \"lib/kleros-api.js\",\n  \"scripts\": {\n    \"build\": \"webpack --env build\",\n    \"dev\": \"webpack --progress --colors --watch --env dev\",\n    \"test\": \"jest\",\n    \"deploy\": \"yarn build && yarn publish\",\n    \"deployCentralCourt\": \"./node_modules/.bin/babel-node script/deployCentralCourt.js\",\n    \"deployArbitrableTransaction\": \"./node_modules/.bin/babel-node script/deployArbitrableTransaction.js\",\n    \"createArbitrableTransactionDispute\": \"./node_modules/.bin/babel-node script/createArbitrableTransactionDispute.js\",\n    \"getDisputeDataFromCentralCourt\": \"./node_modules/.bin/babel-node script/getDisputeDataFromCentralCourt.js\",\n    \"getDataFromArbitrableTransaction\": \"./node_modules/.bin/babel-node script/getDataFromArbitrableTransaction.js\",\n    \"postDataToStore\": \"./node_modules/.bin/babel-node script/postDataToStore.js\",\n    \"getDataFromStore\": \"./node_modules/.bin/babel-node script/getDataFromStore.js\",\n    \"deployKlerosPOC\": \"./node_modules/.bin/babel-node script/deployKlerosPOC.js\",\n    \"buyPNK\": \"./node_modules/.bin/babel-node script/buyPNK.js\",\n    \"activatePNK\": \"./node_modules/.bin/babel-node script/activatePNK.js\",\n    \"passPeriod\": \"./node_modules/.bin/babel-node script/passPeriod.js\",\n    \"getDisputesForUser\": \"./node_modules/.bin/babel-node script/getDisputesForUser.js\"\n  },\n  \"jest\": {\n    \"testEnvironment\": \"node\",\n    \"verbose\": true\n  },\n  \"devDependencies\": {\n    \"babel-cli\": \"^6.26.0\",\n    \"babel-core\": \"6.24.1\",\n    \"babel-jest\": \"^20.0.3\",\n    \"babel-loader\": \"7.0.0\",\n    \"babel-plugin-add-module-exports\": \"0.2.1\",\n    \"babel-plugin-transform-class-properties\": \"^6.24.1\",\n    \"babel-preset-es2015\": \"6.24.1\",\n    \"babel-preset-es2017\": \"^6.24.1\",\n    \"babel-preset-stage-0\": \"^6.24.1\",\n    \"jest-cli\": \"^20.0.4\",\n    \"regenerator-runtime\": \"^0.11.0\",\n    \"webpack\": \"3.1.0\",\n    \"webpack-dotenv-plugin\": \"^2.0.2\",\n    \"yargs\": \"7.1.0\"\n  },\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"https://github.com/kleros/kleros-api.git\"\n  },\n  \"keywords\": [\n    \"Kleros\",\n    \"justice system\",\n    \"Ethereum\"\n  ],\n  \"author\": \"Kleros's team <contact@kleros.io> (https://github.com/kleros)\",\n  \"contributors\": [\n    \"Wagner Nicolas <nicolas@kleros.io> (https://github.com/n1c01a5)\",\n    \"Sam Vitello (https://github.com/satello)\"\n  ],\n  \"license\": \"MIT\",\n  \"bugs\": {\n    \"url\": \"https://github.com/kleros/kleros-api.git\"\n  },\n  \"homepage\": \"https://kleros.io\",\n  \"dependencies\": {\n    \"babel-preset-env\": \"^1.6.0\",\n    \"babel-preset-react\": \"^6.24.1\",\n    \"bignumber\": \"^1.1.0\",\n    \"dotenv-webpack\": \"^1.5.4\",\n    \"esdoc\": \"^1.0.4\",\n    \"esdoc-ecmascript-proposal-plugin\": \"^1.0.0\",\n    \"esdoc-standard-plugin\": \"^1.0.0\",\n    \"ethereumjs-testrpc\": \"^4.1.1\",\n    \"global\": \"^4.3.2\",\n    \"jest\": \"^20.0.4\",\n    \"kleros\": \"^0.0.4\",\n    \"kleros-interaction\": \"^0.0.8\",\n    \"lodash\": \"^4.17.4\",\n    \"truffle-contract\": \"^2.0.5\",\n    \"web3\": \"^0.20.1\"\n  }\n}\n",
+    "longname": "/Users/samvitello/work/kleros/kleros-api/package.json",
+    "name": "package.json",
+    "static": true,
+    "access": "public"
+  }
+]

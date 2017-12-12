@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../../">
+  <title data-ice="title">src/abstractWrappers/arbitrator/index.js | kleros-api</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Kleros API"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="kleros-api"><meta property="twitter:description" content="Kleros API"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/kleros/kleros-api.git"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/kleros.js~Kleros.html">Kleros</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers">abstractWrappers</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/AbstractWrapper.js~AbstractWrapper.html">AbstractWrapper</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers-arbitrablecontract">abstractWrappers/arbitrableContract</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract.html">ArbitrableContract</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers-arbitrator">abstractWrappers/arbitrator</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/arbitrator/index.js~Arbitrator.html">Arbitrator</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers-disputes">abstractWrappers/disputes</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/disputes/index.js~Disputes.html">Disputes</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contractwrappers">contractWrappers</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper.html">ArbitrableTransactionWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper.html">BlockHashRNGWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper.html">CentralizedArbitratorWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/ContractWrapper.js~ContractWrapper.html">ContractWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/KlerosWrapper.js~KlerosWrapper.html">KlerosWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/PinakionWrapper.js~PinakionWrapper.html">PinakionWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-disputes">disputes</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/abstractWrappers/arbitrator/index.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import AbstractWrapper from &apos;../AbstractWrapper&apos;
+import _ from &apos;lodash&apos;
+
+/**
+ * Arbitrator api
+ */
+class Arbitrator extends AbstractWrapper {
+  /**
+   * Arbitrator Constructor
+   * @param storeProvider store provider object
+   * @param arbitratorWrapper arbitrator contract wrapper object
+   */
+  constructor(storeProvider, arbitratorWrapper) {
+    super(storeProvider, arbitratorWrapper, undefined)
+  }
+
+  // passthroughs
+  getPNKBalance = this._Arbitrator.getPNKBalance
+  activatePNK = this._Arbitrator.activatePNK
+  getData = this._Arbitrator.getData
+  passPeriod = this._Arbitrator.passPeriod
+
+  /**
+   * @param amount number of pinakion to buy
+   * @param account address of user
+   * @return objects[]
+   */
+  buyPNK = async (
+    amount,
+    arbitratorAddress, // address of KlerosPOC
+    account
+  ) =&gt; {
+    const txHash = await this._Arbitrator.buyPNK(amount, arbitratorAddress, account)
+    if (txHash) {
+      // update store so user can get instantaneous feedback
+      let userProfile = await this._StoreProvider.getUserProfile(account)
+      if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
+      // FIXME seems like a super hacky way to update store
+      userProfile.balance = (parseInt(userProfile.balance) ? userProfile.balance : 0) + parseInt(amount)
+      delete userProfile._id
+      delete userProfile.created_at
+      const response = await this._StoreProvider.newUserProfile(account, userProfile)
+
+      return this.getPNKBalance(arbitratorAddress, account)
+    } else {
+      throw new Error(&quot;unable to buy PNK&quot;)
+    }
+  }
+
+  /**
+   * Get all contracts TODO do we need to get contract data from blockchain?
+   * @param account address of user
+   * @return objects[]
+   */
+  getContractsForUser = async (
+    account
+  ) =&gt; {
+    // fetch user profile
+    let userProfile = await this._StoreProvider.getUserProfile(account)
+    if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
+
+    return userProfile.contracts
+  }
+}
+
+export default Arbitrator
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

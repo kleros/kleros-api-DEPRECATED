@@ -2,7 +2,7 @@ import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import RNG from 'kleros-interaction/build/contracts/BlockHashRNG'
-import config from '../config'
+import config from '../../config'
 
 /**
  * Kleros API

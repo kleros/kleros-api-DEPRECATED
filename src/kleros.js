@@ -1,37 +1,29 @@
 import Web3Wrapper from '../util/Web3Wrapper'
 import StoreProviderWrapper from '../util/StoreProviderWrapper'
-import KlerosWrapper from '../contract_wrapper/KlerosWrapper'
-import ArbitrableTransactionWrapper from '../contract_wrapper/ArbitrableTransactionWrapper'
-import PinakionWrapper from '../contract_wrapper/PinakionWrapper'
-import BlockHashRNGWrapper from '../contract_wrapper/BlockHashRNGWrapper'
+import KlerosWrapper from './contractWrappers/KlerosWrapper'
+import ArbitrableTransactionWrapper from './contractWrappers/ArbitrableTransactionWrapper'
+import PinakionWrapper from './contractWrappers/PinakionWrapper'
+import BlockHashRNGWrapper from './contractWrappers/BlockHashRNGWrapper'
 import DisputesApi from './abstractWrappers/disputes'
 import ArbitratorApi from './abstractWrappers/arbitrator'
 import ArbitrableContractApi from './abstractWrappers/arbitrableContract'
 import { LOCALHOST_STORE_PROVIDER, LOCALHOST_ETH_PROVIDER } from '../constants'
 
 class Kleros {
-  /**
-   * An private instance of the Web3 for interacting with the
-   * smart contract.
-   */
   _web3Wrapper = {}
 
-  /**
-   * An private instance of the Web3 for interacting with the
-   * smart contract.
-   */
   _storeWrapper = {}
 
   /**
    * Instantiates a new Kelros instance that provides the public interface
-   * to the 0x.js library.
-   * @param ethereumProvider The Web3.js Provider instance you would like the
+   * to Kleros contracts and library.
+   * @param {string} ethereumProvider The Web3.js Provider instance you would like the
    *                 Kleros.js library to use for interacting with the
    *                 Ethereum network.
-   * @param storeProvider The storage provider instance used by the contract to
+   * @param {string} storeProvider The storage provider instance used by the contract to
    *                      get data from the cloud. e.g. Kleros-Store,
    *                      IPFS, Swarm etc.
-   * @return An instance of the Kleros.js class.
+   * @return {object} A n instance of the Kleros.js class.
    */
   constructor(
     ethereumProvider = LOCALHOST_ETH_PROVIDER,

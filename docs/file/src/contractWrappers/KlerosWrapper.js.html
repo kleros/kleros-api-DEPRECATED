@@ -1,11 +1,59 @@
-import * as _ from 'lodash'
-import contract from 'truffle-contract'
-import ContractWrapper from './ContractWrapper'
-import ArbitrableTransactionWrapper from './ArbitrableTransactionWrapper'
-import kleros from 'kleros/build/contracts/KlerosPOC'
-import config from '../config'
-import disputes from './mockDisputes'
-import { VOTING_PERIOD, DISPUTE_STATE_INDEX } from '../constants'
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/contractWrappers/KlerosWrapper.js | kleros-api</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Kleros API"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="kleros-api"><meta property="twitter:description" content="Kleros API"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/kleros/kleros-api.git"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/kleros.js~Kleros.html">Kleros</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers">abstractWrappers</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/AbstractWrapper.js~AbstractWrapper.html">AbstractWrapper</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers-arbitrablecontract">abstractWrappers/arbitrableContract</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract.html">ArbitrableContract</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers-arbitrator">abstractWrappers/arbitrator</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/arbitrator/index.js~Arbitrator.html">Arbitrator</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers-disputes">abstractWrappers/disputes</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/disputes/index.js~Disputes.html">Disputes</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contractwrappers">contractWrappers</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper.html">ArbitrableTransactionWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper.html">BlockHashRNGWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper.html">CentralizedArbitratorWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/ContractWrapper.js~ContractWrapper.html">ContractWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/KlerosWrapper.js~KlerosWrapper.html">KlerosWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/PinakionWrapper.js~PinakionWrapper.html">PinakionWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-disputes">disputes</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/contractWrappers/KlerosWrapper.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import * as _ from &apos;lodash&apos;
+import contract from &apos;truffle-contract&apos;
+import ContractWrapper from &apos;./ContractWrapper&apos;
+import ArbitrableTransactionWrapper from &apos;./ArbitrableTransactionWrapper&apos;
+import kleros from &apos;kleros/build/contracts/KlerosPOC&apos;
+import config from &apos;../config&apos;
+import disputes from &apos;./mockDisputes&apos;
+import { VOTING_PERIOD, DISPUTE_STATE_INDEX } from &apos;../constants&apos;
 
 /**
  * Kleros API
@@ -36,7 +84,7 @@ class KlerosWrapper extends ContractWrapper {
       timesPerPeriod = [1,1,1,1,1],
       account = this._Web3Wrapper.getAccount(0),
       value = config.VALUE,
-    ) => {
+    ) =&gt; {
 
     const contractDeployed = await this._deployAsync(
       account,
@@ -59,9 +107,9 @@ class KlerosWrapper extends ContractWrapper {
    */
   load = async (
     address
-  ) => {
+  ) =&gt; {
     // return contract instance if already loaded
-    if (this.contractInstance && this.contractInstance.address === address) return this.contractInstance
+    if (this.contractInstance &amp;&amp; this.contractInstance.address === address) return this.contractInstance
 
     try {
       // instantiate new contract instance from address
@@ -85,14 +133,14 @@ class KlerosWrapper extends ContractWrapper {
     amount,
     contractAddress, // address of KlerosPOC
     account = this._Web3Wrapper.getAccount(0)
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
     try {
       const txHashObj = await this.contractInstance.buyPinakion(
         {
           from: account,
           gas: config.GAS,
-          value: this._Web3Wrapper.toWei(amount, 'ether'),
+          value: this._Web3Wrapper.toWei(amount, &apos;ether&apos;),
         }
       )
       return txHashObj.tx
@@ -109,22 +157,22 @@ class KlerosWrapper extends ContractWrapper {
   getPNKBalance = async (
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
 
     const juror = await contractInstance.jurors(account)
     if (!juror) throw new Error(`${account} is not a juror for contract ${contractAddress}`)
 
     // total tokens stored in contract
-    const contractBalance = this._Web3Wrapper.fromWei(juror[0].toNumber(), 'ether')
+    const contractBalance = this._Web3Wrapper.fromWei(juror[0].toNumber(), &apos;ether&apos;)
     // tokens activated in court session
     const currentSession = await contractInstance.session.call()
     let activatedTokens = 0
     if (juror[2].toNumber() === currentSession.toNumber()) {
-      activatedTokens = this._Web3Wrapper.fromWei((juror[4].toNumber() - juror[3].toNumber()), 'ether')
+      activatedTokens = this._Web3Wrapper.fromWei((juror[4].toNumber() - juror[3].toNumber()), &apos;ether&apos;)
     }
     // tokens locked into disputes
-    const lockedTokens = this._Web3Wrapper.fromWei(juror[2].toNumber(), 'ether')
+    const lockedTokens = this._Web3Wrapper.fromWei(juror[2].toNumber(), &apos;ether&apos;)
 
     return {
       activatedTokens,
@@ -144,11 +192,11 @@ class KlerosWrapper extends ContractWrapper {
     amount, // amount in ether
     contractAddress, // klerosPOC contract address
     account = this._Web3Wrapper.getAccount(0)
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
     try {
       await this.contractInstance.activateTokens(
-        this._Web3Wrapper.toWei(amount, 'ether'),
+        this._Web3Wrapper.toWei(amount, &apos;ether&apos;),
         {
           from: account,
           gas: config.GAS
@@ -170,7 +218,7 @@ class KlerosWrapper extends ContractWrapper {
   getArbitrationCost = async (
     contractAddress,
     contractExtraData
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
 
     try {
@@ -191,7 +239,7 @@ class KlerosWrapper extends ContractWrapper {
   passPeriod = async (
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
     try {
       await contractInstance.passPeriod(
@@ -223,7 +271,7 @@ class KlerosWrapper extends ContractWrapper {
     votes,
     hash,
     account = this._Web3Wrapper.getAccount(0)
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
 
     try {
@@ -255,7 +303,7 @@ class KlerosWrapper extends ContractWrapper {
     disputeId,
     extraData,
     account = this._Web3Wrapper.getAccount(0)
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
     const appealFee = await contractInstance.appealCost(disputeId, extraData)
     try {
@@ -286,7 +334,7 @@ class KlerosWrapper extends ContractWrapper {
     contractAddress,
     disputeId,
     account = this._Web3Wrapper.getAccount(0)
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
     try {
       // partition tokens
@@ -315,7 +363,7 @@ class KlerosWrapper extends ContractWrapper {
     contractAddress,
     disputeId,
     account = this._Web3Wrapper.getAccount(0)
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
     try {
       // execute ruling
@@ -342,7 +390,7 @@ class KlerosWrapper extends ContractWrapper {
   getTimeForPeriod = async (
     contractAddress,
     periodNumber
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
 
     const timePerPeriod = await contractInstance.timePerPeriod(periodNumber)
@@ -363,7 +411,7 @@ class KlerosWrapper extends ContractWrapper {
   getDispute = async (
     contractAddress,
     disputeId
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
     try {
       const dispute = await contractInstance.disputes(disputeId)
@@ -390,7 +438,7 @@ class KlerosWrapper extends ContractWrapper {
   getAmountOfJurorsForDispute = async (
     contractAddress,
     disputeId
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
 
     const amountOfJurors = await contractInstance.amountJurors(disputeId)
@@ -415,7 +463,7 @@ class KlerosWrapper extends ContractWrapper {
     draw,
     contractAddress,
     jurorAddress = this._Web3Wrapper.getAccount(0)
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
 
     const isDrawn = await contractInstance.isDrawn(disputeId, jurorAddress, draw)
@@ -432,7 +480,7 @@ class KlerosWrapper extends ContractWrapper {
   currentRulingForDispute = async (
     disputeId,
     contractAddress,
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
 
     const currentRuling = await contractInstance.currentRuling(disputeId)
@@ -449,7 +497,7 @@ class KlerosWrapper extends ContractWrapper {
    */
   getData = async (
     contractAddress
-  ) => {
+  ) =&gt; {
     const contractInstance = await this.load(contractAddress)
 
     const [
@@ -464,7 +512,7 @@ class KlerosWrapper extends ContractWrapper {
       contractInstance.period(),
       contractInstance.session(),
       contractInstance.lastPeriodChange(),
-    ]).catch(err => {
+    ]).catch(err =&gt; {
       throw new Error(err)
     })
 
@@ -479,3 +527,20 @@ class KlerosWrapper extends ContractWrapper {
 }
 
 export default KlerosWrapper
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

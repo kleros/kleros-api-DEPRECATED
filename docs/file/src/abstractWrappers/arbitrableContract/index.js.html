@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../../">
+  <title data-ice="title">src/abstractWrappers/arbitrableContract/index.js | kleros-api</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Kleros API"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="kleros-api"><meta property="twitter:description" content="Kleros API"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/kleros/kleros-api.git"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/kleros.js~Kleros.html">Kleros</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers">abstractWrappers</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/AbstractWrapper.js~AbstractWrapper.html">AbstractWrapper</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers-arbitrablecontract">abstractWrappers/arbitrableContract</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract.html">ArbitrableContract</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers-arbitrator">abstractWrappers/arbitrator</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/arbitrator/index.js~Arbitrator.html">Arbitrator</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers-disputes">abstractWrappers/disputes</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/disputes/index.js~Disputes.html">Disputes</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contractwrappers">contractWrappers</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper.html">ArbitrableTransactionWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper.html">BlockHashRNGWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper.html">CentralizedArbitratorWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/ContractWrapper.js~ContractWrapper.html">ContractWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/KlerosWrapper.js~KlerosWrapper.html">KlerosWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/PinakionWrapper.js~PinakionWrapper.html">PinakionWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-disputes">disputes</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/abstractWrappers/arbitrableContract/index.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import AbstractWrapper from &apos;../AbstractWrapper&apos;
+import { DEFAULT_ARBITRATION_COST } from &apos;../../../constants&apos;
+
+/**
+ * Arbitrable Contract api
+ */
+class ArbitrableContract extends AbstractWrapper {
+  /**
+   * Arbitrable Contract Constructor
+   * @param storeProvider store provider object
+   * @param arbitrableWrapper arbitrable contract wrapper object
+   */
+  constructor(storeProvider, arbitrableWrapper) {
+    super(storeProvider, undefined, arbitrableWrapper)
+  }
+
+  /**
+  * Deploy a contract and add to the Store
+  * @param account Ethereum address
+  * @param value funds to be placed in contract
+  * @param hashContract Keccak hash of the plain English contract
+  * @param arbitratorAddress The address of the arbitrator contract
+  * @param timeout Time after which a party automatically loose a dispute
+  * @param partyB Ethereum address of the other party in the contract
+  * @param arbitratorExtraData Extra data for the arbitrator
+  * @param email Email address of the contract creator (default empty string)
+  * @param description Description of what the contract is about (default empty string)
+  * @param args Extra arguments for the contract
+  * @return object | Error
+  */
+  deployContract = async (
+    account,
+    value,
+    hashContract,
+    arbitratorAddress,
+    timeout,
+    partyB,
+    arbitratorExtraData = &apos;&apos;,
+    email = &apos;&apos;,
+    description = &apos;&apos;,
+    ...args
+  ) =&gt; {
+    this._checkArbitrableWrappersSet()
+
+    const contractInstance = await this._ArbitrableContract.deploy(
+      account,
+      value,
+      hashContract,
+      arbitratorAddress,
+      timeout,
+      partyB,
+      arbitratorExtraData,
+      ...args
+    )
+
+    await this._StoreProvider.updateContract(
+      contractInstance.address,
+      hashContract,
+      account,
+      partyB,
+      arbitratorAddress,
+      timeout,
+      email,
+      description
+    )
+
+    // return contract data
+    return await this.getData(contractInstance.address, account)
+  }
+
+  /**
+   * Submit evidence
+   * @param evidence A link to an evidence using its URI.
+   * @return txHash Hash transaction
+   */
+  submitEvidence = async (
+    account,
+    contractAddress,
+    name,
+    description = &apos;&apos;,
+    url
+  ) =&gt; {
+    const txHash = await this._ArbitrableContract.submitEvidence(
+      account,
+      contractAddress,
+      name,
+      description,
+      url
+    )
+
+    await this._StoreProvider.addEvidenceContract(
+      contractAddress,
+      account,
+      name,
+      description,
+      url
+    )
+
+    return txHash
+  }
+
+  getData = async (
+    contractAddress,
+    account
+  ) =&gt; {
+    const contractData = await this._ArbitrableContract.getData(contractAddress)
+
+    const storeData = await this._StoreProvider.getContractByAddress(account, contractAddress)
+
+    return Object.assign({}, storeData, contractData)
+  }
+}
+
+export default ArbitrableContract
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

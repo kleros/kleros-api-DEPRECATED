@@ -4,8 +4,8 @@ import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import KlerosWrapper from './KlerosWrapper'
 import arbitrableTransaction from 'kleros-interaction/build/contracts/ArbitrableTransaction'
-import config from '../config'
-import { DISPUTE_STATUS } from '../constants'
+import config from '../../config'
+import { DISPUTE_STATUS } from '../../constants'
 
 /**
  * ArbitrableTransaction API

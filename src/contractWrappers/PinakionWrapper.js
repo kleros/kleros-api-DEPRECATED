@@ -2,7 +2,7 @@ import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import PinakionPOC from 'kleros/build/contracts/PinakionPOC' // FIXME mock
-import config from '../config'
+import config from '../../config'
 
 /**
  * Kleros API

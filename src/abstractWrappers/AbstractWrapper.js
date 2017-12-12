@@ -13,11 +13,6 @@ class AbstractWrapper {
     this._ArbitrableContract = arbitrableWrapper
   }
 
-  // throw an error if unimplemented method called
-  __noSuchMethod__ = async (id, args) => {
-    throw new Error(`API has no method ${id}`)
-  }
-
   /**
   * set store wrapper
   * @param storeWrapper wrapper for store

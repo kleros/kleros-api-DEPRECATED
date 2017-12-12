@@ -3,7 +3,7 @@ import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import ArbitrableTransactionWrapper from './ArbitrableTransactionWrapper'
 import centralizedArbitrator from 'kleros-interaction/build/contracts/CentralizedArbitrator'
-import config from '../config'
+import config from '../../config'
 
 /**
  * CentralizedArbitrator API

@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../../">
+  <title data-ice="title">src/abstractWrappers/disputes/index.js | kleros-api</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Kleros API"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="kleros-api"><meta property="twitter:description" content="Kleros API"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/kleros/kleros-api.git"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/kleros.js~Kleros.html">Kleros</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers">abstractWrappers</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/AbstractWrapper.js~AbstractWrapper.html">AbstractWrapper</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers-arbitrablecontract">abstractWrappers/arbitrableContract</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/arbitrableContract/index.js~ArbitrableContract.html">ArbitrableContract</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers-arbitrator">abstractWrappers/arbitrator</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/arbitrator/index.js~Arbitrator.html">Arbitrator</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#abstractwrappers-disputes">abstractWrappers/disputes</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/abstractWrappers/disputes/index.js~Disputes.html">Disputes</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contractwrappers">contractWrappers</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/ArbitrableTransactionWrapper.js~ArbitrableTransactionWrapper.html">ArbitrableTransactionWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/BlockHashRNGWrapper.js~BlockHashRNGWrapper.html">BlockHashRNGWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/CentralizedArbitratorWrapper.js~CentralizedArbitratorWrapper.html">CentralizedArbitratorWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/ContractWrapper.js~ContractWrapper.html">ContractWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/KlerosWrapper.js~KlerosWrapper.html">KlerosWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contractWrappers/PinakionWrapper.js~PinakionWrapper.html">PinakionWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-disputes">disputes</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/abstractWrappers/disputes/index.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import AbstractWrapper from &apos;../AbstractWrapper&apos;
+import {
+  NULL_ADDRESS,
+  VOTING_PERIOD,
+  DEFAULT_ARBITRATION_COST,
+  DISPUTE_STATUS
+} from &apos;../../../constants&apos;
+import _ from &apos;lodash&apos;
+
+/**
+ * Disputes api
+ */
+class Disputes extends AbstractWrapper {
+  /**
+   * Disputes Constructor
+   * @param storeProvider store provider object
+   * @param arbitratorWrapper arbitrator contract wrapper object
+   * @param arbitrableWrapper arbitrable contract wrapper object
+   */
+  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
+    super(storeProvider, arbitratorWrapper, arbitrableWrapper)
+  }
+
+  /**
+  * Pay the arbitration fee to raise a dispute. To be called by the party A.
+  * @param account Ethereum account
+  * @param arbitrableContract Address address of arbitrable contract
+  * @param arbitrationCost Amount to pay the arbitrator
+  * @return txHash hash transaction | Error
+  */
+  raiseDisputePartyA = async (
+    account,
+    arbitrableContractAddress,
+    arbitrationCost = DEFAULT_ARBITRATION_COST
+  ) =&gt; {
+    this._checkArbitrableWrappersSet()
+    
+    try {
+      const txHash = await this._ArbitrableContract.payArbitrationFeeByPartyA(
+        account,
+        arbitrableContractAddress,
+        arbitrationCost
+      )
+
+      if (!txHash) throw new Error(&apos;unable to pay arbitration fee for party A&apos;)
+
+      // update store if there is a dispute
+      await this._storeNewDispute(arbitrableContractAddress, account)
+
+      return txHash
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  /**
+  * Pay the arbitration fee to raise a dispute. To be called by the party B.
+  * @param account Ethereum account
+  * @param arbitrableContract Address address of arbitrable contract
+  * @param arbitrationCost Amount to pay the arbitrator
+  * @return txHash hash transaction | Error
+  */
+  raiseDisputePartyB = async (
+    account,
+    arbitrableContractAddress,
+    arbitrationCost = DEFAULT_ARBITRATION_COST
+  ) =&gt; {
+    this._checkArbitrableWrappersSet()
+
+    const txHash = await this._ArbitrableContract.payArbitrationFeeByPartyB(
+      account,
+      arbitrableContractAddress,
+      arbitrationCost
+    )
+
+    if (!txHash) throw new Error(&apos;unable to pay arbitration fee for party B&apos;)
+
+    // update store if there is a dispute
+    await this._storeNewDispute(arbitrableContractAddress)
+
+    return txHash
+  }
+
+  /**
+  * If there is a dispute in contract update store
+  * @param contractAddress
+  * @param account
+  * @return Boolean
+  */
+  _storeNewDispute = async (
+    arbitrableContractAddress,
+    account
+  ) =&gt; {
+    this._checkArbitratorWrappersSet()
+    this._checkArbitrableWrappersSet()
+
+    const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)
+
+    if (arbitrableContractData.status === DISPUTE_STATUS) {
+      await this._updateStoreForDispute(arbitrableContractAddress, account)
+    }
+  }
+
+  /**
+   * Get disputes for user with extra data from arbitrated transaction and store
+   * @param arbitratorAddress address of Kleros contract
+   * @param account address of user
+   * @return objects[]
+   */
+  getDisputesForUser = async (
+    arbitratorAddress,
+    account
+  ) =&gt; {
+    // FIXME don&apos;t like having to call this every fnc
+    this._checkArbitratorWrappersSet()
+    this._checkArbitrableWrappersSet()
+    // contract data
+    const arbitratorData = await this._Arbitrator.getData(arbitratorAddress, account)
+
+    // fetch user profile
+    let profile = await this._StoreProvider.getUserProfile(account)
+    if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)
+    // fetch current contract period
+    const period = arbitratorData.period
+    const currentSession = arbitratorData.session
+    // new jurors have not been chosen yet. don&apos;t update
+    if (period !== VOTING_PERIOD) {
+      let disputes = await this._StoreProvider.getDisputesForUser(account)
+      disputes = await Promise.all(disputes.map(async (dispute) =&gt; {
+        return await this.getDataForDispute(dispute.contractAddress, account)
+      }))
+
+      return disputes
+    }
+
+    if (currentSession != profile.session) {
+      // get disputes for juror
+      const myDisputeContracts = await this.getDisputeContractsForJuror(arbitratorAddress, account)
+      // update store for each dispute
+      await Promise.all(myDisputeContracts.map(async contractAddress =&gt; {
+        await this._updateStoreForDispute(contractAddress, account)
+      }))
+  
+      // update session on profile
+      profile = await this._StoreProvider.getUserProfile(account)
+      profile.session = currentSession
+      await this._StoreProvider.updateUserProfile(account, profile)
+    }
+    // return array of all disputes for user
+    let disputes = await this._StoreProvider.getDisputesForUser(account)
+    disputes = await Promise.all(disputes.map(async (dispute) =&gt; {
+      return await this.getDataForDispute(dispute.contractAddress, account)
+    }))
+
+    return disputes
+  }
+
+  /**
+   * Get disputes from Kleros contract
+   * @param arbitratorAddress address of Kleros contract
+   * @param account address of user
+   * @return [] contract addresses
+   */
+  getDisputeContractsForJuror = async (
+    arbitratorAddress,
+    account,
+  ) =&gt; {
+    // FIXME don&apos;t like having to call this every fnc
+    this._checkArbitratorWrappersSet()
+    // contract data
+    const arbitratorData = await this._Arbitrator.getData(arbitratorAddress, account)
+    const myDisputes = []
+    let disputeId = 0
+    const currentSession = arbitratorData.session
+
+    let dispute
+    while (1) {
+      // iterate over all disputes (FIXME inefficient)
+      try {
+         dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
+         if (dispute.arbitratedContract === NULL_ADDRESS) break
+         // session + number of appeals
+         const disputeSession = dispute.firstSession + dispute.numberOfAppeals
+         // if dispute not in current session skip
+         if (disputeSession !== currentSession) {
+           disputeId++
+           dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
+           continue
+         }
+
+         const votes = await this.getVotesForJuror(disputeId, arbitratorAddress, account)
+         if (votes.length &gt; 0) {
+           myDisputes.push(
+             dispute.arbitratedContract
+           )
+         }
+         // check next dispute
+         disputeId += 1
+      } catch (e) {
+        // getDispute(n) throws an error if index out of range
+        break
+      }
+    }
+
+    return myDisputes
+  }
+
+  /**
+  * Fetch the votes a juror has in a dispute
+  * @param disputeId id of the dispute
+  * @param arbitratorAddress address of the arbitrator contract
+  * @param account potential jurors address
+  */
+  getVotesForJuror = async (
+    disputeId,
+    arbitratorAddress,
+    account
+  ) =&gt; {
+    const numberOfJurors = await this._Arbitrator.getAmountOfJurorsForDispute(arbitratorAddress, disputeId)
+    const votes = []
+    // FIXME map doesn&apos;t seem to make sense here. would need to construct array of possible choices and then filter?
+    for (let draw=1; draw&lt;=numberOfJurors; draw++) {
+      const isJuror = await this._Arbitrator.isJurorDrawnForDispute(disputeId, draw, arbitratorAddress, account)
+      if (isJuror) {
+        votes.push(draw)
+      }
+    }
+
+    return votes
+  }
+
+  /**
+   * Submit votes. Note can only be called during Voting period (Period 2)
+   * @param contractAddress address of KlerosPOC contract
+   * @param disputeId index of the dispute
+   * @param ruling int representing the jurors decision
+   * @param votes int[] of drawn votes for dispute
+   * @param account address of user
+   * @return transaction hash | Error
+   */
+  submitVotesForDispute = async (
+    arbitratorAddress,
+    disputeId,
+    ruling,
+    votes,
+    hash,
+    account
+  ) =&gt; {
+    const txHash = await this._Arbitrator.submitVotes(
+      arbitratorAddress,
+      disputeId,
+      ruling,
+      votes,
+      hash,
+      account
+    )
+
+    if (txHash) {
+      // mark in store that you have ruled on dispute
+      await this._StoreProvider.updateDisputeProfile(
+        account,
+        votes,
+        hash,
+        true,
+        true
+      )
+
+      return txHash
+    } else {
+      throw new Error(&apos;unable to submit votes&apos;)
+    }
+  }
+
+  /**
+  * get the deadline for dispute
+  * @param arbitratorAddress address of arbitrator contract
+  * @param period default to voting period
+  * @return date object
+  */
+  getDeadlineForDispute = async (
+    arbitratorAddress,
+    period = VOTING_PERIOD
+  ) =&gt; {
+    const arbitratorData = await this._Arbitrator.getData(arbitratorAddress)
+    // compute end date
+    const startTime = arbitratorData.lastPeriodChange
+    const length = await this._Arbitrator.getTimeForPeriod(arbitratorAddress, period)
+    // FIXME this is all UTC for now. Timezones are a pain
+    const deadline = new Date(0);
+    deadline.setUTCSeconds(startTime)
+    deadline.setSeconds(deadline.getSeconds() + length);
+
+    return `${deadline.getUTCDate()}/${deadline.getUTCMonth()}/${deadline.getFullYear()}`
+  }
+
+  /**
+  * update store with new dispute data
+  * @param arbitrableContract Address address of arbitrable contract
+  * @param jurorAddress &lt;optional&gt; address of juror
+  */
+  _updateStoreForDispute = async (
+    arbitrableContractAddress,
+    jurorAddress
+  ) =&gt; {
+    const disputeData = await this.getDataForDispute(
+      arbitrableContractAddress,
+      jurorAddress
+    )
+
+    // update dispute
+    await this._StoreProvider.updateDispute(
+      disputeData.disputeId,
+      disputeData.hash,
+      disputeData.arbitrableContractAddress,
+      disputeData.partyA,
+      disputeData.partyB,
+      disputeData.title,
+      disputeData.deadline,
+      disputeData.status,
+      disputeData.fee,
+      disputeData.information,
+      disputeData.justification,
+      disputeData.resolutionOptions
+    )
+
+    // update profile partyA
+    await this._StoreProvider.updateDisputeProfile(
+      disputeData.partyA,
+      [],
+      disputeData.hash,
+      false,
+      false
+    )
+
+    // update profile partyB
+    await this._StoreProvider.updateDisputeProfile(
+      disputeData.partyB,
+      [],
+      disputeData.hash,
+      false,
+      false
+    )
+
+    if (jurorAddress) {
+      // update juror profile &lt;optional&gt;
+      await this._StoreProvider.updateDisputeProfile(
+        jurorAddress,
+        disputeData.votes,
+        disputeData.hash,
+        disputeData.votes.length &gt; 0 ? true : false,
+        false
+      )
+    }
+  }
+
+  /**
+  * get user data for a dispute from the store
+  * @param arbitrableContract Address address for arbitrable contract
+  * @param account &lt;optional&gt; jurors address
+  */
+  getUserDisputeFromStore = async (
+    arbitrableContractAddress,
+    account
+  ) =&gt; {
+    const userProfile = await this._StoreProvider.getUserProfile(account)
+
+    const disputeArray = _.filter(userProfile.disputes, (dispute) =&gt; {
+      // FIXME update store to use arbitrableContractAddress instead of hash
+      return dispute.hash === arbitrableContractAddress
+    })
+
+    if (_.isEmpty(disputeArray)) throw new Error(`User ${account} does not have store data for dispute`)
+
+    return disputeArray[0]
+  }
+
+  /**
+  * get evidence for contract
+  * @param arbitrableContract Address address for arbitrable contract
+  * @param account &lt;optional&gt; jurors address
+  */
+  getEvidenceForArbitrableContract = async (
+    arbitrableContractAddress
+  ) =&gt; {
+    this._checkArbitrableWrappersSet()
+
+    const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)
+    const partyAContractData = await this._StoreProvider.getContractByAddress(
+      arbitrableContractData.partyA,
+      arbitrableContractAddress
+    )
+    const partyBContractData = await this._StoreProvider.getContractByAddress(
+      arbitrableContractData.partyB,
+      arbitrableContractAddress
+    )
+
+    const partyAEvidence = partyAContractData ? partyAContractData.evidences : []
+    const partyBEvidence = partyBContractData ? partyBContractData.evidences : []
+
+    return partyAEvidence.concat(partyBEvidence)
+  }
+
+  /**
+  * get data for a dispute
+  * @param arbitrableContract Address address for arbitrable contract
+  * @param account &lt;optional&gt; jurors address
+  */
+  getDataForDispute = async (
+    arbitrableContractAddress,
+    account
+  ) =&gt; {
+    this._checkArbitratorWrappersSet()
+    this._checkArbitrableWrappersSet()
+
+    const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)
+    const arbitratorAddress = arbitrableContractData.arbitrator
+    const constractStoreData = await this._StoreProvider.getContractByAddress(
+      arbitrableContractData.partyA,
+      arbitrableContractAddress
+    )
+
+    const disputeId = arbitrableContractData.disputeId
+    if (disputeId === undefined) throw new Error(`Arbitrable contract ${arbitrableContractAddress} does not have a dispute`)
+    const dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
+
+    let votes = []
+    let isJuror = false
+    let hasRuled = false
+    if (account) {
+      votes = await this.getVotesForJuror(disputeId, arbitratorAddress, account)
+      try {
+        const userData = await this.getUserDisputeFromStore(arbitrableContractAddress, account)
+        isJuror = userData.isJuror
+        hasRuled = userData.hasRuled
+      } catch (e) {
+        isJuror = false
+        hasRuled = false
+      }
+    }
+
+    // get evidence
+    const evidence = await this.getEvidenceForArbitrableContract(arbitrableContractAddress)
+
+    // get deadline
+    const deadline = await this.getDeadlineForDispute(arbitratorAddress)
+
+    // get ruling
+    const ruling = await this._Arbitrator.currentRulingForDispute(disputeId, arbitratorAddress)
+
+    return ({
+      // FIXME hash not being stored in contract atm
+      hash: arbitrableContractAddress,
+      partyA: arbitrableContractData.partyA,
+      partyB: arbitrableContractData.partyB,
+      arbitrableContractStatus: arbitrableContractData.status,
+      disputeState: dispute.state,
+      arbitrableContractAddress: arbitrableContractAddress,
+      arbitratorAddress: arbitratorAddress,
+      fee: dispute.arbitrationFeePerJuror,
+      disputeId: disputeId,
+      session: dispute.firstSession + dispute.numberOfAppeals,
+      // FIXME
+      resolutionOptions: [
+        {
+          name: `Pay ${arbitrableContractData.partyA}`,
+          description: `Release funds to ${arbitrableContractData.partyA}`,
+          value: 1
+        },
+        {
+          name: `Pay ${arbitrableContractData.partyB}`,
+          description: `Release funds to ${arbitrableContractData.partyB}`,
+          value: 2
+        }
+      ],
+      deadline: deadline,
+      // store data
+      description: constractStoreData ? constractStoreData.description : undefined,
+      email: constractStoreData ? constractStoreData.email : undefined,
+      votes: votes,
+      isJuror: isJuror,
+      hasRuled: hasRuled,
+      ruling: ruling,
+      evidence: evidence
+    })
+  }
+}
+
+export default Disputes
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

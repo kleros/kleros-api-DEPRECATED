@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
-import config from '../config'
+import config from '../../config'
 
 /**
  * Contract wrapper
