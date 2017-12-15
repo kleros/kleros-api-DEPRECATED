@@ -113,7 +113,6 @@ class ArbitrableContract extends AbstractWrapper {
     const contractInstance = await this._loadArbitrableInstance(contractAddress)
 
     // fetch dispute resolution options
-    let resolutionOptions = []
     const statusNumber = (await contractInstance.status()).toNumber()
 
     // should this just be === ?
@@ -129,12 +128,12 @@ class ArbitrableContract extends AbstractWrapper {
     })
 
     const rulingOptions = disputeEvent._rulingOptions.split(';')
-    const optionIndex = 0
+    let optionIndex = 0
     const resolutionOptions = rulingOptions.map(option => {
       optionIndex += 1
       return {
         name: option,
-        value = optionIndex
+        value: optionIndex
       }
     })
 
