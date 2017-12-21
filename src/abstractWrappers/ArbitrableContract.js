@@ -127,12 +127,14 @@ class ArbitrableContract extends AbstractWrapper {
       contractInstance.Dispute({}, {fromBlock: 0, toBlock: 'latest'}).get((error, eventResult) => {
         if (error) reject(error)
         // this should be ok because there should only be 1 Dispute event per contract
-        resolve(eventResult)
+        resolve(eventResult[0])
       })
     })
 
+    if (!disputeEvent) return []
+
     // FIXME there should only be one create dispute event per contract for now. allow abstract number
-    const rulingOptions = disputeEvent[0].args._rulingOptions.split(';')
+    const rulingOptions = disputeEvent.args._rulingOptions.split(';')
     let optionIndex = 0
     const resolutionOptions = rulingOptions.map(option => {
       optionIndex += 1
