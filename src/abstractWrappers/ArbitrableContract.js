@@ -1,5 +1,8 @@
 import AbstractWrapper from './AbstractWrapper'
-import { DEFAULT_ARBITRATION_COST } from '../../constants'
+import {
+  DEFAULT_ARBITRATION_COST,
+  DISPUTE_STATUS
+} from '../../constants'
 
 /**
  * Arbitrable Contract api
@@ -104,8 +107,9 @@ class ArbitrableContract extends AbstractWrapper {
   }
 
   /**
-  *
-  *
+  * Get ruling options from dispute via event
+  * @param {string} contractAddress
+  * @returns {object[]} an array of objects that specify the name and value of the resolution option
   */
   getRulingOptions = async (
     contractAddress
@@ -115,8 +119,8 @@ class ArbitrableContract extends AbstractWrapper {
     // fetch dispute resolution options
     const statusNumber = (await contractInstance.status()).toNumber()
 
-    // should this just be === ?
-    if (statusNumber < DISPUTE_STATUS) return resolutionOptions
+    // should this just be !== ?
+    if (statusNumber < DISPUTE_STATUS) return []
 
     // FIXME we should have a block number to start from so we don't have to rip through the entire chain
     const disputeEvent = await new Promise((resolve, reject) => {
@@ -127,7 +131,8 @@ class ArbitrableContract extends AbstractWrapper {
       })
     })
 
-    const rulingOptions = disputeEvent._rulingOptions.split(';')
+    // FIXME there should only be one create dispute event per contract for now. allow abstract number
+    const rulingOptions = disputeEvent[0].args._rulingOptions.split(';')
     let optionIndex = 0
     const resolutionOptions = rulingOptions.map(option => {
       optionIndex += 1
