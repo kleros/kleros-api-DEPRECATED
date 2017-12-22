@@ -34,7 +34,7 @@ class Disputes extends AbstractWrapper {
     arbitrationCost = DEFAULT_ARBITRATION_COST
   ) => {
     this._checkArbitrableWrappersSet()
-    
+
     try {
       const txHash = await this._ArbitrableContract.payArbitrationFeeByPartyA(
         account,
@@ -139,7 +139,7 @@ class Disputes extends AbstractWrapper {
       await Promise.all(myDisputeContracts.map(async contractAddress => {
         await this._updateStoreForDispute(contractAddress, account)
       }))
-  
+
       // update session on profile
       profile = await this._StoreProvider.getUserProfile(account)
       profile.session = currentSession
@@ -406,7 +406,7 @@ class Disputes extends AbstractWrapper {
   * get data for a dispute
   * @param {string} arbitrableContract Address address for arbitrable contract
   * @param {string} account <optional> jurors address
-  * @return {Object} data object for dispute that uses data from the contract and store 
+  * @return {Object} data object for dispute that uses data from the contract and store
   */
   getDataForDispute = async (
     arbitrableContractAddress,
@@ -462,19 +462,6 @@ class Disputes extends AbstractWrapper {
       fee: dispute.arbitrationFeePerJuror,
       disputeId: disputeId,
       session: dispute.firstSession + dispute.numberOfAppeals,
-      // FIXME
-      resolutionOptions: [
-        {
-          name: `Pay ${arbitrableContractData.partyA}`,
-          description: `Release funds to ${arbitrableContractData.partyA}`,
-          value: 1
-        },
-        {
-          name: `Pay ${arbitrableContractData.partyB}`,
-          description: `Release funds to ${arbitrableContractData.partyB}`,
-          value: 2
-        }
-      ],
       deadline: deadline,
       // store data
       description: constractStoreData ? constractStoreData.description : undefined,

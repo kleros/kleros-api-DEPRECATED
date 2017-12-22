@@ -229,6 +229,10 @@ describe('Kleros', () => {
     expect(dispute.firstSession).toEqual((await klerosPOCInstance.session()).toNumber())
     expect(dispute.numberOfAppeals).toEqual(0)
 
+    // check fetch resolution options
+    const resolutionOptions = await KlerosInstance.arbitrableContract.getRulingOptions(contractArbitrableTransactionData.address)
+    expect(resolutionOptions.length).toEqual(2)
+
     // add an evidence for partyA
     // FIXME use arbitrableTransaction
     const testName = 'test name'

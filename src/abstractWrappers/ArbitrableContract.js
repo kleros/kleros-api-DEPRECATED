@@ -1,5 +1,8 @@
 import AbstractWrapper from './AbstractWrapper'
-import { DEFAULT_ARBITRATION_COST } from '../../constants'
+import {
+  DEFAULT_ARBITRATION_COST,
+  DISPUTE_STATUS
+} from '../../constants'
 
 /**
  * Arbitrable Contract api
@@ -102,13 +105,54 @@ class ArbitrableContract extends AbstractWrapper {
 
     return txHash
   }
-  
+
+  /**
+  * Get ruling options from dispute via event
+  * @param {string} contractAddress
+  * @returns {object[]} an array of objects that specify the name and value of the resolution option
+  */
+  getRulingOptions = async (
+    contractAddress
+  )  => {
+    const contractInstance = await this._loadArbitrableInstance(contractAddress)
+
+    // fetch dispute resolution options
+    const statusNumber = (await contractInstance.status()).toNumber()
+
+    // should this just be !== ?
+    if (statusNumber < DISPUTE_STATUS) return []
+
+    // FIXME we should have a block number to start from so we don't have to rip through the entire chain
+    const disputeEvent = await new Promise((resolve, reject) => {
+      contractInstance.Dispute({}, {fromBlock: 0, toBlock: 'latest'}).get((error, eventResult) => {
+        if (error) reject(error)
+        // this should be ok because there should only be 1 Dispute event per contract
+        resolve(eventResult[0])
+      })
+    })
+
+    if (!disputeEvent) return []
+
+    // FIXME there should only be one create dispute event per contract for now. allow abstract number
+    const rulingOptions = disputeEvent.args._rulingOptions.split(';')
+    let optionIndex = 0
+    const resolutionOptions = rulingOptions.map(option => {
+      optionIndex += 1
+      return {
+        name: option,
+        value: optionIndex
+      }
+    })
+
+    return resolutionOptions
+  }
+
   /**
   * Get data from the store and contract for Arbitrable Contract
   * @param {string} contractAddress address of Arbitrable Contract
   * @param {string} account ETH address of user
   * @return {object} contract data
-  */ 
+  */
   getData = async (
     contractAddress,
     account
