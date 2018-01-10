@@ -255,7 +255,7 @@ class KlerosWrapper extends ContractWrapper {
    * @param {string} contractAddress address of KlerosPOC contract
    * @param {number} disputeId index of the dispute
    * @param {string} account address of user
-   * @return {string} tx hash 
+   * @return {string} tx hash
    */
   appealRuling = async (
     contractAddress,
@@ -445,6 +445,26 @@ class KlerosWrapper extends ContractWrapper {
     const currentRuling = await contractInstance.currentRuling(disputeId)
 
     return currentRuling.toNumber()
+  }
+
+  getPeriod = async (
+    contractAddress
+  ) => {
+    const contractInstance = await this.load(contractAddress)
+
+    const currentPeriod = await contractInstance.period()
+
+    return currentPeriod.toNumber()
+  }
+
+  getSession = async (
+    contractAddress
+  ) => {
+    const contractInstance = await this.load(contractAddress)
+
+    const currentSession = await contractInstance.session()
+
+    return currentSession.toNumber()
   }
 
   /**
