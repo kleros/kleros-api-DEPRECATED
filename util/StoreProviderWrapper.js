@@ -57,18 +57,18 @@ class StoreProviderWrapper {
     return JSON.parse(httpResponse)
   }
 
-  getDisputeData = async (userAddress, hash) => {
+  getDisputeData = async (userAddress, arbitratorAddress, disputeId) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile) throw new Error(`No profile found for address: ${userAddress}`)
 
     let disputeData = _.filter(userProfile.disputes, (o) => {
-      return o.hash === hash
+      return (o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeId)
     })
 
     if (_.isEmpty(disputeData)) return null
     const httpResponse = await this._makeRequest(
       'GET',
-      `${this._storeUri}/disputes/${disputeData[0].hash}`
+      `${this._storeUri}/disputes/${arbitratorAddress}/${disputeId}`
     )
     return Object.assign({}, JSON.parse(httpResponse), disputeData[0])
   }
@@ -150,16 +150,18 @@ class StoreProviderWrapper {
   updateDisputeProfile = async (
     account,
     votes,
-    hash,
+    arbitratorAddress,
+    disputeId,
     isJuror,
     hasRuled
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
-      `${this._storeUri}/${account}/disputes/${hash}`,
+      `${this._storeUri}/${account}/disputes/${arbitratorAddress}/${disputeId}`,
       JSON.stringify({
         votes,
-        hash,
+        arbitratorAddress,
+        disputeId,
         isJuror,
         hasRuled
       })
@@ -171,6 +173,7 @@ class StoreProviderWrapper {
   // FIXME very complicated to update
   updateDispute = async (
     disputeId,
+    arbitratorAddress,
     hash,
     arbitrableContractAddress,
     partyA,
@@ -185,9 +188,10 @@ class StoreProviderWrapper {
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
-      `${this._storeUri}/disputes/${hash}`,
+      `${this._storeUri}/disputes/${arbitratorAddress}/${disputeId}`,
       JSON.stringify({
         disputeId,
+        arbitratorAddress,
         hash,
         contractAddress: arbitrableContractAddress,
         partyA,
@@ -212,11 +216,11 @@ class StoreProviderWrapper {
     const disputes = []
     for (let i=0; i<userProfile.disputes.length; i++) {
       const dispute = userProfile.disputes[i]
-      if (!dispute.hash) continue
+      if (!dispute.arbitratorAddress || !dispute.disputeId) continue
       // fetch dispute data
       const httpResponse = await this._makeRequest(
         'GET',
-        `${this._storeUri}/disputes/${dispute.hash}`
+        `${this._storeUri}/disputes/${arbitratorAddress}/${disputeId}`
       )
       disputes.push(
         Object.assign({}, JSON.parse(httpResponse), dispute)
