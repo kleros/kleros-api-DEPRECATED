@@ -45,8 +45,15 @@ class Disputes extends AbstractWrapper {
 
       if (!txHash) throw new Error('unable to pay arbitration fee for party A')
 
-      // update store if there is a dispute
-      await this._storeNewDispute(arbitrableContractAddress, account)
+      await this._storePendingDispute(arbitrableContractAddress, account)
+
+      const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)
+
+      if (arbitrableContractData.status === DISPUTE_STATUS) {
+        await this._updateStoreForDispute(arbitrableContractData.arbitrator, arbitrableContractData.disputeId, account)
+      } else {
+        this.watchForDisputes(arbitrableContractAddress)
+      }
 
       return txHash
     } catch (e) {
@@ -75,28 +82,62 @@ class Disputes extends AbstractWrapper {
     )
 
     if (!txHash) throw new Error('unable to pay arbitration fee for party B')
-    // FIXME race condition?
-    // update store if there is a dispute
-    await this._storeNewDispute(arbitrableContractAddress, account)
+
+    await this._storePendingDispute(arbitrableContractAddress, account)
+
+    const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)
+
+    if (arbitrableContractData.status === DISPUTE_STATUS) {
+      await this._updateStoreForDispute(arbitrableContractData.arbitrator, arbitrableContractData.disputeId, account)
+    } else {
+      this.watchForDisputes(arbitrableContractAddress)
+    }
 
     return txHash
+  }
+
+  _storePendingDispute = async (
+    arbitrableContractAddress,
+    account
+  ) => {
+    this._checkArbitrableWrappersSet()
+
+    const arbitratorAddress = await this._ArbitrableContract.getArbitrator(arbitrableContractAddress)
+
+    // update store to have a pending dispute (i.e. disputeId=-1)
+    // NOTE store can only hold one pending dispute per contract
+    await this._StoreProvider.updateDisputeProfile(
+      account,
+      [],
+      arbitratorAddress,
+      arbitrableContractAddress,
+      -1,
+      false,
+      false
+    )
   }
 
   /**
   * If there is a dispute in contract update store
   * FIXME contracts with multiple disputes will need a way to clarify that this is a new dispute
   * @param {string} contractAddress
-  * @param {string} account
   */
-  _storeNewDispute = async (
-    arbitratorAddress,
-    dipsuteId,
-    account
+  watchForDisputes = async (
+    arbitrableContractAddress,
   ) => {
-    this._checkArbitratorWrappersSet()
     this._checkArbitrableWrappersSet()
+    const contractInstance = await this._loadArbitrableInstance(arbitrableContractAddress)
 
-    await this._updateStoreForDispute(arbitratorAddress, disputeId, account)
+    contractInstance.Dispute({}, (error, result) => {
+      if (!error) {
+        if (result.event === 'Dispute') {
+          const disputeId = result.args._disputeID
+          const arbitratorAddress = result.args._arbitrator
+
+          this._updateStoreForDispute(arbitratorAddress, disputeId)
+        }
+      }
+    })
   }
 
   /**
@@ -253,11 +294,14 @@ class Disputes extends AbstractWrapper {
     )
 
     if (txHash) {
+      // FIXME don't like having to fetch data just to get the arbitratedContract
+      const disputeData = await this._Arbitrator.getDisputeData(arbitratorAddress, disputeId)
       // mark in store that you have ruled on dispute
       await this._StoreProvider.updateDisputeProfile(
         account,
         votes,
         arbitratorAddress,
+        disputeData.arbitratedContract,
         disputeId,
         true,
         true
@@ -331,6 +375,7 @@ class Disputes extends AbstractWrapper {
       [],
       disputeData.arbitratorAddress,
       disputeData.disputeId,
+      disputeData.arbitrableContractAddress,
       false,
       false
     )
@@ -341,6 +386,7 @@ class Disputes extends AbstractWrapper {
       [],
       disputeData.arbitratorAddress,
       disputeData.disputeId,
+      disputeData.arbitrableContractAddress,
       false,
       false
     )
@@ -351,6 +397,7 @@ class Disputes extends AbstractWrapper {
         jurorAddress,
         disputeData.votes,
         disputeData.arbitratorAddress,
+        disputeData.arbitrableContractAddress,
         disputeData.disputeId,
         disputeData.votes.length > 0 ? true : false,
         false

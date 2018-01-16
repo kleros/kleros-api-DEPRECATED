@@ -147,6 +147,14 @@ class ArbitrableContract extends AbstractWrapper {
     return resolutionOptions
   }
 
+  getArbitrator = async (
+    arbitrableContractAddress
+  ) => {
+    const contractInstance = await this._loadArbitrableInstance(arbitrableContractAddress)
+
+    return await contractInstance.arbitrator()
+  }
+
   /**
   * Get data from the store and contract for Arbitrable Contract
   * @param {string} contractAddress address of Arbitrable Contract
