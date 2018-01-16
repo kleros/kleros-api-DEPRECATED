@@ -228,7 +228,6 @@ class KlerosWrapper extends ContractWrapper {
     disputeId,
     ruling,
     votes,
-    hash,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
     const contractInstance = await this.load(contractAddress)
