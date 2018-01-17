@@ -37,7 +37,7 @@ describe('Disputes', () => {
     disputesInstance.setArbitrable = mockArbitrableContractWrapper
   })
 
-  test('getDisputeContractsForJuror is juror', async () => {
+  test('getDisputesForJuror is juror', async () => {
     const session = 1
     const numberOfAppeals = 0
     const fakeDisputes = [
@@ -77,12 +77,12 @@ describe('Disputes', () => {
       [1]
     ))
 
-    const disputes = await disputesInstance.getDisputeContractsForJuror(arbitratorAddress, account)
+    const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
     // check results
-    expect(disputes).toEqual([fakeDisputes[0].arbitratedContract])
+    expect(disputes).toEqual([0])
   })
 
-  test('getDisputeContractsForJuror not juror', async () => {
+  test('getDisputesForJuror not juror', async () => {
     const session = 1
     const numberOfAppeals = 0
     const fakeDisputes = [
@@ -122,12 +122,12 @@ describe('Disputes', () => {
       []
     ))
 
-    const disputes = await disputesInstance.getDisputeContractsForJuror(arbitratorAddress, account)
+    const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
     // check results
     expect(disputes).toEqual([])
   })
 
-  test('getDisputeContractsForJuror case selected with appeal', async () => {
+  test('getDisputesForJuror case selected with appeal', async () => {
     const session = 1
     const numberOfAppeals = 1
     const fakeDisputes = [
@@ -167,12 +167,12 @@ describe('Disputes', () => {
       [1]
     ))
 
-    const disputes = await disputesInstance.getDisputeContractsForJuror(arbitratorAddress, account)
+    const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
     // check results
-    expect(disputes).toEqual([fakeDisputes[0].arbitratedContract])
+    expect(disputes).toEqual([0])
   })
 
-  test('getDisputeContractsForJuror wrong session', async () => {
+  test('getDisputesForJuror wrong session', async () => {
     const session = 1
     const numberOfAppeals = 0
     const fakeDisputes = [
@@ -212,7 +212,7 @@ describe('Disputes', () => {
       [1]
     ))
 
-    const disputes = await disputesInstance.getDisputeContractsForJuror(arbitratorAddress, account)
+    const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
     // check results
     expect(disputes).toEqual([])
   })

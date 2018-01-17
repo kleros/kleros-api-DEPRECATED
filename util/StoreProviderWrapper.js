@@ -68,7 +68,7 @@ class StoreProviderWrapper {
     if (_.isEmpty(disputeData)) return null
     const httpResponse = await this._makeRequest(
       'GET',
-      `${this._storeUri}/disputes/${arbitratorAddress}/${disputeId}`
+      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
     )
     return Object.assign({}, JSON.parse(httpResponse), disputeData[0])
   }
@@ -157,7 +157,7 @@ class StoreProviderWrapper {
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
-      `${this._storeUri}/${account}/disputes/${arbitratorAddress}/${disputeId}`,
+      `${this._storeUri}/${account}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`,
       JSON.stringify({
         votes,
         arbitratorAddress,
@@ -188,7 +188,7 @@ class StoreProviderWrapper {
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
-      `${this._storeUri}/disputes/${arbitratorAddress}/${disputeId}`,
+      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`,
       JSON.stringify({
         disputeId,
         arbitratorAddress,
@@ -214,13 +214,14 @@ class StoreProviderWrapper {
     if (!userProfile) return []
 
     const disputes = []
+    console.log(userProfile.disputes)
     for (let i=0; i<userProfile.disputes.length; i++) {
       const dispute = userProfile.disputes[i]
-      if (!dispute.arbitratorAddress || !dispute.disputeId) continue
+      if (!dispute.arbitratorAddress || _.isNil(dispute.disputeId)) continue
       // fetch dispute data
       const httpResponse = await this._makeRequest(
         'GET',
-        `${this._storeUri}/disputes/${arbitratorAddress}/${disputeId}`
+        `${this._storeUri}/arbitrators/${dispute.arbitratorAddress}/disputes/${dispute.disputeId}`
       )
       disputes.push(
         Object.assign({}, JSON.parse(httpResponse), dispute)
@@ -237,7 +238,17 @@ class StoreProviderWrapper {
     )
 
     const arbitratorData = JSON.parse(httpResponse)
-    return arbitratorData.lastBlock
+    return arbitratorData ? arbitratorData.lastBlock : 0
+  }
+
+  updateLastBlock = async (arbitratorAddress, disputeId) => {
+    const httpResponse = await this._makeRequest(
+      'POST',
+      `${this._storeUri}/arbitrators/${arbitratorAddress}`,
+      JSON.stringify({
+        disputeId
+      })
+    )
   }
 }
 

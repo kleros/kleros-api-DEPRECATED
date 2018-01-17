@@ -60,7 +60,7 @@ class ContractWrapper {
 
     const MyContract = contract({
       abi: artifact.abi,
-      unlinked_binary: artifact.unlinked_binary,
+      unlinked_binary: artifact.bytecode,
     })
 
     const provider = await this._Web3Wrapper.getProvider()
