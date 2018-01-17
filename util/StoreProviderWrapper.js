@@ -229,6 +229,16 @@ class StoreProviderWrapper {
 
     return disputes
   }
+
+  getLastBlock = async arbitratorAddress => {
+    const httpResponse = await this._makeRequest(
+      'GET',
+      `${this._storeUri}/arbitrators/${arbitratorAddress}`
+    )
+
+    const arbitratorData = JSON.parse(httpResponse)
+    return arbitratorData.lastBlock
+  }
 }
 
 export default StoreProviderWrapper

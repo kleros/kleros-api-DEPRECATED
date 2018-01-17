@@ -79,6 +79,10 @@ class ContractWrapper {
       throw new Error(e)
     }
   }
+
+  _getCurrentBlockNumber = () => {
+    return this._Web3Wrapper.blockNumber()
+  }
 }
 
 export default ContractWrapper
