@@ -51,11 +51,15 @@ class Disputes extends AbstractWrapper {
     }
 
     // WATCH FOR NEW DISPUTES
-    contractInstance.DisputeCreation().watch((error, result) => {
+    contractInstance.allEvents().watch((error, result) => {
       if (!error) {
-        const disputeId = result.args._disputeID
+        console.log('event!')
+        console.log(result.event)
+        if (result.event === 'DisputeCreation') {
+          const disputeId = result.args._disputeID
+          this._updateStoreForDispute(arbitratorAddress, disputeId)
+        }
 
-        this._updateStoreForDispute(arbitratorAddress, disputeId)
         this._StoreProvider.updateLastBlock(arbitratorAddress, result.blockNumber)
       }
     })
@@ -149,9 +153,9 @@ class Disputes extends AbstractWrapper {
 
     if (currentSession != profile.session) {
       // get disputes for juror
-      const myDisputeContracts = await this.getDisputesForJuror(arbitratorAddress, account)
+      const myDisputeIds = await this.getDisputesForJuror(arbitratorAddress, account)
       // update store for each dispute
-      await Promise.all(myDisputeContracts.map(async disputeId => {
+      await Promise.all(myDisputeIds.map(async disputeId => {
         await this._updateStoreForDispute(arbitratorAddress, disputeId, account)
       }))
 
@@ -205,7 +209,7 @@ class Disputes extends AbstractWrapper {
          const votes = await this.getVotesForJuror(arbitratorAddress, disputeId, account)
          if (votes.length > 0) {
            myDisputes.push(
-             dispute.disputeId
+             disputeId
            )
          }
          // check next dispute
@@ -383,7 +387,7 @@ class Disputes extends AbstractWrapper {
   * @return {object} dispute data from store for user
   */
   getUserDisputeFromStore = async (
-    arbitratorAddress
+    arbitratorAddress,
     disputeId,
     account
   ) => {
