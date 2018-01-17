@@ -436,8 +436,8 @@ class KlerosWrapper extends ContractWrapper {
   * @return {number} int indicating the ruling of the dispute
   */
   currentRulingForDispute = async (
-    disputeId,
     contractAddress,
+    disputeId,
   ) => {
     const contractInstance = await this.load(contractAddress)
 
