@@ -280,7 +280,6 @@ describe('Kleros', () => {
     for (let i=1; i<3; i++) {
       // NOTE we need to make another block before we can generate the random number. Should not be an issue on main nets where avg block time < period length
       if (i == 2) web3.eth.sendTransaction({from: partyA, to: partyB, value: 10000, data: '0x'})
-      // delay a second so period is eligible to be passed
       await delaySecond()
       newState = await KlerosInstance.arbitrator.passPeriod(klerosCourt.address, other)
       expect(newState.period).toEqual(i)
@@ -294,7 +293,6 @@ describe('Kleros', () => {
     expect(disputesForJuror[0].arbitrableContractAddress).toEqual(contractArbitrableTransactionData.address)
     expect(disputesForJuror[0].votes).toEqual([1,2,3])
 
-    console.log("submit ruling")
     // partyA wins
     const ruling = 1
     const submitTxHash = await KlerosInstance.disputes.submitVotesForDispute(
@@ -302,11 +300,9 @@ describe('Kleros', () => {
       0,
       ruling,
       [1],
-      contractArbitrableTransactionData.address, // FIXME using address for hash right now
       juror
     )
 
-    console.log('cleared')
     expect(submitTxHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
@@ -323,7 +319,6 @@ describe('Kleros', () => {
 
     // TODO test appeal
 
-    console.log("get ruling")
     // delay 1 second
     await delaySecond()
     // move to execute period
@@ -343,5 +338,8 @@ describe('Kleros', () => {
 
     const updatedContractData = await KlerosInstance.arbitrableContract.getData(contractArbitrableTransactionData.address)
     expect(parseInt(updatedContractData.status)).toEqual(4)
+
+    // stop listening for new disputes
+    KlerosInstance.disputes.stopWatchingForDisputes()
   }, 50000)
 })
