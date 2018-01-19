@@ -20,6 +20,7 @@ class Disputes extends AbstractWrapper {
   constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
     super(storeProvider, arbitratorWrapper, arbitrableWrapper)
     this._disputeWatchers = {}
+    this.disputeWatcher
   }
 
   /**
@@ -35,10 +36,11 @@ class Disputes extends AbstractWrapper {
     const lastBlock = await this._StoreProvider.getLastBlock(arbitratorAddress)
     const currentBlock = this._Arbitrator._getCurrentBlockNumber()
     const contractInstance = await this._loadArbitratorInstance(arbitratorAddress)
+    this.disputeWatcher = contractInstance.DisputeCreation({}, {fromBlock: lastBlock, toBlock: 'latest'})
 
     if (lastBlock < currentBlock) {
       // FETCH DISPUTES WE MIGHT HAVE MISSED
-      contractInstance.DisputeCreation({}, {fromBlock: lastBlock, toBlock: 'latest'}).get((error, eventResult) => {
+      this.disputeWatcher.get((error, eventResult) => {
         if (!error) {
           eventResult.map(event => {
             // add new dispute to store
@@ -51,18 +53,18 @@ class Disputes extends AbstractWrapper {
     }
 
     // WATCH FOR NEW DISPUTES
-    contractInstance.allEvents().watch((error, result) => {
+    this.disputeWatcher.watch((error, result) => {
       if (!error) {
-        console.log('event!')
-        console.log(result.event)
-        if (result.event === 'DisputeCreation') {
-          const disputeId = result.args._disputeID
-          this._updateStoreForDispute(arbitratorAddress, disputeId)
-        }
+        const disputeId = result.args._disputeID
+        this._updateStoreForDispute(arbitratorAddress, disputeId)
 
         this._StoreProvider.updateLastBlock(arbitratorAddress, result.blockNumber)
       }
     })
+  }
+
+  stopWatchingForDisputes = () => {
+    this.disputeWatcher.stopWatching()
   }
 
   /**
@@ -274,7 +276,7 @@ class Disputes extends AbstractWrapper {
 
     if (txHash) {
       // FIXME don't like having to fetch data just to get the arbitratedContract
-      const disputeData = await this._Arbitrator.getDisputeData(arbitratorAddress, disputeId)
+      const disputeData = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
       // mark in store that you have ruled on dispute
       await this._StoreProvider.updateDisputeProfile(
         account,

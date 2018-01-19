@@ -214,7 +214,6 @@ class StoreProviderWrapper {
     if (!userProfile) return []
 
     const disputes = []
-    console.log(userProfile.disputes)
     for (let i=0; i<userProfile.disputes.length; i++) {
       const dispute = userProfile.disputes[i]
       if (!dispute.arbitratorAddress || _.isNil(dispute.disputeId)) continue

@@ -167,7 +167,8 @@ class ArbitrableContract extends AbstractWrapper {
   ) => {
     const contractData = await this._ArbitrableContract.getData(contractAddress)
 
-    const storeData = await this._StoreProvider.getContractByAddress(account, contractAddress)
+    let storeData = {}
+    if (account) storeData = await this._StoreProvider.getContractByAddress(account, contractAddress)
 
     return Object.assign({}, storeData, contractData)
   }
