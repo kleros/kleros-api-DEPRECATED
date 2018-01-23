@@ -80,8 +80,20 @@ class ContractWrapper {
     }
   }
 
-  _getCurrentBlockNumber = () => {
-    return this._Web3Wrapper.blockNumber()
+  /**
+   * Metamask safe, syncronous method to fetch current block number
+   * @return {number} current block number
+   */
+  _getCurrentBlockNumber = async () => {
+    return await new Promise((resolve, reject) => {
+      this._Web3Wrapper._web3.eth.getBlockNumber((error, result) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(result)
+        }
+      })
+    })
   }
 }
 

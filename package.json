@@ -1,6 +1,6 @@
 {
   "name": "kleros-api",
-  "version": "0.0.49",
+  "version": "0.0.50",
   "description": "Kleros API",
   "main": "lib/kleros-api.js",
   "scripts": {
@@ -75,7 +75,7 @@
     "ethereumjs-testrpc": "^4.1.1",
     "global": "^4.3.2",
     "jest": "^20.0.4",
-    "kleros": "^0.0.4",
+    "kleros": "^0.0.5",
     "kleros-interaction": "^0.0.8",
     "lodash": "^4.17.4",
     "truffle-contract": "^2.0.5",

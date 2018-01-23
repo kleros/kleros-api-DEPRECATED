@@ -240,12 +240,12 @@ class StoreProviderWrapper {
     return arbitratorData ? arbitratorData.lastBlock : 0
   }
 
-  updateLastBlock = async (arbitratorAddress, disputeId) => {
+  updateLastBlock = async (arbitratorAddress, lastBlock) => {
     const httpResponse = await this._makeRequest(
       'POST',
       `${this._storeUri}/arbitrators/${arbitratorAddress}`,
       JSON.stringify({
-        disputeId
+        lastBlock
       })
     )
   }
