@@ -177,6 +177,57 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   }
 
   /**
+  * Get ruling options from dispute via event
+  * FIXME this can be an abstract method as it is in the standard
+  * @param {string} arbitrableContractAddress address of the arbitrable contract
+  * @param {string} arbitratorAddress address of arbitrator contract
+  * @param {number} disputeId index of dispute
+  * @returns {object[]} an array of objects that specify the name and value of the resolution option
+  */
+  getRulingOptions = async (
+    arbitrableContractAddress,
+    arbitratorAddress,
+    disputeId
+  )  => {
+    const contractInstance = await this.load(arbitrableContractAddress)
+
+    // fetch dispute resolution options
+    const statusNumber = (await contractInstance.status()).toNumber()
+
+    // should this just be !== ?
+    if (statusNumber < DISPUTE_STATUS) return []
+
+    // FIXME we should have a block number to start from so we don't have to rip through the entire chain
+    const disputeEvents = await new Promise((resolve, reject) => {
+      contractInstance.Dispute({}, {fromBlock: 0, toBlock: 'latest'}).get((error, eventResult) => {
+        if (error) reject(error)
+
+        resolve(eventResult)
+      })
+    })
+
+    const disputeOption = _.filter(disputeEvents, event => {
+      const optionDisputeId = event.args._disputeID.toNumber()
+      // filter by arbitrator address and disputeId
+      return (event.args._arbitrator === arbitratorAddress && optionDisputeId === disputeId)
+    })
+    // should only be 1 at this point
+    if (disputeOption.length !== 1) return []
+
+    const rulingOptions = disputeOption[0].args._rulingOptions.split(';')
+    let optionIndex = 0
+    const resolutionOptions = rulingOptions.map(option => {
+      optionIndex += 1
+      return {
+        name: option,
+        value: optionIndex
+      }
+    })
+
+    return resolutionOptions
+  }
+
+  /**
   * Data of the contract
   * @param {string} account Address of the party.
   * @param {string} address Address of the ArbitrableTransaction contract.

@@ -43,6 +43,7 @@ class StoreProviderWrapper {
       `${this._storeUri}/${address}`,
       JSON.stringify(userProfile)
     )
+
     return JSON.parse(httpResponse)
   }
 

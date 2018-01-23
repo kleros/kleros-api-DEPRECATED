@@ -70,7 +70,7 @@ class Disputes extends AbstractWrapper {
   * stop watching for disputes
   */
   stopWatchingForDisputes = () => {
-    if (!_isWatchingDisputes) return
+    if (!this._isWatchingDisputes) return
 
     this.disputeWatcher.stopWatching()
     this._isWatchingDisputes = false
@@ -439,6 +439,23 @@ class Disputes extends AbstractWrapper {
     const partyBEvidence = partyBContractData ? partyBContractData.evidences : []
 
     return partyAEvidence.concat(partyBEvidence)
+  }
+
+  getRulingOptions = async (
+    arbitratorAddress,
+    disputeId
+  ) => {
+    const dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
+    if (!dispute) {
+      throw new Error(`Cannot fetch ruling options: Dispute from arbitrator ${arbitratorAddress} with disputeId: ${disputeId} does not exist`)
+    }
+    const arbitrableContractAddress = dispute.arbitratedContract
+
+    return await this._ArbitrableContract.getRulingOptions(
+      arbitrableContractAddress,
+      arbitratorAddress,
+      disputeId
+    )
   }
 
   /**
