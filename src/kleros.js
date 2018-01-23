@@ -29,6 +29,7 @@ class Kleros {
     ethereumProvider = LOCALHOST_ETH_PROVIDER,
     storeProvider = LOCALHOST_STORE_PROVIDER
   ) {
+    console.log(storeProvider)
     this._web3Wrapper = new Web3Wrapper(ethereumProvider)
     this._storeWrapper = new StoreProviderWrapper(storeProvider)
     // low level contract api

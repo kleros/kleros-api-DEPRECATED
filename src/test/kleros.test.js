@@ -233,7 +233,7 @@ describe('Kleros', () => {
     expect(dispute.numberOfAppeals).toEqual(0)
 
     // check fetch resolution options
-    const resolutionOptions = await KlerosInstance.arbitrableContract.getRulingOptions(contractArbitrableTransactionData.address)
+    const resolutionOptions = await KlerosInstance.disputes.getRulingOptions(klerosCourt.address, 0)
     expect(resolutionOptions.length).toEqual(2)
 
     // add an evidence for partyA
