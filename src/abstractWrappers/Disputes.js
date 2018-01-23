@@ -19,8 +19,8 @@ class Disputes extends AbstractWrapper {
    */
   constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
     super(storeProvider, arbitratorWrapper, arbitrableWrapper)
-    this._disputeWatchers = {}
     this.disputeWatcher
+    this._isWatchingDisputes = false
   }
 
   /**
@@ -32,13 +32,15 @@ class Disputes extends AbstractWrapper {
     arbitratorAddress,
   ) => {
     this._checkArbitratorWrappersSet()
+    // don't need to add another listener if we already have one
+    if (this._isWatchingDisputes) return
 
     const lastBlock = await this._StoreProvider.getLastBlock(arbitratorAddress)
-    const currentBlock = this._Arbitrator._getCurrentBlockNumber()
+    const currentBlock = await this._Arbitrator._getCurrentBlockNumber()
     const contractInstance = await this._loadArbitratorInstance(arbitratorAddress)
     this.disputeWatcher = contractInstance.DisputeCreation({}, {fromBlock: lastBlock, toBlock: 'latest'})
 
-    if (lastBlock < currentBlock) {
+    if (!lastBlock || lastBlock < currentBlock) {
       // FETCH DISPUTES WE MIGHT HAVE MISSED
       this.disputeWatcher.get((error, eventResult) => {
         if (!error) {
@@ -61,10 +63,17 @@ class Disputes extends AbstractWrapper {
         this._StoreProvider.updateLastBlock(arbitratorAddress, result.blockNumber)
       }
     })
+    this._isWatchingDisputes = true
   }
 
+  /**
+  * stop watching for disputes
+  */
   stopWatchingForDisputes = () => {
+    if (!_isWatchingDisputes) return
+
     this.disputeWatcher.stopWatching()
+    this._isWatchingDisputes = false
   }
 
   /**
@@ -196,6 +205,7 @@ class Disputes extends AbstractWrapper {
     let dispute
     while (1) {
       // iterate over all disputes (FIXME inefficient)
+      // IDEA iterate over DisputeCreated events between last session and this session
       try {
          dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
          if (dispute.arbitratedContract === NULL_ADDRESS) break
