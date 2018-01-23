@@ -7,6 +7,8 @@ cache:
 script:
   - yarn build
   - yarn test
+notifications:
+  slack: kleros:Ub8n81EgKJ3iRrMDyWyQIVJp
 addons:
   apt:
     sources:
@@ -15,5 +17,3 @@ install:
   - yarn
   - nohup yarn run testrpc &
 https://github.com/kleros/kleros-api.git
-notifications:
-  slack: kleros:Ub8n81EgKJ3iRrMDyWyQIVJp
