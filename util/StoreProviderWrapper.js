@@ -250,6 +250,27 @@ class StoreProviderWrapper {
       })
     )
   }
+
+  newNotification = async (
+    account,
+    notificationType,
+    message = '',
+    data = {},
+    read = false,
+  ) => {
+    const httpResponse = await this._makeRequest(
+      'POST',
+      `${this._storeUri}/${account}/notifications`,
+      JSON.stringify({
+        notificationType,
+        read,
+        message,
+        data
+      })
+    )
+
+    return JSON.parse(httpResponse)
+  }
 }
 
 export default StoreProviderWrapper

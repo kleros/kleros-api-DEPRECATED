@@ -13,8 +13,9 @@ class EventListeners extends AbstractWrapper {
     this._arbitratorEventMap = {}
     this._arbitrableEventMap = {}
     // key: contract address, value: true/false
-    this._arbitratorEventsWatchers = {}
-    this._arbitrableEventsWatchers = {}
+    this._arbitratorEventsWatcher
+    this._arbitratorAddress
+    this._arbitrableEventsWatcher
   }
 
   /** Update store for events we missed and watch for events on arbitrator contract.
@@ -27,7 +28,7 @@ class EventListeners extends AbstractWrapper {
   ) => {
     this._checkArbitratorWrappersSet()
     // don't need to add another listener if we already have one
-    if (this._arbitratorEventsWatchers[arbitratorAddress]) return
+    if (this._arbitratorEventsWatcher) return
 
     const lastBlock = await this._StoreProvider.getLastBlock(arbitratorAddress)
     const currentBlock = await this._Arbitrator._getCurrentBlockNumber()
@@ -68,14 +69,16 @@ class EventListeners extends AbstractWrapper {
         this._StoreProvider.updateLastBlock(arbitratorAddress, result.blockNumber)
       }
     })
-    this._arbitratorEventsWatchers[arbitratorAddress] = eventWatcher
+    this._arbitratorAddress = arbitratorAddress
+    this._arbitratorEventsWatcher = eventWatcher
   }
 
   /** stop listening on contract
   *   @param {string} arbitratorAddress address of arbitrator contract
   */
   stopWatchingArbitratorEvents = arbitratorAddress => {
-    if (this._arbitratorEventsWatchers[arbitratorAddress]) this._arbitratorEventsWatchers[arbitratorAddress].stopWatching()
+    if (this._arbitratorEventsWatcher) this._arbitratorEventsWatcher.stopWatching()
+    this._arbitratorAddress = null
   }
 
   /** register event listener callback for event

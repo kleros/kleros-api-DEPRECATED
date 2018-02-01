@@ -20,17 +20,25 @@ class Notifications extends AbstractWrapper {
   // *         Public           * //
   // **************************** //
   /**
-  * Start listening to blockchain events for arbitrator.
-  * @param {string} arbitratorAddress address of arbitrator contract
+  * start listening for events
+  * @param {string} arbitratorAddress address of arbitrator
+  */
+  listenForEvents = async (
+    arbitratorAddress
+  ) => {
+    this._eventListener.watchForArbitratorEvents(arbitratorAddress)
+  }
+
+  /**
+  * register event listeners for arbitrator.
   * @param {string} account filter notifications for account
   * @param {function} callback if we want notifications to be "pushed" provide a callback function to call when a new notificiation is created
   */
   registerNotificationListeners = async (
-    arbitratorAddress,
     account,
     callback
   ) => {
-    // Register all of the callbacks
+    // Register all of the callbacks TODO DRY this out a little
     // await this._eventListener.registerArbitrableEvent('NewPeriod', (args) => this._newPeriodHandler(args, callback))
     await this._eventListener.registerArbitratorEvent('DisputeCreation', this._createHandler(this._disputeCreationHandler, account, callback))
     await this._eventListener.registerArbitratorEvent('AppealPossible', this._createHandler(this._appealPossibleHandler, account, callback))
@@ -101,13 +109,15 @@ class Notifications extends AbstractWrapper {
   // **************************** //
   // *        Handlers          * //
   // **************************** //
-
   _newPeriodHandler = async (eventArgs, account, callback) => {}
-  _disputeCreationHandler = async (eventArgs, account, callback) => {}
+
+  _disputeCreationHandler = async (eventArgs, account, callback) => {
+
+  }
   _appealPossibleHandler = async (eventArgs, account, callback) => {}
   _appealingDecisionHandler = async (eventArgs, account, callback) => {}
   _tokenShiftHandler = async (eventArgs, account, callback) => {}
   _arbitrationRewardHandler = async (eventArgs, account, callback) => {}
 }
 
-export defaul Notifications
+export default Notifications

@@ -17,7 +17,7 @@ class Disputes extends AbstractWrapper {
    * @param {object} arbitratorWrapper arbitrator contract wrapper object
    * @param {object} arbitrableWrapper arbitrable contract wrapper object
    */
-  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
+  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper, eventListener) {
     super(storeProvider, arbitratorWrapper, arbitrableWrapper, eventListener)
   }
 
@@ -314,7 +314,6 @@ class Disputes extends AbstractWrapper {
     disputeId,
     jurorAddress
   ) => {
-    console.log("here")
     const disputeData = await this.getDataForDispute(
       arbitratorAddress,
       disputeId,
