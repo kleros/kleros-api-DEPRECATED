@@ -433,8 +433,15 @@ describe('Kleros', () => {
     const updatedContractData = await KlerosInstance.arbitrableContract.getData(contractArbitrableTransactionData.address)
     expect(parseInt(updatedContractData.status)).toEqual(4)
 
-    // check if notifications were received
-    expect(notifications.length).toBe(1)
+    // NOTIFICATIONS
+    expect(notifications.length).toBeTruthy()
+    const allNotifications = await KlerosInstance.notifications.getNoticiations(partyA)
+    expect(allNotifications.length).toBe(notifications.length)
+    let unreadNotification = await KlerosInstance.notifications.getUnreadNoticiations(partyA)
+    expect(unreadNotification).toEqual(allNotifications)
+    await KlerosInstance.notifications.markNotificationAsRead(partyA, allNotifications[0].txHash)
+    unreadNotification = await KlerosInstance.notifications.getUnreadNoticiations(partyA)
+    expect(unreadNotification.length).toBe(notifications.length - 1)
     // stop listening for new disputes
     KlerosInstance.disputes.stopWatchingForDisputes(klerosCourt.address)
   }, 50000)

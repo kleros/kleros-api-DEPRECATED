@@ -63,26 +63,26 @@ class Notifications extends AbstractWrapper {
     account
   ) => {
     const profile = await this._StoreProvider.getUserProfile(account)
-    return _.filter(profile, notification => {
+    return _.filter(profile.notifications, notification => {
       return !notification.read
     })
   }
 
   markNotificationAsRead = async (
     account,
-    notificationId
+    txHash
   ) => {
     const profile = await this._StoreProvider.getUserProfile(account)
-    const notificationIndex = _.findIndex(profile.notifications, notification => {
-      return notification.notificationId === notificationId
+    const notificationIndex = await _.findIndex(profile.notifications, notification => {
+      return notification.txHash === txHash
     })
 
-    if (!notificationId) {
-      throw new Error(`No notification with id ${notificationId} exists`)
+    if (_.isNull(notificationIndex)) {
+      throw new Error(`No notification with txHash ${txHash} exists`)
     }
 
     profile.notifications[notificationIndex].read = true
-    this._StoreProvider.updateUserProfile(account, profile)
+    await this._StoreProvider.updateUserProfile(account, profile)
   }
 
   /**
