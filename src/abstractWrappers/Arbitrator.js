@@ -9,9 +9,10 @@ class Arbitrator extends AbstractWrapper {
    * Arbitrator Constructor
    * @param {object} storeProvider store provider object
    * @param {object} arbitratorWrapper arbitrator contract wrapper object
+   * @param {object} eventListener event listener object
    */
-  constructor(storeProvider, arbitratorWrapper) {
-    super(storeProvider, arbitratorWrapper, undefined)
+  constructor(storeProvider, arbitratorWrapper, eventListener) {
+    super(storeProvider, arbitratorWrapper, undefined, eventListener)
   }
 
   // passthroughs

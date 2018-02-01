@@ -18,9 +18,7 @@ class Disputes extends AbstractWrapper {
    * @param {object} arbitrableWrapper arbitrable contract wrapper object
    */
   constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
-    super(storeProvider, arbitratorWrapper, arbitrableWrapper)
-    this.disputeWatcher
-    this._isWatchingDisputes = false
+    super(storeProvider, arbitratorWrapper, arbitrableWrapper, eventListener)
   }
 
   /**
@@ -29,51 +27,31 @@ class Disputes extends AbstractWrapper {
   * @param {string} arbitratorAddress
   */
   watchForDisputes = async (
-    arbitratorAddress,
+    arbitratorAddress
   ) => {
-    this._checkArbitratorWrappersSet()
-    // don't need to add another listener if we already have one
-    if (this._isWatchingDisputes) return
+    if (!this._eventListener) return
 
-    const lastBlock = await this._StoreProvider.getLastBlock(arbitratorAddress)
-    const currentBlock = await this._Arbitrator._getCurrentBlockNumber()
-    const contractInstance = await this._loadArbitratorInstance(arbitratorAddress)
-    this.disputeWatcher = contractInstance.DisputeCreation({}, {fromBlock: lastBlock, toBlock: 'latest'})
-
-    if (!lastBlock || lastBlock < currentBlock) {
-      // FETCH DISPUTES WE MIGHT HAVE MISSED
-      this.disputeWatcher.get((error, eventResult) => {
-        if (!error) {
-          eventResult.map(event => {
-            // add new dispute to store
-            this._updateStoreForDispute(arbitratorAddress, event.args._disputeID)
-          })
-
-          this._StoreProvider.updateLastBlock(arbitratorAddress, currentBlock)
-        }
-      })
+    const _disputeCreatedHandler = (
+      eventArgs,
+      contractAddress = arbitratorAddress
+    ) => {
+      const disputeId = eventArgs._disputeID.toNumber()
+      const arbitratorAddress = contractAddress
+      this._updateStoreForDispute(arbitratorAddress, disputeId)
     }
 
-    // WATCH FOR NEW DISPUTES
-    this.disputeWatcher.watch((error, result) => {
-      if (!error) {
-        const disputeId = result.args._disputeID
-        this._updateStoreForDispute(arbitratorAddress, disputeId)
-
-        this._StoreProvider.updateLastBlock(arbitratorAddress, result.blockNumber)
-      }
-    })
-    this._isWatchingDisputes = true
+    await this._eventListener.registerArbitratorEvent('DisputeCreation', _disputeCreatedHandler)
+    // start event listener for arbitrator contract
+    this._eventListener.watchForArbitratorEvents(arbitratorAddress)
   }
 
   /**
   * stop watching for disputes
   */
-  stopWatchingForDisputes = () => {
-    if (!this._isWatchingDisputes) return
-
-    this.disputeWatcher.stopWatching()
-    this._isWatchingDisputes = false
+  stopWatchingForDisputes = (
+    arbitratorAddress
+  ) => {
+    this._eventListener.stopWatchingArbitratorEvents(arbitratorAddress)
   }
 
   /**
@@ -336,6 +314,7 @@ class Disputes extends AbstractWrapper {
     disputeId,
     jurorAddress
   ) => {
+    console.log("here")
     const disputeData = await this.getDataForDispute(
       arbitratorAddress,
       disputeId,

@@ -423,6 +423,6 @@ describe('Kleros', () => {
     expect(parseInt(updatedContractData.status)).toEqual(4)
 
     // stop listening for new disputes
-    KlerosInstance.disputes.stopWatchingForDisputes()
+    KlerosInstance.disputes.stopWatchingForDisputes(klerosCourt.address)
   }, 50000)
 })
