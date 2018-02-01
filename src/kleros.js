@@ -8,7 +8,7 @@ import DisputesApi from './abstractWrappers/Disputes'
 import ArbitratorApi from './abstractWrappers/Arbitrator'
 import ArbitrableContractApi from './abstractWrappers/ArbitrableContract'
 import EventListeners from './abstractWrappers/EventListeners'
-import Notificiations from './abstractWrappers/Notifications'
+import Notifications from './abstractWrappers/Notifications'
 import { LOCALHOST_STORE_PROVIDER, LOCALHOST_ETH_PROVIDER } from '../constants'
 
 class Kleros {
@@ -46,7 +46,7 @@ class Kleros {
     this.disputes = new DisputesApi(this._storeWrapper, this.klerosPOC, this.arbitrableTransaction, eventListener)
     this.arbitrator = new ArbitratorApi(this._storeWrapper, this.klerosPOC, eventListener)
     this.arbitrableContract = new ArbitrableContractApi(this._storeWrapper, this.arbitrableTransaction, eventListener)
-    this.notifications = new Notificiations(this._storeWrapper, this.klerosPOC, this.arbitrableTransaction, eventListener)
+    this.notifications = new Notifications(this._storeWrapper, this.klerosPOC, this.arbitrableTransaction, eventListener)
   }
 
   getWeb3Wrapper = () => this._web3Wrapper

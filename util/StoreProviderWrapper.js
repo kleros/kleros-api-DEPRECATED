@@ -253,6 +253,7 @@ class StoreProviderWrapper {
 
   newNotification = async (
     account,
+    txHash,
     notificationType,
     message = '',
     data = {},
@@ -260,7 +261,7 @@ class StoreProviderWrapper {
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
-      `${this._storeUri}/${account}/notifications`,
+      `${this._storeUri}/${account}/notifications/${txHash}`,
       JSON.stringify({
         notificationType,
         read,
@@ -269,7 +270,7 @@ class StoreProviderWrapper {
       })
     )
 
-    return JSON.parse(httpResponse)
+    return httpResponse
   }
 }
 

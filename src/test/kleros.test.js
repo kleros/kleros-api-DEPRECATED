@@ -14,6 +14,8 @@ describe('Kleros', () => {
   let web3
   let KlerosInstance
   let storeProvider
+  let notificationCallback
+  let notifications = []
 
   beforeAll(async () => {
     // use testRPC
@@ -29,6 +31,10 @@ describe('Kleros', () => {
     other = web3.eth.accounts[3]
 
     storeProvider = await KlerosInstance.getStoreWrapper()
+
+    notificationCallback = notification => {
+      notifications.push(notification)
+    }
   })
 
   beforeEach(async () => {
@@ -212,7 +218,12 @@ describe('Kleros', () => {
     const klerosPOCInstance = await KlerosInstance.klerosPOC.load(klerosCourt.address)
 
     // initialize dispute watcher
-    KlerosInstance.disputes.watchForDisputes(klerosCourt.address)
+    await KlerosInstance.disputes.addDisputeEventListener(klerosCourt.address)
+    await KlerosInstance.notifications.registerNotificationListeners(
+      partyA,
+      notificationCallback
+    )
+    await KlerosInstance.notifications.listenForEvents(klerosCourt.address)
 
     // Juror should have no balance to start with
     const initialBalance = await KlerosInstance.arbitrator.getPNKBalance(klerosCourt.address, juror)
@@ -422,6 +433,8 @@ describe('Kleros', () => {
     const updatedContractData = await KlerosInstance.arbitrableContract.getData(contractArbitrableTransactionData.address)
     expect(parseInt(updatedContractData.status)).toEqual(4)
 
+    // check if notifications were received
+    expect(notifications.length).toBe(1)
     // stop listening for new disputes
     KlerosInstance.disputes.stopWatchingForDisputes(klerosCourt.address)
   }, 50000)

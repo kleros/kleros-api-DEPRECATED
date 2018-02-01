@@ -1,4 +1,5 @@
 import AbstractWrapper from './AbstractWrapper'
+import { NOTIFICATION_TYPES } from '../../constants'
 import _ from 'lodash'
 
 /**
@@ -45,17 +46,6 @@ class Notifications extends AbstractWrapper {
     await this._eventListener.registerArbitratorEvent('AppealDecision', this._createHandler(this._appealingDecisionHandler, account, callback))
     await this._eventListener.registerArbitratorEvent('TokenShift', this._createHandler(this._tokenShiftHandler, account, callback))
     await this._eventListener.registerArbitratorEvent('ArbitrationReward', this._createHandler(this._arbitrationRewardHandler, account, callback))
-  }
-
-  /**
-  * Helper method to create handler with correct params
-  */
-  _createHandler = (handler, account, callback) => {
-    return (
-      args,
-      account = account,
-      callback = callback
-    ) => handler(args, account, callback)
   }
 
   getStatefulNotifications = async (
@@ -109,15 +99,79 @@ class Notifications extends AbstractWrapper {
   // **************************** //
   // *        Handlers          * //
   // **************************** //
-  _newPeriodHandler = async (eventArgs, account, callback) => {}
+  _newPeriodHandler = async (event, account, callback) => {}
 
-  _disputeCreationHandler = async (eventArgs, account, callback) => {
+  _disputeCreationHandler = async (event, account, callback) => {
+    const disputeId = event.args._disputeID.toNumber()
+    const arbitratorAddress = this._eventListener.arbitratorAddress
 
+    const dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
+    const arbitrableData = await this._ArbitrableContract.getData(dispute.arbitratedContract)
+
+    // the two counterparties need notifications
+    await this._StoreProvider.newNotification(
+      arbitrableData.partyA,
+      event.transactionHash,
+      NOTIFICATION_TYPES.DISPUTE_CREATED,
+      'New Dispute Created',
+      {
+        disputeId: disputeId
+      }
+    )
+
+    await this._StoreProvider.newNotification(
+      arbitrableData.partyB,
+      event.transactionHash,
+      NOTIFICATION_TYPES.DISPUTE_CREATED,
+      'New Dispute Created',
+      {
+        disputeId: disputeId
+      }
+    )
+
+    if (callback) {
+      // if account supplied then we know that we only want to receive relavent notifications
+      if (account) {
+        // if this notification was about us forward notification
+        if (account === arbitrableData.partyA || account === arbitrableData.partyB) {
+          const userProfile = await this._StoreProvider.getUserProfile(account)
+          const notification = _.filter(userProfile.notifications, notification => {
+            return notification.txHash === event.transactionHash
+          })
+
+          if (notification) {
+            callback(notification[0])
+          }
+        }
+      } else {
+        // if no account supplied forward all notifications
+        const userProfile = await this._StoreProvider.getUserProfile(arbitrableData.partyA)
+        const notification = _.filter(userProfile.notifications, notification => {
+          return notification.txHash === event.transactionHash
+        })
+
+        if (notification)
+          callback(notification[0])
+      }
+    }
   }
-  _appealPossibleHandler = async (eventArgs, account, callback) => {}
-  _appealingDecisionHandler = async (eventArgs, account, callback) => {}
-  _tokenShiftHandler = async (eventArgs, account, callback) => {}
-  _arbitrationRewardHandler = async (eventArgs, account, callback) => {}
+  _appealPossibleHandler = async (event, account, callback) => {}
+  _appealingDecisionHandler = async (event, account, callback) => {}
+  _tokenShiftHandler = async (event, account, callback) => {}
+  _arbitrationRewardHandler = async (event, account, callback) => {}
+
+  // **************************** //
+  // *        Helpers           * //
+  // **************************** //
+  /**
+  * Helper method to create handler with correct params
+  */
+  _createHandler = (handler, account, callback) => {
+    const h = (
+      args
+    ) => handler(args, account, callback)
+    return h
+  }
 }
 
 export default Notifications

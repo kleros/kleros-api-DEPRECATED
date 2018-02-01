@@ -26,23 +26,21 @@ class Disputes extends AbstractWrapper {
   * FIXME contracts with multiple disputes will need a way to clarify that this is a new dispute
   * @param {string} arbitratorAddress
   */
-  watchForDisputes = async (
+  addDisputeEventListener = async (
     arbitratorAddress
   ) => {
     if (!this._eventListener) return
 
     const _disputeCreatedHandler = (
-      eventArgs,
+      event,
       contractAddress = arbitratorAddress
     ) => {
-      const disputeId = eventArgs._disputeID.toNumber()
+      const disputeId = event.args._disputeID.toNumber()
       const arbitratorAddress = contractAddress
       this._updateStoreForDispute(arbitratorAddress, disputeId)
     }
 
     await this._eventListener.registerArbitratorEvent('DisputeCreation', _disputeCreatedHandler)
-    // start event listener for arbitrator contract
-    this._eventListener.watchForArbitratorEvents(arbitratorAddress)
   }
 
   /**
