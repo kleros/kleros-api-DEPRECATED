@@ -124,7 +124,7 @@ class StoreProviderWrapper {
       })
     )
 
-    return httpResponse
+    return JSON.parse(httpResponse)
   }
 
   addEvidenceContract = async (
@@ -144,7 +144,19 @@ class StoreProviderWrapper {
       })
     )
 
-    return httpResponse
+    return JSON.parse(httpResponse)
+  }
+
+  getDispute = async (
+    arbitratorAddress,
+    disputeId
+  ) => {
+    const httpResponse = await this._makeRequest(
+      'GET',
+      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
+    )
+
+    return JSON.parse(httpResponse)
   }
 
   // FIXME very complicated to update
@@ -168,7 +180,7 @@ class StoreProviderWrapper {
       })
     )
 
-    return httpResponse
+    return JSON.parse(httpResponse)
   }
 
   // FIXME very complicated to update
@@ -207,7 +219,7 @@ class StoreProviderWrapper {
       })
     )
 
-    return httpResponse
+    return JSON.parse(httpResponse)
   }
 
   getDisputesForUser = async address => {
@@ -270,7 +282,23 @@ class StoreProviderWrapper {
       })
     )
 
-    return httpResponse
+    return JSON.parse(httpResponse)
+  }
+
+  addSubscriber = async (
+    arbitratorAddress,
+    disputeId,
+    subscriberAddress
+  ) => {
+    const httpResponse = await this._makeRequest(
+      'POST',
+      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}/subscribers`,
+      JSON.stringify({
+        address: subscriberAddress
+      })
+    )
+
+    return JSON.parse(httpResponse)
   }
 }
 

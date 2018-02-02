@@ -21,6 +21,10 @@ class Disputes extends AbstractWrapper {
     super(storeProvider, arbitratorWrapper, arbitrableWrapper, eventListener)
   }
 
+  // **************************** //
+  // *      Notifications       * //
+  // **************************** //
+
   /**
   * If there is a dispute in contract update store
   * FIXME contracts with multiple disputes will need a way to clarify that this is a new dispute
@@ -51,6 +55,28 @@ class Disputes extends AbstractWrapper {
   ) => {
     this._eventListener.stopWatchingArbitratorEvents(arbitratorAddress)
   }
+
+  /**
+  * Subscribe to receive notifications for a dispute. In order for jurors to receive push notifications they must be subscribed
+  * @param {string} arbitratorAddress address of arbitrator contract
+  * @param {number} disputeId index of dispute
+  * @param {string} subscriberAddress address of new subscriber
+  */
+  subscribeToDispute = async (
+    arbitratorAddress,
+    disputeId,
+    subscriberAddress
+  ) => {
+    await this._StoreProvider.addSubscriber(
+      arbitratorAddress,
+      disputeId,
+      subscriberAddress
+    )
+  }
+
+  // **************************** //
+  // *          Public          * //
+  // **************************** //
 
   /**
   * Pay the arbitration fee to raise a dispute. To be called by the party A.
@@ -143,7 +169,10 @@ class Disputes extends AbstractWrapper {
       const myDisputeIds = await this.getDisputesForJuror(arbitratorAddress, account)
       // update store for each dispute
       await Promise.all(myDisputeIds.map(async disputeId => {
+        // add dispute to db if it doesn't already exist
         await this._updateStoreForDispute(arbitratorAddress, disputeId, account)
+        // subscribe for notifications
+        await this.subscribeToDispute(arbitratorAddress, disputeId, account)
       }))
 
       // update session on profile
@@ -319,7 +348,7 @@ class Disputes extends AbstractWrapper {
     )
 
     // update dispute
-    await this._StoreProvider.updateDispute(
+    const dispute = await this._StoreProvider.updateDispute(
       disputeData.disputeId,
       disputeData.arbitratorAddress,
       disputeData.hash,
@@ -333,6 +362,20 @@ class Disputes extends AbstractWrapper {
       disputeData.justification,
       disputeData.resolutionOptions
     )
+
+    // if no subscribers (a new dispute) add partyA and partyB
+    if (!dispute.subscribers.length) {
+      await this._StoreProvider.addSubscriber(
+        disputeData.arbitratorAddress,
+        disputeData.disputeId,
+        disputeData.partyA
+      )
+      await this._StoreProvider.addSubscriber(
+        disputeData.arbitratorAddress,
+        disputeData.disputeId,
+        disputeData.partyB
+      )
+    }
 
     // update profile partyA
     await this._StoreProvider.updateDisputeProfile(

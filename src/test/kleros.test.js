@@ -33,6 +33,7 @@ describe('Kleros', () => {
     storeProvider = await KlerosInstance.getStoreWrapper()
 
     notificationCallback = notification => {
+      console.log(notification)
       notifications.push(notification)
     }
   })
