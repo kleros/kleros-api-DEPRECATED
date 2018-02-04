@@ -2,7 +2,7 @@ import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import RNG from 'kleros-interaction/build/contracts/BlockHashRNG'
-import config from '../config'
+import config from '../../config'
 
 /**
  * Kleros API
@@ -10,8 +10,8 @@ import config from '../config'
 class BlockHashRNGWrapper extends ContractWrapper {
   /**
    * Constructor Kleros.
-   * @param web3 instance
-   * @param address of the contract (optionnal)
+   * @param {object} web3 instance
+   * @param {string} address of the contract (optionnal)
    */
   constructor(web3Provider, address) {
     super(web3Provider)
@@ -23,9 +23,9 @@ class BlockHashRNGWrapper extends ContractWrapper {
 
   /**
    * Kleros deploy.
-   * @param   account (default: accounts[0])
-   * @param   value (default: 10000)
-   * @return  truffle-contract Object | err The contract object or error deploy
+   * @param {string} account (default: accounts[0])
+   * @param {number} value (default: 10000)
+   * @return {object} truffle-contract Object | err The contract object or error deploy
    */
   deploy = async (
       account = this._Web3Wrapper.getAccount(0),
@@ -43,8 +43,8 @@ class BlockHashRNGWrapper extends ContractWrapper {
 
   /**
    * Load an existing contract
-   * @param address contract address
-   * @return Conract Instance | Error
+   * @param {string} address contract address
+   * @return {object} Conract Instance | Error
    */
   load = async (
     address

@@ -4,8 +4,8 @@ import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import KlerosWrapper from './KlerosWrapper'
 import arbitrableTransaction from 'kleros-interaction/build/contracts/ArbitrableTransaction'
-import config from '../config'
-import { DISPUTE_STATUS } from '../constants'
+import config from '../../config'
+import { DISPUTE_STATUS } from '../../constants'
 
 /**
  * ArbitrableTransaction API
@@ -13,8 +13,8 @@ import { DISPUTE_STATUS } from '../constants'
 class ArbitrableTransactionWrapper extends ContractWrapper {
   /**
    * Constructor ArbitrableTransaction.
-   * @param web3 instance
-   * @param address of the contract (optional)
+   * @param {object} web3 instance
+   * @param {string} address of the contract (optional)
    */
   constructor(web3Provider, address) {
     super(web3Provider)
@@ -26,14 +26,14 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
 
   /**
    * Deploy ArbitrableTransaction.
-   * @param account Ethereum account (default account[0])
-   * @param value funds to be placed in contract
-   * @param hashContract Keccak hash of the plain English contract. (default null hashed)
-   * @param arbitratorAddress The address of the arbitrator contract
-   * @param timeout Time after which a party automatically loose a dispute. (default 3600)
-   * @param partyB The recipient of the transaction. (default account[1])
-   * @param arbitratorExtraData Extra data for the arbitrator. (default empty string)
-   * @return truffle-contract Object | err The deployed contract or an error
+   * @param {object} account Ethereum account (default account[0])
+   * @param {number} value funds to be placed in contract
+   * @param {string} hashContract Keccak hash of the plain English contract. (default null hashed)
+   * @param {string} arbitratorAddress The address of the arbitrator contract
+   * @param {number} timeout Time after which a party automatically loose a dispute. (default 3600)
+   * @param {string} partyB The recipient of the transaction. (default account[1])
+   * @param {bytes} arbitratorExtraData Extra data for the arbitrator. (default empty string)
+   * @return {object} truffle-contract Object | err The deployed contract or an error
    */
   deploy = async (
       account = this._Web3Wrapper.getAccount(0),
@@ -64,8 +64,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
 
   /**
    * Load an existing arbitrableTransaction contract
-   * @param address Contract address
-   * @return contractInstance | Error
+   * @param {string} address Contract address
+   * @return {object} contractInstance | Error
    */
   load = async address => {
     // return contract instance if already loaded
@@ -88,9 +88,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
 
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the party A.
-   * @param account Ethereum account (default account[1])
-   * @param arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
-   * @return txHash hash transaction | Error
+   * @param {string} account Ethereum account (default account[1])
+   * @param {number} arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
+   * @return {string} txHash hash transaction | Error
    */
    payArbitrationFeeByPartyA = async (
      account = this._Web3Wrapper.getAccount(0),
@@ -116,9 +116,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
 
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the party B.
-   * @param account Ethereum account (default account[1])
-   * @param arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
-   * @return txHash hash transaction | Error
+   * @param {string} account Ethereum account (default account[1])
+   * @param {number} arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
+   * @return {string} txHash hash transaction | Error
    */
    payArbitrationFeeByPartyB = async (
      account = this._Web3Wrapper.getAccount(1),
@@ -143,9 +143,13 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    }
 
   /**
-   * Submit a reference to evidence. EVENT.
-   * @param evidence A link to an evidence using its URI.
-   * @return txHash Hash transaction
+  * Submit evidence
+  * @param {string} account ETH address of user
+  * @param {string} contractAddress ETH address of contract
+  * @param {string} name name of evidence
+  * @param {string} description description of evidence
+  * @param {string} evidence A link to an evidence using its URI.
+  * @return {string} txHash Hash transaction
    */
   submitEvidence = async (
     account = this._Web3Wrapper.getAccount(0),
@@ -173,10 +177,61 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   }
 
   /**
+  * Get ruling options from dispute via event
+  * FIXME this can be an abstract method as it is in the standard
+  * @param {string} arbitrableContractAddress address of the arbitrable contract
+  * @param {string} arbitratorAddress address of arbitrator contract
+  * @param {number} disputeId index of dispute
+  * @returns {object[]} an array of objects that specify the name and value of the resolution option
+  */
+  getRulingOptions = async (
+    arbitrableContractAddress,
+    arbitratorAddress,
+    disputeId
+  )  => {
+    const contractInstance = await this.load(arbitrableContractAddress)
+
+    // fetch dispute resolution options
+    const statusNumber = (await contractInstance.status()).toNumber()
+
+    // should this just be !== ?
+    if (statusNumber < DISPUTE_STATUS) return []
+
+    // FIXME we should have a block number to start from so we don't have to rip through the entire chain
+    const disputeEvents = await new Promise((resolve, reject) => {
+      contractInstance.Dispute({}, {fromBlock: 0, toBlock: 'latest'}).get((error, eventResult) => {
+        if (error) reject(error)
+
+        resolve(eventResult)
+      })
+    })
+
+    const disputeOption = _.filter(disputeEvents, event => {
+      const optionDisputeId = event.args._disputeID.toNumber()
+      // filter by arbitrator address and disputeId
+      return (event.args._arbitrator === arbitratorAddress && optionDisputeId === disputeId)
+    })
+    // should only be 1 at this point
+    if (disputeOption.length !== 1) return []
+
+    const rulingOptions = disputeOption[0].args._rulingOptions.split(';')
+    let optionIndex = 0
+    const resolutionOptions = rulingOptions.map(option => {
+      optionIndex += 1
+      return {
+        name: option,
+        value: optionIndex
+      }
+    })
+
+    return resolutionOptions
+  }
+
+  /**
   * Data of the contract
-  * @param account Address of the party.
-  * @param address Address of the ArbitrableTransaction contract.
-  * @return Object Data of the contract.
+  * @param {string} account Address of the party.
+  * @param {string} address Address of the ArbitrableTransaction contract.
+  * @return {object} Object Data of the contract.
   */
   getData = async (
     address

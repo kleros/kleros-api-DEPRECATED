@@ -34,6 +34,17 @@ testrpc
 yarn test
 ```
 
+## Docs
+Generate esdocs
+```
+yarn generate-docs
+```
+
+Open documentation UI
+```
+yarn docs
+```
+
 ## Smart contract commands (testrpc)
 
 ```

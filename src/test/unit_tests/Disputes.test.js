@@ -1,4 +1,4 @@
-import DisputesApi from '../../abstractWrappers/disputes'
+import DisputesApi from '../../abstractWrappers/Disputes'
 import { NULL_ADDRESS, DEFAULT_ARBITRATION_COST } from '../../../constants'
 
 describe('Disputes', () => {
@@ -77,18 +77,9 @@ describe('Disputes', () => {
       [1]
     ))
 
-    // mock getDataForDispute
-    disputesInstance.getDataForDispute = jest.fn().mockReturnValue(_asyncMockResponse(
-      fakeDisputes[0]
-    ))
-
     const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
-    // check on what was passed to mock get data
-    expect(disputesInstance.getDataForDispute.mock.calls.length).toBe(1)
-    expect(disputesInstance.getDataForDispute.mock.calls[0][0]).toBe(fakeDisputes[0].arbitratedContract)
-    expect(disputesInstance.getDataForDispute.mock.calls[0][1]).toBe(account)
     // check results
-    expect(disputes).toEqual([fakeDisputes[0]])
+    expect(disputes).toEqual([0])
   })
 
   test('getDisputesForJuror not juror', async () => {
@@ -131,14 +122,7 @@ describe('Disputes', () => {
       []
     ))
 
-    // mock getDataForDispute
-    disputesInstance.getDataForDispute = jest.fn().mockReturnValue(_asyncMockResponse(
-      fakeDisputes[0]
-    ))
-
     const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
-    // getDataForDispute should not be called
-    expect(disputesInstance.getDataForDispute.mock.calls.length).toBe(0)
     // check results
     expect(disputes).toEqual([])
   })
@@ -183,18 +167,9 @@ describe('Disputes', () => {
       [1]
     ))
 
-    // mock getDataForDispute
-    disputesInstance.getDataForDispute = jest.fn().mockReturnValue(_asyncMockResponse(
-      fakeDisputes[0]
-    ))
-
     const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
-    // check on what was passed to mock get data
-    expect(disputesInstance.getDataForDispute.mock.calls.length).toBe(1)
-    expect(disputesInstance.getDataForDispute.mock.calls[0][0]).toBe(fakeDisputes[0].arbitratedContract)
-    expect(disputesInstance.getDataForDispute.mock.calls[0][1]).toBe(account)
     // check results
-    expect(disputes).toEqual([fakeDisputes[0]])
+    expect(disputes).toEqual([0])
   })
 
   test('getDisputesForJuror wrong session', async () => {
@@ -237,14 +212,7 @@ describe('Disputes', () => {
       [1]
     ))
 
-    // mock getDataForDispute
-    disputesInstance.getDataForDispute = jest.fn().mockReturnValue(_asyncMockResponse(
-      fakeDisputes[0]
-    ))
-
     const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
-    // getDataForDispute should not be called
-    expect(disputesInstance.getDataForDispute.mock.calls.length).toBe(0)
     // check results
     expect(disputes).toEqual([])
   })

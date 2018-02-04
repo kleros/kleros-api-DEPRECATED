@@ -3,7 +3,7 @@ import Web3 from 'web3'
 import contract from 'truffle-contract'
 import {LOCALHOST_PROVIDER} from '../../constants'
 import config from '../../config'
-import mockDisputes from '../../contract_wrapper/mockDisputes'
+import mockDisputes from '../contractWrappers/mockDisputes'
 
 
 describe('Kleros', () => {
@@ -25,8 +25,8 @@ describe('Kleros', () => {
 
     partyA = web3.eth.accounts[0]
     partyB = web3.eth.accounts[1]
-    juror = web3.eth.accounts[3]
-    other = web3.eth.accounts[4]
+    juror = web3.eth.accounts[2]
+    other = web3.eth.accounts[3]
 
     storeProvider = await KlerosInstance.getStoreWrapper()
   })
@@ -127,6 +127,12 @@ describe('Kleros', () => {
     expect(pnkData.owner).toEqual(klerosCourt.address)
     expect(pnkData.kleros).toEqual(klerosCourt.address)
 
+    // set instance of kleros court for assertions
+    const klerosPOCInstance = await KlerosInstance.klerosPOC.load(klerosCourt.address)
+
+    // initialize dispute watcher
+    KlerosInstance.disputes.watchForDisputes(klerosCourt.address)
+
     // Juror should have no balance to start with
     const initialBalance = await KlerosInstance.arbitrator.getPNKBalance(klerosCourt.address, juror)
     expect(initialBalance.tokenBalance).toEqual('0')
@@ -136,9 +142,14 @@ describe('Kleros', () => {
     expect(newBalance.tokenBalance).toEqual('1')
 
     // activate PNK
-    const balance = await KlerosInstance.arbitrator.activatePNK(0.5, klerosCourt.address, juror)
+    const activatedTokenAmount = 0.5
+    const balance = await KlerosInstance.arbitrator.activatePNK(activatedTokenAmount, klerosCourt.address, juror)
     expect(balance.tokenBalance).toEqual('1')
     expect(balance.activatedTokens).toEqual('0.5')
+
+    const jurorData = await klerosPOCInstance.jurors(juror)
+    expect(jurorData[2].toNumber()).toEqual((await klerosPOCInstance.session()).toNumber())
+    expect((jurorData[4].toNumber() - jurorData[3].toNumber())).toEqual(parseInt(web3.toWei(activatedTokenAmount, 'ether')))
 
     // deploy a contract and create dispute
     const mockHash = 'mock-hash-contract'
@@ -213,11 +224,17 @@ describe('Kleros', () => {
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
     // check to see if store is updated
-    const userProfile = await storeProvider.getUserProfile(partyA)
-    expect(userProfile.disputes.length).toEqual(1)
+    // const userProfile = await storeProvider.getUserProfile(partyA)
+    // expect(userProfile.disputes.length).toEqual(1)
 
     const dispute = await KlerosInstance.klerosPOC.getDispute(klerosCourt.address, 0)
     expect(dispute.arbitratedContract).toEqual(contractArbitrableTransactionData.address)
+    expect(dispute.firstSession).toEqual((await klerosPOCInstance.session()).toNumber())
+    expect(dispute.numberOfAppeals).toEqual(0)
+
+    // check fetch resolution options
+    const resolutionOptions = await KlerosInstance.disputes.getRulingOptions(klerosCourt.address, 0)
+    expect(resolutionOptions.length).toEqual(2)
 
     // add an evidence for partyA
     // FIXME use arbitrableTransaction
@@ -263,11 +280,13 @@ describe('Kleros', () => {
     for (let i=1; i<3; i++) {
       // NOTE we need to make another block before we can generate the random number. Should not be an issue on main nets where avg block time < period length
       if (i == 2) web3.eth.sendTransaction({from: partyA, to: partyB, value: 10000, data: '0x'})
-      // delay a second so period is eligible to be passed
       await delaySecond()
       newState = await KlerosInstance.arbitrator.passPeriod(klerosCourt.address, other)
       expect(newState.period).toEqual(i)
     }
+    const randomNumber = (await klerosPOCInstance.randomNumber()).toNumber()
+    const shouldBeJuror = await klerosPOCInstance.isDrawn(0, juror, 1)
+    expect(shouldBeJuror).toEqual(true)
 
     const disputesForJuror = await KlerosInstance.disputes.getDisputesForUser(klerosCourt.address, juror)
     expect(disputesForJuror.length).toEqual(1)
@@ -281,7 +300,6 @@ describe('Kleros', () => {
       0,
       ruling,
       [1],
-      contractArbitrableTransactionData.address, // FIXME using address for hash right now
       juror
     )
 
@@ -320,5 +338,8 @@ describe('Kleros', () => {
 
     const updatedContractData = await KlerosInstance.arbitrableContract.getData(contractArbitrableTransactionData.address)
     expect(parseInt(updatedContractData.status)).toEqual(4)
+
+    // stop listening for new disputes
+    KlerosInstance.disputes.stopWatchingForDisputes()
   }, 50000)
 })

@@ -2,7 +2,7 @@ import * as _ from 'lodash'
 import contract from 'truffle-contract'
 import ContractWrapper from './ContractWrapper'
 import PinakionPOC from 'kleros/build/contracts/PinakionPOC' // FIXME mock
-import config from '../config'
+import config from '../../config'
 
 /**
  * Kleros API
@@ -10,8 +10,8 @@ import config from '../config'
 class PinakionWrapper extends ContractWrapper {
   /**
    * Constructor Kleros.
-   * @param web3 instance
-   * @param address of the contract (optionnal)
+   * @param {object} web3 instance
+   * @param {string} address of the contract (optionnal)
    */
   constructor(web3Provider, address) {
     super(web3Provider)
@@ -23,8 +23,8 @@ class PinakionWrapper extends ContractWrapper {
 
   /**
    * Kleros deploy.
-   * @param   account (default: accounts[0])
-   * @return  truffle-contract Object | err The contract object or error deploy
+   * @param {string} account (default: accounts[0])
+   * @return {object} truffle-contract Object | err The contract object or error deploy
    */
   deploy = async (
       account = this._Web3Wrapper.getAccount(0),
@@ -43,8 +43,8 @@ class PinakionWrapper extends ContractWrapper {
 
   /**
    * Load an existing contract
-   * @param address contract address
-   * @return Conract Instance | Error
+   * @param {string} address contract address
+   * @return {object} Conract Instance | Error
    */
   load = async (
     address
@@ -59,7 +59,14 @@ class PinakionWrapper extends ContractWrapper {
       throw new Error(e)
     }
   }
-
+  
+  /**
+  * change the kleros contract in the PNK contract
+  * @param {string} contractAddress address of PNK contract
+  * @param {string} klerosAddress address of Kleros POC contract
+  * @param {string} account address of user
+  * @return {string} tx hash
+  */ 
   setKleros = async (
     contractAddress,
     klerosAddress,
@@ -80,7 +87,14 @@ class PinakionWrapper extends ContractWrapper {
       throw new Error(e)
     }
   }
-
+  
+  /**
+  * transfer ownership of the PNK contract to the kleros POC contract
+  * @param {string} contractAddress address of PNK contract
+  * @param {string} klerosAddress address of Kleros POC contract
+  * @param {string} account address of user
+  * @return {string} tx hash
+  */ 
   transferOwnership = async (
     contractAddress,
     klerosAddress,
@@ -101,7 +115,13 @@ class PinakionWrapper extends ContractWrapper {
       throw new Error(e)
     }
   }
-
+  
+  /**
+  * Get data from PNK contract
+  * @param {string} contractAddress address of PNK contract
+  * @param {string} account address for user
+  * @return {object} data from PNK contract
+  */ 
   getData = async (
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)

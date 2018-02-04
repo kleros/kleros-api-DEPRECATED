@@ -14,3 +14,5 @@ addons:
 install:
   - yarn
   - nohup yarn run testrpc &
+notifications:
+  slack: kleros:Ub8n81EgKJ3iRrMDyWyQIVJp

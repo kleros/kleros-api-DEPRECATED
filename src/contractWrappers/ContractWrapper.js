@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
 import contract from 'truffle-contract'
-import config from '../config'
+import config from '../../config'
 
 /**
  * Contract wrapper
@@ -8,7 +8,7 @@ import config from '../config'
 class ContractWrapper {
   /**
    * Constructor contract wrapper
-   * @param web3Wrapper instance
+   * @param {object} web3Wrapper instance
    */
   constructor(web3Wrapper) {
     this._Web3Wrapper = web3Wrapper
@@ -16,10 +16,10 @@ class ContractWrapper {
 
   /**
    * Instantiate contract.
-   * DEPRECATED use instead of _deployAsync()
-   * @param   artifact
-   * @param   address    The hex encoded contract Ethereum address
-   * @return  truffle-contract object | Error
+   * @private
+   * @param {object} artifact
+   * @param {string} address    The hex encoded contract Ethereum address
+   * @return {object} truffle-contract object | Error
    */
   _instantiateContractIfExistsAsync = async (artifact, address) => {
     const c = await contract(artifact)
@@ -47,11 +47,11 @@ class ContractWrapper {
 
   /**
    * Deploy contract.
-   * @param   account
-   * @param   value
-   * @param   json artifact of the contract
-   * @param   rest arguments
-   * @return  truffle-contract Object | err The contract object or an error
+   * @param {string} account
+   * @param {number} value
+   * @param {object} artifact json artifact of the contract
+   * @param rest arguments
+   * @return {object} truffle-contract Object | err The contract object or an error
    */
   _deployAsync = async (account, value, artifact, ...args) => {
     if (_.isEmpty(account)) {
@@ -60,7 +60,7 @@ class ContractWrapper {
 
     const MyContract = contract({
       abi: artifact.abi,
-      unlinked_binary: artifact.unlinked_binary,
+      unlinked_binary: artifact.bytecode ? artifact.bytecode : artifact.unlinked_binary
     })
 
     const provider = await this._Web3Wrapper.getProvider()
@@ -78,6 +78,22 @@ class ContractWrapper {
     } catch (e) {
       throw new Error(e)
     }
+  }
+
+  /**
+   * Metamask safe, syncronous method to fetch current block number
+   * @return {number} current block number
+   */
+  _getCurrentBlockNumber = async () => {
+    return await new Promise((resolve, reject) => {
+      this._Web3Wrapper._web3.eth.getBlockNumber((error, result) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(result)
+        }
+      })
+    })
   }
 }
 
