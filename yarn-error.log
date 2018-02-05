@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/Cellar/node/9.3.0_1/bin/node /usr/local/bin/yarn docs
+  /usr/local/Cellar/node/9.3.0_1/bin/node /usr/local/bin/yarn test
 
 PATH: 
   /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin
@@ -4710,7 +4710,7 @@ Trace:
   Error: Command failed.
   Exit code: 1
   Command: sh
-  Arguments: -c open ./docs/index.html
+  Arguments: -c jest
   Directory: /private/tmp/kleros-api
   Output:
   

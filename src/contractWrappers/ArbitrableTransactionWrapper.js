@@ -87,8 +87,34 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   }
 
   /**
+   * Pay the party B. To be called when the good is delivered or the service rendered.
+   * @param {string} account Ethereum account (default account[0])
+   * @return {string} txHash hash transaction | Error
+   */
+   pay = async (
+     account = this._Web3Wrapper.getAccount(0),
+     contractAddress // ethereum address of the contract
+   ) => {
+     try {
+       this.contractInstance = await this.load(contractAddress)
+       const txHashObj = await this.contractInstance
+         .pay(
+         {
+           from: account,
+           gas: config.GAS,
+           value: 0,
+         }
+       )
+
+       return txHashObj.tx
+     } catch (e) {
+       throw new Error(e)
+     }
+   }
+
+  /**
    * Pay the arbitration fee to raise a dispute. To be called by the party A.
-   * @param {string} account Ethereum account (default account[1])
+   * @param {string} account Ethereum account (default account[0])
    * @param {number} arbitrationCost Amount to pay the arbitrator. (default 10000 wei)
    * @return {string} txHash hash transaction | Error
    */
