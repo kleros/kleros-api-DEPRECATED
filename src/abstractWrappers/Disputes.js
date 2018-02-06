@@ -1,7 +1,7 @@
 import AbstractWrapper from './AbstractWrapper'
 import {
   NULL_ADDRESS,
-  VOTING_PERIOD,
+  PERIODS,
   DEFAULT_ARBITRATION_COST,
   DISPUTE_STATUS
 } from '../../constants'
@@ -155,7 +155,7 @@ class Disputes extends AbstractWrapper {
     const period = arbitratorData.period
     const currentSession = arbitratorData.session
     // new jurors have not been chosen yet. don't update
-    if (period !== VOTING_PERIOD) {
+    if (period !== PERIODS.VOTE) {
       let disputes = await this._StoreProvider.getDisputesForUser(account)
       disputes = await Promise.all(disputes.map(async (dispute) => {
         return await this.getDataForDispute(dispute.arbitratorAddress, dispute.disputeId, account)
@@ -316,7 +316,7 @@ class Disputes extends AbstractWrapper {
   */
   getDeadlineForDispute = async (
     arbitratorAddress,
-    period = VOTING_PERIOD
+    period = PERIODS.VOTE
   ) => {
     const arbitratorData = await this._Arbitrator.getData(arbitratorAddress)
     // compute end date
@@ -348,7 +348,7 @@ class Disputes extends AbstractWrapper {
     )
 
     // update dispute
-    const dispute = await this._StoreProvider.updateDispute(
+    const dispute = (await this._StoreProvider.updateDispute(
       disputeData.disputeId,
       disputeData.arbitratorAddress,
       disputeData.hash,
@@ -361,7 +361,7 @@ class Disputes extends AbstractWrapper {
       disputeData.information,
       disputeData.justification,
       disputeData.resolutionOptions
-    )
+    )).body
 
     // if no subscribers (a new dispute) add partyA and partyB
     if (!dispute.subscribers.length) {

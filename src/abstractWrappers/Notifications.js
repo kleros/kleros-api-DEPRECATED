@@ -1,5 +1,5 @@
 import AbstractWrapper from './AbstractWrapper'
-import { NOTIFICATION_TYPES } from '../../constants'
+import { NOTIFICATION_TYPES, PERIODS } from '../../constants'
 import _ from 'lodash'
 
 /**
@@ -48,11 +48,51 @@ class Notifications extends AbstractWrapper {
     await this._eventListener.registerArbitratorEvent('ArbitrationReward', this._createHandler(this._arbitrationRewardHandler, account, callback))
   }
 
+  /**
+  * register event listeners for arbitrator.
+  * @param {string} account filter notifications for account
+  * @param {function} callback if we want notifications to be "pushed" provide a callback function to call when a new notificiation is created
+  */
   getStatefulNotifications = async (
     account,
     isJuror = true
   ) => {
+    const notifications = []
+    const userProfile = await this._StoreProvider.getUserProfile(account)
+    const currentPeriod = await this._Arbitrator.getPeriod()
+    const currentSession = await this._Arbitrator.getSession()
+    const arbitratorAddress = this._eventListener.arbitratorAddress // FIXME have caller pass this instead?
 
+    if (isJuror) {
+      /* Juror notifications:
+      * - Activate tokens
+      * - Need to vote (get from store. client should call getDisputesForUser to populate) NOTE: or we could populate here and have disputes read from store?
+      * - Ready to repartition
+      * - Ready to execute
+      */
+      if (currentPeriod === PERIODS.ACTIVATION) {
+        // FIXME use estimateGas
+        const contractInstance = await this._loadArbitratorInstance(arbitratorAddress)
+        const lastActivatedSession = (contractInstance.jurors(account)[2]).toNumber()
+
+        if (lastActivatedSession < currentSession) {
+          notifications.push(this._createNotification(
+            NOTIFICATION_TYPES.CAN_ACTIVATE,
+            "Ready to activate tokens",
+            {}
+          ))
+        }
+      } else if (currentPeriod === PERIODS.EXECUTE) {
+
+      }
+    } else {
+      /* Counterparty notifications:
+      * - Need to pay fee
+      * - Ready to repartition
+      * - Ready to execute
+      */
+
+    }
   }
 
   /**
@@ -101,7 +141,7 @@ class Notifications extends AbstractWrapper {
   // **************************** //
   /**
   * TODO Send push notifications for period state events?
-  * FIXME how to we get a list of subscribers?
+  * We can get a list of subscribers by having jurors subscribe to an arbitrator. Raises new problems however
   */
   _newPeriodHandler = async (event, account, callback) => {}
 
@@ -110,8 +150,6 @@ class Notifications extends AbstractWrapper {
   * sends notification to partyA and partyB when dispute is created
   */
   _disputeCreationHandler = async (event, account, callback) => {
-    console.log("_disputeCreationHandler")
-    console.log(event)
     const disputeId = event.args._disputeID.toNumber()
     const arbitratorAddress = this._eventListener.arbitratorAddress
     const txHash = event.transactionHash
@@ -128,7 +166,7 @@ class Notifications extends AbstractWrapper {
     }
 
     await Promise.all(subscribers.map(async subscriber => {
-      await this._StoreProvider.newNotification(
+      const response = await this._StoreProvider.newNotification(
         subscriber,
         txHash,
         NOTIFICATION_TYPES.DISPUTE_CREATED,
@@ -141,7 +179,6 @@ class Notifications extends AbstractWrapper {
     }))
 
     await this._sendPushNotification(subscribers, txHash, account, callback)
-    console.log("_disputeCreationHandler done")
   }
 
   /**
@@ -149,7 +186,6 @@ class Notifications extends AbstractWrapper {
   * sends notification informing subscribers that a ruling has been made and an appeal possible
   */
   _appealPossibleHandler = async (event, account, callback) => {
-    console.log("_appealPossibleHandler")
     const disputeId = event.args._disputeID.toNumber()
     const arbitratorAddress = this._eventListener.arbitratorAddress
     const ruling = await this._Arbitrator.currentRulingForDispute(arbitratorAddress, disputeId)
@@ -171,7 +207,6 @@ class Notifications extends AbstractWrapper {
     }))
 
     await this._sendPushNotification(subscribers, event.transactionHash, account, callback)
-    console.log("_appealPossibleHandler done")
   }
 
   /**
@@ -179,7 +214,6 @@ class Notifications extends AbstractWrapper {
   * sends notification informing subscribers that a ruling has been appealed
   */
   _appealingDecisionHandler = async (event, account, callback) => {
-    console.log("_appealingDecisionHandler")
     const disputeId = event.args._disputeID.toNumber()
     const arbitratorAddress = this._eventListener.arbitratorAddress
 
@@ -199,7 +233,6 @@ class Notifications extends AbstractWrapper {
     }))
 
     await this._sendPushNotification(subscribers, event.transactionHash, account, callback)
-    console.log("_appealingDecisionHandler done")
   }
 
   /**
@@ -207,14 +240,13 @@ class Notifications extends AbstractWrapper {
   * sends notification informing
   */
   _tokenShiftHandler = async (event, account, callback) => {
-    console.log("_tokenShiftHandler")
     // address indexed _account, uint _disputeID, int _amount
     const disputeId = event.args._disputeID.toNumber()
     const address = event.args._account
     const amount = event.args._amount.toNumber()
     const arbitratorAddress = this._eventListener.arbitratorAddress
 
-    await this._StoreProvider.newNotification(
+    const response = await this._StoreProvider.newNotification(
       address,
       event.transactionHash,
       NOTIFICATION_TYPES.TOKEN_SHIFT,
@@ -228,11 +260,9 @@ class Notifications extends AbstractWrapper {
     )
 
     await this._sendPushNotification([address], event.transactionHash, account, callback)
-    console.log("_tokenShiftHandler done")
   }
 
   _arbitrationRewardHandler = async (event, account, callback) => {
-    console.log("_arbitrationRewardHandler")
     // address indexed _account, uint _disputeID, int _amount
     const disputeId = event.args._disputeID.toNumber()
     const address = event.args._account
@@ -253,7 +283,6 @@ class Notifications extends AbstractWrapper {
     )
 
     await this._sendPushNotification([address], event.transactionHash, account, callback)
-    console.log("_arbitrationRewardHandler done")
   }
 
   // **************************** //
@@ -299,6 +328,14 @@ class Notifications extends AbstractWrapper {
         if (notification)
           callback(notification[0])
       }
+    }
+  }
+
+  _createNotification = (notificationType, message, data) => {
+    return {
+      notificationType,
+      message,
+      data
     }
   }
 }

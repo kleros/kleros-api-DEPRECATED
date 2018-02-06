@@ -18,7 +18,14 @@ class StoreProviderWrapper {
         }
         httpRequest.onreadystatechange =  () => {
           if (httpRequest.readyState === 4) {
-            resolve(httpRequest.responseText)
+            let body = null
+            try {
+              body = JSON.parse(httpRequest.responseText)
+            } catch (e) {}
+            resolve({
+              body: body,
+              status: httpRequest.status
+            })
           }
         }
         httpRequest.send(body)
@@ -34,7 +41,7 @@ class StoreProviderWrapper {
       `${this._storeUri}/${userAddress}`
     )
 
-    return JSON.parse(httpResponse)
+    return httpResponse.body
   }
 
   newUserProfile = async (address, userProfile) => {
@@ -44,7 +51,7 @@ class StoreProviderWrapper {
       JSON.stringify(userProfile)
     )
 
-    return JSON.parse(httpResponse)
+    return httpResponse
   }
 
   updateUserProfile = async (address, userProfile) => {
@@ -55,7 +62,8 @@ class StoreProviderWrapper {
       `${this._storeUri}/${address}`,
       JSON.stringify(userProfile)
     )
-    return JSON.parse(httpResponse)
+
+    return httpResponse
   }
 
   getDisputeData = async (userAddress, arbitratorAddress, disputeId) => {
@@ -71,7 +79,7 @@ class StoreProviderWrapper {
       'GET',
       `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
     )
-    return Object.assign({}, JSON.parse(httpResponse), disputeData[0])
+    return Object.assign({}, httpResponse.body, disputeData[0])
   }
 
   getContractByHash = async (userAddress, hash) => {
@@ -124,7 +132,7 @@ class StoreProviderWrapper {
       })
     )
 
-    return JSON.parse(httpResponse)
+    return httpResponse
   }
 
   addEvidenceContract = async (
@@ -144,7 +152,7 @@ class StoreProviderWrapper {
       })
     )
 
-    return JSON.parse(httpResponse)
+    return httpResponse
   }
 
   getDispute = async (
@@ -156,7 +164,7 @@ class StoreProviderWrapper {
       `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
     )
 
-    return JSON.parse(httpResponse)
+    return httpResponse.body
   }
 
   // FIXME very complicated to update
@@ -180,7 +188,7 @@ class StoreProviderWrapper {
       })
     )
 
-    return JSON.parse(httpResponse)
+    return httpResponse
   }
 
   // FIXME very complicated to update
@@ -219,7 +227,7 @@ class StoreProviderWrapper {
       })
     )
 
-    return JSON.parse(httpResponse)
+    return httpResponse
   }
 
   getDisputesForUser = async address => {
@@ -235,9 +243,11 @@ class StoreProviderWrapper {
         'GET',
         `${this._storeUri}/arbitrators/${dispute.arbitratorAddress}/disputes/${dispute.disputeId}`
       )
-      disputes.push(
-        Object.assign({}, JSON.parse(httpResponse), dispute)
-      )
+      if (httpResponse.status === 200) {
+        disputes.push(
+          Object.assign({}, httpResponse.body, dispute)
+        )
+      }
     }
 
     return disputes
@@ -249,7 +259,7 @@ class StoreProviderWrapper {
       `${this._storeUri}/arbitrators/${arbitratorAddress}`
     )
 
-    const arbitratorData = JSON.parse(httpResponse)
+    const arbitratorData = httpResponse.body
     return arbitratorData ? arbitratorData.lastBlock : 0
   }
 
@@ -261,6 +271,8 @@ class StoreProviderWrapper {
         lastBlock
       })
     )
+
+    return httpResponse
   }
 
   newNotification = async (
@@ -282,7 +294,7 @@ class StoreProviderWrapper {
       })
     )
 
-    return JSON.parse(httpResponse)
+    return httpResponse
   }
 
   addSubscriber = async (
@@ -298,7 +310,7 @@ class StoreProviderWrapper {
       })
     )
 
-    return JSON.parse(httpResponse)
+    return httpResponse
   }
 }
 

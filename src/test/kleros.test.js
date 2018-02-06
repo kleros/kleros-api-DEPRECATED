@@ -1,7 +1,7 @@
 import Kleros from '../kleros'
 import Web3 from 'web3'
 import contract from 'truffle-contract'
-import {LOCALHOST_PROVIDER} from '../../constants'
+import {LOCALHOST_ETH_PROVIDER} from '../../constants'
 import config from '../../config'
 import mockDisputes from '../contractWrappers/mockDisputes'
 
@@ -19,7 +19,7 @@ describe('Kleros', () => {
 
   beforeAll(async () => {
     // use testRPC
-    const provider = await new Web3.providers.HttpProvider(LOCALHOST_PROVIDER)
+    const provider = await new Web3.providers.HttpProvider(LOCALHOST_ETH_PROVIDER)
 
     KlerosInstance = await new Kleros(provider)
 
@@ -436,6 +436,7 @@ describe('Kleros', () => {
 
     // NOTIFICATIONS
     expect(notifications.length).toBeTruthy()
+    // partyA got notifications
     const allNotifications = await KlerosInstance.notifications.getNoticiations(partyA)
     expect(allNotifications.length).toBe(notifications.length)
     let unreadNotification = await KlerosInstance.notifications.getUnreadNoticiations(partyA)
@@ -443,6 +444,9 @@ describe('Kleros', () => {
     await KlerosInstance.notifications.markNotificationAsRead(partyA, allNotifications[0].txHash)
     unreadNotification = await KlerosInstance.notifications.getUnreadNoticiations(partyA)
     expect(unreadNotification.length).toBe(notifications.length - 1)
+    // juror subscribed once drawn and got notifications
+    const jurorNotifications = await KlerosInstance.notifications.getNoticiations(juror)
+    expect(jurorNotifications.length).toEqual(2)
     // stop listening for new disputes
     KlerosInstance.disputes.stopWatchingForDisputes(klerosCourt.address)
   }, 50000)
