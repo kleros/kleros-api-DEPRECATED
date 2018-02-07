@@ -1,5 +1,5 @@
 import AbstractWrapper from './AbstractWrapper'
-import { NOTIFICATION_TYPES, PERIODS } from '../../constants'
+import { NOTIFICATION_TYPES, PERIODS, DISPUTE_STATES } from '../../constants'
 import _ from 'lodash'
 
 /**
@@ -59,21 +59,21 @@ class Notifications extends AbstractWrapper {
   ) => {
     const notifications = []
     const userProfile = await this._StoreProvider.getUserProfile(account)
-    const currentPeriod = await this._Arbitrator.getPeriod()
-    const currentSession = await this._Arbitrator.getSession()
     const arbitratorAddress = this._eventListener.arbitratorAddress // FIXME have caller pass this instead?
+    const currentPeriod = await this._Arbitrator.getPeriod(arbitratorAddress)
+    const currentSession = await this._Arbitrator.getSession(arbitratorAddress)
 
     if (isJuror) {
       /* Juror notifications:
       * - Activate tokens
       * - Need to vote (get from store. client should call getDisputesForUser to populate) NOTE: or we could populate here and have disputes read from store?
-      * - Ready to repartition
-      * - Ready to execute
+      * - Ready to repartition (shared)
+      * - Ready to execute (shared)
       */
       if (currentPeriod === PERIODS.ACTIVATION) {
         // FIXME use estimateGas
         const contractInstance = await this._loadArbitratorInstance(arbitratorAddress)
-        const lastActivatedSession = (contractInstance.jurors(account)[2]).toNumber()
+        const lastActivatedSession = ((await contractInstance.jurors(account))[2]).toNumber()
 
         if (lastActivatedSession < currentSession) {
           notifications.push(this._createNotification(
@@ -82,17 +82,87 @@ class Notifications extends AbstractWrapper {
             {}
           ))
         }
-      } else if (currentPeriod === PERIODS.EXECUTE) {
-
+      } else if (currentPeriod === PERIODS.VOTE) {
+        await Promise.all(userProfile.disputes.map(async dispute => {
+          if (dispute.isJuror && dispute.votes.length > 1 && !dispute.hasRuled) {
+            notifications.push(this._createNotification(
+              NOTIFICATION_TYPES.CAN_VOTE,
+              "Need to vote on dispute",
+              {
+                disputeId: dispute.disputeId,
+                arbitratorAddress: dispute.arbitratorAddress
+              }
+            ))
+          }
+        }))
       }
     } else {
       /* Counterparty notifications:
       * - Need to pay fee
-      * - Ready to repartition
-      * - Ready to execute
+      * - Ready to repartition (shared)
+      * - Ready to execute (shared)
       */
-
+      await Promise.all(userProfile.contracts.map(async contract => {
+        const contractData = await this._ArbitrableContract.getData(contract.address)
+        const arbitrationCost = await this._Arbitrator.getArbitrationCost(arbitratorAddress, contractData.arbitratorExtraData)
+        if (contractData.partyA === account) {
+          if (contractData.partyAFee < arbitrationCost) {
+            notifications.push(this._createNotification(
+              NOTIFICATION_TYPES.CAN_PAY_FEE,
+              "Arbitration fee required",
+              {
+                arbitratorAddress,
+                arbitrableContractAddress: contract.address,
+                feeToPay: (arbitrationCost - contractData.partyAFee)
+              }
+            ))
+          }
+        } else if (contractData.partyB === account) {
+          if (contractData.partyBFee < arbitrationCost) {
+            notifications.push(this._createNotification(
+              NOTIFICATION_TYPES.CAN_PAY_FEE,
+              "Arbitration fee required",
+              {
+                arbitratorAddress,
+                arbitrableContractAddress: contract.address,
+                feeToPay: (arbitrationCost - contractData.partyBFee)
+              }
+            ))
+          }
+        }
+      }))
     }
+
+    // Repartition and execute
+    if (currentPeriod === PERIODS.EXECUTE) {
+      await Promise.all(userProfile.disputes.map(async dispute => {
+        const disputeData = await this._Arbitrator.getDispute(dispute.arbitratorAddress, dispute.disputeId)
+
+        if (disputeData.firstSession + disputeData.numberOfAppeals === currentSession) {
+          if (disputeData.state <= DISPUTE_STATES.RESOLVING) {
+            notifications.push(this._createNotification(
+              NOTIFICATION_TYPES.CAN_REPARTITION,
+              "Ready to repartition dispute",
+              {
+                disputeId: dispute.disputeId,
+                arbitratorAddress: dispute.arbitratorAddress
+              }
+            ))
+          } else if (disputeData.state === DISPUTE_STATES.EXECUTABLE) {
+            notifications.push(this._createNotification(
+              NOTIFICATION_TYPES.CAN_EXECUTE,
+              "Ready to execute dispute",
+              {
+                disputeId: dispute.disputeId,
+                arbitratorAddress: dispute.arbitratorAddress
+              }
+            ))
+          }
+        }
+      }))
+    }
+
+    return notifications
   }
 
   /**
@@ -169,6 +239,7 @@ class Notifications extends AbstractWrapper {
       const response = await this._StoreProvider.newNotification(
         subscriber,
         txHash,
+        event.logIndex,
         NOTIFICATION_TYPES.DISPUTE_CREATED,
         'New Dispute Created',
         {
@@ -196,6 +267,7 @@ class Notifications extends AbstractWrapper {
       await this._StoreProvider.newNotification(
         subscriber,
         event.transactionHash,
+        event.logIndex,
         NOTIFICATION_TYPES.APPEAL_POSSIBLE,
         'A ruling has been made. Appeal is possible',
         {
@@ -223,6 +295,7 @@ class Notifications extends AbstractWrapper {
       await this._StoreProvider.newNotification(
         subscriber,
         event.transactionHash,
+        event.logIndex,
         NOTIFICATION_TYPES.RULING_APPEALED,
         'A ruling been appealed',
         {
@@ -238,6 +311,7 @@ class Notifications extends AbstractWrapper {
   /**
   * handler for TokenShift event
   * sends notification informing
+  * NOTE: you will get a notification for each vote. So a juror that has 3 votes will receive 3 notifications
   */
   _tokenShiftHandler = async (event, account, callback) => {
     // address indexed _account, uint _disputeID, int _amount
@@ -249,6 +323,7 @@ class Notifications extends AbstractWrapper {
     const response = await this._StoreProvider.newNotification(
       address,
       event.transactionHash,
+      event.logIndex,
       NOTIFICATION_TYPES.TOKEN_SHIFT,
       'Tokens have be redistributed',
       {
@@ -272,6 +347,7 @@ class Notifications extends AbstractWrapper {
     await this._StoreProvider.newNotification(
       address,
       event.transactionHash,
+      event.logIndex,
       NOTIFICATION_TYPES.ARBITRATION_REWARD,
       'Juror awarded arbitration fee',
       {

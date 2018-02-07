@@ -278,6 +278,7 @@ class StoreProviderWrapper {
   newNotification = async (
     account,
     txHash,
+    logIndex,
     notificationType,
     message = '',
     data = {},
@@ -288,6 +289,7 @@ class StoreProviderWrapper {
       `${this._storeUri}/${account}/notifications/${txHash}`,
       JSON.stringify({
         notificationType,
+        logIndex,
         read,
         message,
         data
