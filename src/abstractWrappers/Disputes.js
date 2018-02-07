@@ -1,7 +1,7 @@
 import AbstractWrapper from './AbstractWrapper'
 import {
   NULL_ADDRESS,
-  VOTING_PERIOD,
+  PERIODS,
   DEFAULT_ARBITRATION_COST,
   DISPUTE_STATUS
 } from '../../constants'
@@ -17,64 +17,66 @@ class Disputes extends AbstractWrapper {
    * @param {object} arbitratorWrapper arbitrator contract wrapper object
    * @param {object} arbitrableWrapper arbitrable contract wrapper object
    */
-  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
-    super(storeProvider, arbitratorWrapper, arbitrableWrapper)
-    this.disputeWatcher
-    this._isWatchingDisputes = false
+  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper, eventListener) {
+    super(storeProvider, arbitratorWrapper, arbitrableWrapper, eventListener)
   }
+
+  // **************************** //
+  // *      Notifications       * //
+  // **************************** //
 
   /**
   * If there is a dispute in contract update store
   * FIXME contracts with multiple disputes will need a way to clarify that this is a new dispute
   * @param {string} arbitratorAddress
   */
-  watchForDisputes = async (
-    arbitratorAddress,
+  addDisputeEventListener = async (
+    arbitratorAddress
   ) => {
-    this._checkArbitratorWrappersSet()
-    // don't need to add another listener if we already have one
-    if (this._isWatchingDisputes) return
+    if (!this._eventListener) return
 
-    const lastBlock = await this._StoreProvider.getLastBlock(arbitratorAddress)
-    const currentBlock = await this._Arbitrator._getCurrentBlockNumber()
-    const contractInstance = await this._loadArbitratorInstance(arbitratorAddress)
-    this.disputeWatcher = contractInstance.DisputeCreation({}, {fromBlock: lastBlock, toBlock: 'latest'})
-
-    if (!lastBlock || lastBlock < currentBlock) {
-      // FETCH DISPUTES WE MIGHT HAVE MISSED
-      this.disputeWatcher.get((error, eventResult) => {
-        if (!error) {
-          eventResult.map(event => {
-            // add new dispute to store
-            this._updateStoreForDispute(arbitratorAddress, event.args._disputeID)
-          })
-
-          this._StoreProvider.updateLastBlock(arbitratorAddress, currentBlock)
-        }
-      })
+    const _disputeCreatedHandler = (
+      event,
+      contractAddress = arbitratorAddress
+    ) => {
+      const disputeId = event.args._disputeID.toNumber()
+      const arbitratorAddress = contractAddress
+      this._updateStoreForDispute(arbitratorAddress, disputeId)
     }
 
-    // WATCH FOR NEW DISPUTES
-    this.disputeWatcher.watch((error, result) => {
-      if (!error) {
-        const disputeId = result.args._disputeID
-        this._updateStoreForDispute(arbitratorAddress, disputeId)
-
-        this._StoreProvider.updateLastBlock(arbitratorAddress, result.blockNumber)
-      }
-    })
-    this._isWatchingDisputes = true
+    await this._eventListener.registerArbitratorEvent('DisputeCreation', _disputeCreatedHandler)
   }
 
   /**
   * stop watching for disputes
   */
-  stopWatchingForDisputes = () => {
-    if (!this._isWatchingDisputes) return
-
-    this.disputeWatcher.stopWatching()
-    this._isWatchingDisputes = false
+  stopWatchingForDisputes = (
+    arbitratorAddress
+  ) => {
+    this._eventListener.stopWatchingArbitratorEvents(arbitratorAddress)
   }
+
+  /**
+  * Subscribe to receive notifications for a dispute. In order for jurors to receive push notifications they must be subscribed
+  * @param {string} arbitratorAddress address of arbitrator contract
+  * @param {number} disputeId index of dispute
+  * @param {string} subscriberAddress address of new subscriber
+  */
+  subscribeToDispute = async (
+    arbitratorAddress,
+    disputeId,
+    subscriberAddress
+  ) => {
+    await this._StoreProvider.addSubscriber(
+      arbitratorAddress,
+      disputeId,
+      subscriberAddress
+    )
+  }
+
+  // **************************** //
+  // *          Public          * //
+  // **************************** //
 
   /**
   * Pay the arbitration fee to raise a dispute. To be called by the party A.
@@ -153,7 +155,7 @@ class Disputes extends AbstractWrapper {
     const period = arbitratorData.period
     const currentSession = arbitratorData.session
     // new jurors have not been chosen yet. don't update
-    if (period !== VOTING_PERIOD) {
+    if (period !== PERIODS.VOTE) {
       let disputes = await this._StoreProvider.getDisputesForUser(account)
       disputes = await Promise.all(disputes.map(async (dispute) => {
         return await this.getDataForDispute(dispute.arbitratorAddress, dispute.disputeId, account)
@@ -167,7 +169,10 @@ class Disputes extends AbstractWrapper {
       const myDisputeIds = await this.getDisputesForJuror(arbitratorAddress, account)
       // update store for each dispute
       await Promise.all(myDisputeIds.map(async disputeId => {
+        // add dispute to db if it doesn't already exist
         await this._updateStoreForDispute(arbitratorAddress, disputeId, account)
+        // subscribe for notifications
+        await this.subscribeToDispute(arbitratorAddress, disputeId, account)
       }))
 
       // update session on profile
@@ -311,7 +316,7 @@ class Disputes extends AbstractWrapper {
   */
   getDeadlineForDispute = async (
     arbitratorAddress,
-    period = VOTING_PERIOD
+    period = PERIODS.VOTE
   ) => {
     const arbitratorData = await this._Arbitrator.getData(arbitratorAddress)
     // compute end date
@@ -343,7 +348,7 @@ class Disputes extends AbstractWrapper {
     )
 
     // update dispute
-    await this._StoreProvider.updateDispute(
+    const dispute = (await this._StoreProvider.updateDispute(
       disputeData.disputeId,
       disputeData.arbitratorAddress,
       disputeData.hash,
@@ -356,7 +361,21 @@ class Disputes extends AbstractWrapper {
       disputeData.information,
       disputeData.justification,
       disputeData.resolutionOptions
-    )
+    )).body
+
+    // if no subscribers (a new dispute) add partyA and partyB
+    if (!dispute.subscribers.length) {
+      await this._StoreProvider.addSubscriber(
+        disputeData.arbitratorAddress,
+        disputeData.disputeId,
+        disputeData.partyA
+      )
+      await this._StoreProvider.addSubscriber(
+        disputeData.arbitratorAddress,
+        disputeData.disputeId,
+        disputeData.partyB
+      )
+    }
 
     // update profile partyA
     await this._StoreProvider.updateDisputeProfile(
