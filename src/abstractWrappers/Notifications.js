@@ -21,16 +21,6 @@ class Notifications extends AbstractWrapper {
   // *         Public           * //
   // **************************** //
   /**
-  * start listening for events
-  * @param {string} arbitratorAddress address of arbitrator
-  */
-  listenForEvents = async (
-    arbitratorAddress
-  ) => {
-    this._eventListener.watchForArbitratorEvents(arbitratorAddress)
-  }
-
-  /**
   * register event listeners for arbitrator.
   * @param {string} account filter notifications for account
   * @param {function} callback if we want notifications to be "pushed" provide a callback function to call when a new notificiation is created
@@ -49,7 +39,7 @@ class Notifications extends AbstractWrapper {
   }
 
   /**
-  * register event listeners for arbitrator.
+  * get stateful notifications. Stateful notifications change based on the state of the arbitrator contract
   * @param {string} account filter notifications for account
   * @param {function} callback if we want notifications to be "pushed" provide a callback function to call when a new notificiation is created
   */
@@ -169,7 +159,7 @@ class Notifications extends AbstractWrapper {
   * Fetch all unread notifications
   * @param {string} account address of user
   */
-  getUnreadNoticiations = async (
+  getUnreadNotifications = async (
     account
   ) => {
     const profile = await this._StoreProvider.getUserProfile(account)
@@ -178,13 +168,20 @@ class Notifications extends AbstractWrapper {
     })
   }
 
+  /**
+  * Fetch all unread notifications
+  * @param {string} account address of user
+  * @param {string} txHash hash of transaction that produced event
+  * @param {number} logIndex index of the log. used to differentiate logs if multiple logs per tx
+  */
   markNotificationAsRead = async (
     account,
-    txHash
+    txHash,
+    logIndex
   ) => {
     const profile = await this._StoreProvider.getUserProfile(account)
     const notificationIndex = await _.findIndex(profile.notifications, notification => {
-      return notification.txHash === txHash
+      return (notification.txHash === txHash && notification.logIndex === logIndex)
     })
 
     if (_.isNull(notificationIndex)) {

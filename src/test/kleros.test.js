@@ -218,12 +218,11 @@ describe('Kleros', () => {
     const klerosPOCInstance = await KlerosInstance.klerosPOC.load(klerosCourt.address)
 
     // initialize dispute watcher
-    await KlerosInstance.disputes.addDisputeEventListener(klerosCourt.address)
-    await KlerosInstance.notifications.registerNotificationListeners(
+    await KlerosInstance.watchForEvents(
+      klerosCourt.address,
       partyA,
       notificationCallback
     )
-    await KlerosInstance.notifications.listenForEvents(klerosCourt.address)
 
     // Juror should have no balance to start with
     const initialBalance = await KlerosInstance.arbitrator.getPNKBalance(klerosCourt.address, juror)
@@ -484,15 +483,15 @@ describe('Kleros', () => {
     // partyA got notifications
     const allNotifications = await KlerosInstance.notifications.getNoticiations(partyA)
     expect(allNotifications.length).toBe(notifications.length)
-    let unreadNotification = await KlerosInstance.notifications.getUnreadNoticiations(partyA)
+    let unreadNotification = await KlerosInstance.notifications.getUnreadNotifications(partyA)
     expect(unreadNotification).toEqual(allNotifications)
-    await KlerosInstance.notifications.markNotificationAsRead(partyA, allNotifications[0].txHash)
-    unreadNotification = await KlerosInstance.notifications.getUnreadNoticiations(partyA)
+    await KlerosInstance.notifications.markNotificationAsRead(partyA, allNotifications[0].txHash, allNotifications[0].logIndex)
+    unreadNotification = await KlerosInstance.notifications.getUnreadNotifications(partyA)
     expect(unreadNotification.length).toBe(notifications.length - 1)
     // juror subscribed once drawn and got notifications
     const jurorNotifications = await KlerosInstance.notifications.getNoticiations(juror)
     expect(jurorNotifications.length).toEqual(4) // should have 1 notification for arbitration fee and 3 token redistribution notifications
     // stop listening for new disputes
-    KlerosInstance.disputes.stopWatchingForDisputes(klerosCourt.address)
+    KlerosInstance.eventListener.stopWatchingArbitratorEvents(klerosCourt.address)
   }, 50000)
 })
