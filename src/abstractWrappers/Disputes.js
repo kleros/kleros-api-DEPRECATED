@@ -48,15 +48,6 @@ class Disputes extends AbstractWrapper {
   }
 
   /**
-  * stop watching for disputes
-  */
-  stopWatchingForDisputes = (
-    arbitratorAddress
-  ) => {
-    this._eventListener.stopWatchingArbitratorEvents(arbitratorAddress)
-  }
-
-  /**
   * Subscribe to receive notifications for a dispute. In order for jurors to receive push notifications they must be subscribed
   * @param {string} arbitratorAddress address of arbitrator contract
   * @param {number} disputeId index of dispute
