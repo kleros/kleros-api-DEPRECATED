@@ -91,7 +91,7 @@ class Disputes extends AbstractWrapper {
       )
 
       if (!txHash) throw new Error('unable to pay arbitration fee for party A')
-
+      await this._storeNewDispute(arbitrableContractAddress, account)
       return txHash
     } catch (e) {
       throw new Error(e)
@@ -119,8 +119,27 @@ class Disputes extends AbstractWrapper {
     )
 
     if (!txHash) throw new Error('unable to pay arbitration fee for party B')
-
+    await this._storeNewDispute(arbitrableContractAddress, account)
     return txHash
+  }
+
+  /**
+  * If there is a dispute in contract update store
+  * @param {string} contractAddress
+  * @param {string} account
+  */
+  _storeNewDispute = async (
+    arbitrableContractAddress,
+    account
+  ) => {
+    this._checkArbitratorWrappersSet()
+    this._checkArbitrableWrappersSet()
+
+    const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)
+
+    if (arbitrableContractData.status === DISPUTE_STATUS) {
+      await this._updateStoreForDispute(arbitrableContractData.arbitrator, arbitrableContractData.disputeId, account)
+    }
   }
 
   /**

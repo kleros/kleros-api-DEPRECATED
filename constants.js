@@ -1,6 +1,7 @@
 export const LOCALHOST_ETH_PROVIDER = 'http://localhost:8545'
 export const LOCALHOST_STORE_PROVIDER = 'https://kleros.in'
 export const RNG_ADDRESS = ''
+export const DISPUTE_STATUS = 3
 export const DISPUTE_STATES = {
     OPEN: 0,
     RESOLVING: 1,
