@@ -175,6 +175,106 @@ describe('Kleros', () => {
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
   }, 50000)
 
+  test(
+    'KlerosPOC dispute resolution with a timeout call by partyA',
+    async () => {
+    // initialize RNG and Pinakion contracts
+    const rngInstance = await KlerosInstance.blockHashRng.deploy(
+      undefined
+    )
+    expect(rngInstance.transactionHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    const pinakionInstance = await KlerosInstance.pinakion.deploy()
+    expect(pinakionInstance.transactionHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    // initialize KlerosPOC
+    const klerosCourt = await KlerosInstance.klerosPOC.deploy(
+      rngInstance.address,
+      pinakionInstance.address
+    )
+    expect(klerosCourt.transactionHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    // deploy a contract and create dispute
+    const mockHash = 'mock-hash-contract'
+    const mockTimeout = 1
+    const mockArbitratorExtraData = ''
+    const mockEmail = 'test@kleros.io'
+    const mockDescription = 'test description'
+    const contractPaymentAmount = web3.toWei(1, 'ether') // contract payment be 1 ether
+    let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
+      .deployContract(
+        partyA,
+        contractPaymentAmount, // use default value (0)
+        mockHash,
+        klerosCourt.address,
+        mockTimeout,
+        partyB,
+        mockArbitratorExtraData,
+        mockEmail,
+        mockDescription
+      )
+
+    expect(contractArbitrableTransactionData.address)
+      .toBeDefined() // contract address
+    expect(contractArbitrableTransactionData.arbitrator)
+      .toEqual(klerosCourt.address)
+    expect(contractArbitrableTransactionData.partyA)
+      .toEqual(partyA)
+    expect(contractArbitrableTransactionData.partyB)
+      .toEqual(partyB)
+
+    // return a bigint
+    // FIXME use arbitrableTransaction
+    const arbitrableContractInstance = await KlerosInstance
+      .arbitrableTransaction
+      .load(contractArbitrableTransactionData.address)
+    const partyAFeeContractInstance = await arbitrableContractInstance
+      .partyAFee()
+
+    // return bytes
+    // FIXME use arbitrableTransaction
+    let extraDataContractInstance = await arbitrableContractInstance
+      .arbitratorExtraData()
+
+    // return a bigint with the default value : 10000 wei fees
+    const arbitrationCost = await KlerosInstance.klerosPOC.getArbitrationCost(
+      klerosCourt.address,
+      extraDataContractInstance
+    )
+
+    // raise dispute party A
+    const txHashRaiseDisputeByPartyA = await KlerosInstance.disputes
+      .raiseDisputePartyA(
+        partyA,
+        contractArbitrableTransactionData.address,
+        web3.fromWei(
+          arbitrationCost - partyAFeeContractInstance.toNumber(), 'ether'
+        )
+      )
+    expect(txHashRaiseDisputeByPartyA)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    const delaySecond = async () => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(true)
+        }, 1000)
+      })
+    }
+
+    await delaySecond()
+
+    // call timeout by partyA
+    // TODO should test the api not directly the truffle contract
+    const txHashTimeOutByPartyA = await arbitrableContractInstance
+      .timeOutByPartyA({from: partyA})
+    expect(txHashTimeOutByPartyA.tx)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+  }, 50000)
+
   test('KlerosPOC dispute resolution flow', async () => {
     // initialize RNG and Pinakion contracts
     const rngInstance = await KlerosInstance.blockHashRng.deploy(
