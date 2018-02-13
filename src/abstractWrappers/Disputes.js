@@ -541,6 +541,7 @@ class Disputes extends AbstractWrapper {
       partyB: arbitrableContractData.partyB,
       arbitrableContractStatus: arbitrableContractData.status,
       disputeState: dispute.state,
+      disputeStatus: dispute.status,
       arbitrableContractAddress: arbitrableContractAddress,
       arbitratorAddress: arbitratorAddress,
       fee: dispute.arbitrationFeePerJuror,
