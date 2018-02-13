@@ -319,25 +319,20 @@ class Disputes extends AbstractWrapper {
   }
 
   /**
-  * get the deadline for dispute
-  * @param {string} arbitratorAddress address of arbitrator contract
-  * @param {number} period default to voting period
-  * @return {string} date string in the form dd/mm/yyyy
+  * Gets the deadline for an arbitrator's period, which is also the deadline for all its disputes.
+  * @param {string} arbitratorAddress - The address of the arbitrator contract.
+  * @param {number} [period=PERIODS.VOTE] - The period to get the deadline for.
+  * @return {Date} - A date object.
   */
   getDeadlineForDispute = async (
     arbitratorAddress,
     period = PERIODS.VOTE
   ) => {
+    // Get arbitrator data
     const arbitratorData = await this._Arbitrator.getData(arbitratorAddress)
-    // compute end date
-    const startTime = arbitratorData.lastPeriodChange
-    const length = await this._Arbitrator.getTimeForPeriod(arbitratorAddress, period)
-    // FIXME this is all UTC for now. Timezones are a pain
-    const deadline = new Date(0);
-    deadline.setUTCSeconds(startTime)
-    deadline.setSeconds(deadline.getSeconds() + length);
 
-    return `${deadline.getUTCDate()}/${deadline.getUTCMonth()}/${deadline.getFullYear()}`
+    // Last period change + current period duration = deadline
+    return new Date(1000 * (arbitratorData.lastPeriodChange + (await this._Arbitrator.getTimeForPeriod(arbitratorAddress, period))))
   }
 
   /**
