@@ -381,7 +381,8 @@ class KlerosWrapper extends ContractWrapper {
         rulingChoices: dispute[3].toNumber(),
         initialNumberJurors: dispute[4].toNumber(),
         arbitrationFeePerJuror: dispute[5].toNumber(),
-        state: dispute[6].toNumber()
+        state: dispute[6].toNumber(),
+        status: (await contractInstance.disputeStatus(disputeId)).toNumber()
       }
     } catch (e) {
       throw new Error(e)
