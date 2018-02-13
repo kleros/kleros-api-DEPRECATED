@@ -211,7 +211,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   * @param {string} contractAddress ETH address of contract
   * @return {string} txHash Hash transaction
    */
-  timeOutByPartyA = async (
+  callTimeOutPartyA = async (
     account = this._Web3Wrapper.getAccount(0),
     contractAddress
   ) => {
@@ -223,11 +223,11 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       const lastInteraction = await this.contractInstance.lastInteraction.call()
 
       if (status != CONTRACT_ARBITRABLE_STATUS.WAITING_PARTY_B) {
-        return new Error('Status contract is not WAITING_PARTY_B')
+        throw new Error('Status contract is not WAITING_PARTY_B')
       }
 
       if (Date.now() >= (lastInteraction+timeout)) {
-        return new Error('The timeout is not reached')
+        throw new Error('The timeout is not reached')
       }
 
       const txHashObj = await this.contractInstance
@@ -251,7 +251,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   * @param {string} contractAddress ETH address of contract
   * @return {string} txHash Hash transaction
    */
-  timeOutByPartyB = async (
+  callTimeOutPartyB = async (
     account = this._Web3Wrapper.getAccount(0),
     contractAddress
   ) => {
@@ -263,15 +263,15 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       const lastInteraction = await this.contractInstance.lastInteraction.call()
 
       if (status != CONTRACT_ARBITRABLE_STATUS.WAITING_PARTY_A) {
-        return new Error('Status contract is not WAITING_PARTY_A')
+        throw new Error('Status contract is not WAITING_PARTY_A')
       }
 
       if (Date.now() >= (lastInteraction+timeout)) {
-        return new Error('The timeout is not reached')
+        throw new Error('The timeout is not reached')
       }
 
       const txHashObj = await this.contractInstance
-        .timeOutByPartyA(
+        .timeOutByPartyB(
           {
             from: account,
             gas: config.GAS,
