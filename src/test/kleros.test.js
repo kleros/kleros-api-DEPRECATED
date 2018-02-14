@@ -88,10 +88,13 @@ describe('Kleros', () => {
       .toBeDefined() // contract address
     expect(contractArbitrableTransactionData.arbitrator)
       .toEqual(klerosCourt.address)
+    expect(contractArbitrableTransactionData.timeout)
+      .toEqual(1)
     expect(contractArbitrableTransactionData.partyA)
       .toEqual(partyA)
     expect(contractArbitrableTransactionData.partyB)
       .toEqual(partyB)
+    // TODO add test for lastInteraction, fix typeof of the var
   }, 10000)
 
   test(

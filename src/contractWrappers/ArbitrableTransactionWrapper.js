@@ -358,7 +358,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       arbitratorExtraData,
       disputeId,
       partyAFee,
-      partyBFee
+      partyBFee,
+      lastInteraction,
       ] = await Promise.all(
         [
           contractInstance.arbitrator.call(),
@@ -372,6 +373,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
           contractInstance.disputeID.call(),
           contractInstance.partyAFee.call(),
           contractInstance.partyBFee.call(),
+          contractInstance.lastInteraction.call(),
         ]
       ).catch(err => {
         throw new Error(err)
@@ -390,6 +392,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       disputeId: disputeId.toNumber(),
       partyAFee: partyAFee.toNumber(),
       partyBFee: partyBFee.toNumber(),
+      lastInteraction,
     }
   }
 }
