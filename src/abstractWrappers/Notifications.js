@@ -26,16 +26,33 @@ class Notifications extends AbstractWrapper {
   * @param {function} callback if we want notifications to be "pushed" provide a callback function to call when a new notificiation is created
   */
   registerNotificationListeners = async (
+    arbitratorAddress,
     account,
     callback
   ) => {
-    // Register all of the callbacks TODO DRY this out a little
-    // await this._eventListener.registerArbitrableEvent('NewPeriod', (args) => this._newPeriodHandler(args, callback))
-    await this._eventListener.registerArbitratorEvent('DisputeCreation', this._createHandler(this._disputeCreationHandler, account, callback))
-    await this._eventListener.registerArbitratorEvent('AppealPossible', this._createHandler(this._appealPossibleHandler, account, callback))
-    await this._eventListener.registerArbitratorEvent('AppealDecision', this._createHandler(this._appealingDecisionHandler, account, callback))
-    await this._eventListener.registerArbitratorEvent('TokenShift', this._createHandler(this._tokenShiftHandler, account, callback))
-    await this._eventListener.registerArbitratorEvent('ArbitrationReward', this._createHandler(this._arbitrationRewardHandler, account, callback))
+
+    const eventHandlerMap = {
+      DisputeCreation: this._disputeCreationHandler,
+      AppealPossible: this._appealPossibleHandler,
+      AppealDecision: this._appealingDecisionHandler,
+      TokenShift: this._tokenShiftHandler,
+      ArbitrationReward: this._arbitrationRewardHandler,
+      NewPeriod: this._newPeriodHandler
+    }
+
+    for (let event in eventHandlerMap) {
+      if (eventHandlerMap.hasOwnProperty(event)) {
+        await this._eventListener.registerArbitratorEvent(
+          event,
+          this._createHandler(
+            eventHandlerMap[event],
+            arbitratorAddress,
+            account,
+            callback
+          )
+        )
+      }
+    }
   }
 
   /**
@@ -44,12 +61,12 @@ class Notifications extends AbstractWrapper {
   * @param {function} callback if we want notifications to be "pushed" provide a callback function to call when a new notificiation is created
   */
   getStatefulNotifications = async (
+    arbitratorAddress,
     account,
     isJuror = true
   ) => {
     const notifications = []
-    const userProfile = await this._StoreProvider.getUserProfile(account)
-    const arbitratorAddress = this._eventListener.arbitratorAddress // FIXME have caller pass this instead?
+    const userProfile = await this._StoreProvider.getUserProfile(account) // FIXME have caller pass this instead?
     const currentPeriod = await this._Arbitrator.getPeriod(arbitratorAddress)
     const currentSession = await this._Arbitrator.getSession(arbitratorAddress)
 
@@ -210,30 +227,24 @@ class Notifications extends AbstractWrapper {
   * TODO Send push notifications for period state events?
   * We can get a list of subscribers by having jurors subscribe to an arbitrator. Raises new problems however
   */
-  _newPeriodHandler = async (event, account, callback) => {}
+  _newPeriodHandler = async (event, arbitratorAddress, account, callback) => {}
 
   /**
   * handler for DisputeCreation event
   * sends notification to partyA and partyB when dispute is created
   */
-  _disputeCreationHandler = async (event, account, callback) => {
+  _disputeCreationHandler = async (event, arbitratorAddress, account, callback) => {
+    const userProfile = await this._StoreProvider.getUserProfile(account)
     const disputeId = event.args._disputeID.toNumber()
-    const arbitratorAddress = this._eventListener.arbitratorAddress
-    const txHash = event.transactionHash
+    // if accout has this dispute
+    if (_.findIndex(userProfile.disputes, dispute => {
+      return (dispute.disputeId === disputeId && dispute.arbitratorAddress === arbitratorAddress)
+    }) >= 0) {
+      const txHash = event.transactionHash
+      const dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
+      const arbitrableData = await this._ArbitrableContract.getData(dispute.arbitratedContract)
 
-    const dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
-    const arbitrableData = await this._ArbitrableContract.getData(dispute.arbitratedContract)
-
-    let subscribers
-    try {
-      subscribers = await this._getSubscribersForDispute(arbitratorAddress, disputeId)
-    } catch (e) {
-      // if dispute isn't in db do nothing
-      subscribers = [arbitrableData.partyA, arbitrableData.partyB]
-    }
-
-    await Promise.all(subscribers.map(async subscriber => {
-      const response = await this._StoreProvider.newNotification(
+      await this._StoreProvider.newNotification(
         subscriber,
         txHash,
         event.logIndex,
@@ -244,23 +255,23 @@ class Notifications extends AbstractWrapper {
           arbitratorAddress: arbitratorAddress
         }
       )
-    }))
 
-    await this._sendPushNotification(subscribers, txHash, account, callback)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+    }
   }
 
   /**
   * handler for AppealPossible event
   * sends notification informing subscribers that a ruling has been made and an appeal possible
   */
-  _appealPossibleHandler = async (event, account, callback) => {
+  _appealPossibleHandler = async (event, arbitratorAddress, account, callback) => {
+    const userProfile = await this._StoreProvider.getUserProfile(account)
     const disputeId = event.args._disputeID.toNumber()
-    const arbitratorAddress = this._eventListener.arbitratorAddress
     const ruling = await this._Arbitrator.currentRulingForDispute(arbitratorAddress, disputeId)
 
-    subscribers = await this._getSubscribersForDispute(arbitratorAddress, disputeId)
-
-    await Promise.all(subscribers.map(async subscriber => {
+    if (_.findIndex(userProfile.disputes, dispute => {
+      return (dispute.disputeId === disputeId && dispute.arbitratorAddress === arbitratorAddress)
+    }) >= 0) {
       await this._StoreProvider.newNotification(
         subscriber,
         event.transactionHash,
@@ -273,22 +284,22 @@ class Notifications extends AbstractWrapper {
           ruling
         }
       )
-    }))
 
-    await this._sendPushNotification(subscribers, event.transactionHash, account, callback)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+    }
   }
 
   /**
   * handler for AppealDecision event
   * sends notification informing subscribers that a ruling has been appealed
   */
-  _appealingDecisionHandler = async (event, account, callback) => {
+  _appealingDecisionHandler = async (event, arbitratorAddress, account, callback) => {
+    const userProfile = await this._StoreProvider.getUserProfile(account)
     const disputeId = event.args._disputeID.toNumber()
-    const arbitratorAddress = this._eventListener.arbitratorAddress
 
-    subscribers = await this._getSubscribersForDispute(arbitratorAddress, disputeId)
-
-    await Promise.all(subscribers.map(async (subscriber) => {
+    if (_.findIndex(userProfile.disputes, dispute => {
+      return (dispute.disputeId === disputeId && dispute.arbitratorAddress === arbitratorAddress)
+    }) >= 0) {
       await this._StoreProvider.newNotification(
         subscriber,
         event.transactionHash,
@@ -300,9 +311,9 @@ class Notifications extends AbstractWrapper {
           arbitratorAddress
         }
       )
-    }))
 
-    await this._sendPushNotification(subscribers, event.transactionHash, account, callback)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+    }
   }
 
   /**
@@ -310,52 +321,54 @@ class Notifications extends AbstractWrapper {
   * sends notification informing
   * NOTE: you will get a notification for each vote. So a juror that has 3 votes will receive 3 notifications
   */
-  _tokenShiftHandler = async (event, account, callback) => {
+  _tokenShiftHandler = async (event, arbitratorAddress, account, callback) => {
     // address indexed _account, uint _disputeID, int _amount
     const disputeId = event.args._disputeID.toNumber()
     const address = event.args._account
     const amount = event.args._amount.toNumber()
-    const arbitratorAddress = this._eventListener.arbitratorAddress
 
-    const response = await this._StoreProvider.newNotification(
-      address,
-      event.transactionHash,
-      event.logIndex,
-      NOTIFICATION_TYPES.TOKEN_SHIFT,
-      'Tokens have be redistributed',
-      {
-        disputeId,
-        arbitratorAddress,
-        account: address,
-        amount
-      }
-    )
+    if (account === address) {
+      await this._StoreProvider.newNotification(
+        address,
+        event.transactionHash,
+        event.logIndex,
+        NOTIFICATION_TYPES.TOKEN_SHIFT,
+        'Tokens have be redistributed',
+        {
+          disputeId,
+          arbitratorAddress,
+          account: address,
+          amount
+        }
+      )
 
-    await this._sendPushNotification([address], event.transactionHash, account, callback)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+    }
   }
 
-  _arbitrationRewardHandler = async (event, account, callback) => {
+  _arbitrationRewardHandler = async (event, arbitratorAddress, account, callback) => {
     // address indexed _account, uint _disputeID, int _amount
     const disputeId = event.args._disputeID.toNumber()
     const address = event.args._account
     const amount = event.args._amount.toNumber()
-    const arbitratorAddress = this._eventListener.arbitratorAddress
 
-    await this._StoreProvider.newNotification(
-      address,
-      event.transactionHash,
-      event.logIndex,
-      NOTIFICATION_TYPES.ARBITRATION_REWARD,
-      'Juror awarded arbitration fee',
-      {
-        disputeId,
-        arbitratorAddress,
-        account: address,
-        amount
-      }
-    )
+    if (account === address) {
+      await this._StoreProvider.newNotification(
+        account,
+        event.transactionHash,
+        event.logIndex,
+        NOTIFICATION_TYPES.ARBITRATION_REWARD,
+        'Juror awarded arbitration fee',
+        {
+          disputeId,
+          arbitratorAddress,
+          account: address,
+          amount
+        }
+      )
 
-    await this._sendPushNotification([address], event.transactionHash, account, callback)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+    }
   }
 
   // **************************** //
@@ -364,42 +377,21 @@ class Notifications extends AbstractWrapper {
   /**
   * Helper method to create handler with correct params
   */
-  _createHandler = (handler, account, callback) => {
+  _createHandler = (handler, arbitratorAddress, account, callback) => {
     return (
       args
-    ) => handler(args, account, callback)
+    ) => handler(args, arbitratorAddress, account, callback)
   }
 
-  _getSubscribersForDispute = async (arbitratorAddress, disputeId) => {
-    const disputeProfile = await this._StoreProvider.getDispute(arbitratorAddress, disputeId)
-
-    return disputeProfile.subscribers
-  }
-
-  _sendPushNotification = async (subscribers, txHash, account, callback) => {
+  _sendPushNotification = async (txHash, logIndex, account, callback) => {
     if (callback) {
-      // if account supplied then we know that we only want to receive relavent notifications
-      if (account) {
-        // if this user is subscriber of notification, push it
-        if (_.indexOf(subscribers, account) >= 0) {
-          const userProfile = await this._StoreProvider.getUserProfile(account)
-          const notification = _.filter(userProfile.notifications, notification => {
-            return notification.txHash === txHash
-          })
+      const userProfile = await this._StoreProvider.getUserProfile(account)
+      const notification = _.filter(userProfile.notifications, notification => {
+        return (notification.txHash === txHash && notification.logIndex === logIndex)
+      })
 
-          if (notification) {
-            callback(notification[0])
-          }
-        }
-      } else {
-        // if no account supplied forward all notifications
-        const userProfile = await this._StoreProvider.getUserProfile(subscribers[0])
-        const notification = _.filter(userProfile.notifications, notification => {
-          return notification.txHash === txHash
-        })
-
-        if (notification)
-          callback(notification[0])
+      if (notification) {
+        callback(notification[0])
       }
     }
   }
