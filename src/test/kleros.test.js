@@ -498,7 +498,7 @@ describe('Kleros', () => {
 
     const disputesForJuror = await KlerosInstance.disputes.getDisputesForUser(klerosCourt.address, juror)
     expect(disputesForJuror.length).toEqual(1)
-    expect(disputesForJuror[0].deadline.getTime()).toBe(1000 * (newState.lastPeriodChange + (await klerosPOCInstance.timePerPeriod(newState.period)).toNumber()))
+    expect(disputesForJuror[0].deadline).toBe(1000 * (newState.lastPeriodChange + (await klerosPOCInstance.timePerPeriod(newState.period)).toNumber()))
     expect(disputesForJuror[0].arbitrableContractAddress).toEqual(contractArbitrableTransactionData.address)
     expect(disputesForJuror[0].votes).toEqual([1,2,3])
 
