@@ -184,7 +184,7 @@ class KlerosWrapper extends ContractWrapper {
     try {
       const arbitrationCost = await contractInstance.arbitrationCost(contractExtraData)
 
-      return arbitrationCost.toNumber()
+      return this._Web3Wrapper.fromWei(arbitrationCost.toNumber(), 'ether')
     } catch (e) {
       throw new Error(e)
     }
@@ -380,7 +380,7 @@ class KlerosWrapper extends ContractWrapper {
         numberOfAppeals: dispute[2].toNumber(),
         rulingChoices: dispute[3].toNumber(),
         initialNumberJurors: dispute[4].toNumber(),
-        arbitrationFeePerJuror: dispute[5].toNumber(),
+        arbitrationFeePerJuror: this._Web3Wrapper.fromWei(dispute[5].toNumber(), 'ether'),
         state: dispute[6].toNumber(),
         status: (await contractInstance.disputeStatus(disputeId)).toNumber()
       }
