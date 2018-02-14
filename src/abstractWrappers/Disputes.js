@@ -1,7 +1,7 @@
 import AbstractWrapper from './AbstractWrapper'
 import {
   NULL_ADDRESS,
-  VOTING_PERIOD,
+  PERIODS,
   DEFAULT_ARBITRATION_COST,
   DISPUTE_STATUS
 } from '../../constants'
@@ -17,64 +17,57 @@ class Disputes extends AbstractWrapper {
    * @param {object} arbitratorWrapper arbitrator contract wrapper object
    * @param {object} arbitrableWrapper arbitrable contract wrapper object
    */
-  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
-    super(storeProvider, arbitratorWrapper, arbitrableWrapper)
-    this.disputeWatcher
-    this._isWatchingDisputes = false
+  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper, eventListener) {
+    super(storeProvider, arbitratorWrapper, arbitrableWrapper, eventListener)
   }
+
+  // **************************** //
+  // *      Notifications       * //
+  // **************************** //
 
   /**
   * If there is a dispute in contract update store
   * FIXME contracts with multiple disputes will need a way to clarify that this is a new dispute
   * @param {string} arbitratorAddress
   */
-  watchForDisputes = async (
-    arbitratorAddress,
+  addDisputeEventListener = async (
+    arbitratorAddress
   ) => {
-    this._checkArbitratorWrappersSet()
-    // don't need to add another listener if we already have one
-    if (this._isWatchingDisputes) return
+    if (!this._eventListener) return
 
-    const lastBlock = await this._StoreProvider.getLastBlock(arbitratorAddress)
-    const currentBlock = await this._Arbitrator._getCurrentBlockNumber()
-    const contractInstance = await this._loadArbitratorInstance(arbitratorAddress)
-    this.disputeWatcher = contractInstance.DisputeCreation({}, {fromBlock: lastBlock, toBlock: 'latest'})
-
-    if (!lastBlock || lastBlock < currentBlock) {
-      // FETCH DISPUTES WE MIGHT HAVE MISSED
-      this.disputeWatcher.get((error, eventResult) => {
-        if (!error) {
-          eventResult.map(event => {
-            // add new dispute to store
-            this._updateStoreForDispute(arbitratorAddress, event.args._disputeID)
-          })
-
-          this._StoreProvider.updateLastBlock(arbitratorAddress, currentBlock)
-        }
-      })
+    const _disputeCreatedHandler = (
+      event,
+      contractAddress = arbitratorAddress
+    ) => {
+      const disputeId = event.args._disputeID.toNumber()
+      const arbitratorAddress = contractAddress
+      this._updateStoreForDispute(arbitratorAddress, disputeId)
     }
 
-    // WATCH FOR NEW DISPUTES
-    this.disputeWatcher.watch((error, result) => {
-      if (!error) {
-        const disputeId = result.args._disputeID
-        this._updateStoreForDispute(arbitratorAddress, disputeId)
-
-        this._StoreProvider.updateLastBlock(arbitratorAddress, result.blockNumber)
-      }
-    })
-    this._isWatchingDisputes = true
+    await this._eventListener.registerArbitratorEvent('DisputeCreation', _disputeCreatedHandler)
   }
 
   /**
-  * stop watching for disputes
+  * Subscribe to receive notifications for a dispute. In order for jurors to receive push notifications they must be subscribed
+  * @param {string} arbitratorAddress address of arbitrator contract
+  * @param {number} disputeId index of dispute
+  * @param {string} subscriberAddress address of new subscriber
   */
-  stopWatchingForDisputes = () => {
-    if (!this._isWatchingDisputes) return
-
-    this.disputeWatcher.stopWatching()
-    this._isWatchingDisputes = false
+  subscribeToDispute = async (
+    arbitratorAddress,
+    disputeId,
+    subscriberAddress
+  ) => {
+    await this._StoreProvider.addSubscriber(
+      arbitratorAddress,
+      disputeId,
+      subscriberAddress
+    )
   }
+
+  // **************************** //
+  // *          Public          * //
+  // **************************** //
 
   /**
   * Pay the arbitration fee to raise a dispute. To be called by the party A.
@@ -98,7 +91,7 @@ class Disputes extends AbstractWrapper {
       )
 
       if (!txHash) throw new Error('unable to pay arbitration fee for party A')
-
+      await this._storeNewDispute(arbitrableContractAddress, account)
       return txHash
     } catch (e) {
       throw new Error(e)
@@ -126,8 +119,27 @@ class Disputes extends AbstractWrapper {
     )
 
     if (!txHash) throw new Error('unable to pay arbitration fee for party B')
-
+    await this._storeNewDispute(arbitrableContractAddress, account)
     return txHash
+  }
+
+  /**
+  * If there is a dispute in contract update store
+  * @param {string} contractAddress
+  * @param {string} account
+  */
+  _storeNewDispute = async (
+    arbitrableContractAddress,
+    account
+  ) => {
+    this._checkArbitratorWrappersSet()
+    this._checkArbitrableWrappersSet()
+
+    const arbitrableContractData = await this._ArbitrableContract.getData(arbitrableContractAddress)
+
+    if (arbitrableContractData.status === DISPUTE_STATUS) {
+      await this._updateStoreForDispute(arbitrableContractData.arbitrator, arbitrableContractData.disputeId, account)
+    }
   }
 
   /**
@@ -153,7 +165,8 @@ class Disputes extends AbstractWrapper {
     const period = arbitratorData.period
     const currentSession = arbitratorData.session
     // new jurors have not been chosen yet. don't update
-    if (period !== VOTING_PERIOD) {
+
+    const _getDisputesForUserFromStore = async account => {
       let disputes = await this._StoreProvider.getDisputesForUser(account)
       disputes = await Promise.all(disputes.map(async (dispute) => {
         return await this.getDataForDispute(dispute.arbitratorAddress, dispute.disputeId, account)
@@ -162,12 +175,19 @@ class Disputes extends AbstractWrapper {
       return disputes
     }
 
+    if (period !== PERIODS.VOTE) {
+      return _getDisputesForUserFromStore(account)
+    }
+
     if (currentSession != profile.session) {
       // get disputes for juror
       const myDisputeIds = await this.getDisputesForJuror(arbitratorAddress, account)
       // update store for each dispute
       await Promise.all(myDisputeIds.map(async disputeId => {
+        // add dispute to db if it doesn't already exist
         await this._updateStoreForDispute(arbitratorAddress, disputeId, account)
+        // subscribe for notifications
+        await this.subscribeToDispute(arbitratorAddress, disputeId, account)
       }))
 
       // update session on profile
@@ -175,13 +195,8 @@ class Disputes extends AbstractWrapper {
       profile.session = currentSession
       await this._StoreProvider.updateUserProfile(account, profile)
     }
-    // return array of all disputes for user
-    let disputes = await this._StoreProvider.getDisputesForUser(account)
-    disputes = await Promise.all(disputes.map(async (dispute) => {
-      return await this.getDataForDispute(dispute.arbitratorAddress, dispute.disputeId, account)
-    }))
 
-    return disputes
+    return _getDisputesForUserFromStore(account)
   }
 
   /**
@@ -304,25 +319,20 @@ class Disputes extends AbstractWrapper {
   }
 
   /**
-  * get the deadline for dispute
-  * @param {string} arbitratorAddress address of arbitrator contract
-  * @param {number} period default to voting period
-  * @return {string} date string in the form dd/mm/yyyy
+  * Gets the deadline for an arbitrator's period, which is also the deadline for all its disputes.
+  * @param {string} arbitratorAddress - The address of the arbitrator contract.
+  * @param {number} [period=PERIODS.VOTE] - The period to get the deadline for.
+  * @return {Date} - A date object.
   */
   getDeadlineForDispute = async (
     arbitratorAddress,
-    period = VOTING_PERIOD
+    period = PERIODS.VOTE
   ) => {
+    // Get arbitrator data
     const arbitratorData = await this._Arbitrator.getData(arbitratorAddress)
-    // compute end date
-    const startTime = arbitratorData.lastPeriodChange
-    const length = await this._Arbitrator.getTimeForPeriod(arbitratorAddress, period)
-    // FIXME this is all UTC for now. Timezones are a pain
-    const deadline = new Date(0);
-    deadline.setUTCSeconds(startTime)
-    deadline.setSeconds(deadline.getSeconds() + length);
 
-    return `${deadline.getUTCDate()}/${deadline.getUTCMonth()}/${deadline.getFullYear()}`
+    // Last period change + current period duration = deadline
+    return 1000 * (arbitratorData.lastPeriodChange + (await this._Arbitrator.getTimeForPeriod(arbitratorAddress, period)))
   }
 
   /**
@@ -343,7 +353,7 @@ class Disputes extends AbstractWrapper {
     )
 
     // update dispute
-    await this._StoreProvider.updateDispute(
+    const dispute = (await this._StoreProvider.updateDispute(
       disputeData.disputeId,
       disputeData.arbitratorAddress,
       disputeData.hash,
@@ -356,7 +366,21 @@ class Disputes extends AbstractWrapper {
       disputeData.information,
       disputeData.justification,
       disputeData.resolutionOptions
-    )
+    )).body
+
+    // if no subscribers (a new dispute) add partyA and partyB
+    if (!dispute.subscribers.length) {
+      await this._StoreProvider.addSubscriber(
+        disputeData.arbitratorAddress,
+        disputeData.disputeId,
+        disputeData.partyA
+      )
+      await this._StoreProvider.addSubscriber(
+        disputeData.arbitratorAddress,
+        disputeData.disputeId,
+        disputeData.partyB
+      )
+    }
 
     // update profile partyA
     await this._StoreProvider.updateDisputeProfile(
@@ -435,8 +459,14 @@ class Disputes extends AbstractWrapper {
       arbitrableContractAddress
     )
 
-    const partyAEvidence = partyAContractData ? partyAContractData.evidences : []
-    const partyBEvidence = partyBContractData ? partyBContractData.evidences : []
+    const partyAEvidence = (partyAContractData ? partyAContractData.evidences : []).map(evidence => {
+      evidence.submitter = arbitrableContractData.partyA
+      return evidence
+    })
+    const partyBEvidence = (partyBContractData ? partyBContractData.evidences : []).map(evidence => {
+      evidence.submitter = arbitrableContractData.partyB
+      return evidence
+    })
 
     return partyAEvidence.concat(partyBEvidence)
   }
@@ -517,6 +547,7 @@ class Disputes extends AbstractWrapper {
       partyB: arbitrableContractData.partyB,
       arbitrableContractStatus: arbitrableContractData.status,
       disputeState: dispute.state,
+      disputeStatus: dispute.status,
       arbitrableContractAddress: arbitrableContractAddress,
       arbitratorAddress: arbitratorAddress,
       fee: dispute.arbitrationFeePerJuror,

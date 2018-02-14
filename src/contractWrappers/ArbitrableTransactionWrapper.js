@@ -5,7 +5,10 @@ import ContractWrapper from './ContractWrapper'
 import KlerosWrapper from './KlerosWrapper'
 import arbitrableTransaction from 'kleros-interaction/build/contracts/ArbitrableTransaction'
 import config from '../../config'
-import { DISPUTE_STATUS } from '../../constants'
+import {
+  DISPUTE_STATUS,
+  CONTRACT_ARBITRABLE_STATUS
+} from '../../constants'
 
 /**
  * ArbitrableTransaction API
@@ -195,11 +198,91 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
         {
           from: account,
           gas: config.GAS,
-          value: 0
+          value: 0,
         }
       )
 
     return txHashObj.tx
+  }
+
+  /**
+  * Call by partyA if partyB is timeout
+  * @param {string} account ETH address of user
+  * @param {string} contractAddress ETH address of contract
+  * @return {string} txHash Hash transaction
+   */
+  callTimeOutPartyA = async (
+    account = this._Web3Wrapper.getAccount(0),
+    contractAddress
+  ) => {
+    try {
+      this.contractInstance = await this.load(contractAddress)
+
+      const status = await this.contractInstance.status.call()
+      const timeout = await this.contractInstance.timeout.call()
+      const lastInteraction = await this.contractInstance.lastInteraction.call()
+
+      if (status != CONTRACT_ARBITRABLE_STATUS.WAITING_PARTY_B) {
+        throw new Error('Status contract is not WAITING_PARTY_B')
+      }
+
+      if (Date.now() >= (lastInteraction+timeout)) {
+        throw new Error('The timeout is not reached')
+      }
+
+      const txHashObj = await this.contractInstance
+        .timeOutByPartyA(
+          {
+            from: account,
+            gas: config.GAS,
+            value: 0,
+          }
+        )
+
+      return txHashObj.tx
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  /**
+  * Call by partyB if partyA is timeout
+  * @param {string} account ETH address of user
+  * @param {string} contractAddress ETH address of contract
+  * @return {string} txHash Hash transaction
+   */
+  callTimeOutPartyB = async (
+    account = this._Web3Wrapper.getAccount(0),
+    contractAddress
+  ) => {
+    try {
+      this.contractInstance = await this.load(contractAddress)
+
+      const status = await this.contractInstance.status.call()
+      const timeout = await this.contractInstance.timeout.call()
+      const lastInteraction = await this.contractInstance.lastInteraction.call()
+
+      if (status != CONTRACT_ARBITRABLE_STATUS.WAITING_PARTY_A) {
+        throw new Error('Status contract is not WAITING_PARTY_A')
+      }
+
+      if (Date.now() >= (lastInteraction+timeout)) {
+        throw new Error('The timeout is not reached')
+      }
+
+      const txHashObj = await this.contractInstance
+        .timeOutByPartyB(
+          {
+            from: account,
+            gas: config.GAS,
+            value: 0
+          }
+        )
+
+      return txHashObj.tx
+    } catch (e) {
+      throw new Error(e)
+    }
   }
 
   /**
@@ -275,7 +358,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       arbitratorExtraData,
       disputeId,
       partyAFee,
-      partyBFee
+      partyBFee,
+      lastInteraction,
       ] = await Promise.all(
         [
           contractInstance.arbitrator.call(),
@@ -289,6 +373,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
           contractInstance.disputeID.call(),
           contractInstance.partyAFee.call(),
           contractInstance.partyBFee.call(),
+          contractInstance.lastInteraction.call(),
         ]
       ).catch(err => {
         throw new Error(err)
@@ -307,6 +392,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       disputeId: disputeId.toNumber(),
       partyAFee: partyAFee.toNumber(),
       partyBFee: partyBFee.toNumber(),
+      lastInteraction,
     }
   }
 }

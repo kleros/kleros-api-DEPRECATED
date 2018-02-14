@@ -5,7 +5,7 @@ import ArbitrableTransactionWrapper from './ArbitrableTransactionWrapper'
 import kleros from 'kleros/build/contracts/KlerosPOC'
 import config from '../../config'
 import disputes from './mockDisputes'
-import { VOTING_PERIOD, DISPUTE_STATE_INDEX } from '../../constants'
+import { DISPUTE_STATE_INDEX } from '../../constants'
 
 /**
  * Kleros API
@@ -139,6 +139,7 @@ class KlerosWrapper extends ContractWrapper {
 
   /**
    * Activate Pinakion tokens to be eligible to be a juror
+   * FIXME use estimateGas
    * @param {string} amount number of tokens to activate
    * @param {string} contractAddress address of KlerosPOC contract
    * @param {string} account address of user
@@ -380,7 +381,8 @@ class KlerosWrapper extends ContractWrapper {
         rulingChoices: dispute[3].toNumber(),
         initialNumberJurors: dispute[4].toNumber(),
         arbitrationFeePerJuror: dispute[5].toNumber(),
-        state: dispute[6].toNumber()
+        state: dispute[6].toNumber(),
+        status: (await contractInstance.disputeStatus(disputeId)).toNumber()
       }
     } catch (e) {
       throw new Error(e)
@@ -446,6 +448,11 @@ class KlerosWrapper extends ContractWrapper {
     return currentRuling.toNumber()
   }
 
+  /**
+  * Get current period of the contract
+  * @param {string} contractAddress address of KlerosPOC contract
+  * @return {number} int indicating the period
+  */
   getPeriod = async (
     contractAddress
   ) => {
@@ -456,6 +463,11 @@ class KlerosWrapper extends ContractWrapper {
     return currentPeriod.toNumber()
   }
 
+  /**
+  * Get current session of the contract
+  * @param {string} contractAddress address of KlerosPOC contract
+  * @return {number} int indicating the session
+  */
   getSession = async (
     contractAddress
   ) => {

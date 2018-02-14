@@ -1,7 +1,7 @@
 import Kleros from '../kleros'
 import Web3 from 'web3'
 import contract from 'truffle-contract'
-import {LOCALHOST_PROVIDER} from '../../constants'
+import { LOCALHOST_ETH_PROVIDER, NOTIFICATION_TYPES } from '../../constants'
 import config from '../../config'
 import mockDisputes from '../contractWrappers/mockDisputes'
 
@@ -14,10 +14,12 @@ describe('Kleros', () => {
   let web3
   let KlerosInstance
   let storeProvider
+  let notificationCallback
+  let notifications = []
 
   beforeAll(async () => {
     // use testRPC
-    const provider = await new Web3.providers.HttpProvider(LOCALHOST_PROVIDER)
+    const provider = await new Web3.providers.HttpProvider(LOCALHOST_ETH_PROVIDER)
 
     KlerosInstance = await new Kleros(provider)
 
@@ -29,6 +31,10 @@ describe('Kleros', () => {
     other = web3.eth.accounts[3]
 
     storeProvider = await KlerosInstance.getStoreWrapper()
+
+    notificationCallback = notification => {
+      notifications.push(notification)
+    }
   })
 
   beforeEach(async () => {
@@ -82,10 +88,13 @@ describe('Kleros', () => {
       .toBeDefined() // contract address
     expect(contractArbitrableTransactionData.arbitrator)
       .toEqual(klerosCourt.address)
+    expect(contractArbitrableTransactionData.timeout)
+      .toEqual(1)
     expect(contractArbitrableTransactionData.partyA)
       .toEqual(partyA)
     expect(contractArbitrableTransactionData.partyB)
       .toEqual(partyB)
+    // TODO add test for lastInteraction, fix typeof of the var
   }, 10000)
 
   test(
@@ -169,6 +178,106 @@ describe('Kleros', () => {
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
   }, 50000)
 
+  test(
+    'KlerosPOC dispute resolution with a timeout call by partyA',
+    async () => {
+    // initialize RNG and Pinakion contracts
+    const rngInstance = await KlerosInstance.blockHashRng.deploy(
+      undefined
+    )
+    expect(rngInstance.transactionHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    const pinakionInstance = await KlerosInstance.pinakion.deploy()
+    expect(pinakionInstance.transactionHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    // initialize KlerosPOC
+    const klerosCourt = await KlerosInstance.klerosPOC.deploy(
+      rngInstance.address,
+      pinakionInstance.address
+    )
+    expect(klerosCourt.transactionHash)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    // deploy a contract and create dispute
+    const mockHash = 'mock-hash-contract'
+    const mockTimeout = 1
+    const mockArbitratorExtraData = ''
+    const mockEmail = 'test@kleros.io'
+    const mockDescription = 'test description'
+    const contractPaymentAmount = web3.toWei(1, 'ether') // contract payment be 1 ether
+    let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
+      .deployContract(
+        partyA,
+        contractPaymentAmount, // use default value (0)
+        mockHash,
+        klerosCourt.address,
+        mockTimeout,
+        partyB,
+        mockArbitratorExtraData,
+        mockEmail,
+        mockDescription
+      )
+
+    expect(contractArbitrableTransactionData.address)
+      .toBeDefined() // contract address
+    expect(contractArbitrableTransactionData.arbitrator)
+      .toEqual(klerosCourt.address)
+    expect(contractArbitrableTransactionData.partyA)
+      .toEqual(partyA)
+    expect(contractArbitrableTransactionData.partyB)
+      .toEqual(partyB)
+
+    // return a bigint
+    // FIXME use arbitrableTransaction
+    const arbitrableContractInstance = await KlerosInstance
+      .arbitrableTransaction
+      .load(contractArbitrableTransactionData.address)
+    const partyAFeeContractInstance = await arbitrableContractInstance
+      .partyAFee()
+
+    // return bytes
+    // FIXME use arbitrableTransaction
+    let extraDataContractInstance = await arbitrableContractInstance
+      .arbitratorExtraData()
+
+    // return a bigint with the default value : 10000 wei fees
+    const arbitrationCost = await KlerosInstance.klerosPOC.getArbitrationCost(
+      klerosCourt.address,
+      extraDataContractInstance
+    )
+
+    // raise dispute party A
+    const txHashRaiseDisputeByPartyA = await KlerosInstance.disputes
+      .raiseDisputePartyA(
+        partyA,
+        contractArbitrableTransactionData.address,
+        web3.fromWei(
+          arbitrationCost - partyAFeeContractInstance.toNumber(), 'ether'
+        )
+      )
+    expect(txHashRaiseDisputeByPartyA)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+
+    const delaySecond = async () => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(true)
+        }, 1000)
+      })
+    }
+
+    await delaySecond()
+
+    // call timeout by partyA
+    // TODO should test the api not directly the truffle contract
+    const txHashTimeOutByPartyA = await arbitrableContractInstance
+      .timeOutByPartyA({from: partyA})
+    expect(txHashTimeOutByPartyA.tx)
+      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+  }, 50000)
+
   test('KlerosPOC dispute resolution flow', async () => {
     // initialize RNG and Pinakion contracts
     const rngInstance = await KlerosInstance.blockHashRng.deploy(
@@ -212,11 +321,20 @@ describe('Kleros', () => {
     const klerosPOCInstance = await KlerosInstance.klerosPOC.load(klerosCourt.address)
 
     // initialize dispute watcher
-    KlerosInstance.disputes.watchForDisputes(klerosCourt.address)
+    await KlerosInstance.watchForEvents(
+      klerosCourt.address,
+      partyA,
+      notificationCallback
+    )
 
     // Juror should have no balance to start with
     const initialBalance = await KlerosInstance.arbitrator.getPNKBalance(klerosCourt.address, juror)
     expect(initialBalance.tokenBalance).toEqual('0')
+
+    // stateful notifications juror
+    let jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(juror, true)
+    expect(jurorStatefullNotifications.length).toEqual(1)
+    expect(jurorStatefullNotifications[0].notificationType).toEqual(NOTIFICATION_TYPES.CAN_ACTIVATE)
 
     // buy 1 PNK
     const newBalance = await KlerosInstance.arbitrator.buyPNK(1, klerosCourt.address, juror)
@@ -227,6 +345,10 @@ describe('Kleros', () => {
     const balance = await KlerosInstance.arbitrator.activatePNK(activatedTokenAmount, klerosCourt.address, juror)
     expect(balance.tokenBalance).toEqual('1')
     expect(balance.activatedTokens).toEqual('0.5')
+
+    // stateful notifications juror
+    jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(juror, true)
+    expect(jurorStatefullNotifications.length).toEqual(0)
 
     const jurorData = await klerosPOCInstance.jurors(juror)
     expect(jurorData[2].toNumber()).toEqual((await klerosPOCInstance.session()).toNumber())
@@ -275,8 +397,10 @@ describe('Kleros', () => {
       .arbitratorExtraData()
 
     // return a bigint with the default value : 10000 wei fees
-    const arbitrationCost = await klerosCourt
-      .arbitrationCost(extraDataContractInstance)
+    const arbitrationCost = await KlerosInstance.klerosPOC.getArbitrationCost(
+      klerosCourt.address,
+      extraDataContractInstance
+    )
 
     // raise dispute party A
     const txHashRaiseDisputeByPartyA = await KlerosInstance.disputes
@@ -290,6 +414,11 @@ describe('Kleros', () => {
     expect(txHashRaiseDisputeByPartyA)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
+    let partyBStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(partyB, false)
+    expect(partyBStatefullNotifications.length).toEqual(1)
+    expect(partyBStatefullNotifications[0].notificationType).toEqual(NOTIFICATION_TYPES.CAN_PAY_FEE)
+    expect(partyBStatefullNotifications[0].data.arbitrableContractAddress).toEqual(contractArbitrableTransactionData.address)
+    expect(partyBStatefullNotifications[0].data.feeToPay).toEqual(arbitrationCost)
     // return a bigint
     // FIXME use arbitrableTransaction
     const partyBFeeContractInstance = await arbitrableContractInstance
@@ -306,9 +435,8 @@ describe('Kleros', () => {
     expect(txHashRaiseDisputeByPartyB)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
-    // check to see if store is updated
-    // const userProfile = await storeProvider.getUserProfile(partyA)
-    // expect(userProfile.disputes.length).toEqual(1)
+    partyBStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(partyB, false)
+    expect(partyBStatefullNotifications.length).toEqual(0)
 
     const dispute = await KlerosInstance.klerosPOC.getDispute(klerosCourt.address, 0)
     expect(dispute.arbitratedContract).toEqual(contractArbitrableTransactionData.address)
@@ -373,8 +501,14 @@ describe('Kleros', () => {
 
     const disputesForJuror = await KlerosInstance.disputes.getDisputesForUser(klerosCourt.address, juror)
     expect(disputesForJuror.length).toEqual(1)
+    expect(disputesForJuror[0].deadline).toBe(1000 * (newState.lastPeriodChange + (await klerosPOCInstance.timePerPeriod(newState.period)).toNumber()))
     expect(disputesForJuror[0].arbitrableContractAddress).toEqual(contractArbitrableTransactionData.address)
     expect(disputesForJuror[0].votes).toEqual([1,2,3])
+
+    // stateful notifications juror
+    jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(juror, true)
+    expect(jurorStatefullNotifications.length).toEqual(1)
+    expect(jurorStatefullNotifications[0].notificationType).toEqual(NOTIFICATION_TYPES.CAN_VOTE)
 
     // partyA wins
     const ruling = 1
@@ -382,7 +516,7 @@ describe('Kleros', () => {
       klerosCourt.address,
       0,
       ruling,
-      [1],
+      [1,2,3],
       juror
     )
 
@@ -406,23 +540,62 @@ describe('Kleros', () => {
     await delaySecond()
     // move to execute period
     await KlerosInstance.arbitrator.passPeriod(klerosCourt.address, other)
+    // stateful notifications
+    jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(juror, true)
+    expect(jurorStatefullNotifications.length).toEqual(1)
+    expect(jurorStatefullNotifications[0].notificationType).toEqual(NOTIFICATION_TYPES.CAN_REPARTITION)
+
+    partyBStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(partyB, false)
+    expect(partyBStatefullNotifications.length).toEqual(1)
+    expect(partyBStatefullNotifications[0].notificationType).toEqual(NOTIFICATION_TYPES.CAN_REPARTITION)
+
     // balances before ruling is executed
     const partyABalance = web3.eth.getBalance(partyA).toNumber()
     const partyBBalance = web3.eth.getBalance(partyB).toNumber()
     // repartition tokens
     await KlerosInstance.klerosPOC.repartitionJurorTokens(klerosCourt.address, 0, other)
+
+    // stateful notifications
+    jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(juror, true)
+    expect(jurorStatefullNotifications.length).toEqual(1)
+    expect(jurorStatefullNotifications[0].notificationType).toEqual(NOTIFICATION_TYPES.CAN_EXECUTE)
+
+    partyBStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(partyB, false)
+    expect(partyBStatefullNotifications.length).toEqual(1)
+    expect(partyBStatefullNotifications[0].notificationType).toEqual(NOTIFICATION_TYPES.CAN_EXECUTE)
+
     // execute ruling
     await KlerosInstance.klerosPOC.executeRuling(klerosCourt.address, 0, other)
     // balances after ruling
     // partyA wins so they should recieve their arbitration fee as well as the value locked in contract
-    expect(web3.eth.getBalance(partyA).toNumber() - partyABalance).toEqual(arbitrationCost.toNumber() + parseInt(contractPaymentAmount))
+    expect(web3.eth.getBalance(partyA).toNumber() - partyABalance).toEqual(arbitrationCost + parseInt(contractPaymentAmount))
     // partyB lost so their balance should remain the same
     expect(web3.eth.getBalance(partyB).toNumber()).toEqual(partyBBalance)
 
     const updatedContractData = await KlerosInstance.arbitrableContract.getData(contractArbitrableTransactionData.address)
     expect(parseInt(updatedContractData.status)).toEqual(4)
 
+    // NOTIFICATIONS
+    // stateful notifications
+    jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(juror, true)
+    expect(jurorStatefullNotifications.length).toEqual(0)
+
+    partyBStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(partyB, false)
+    expect(partyBStatefullNotifications.length).toEqual(0)
+
+    expect(notifications.length).toBeTruthy()
+    // partyA got notifications
+    const allNotifications = await KlerosInstance.notifications.getNoticiations(partyA)
+    expect(allNotifications.length).toBe(notifications.length)
+    let unreadNotification = await KlerosInstance.notifications.getUnreadNotifications(partyA)
+    expect(unreadNotification).toEqual(allNotifications)
+    await KlerosInstance.notifications.markNotificationAsRead(partyA, allNotifications[0].txHash, allNotifications[0].logIndex)
+    unreadNotification = await KlerosInstance.notifications.getUnreadNotifications(partyA)
+    expect(unreadNotification.length).toBe(notifications.length - 1)
+    // juror subscribed once drawn and got notifications
+    const jurorNotifications = await KlerosInstance.notifications.getNoticiations(juror)
+    expect(jurorNotifications.length).toEqual(4) // should have 1 notification for arbitration fee and 3 token redistribution notifications
     // stop listening for new disputes
-    KlerosInstance.disputes.stopWatchingForDisputes()
+    KlerosInstance.eventListener.stopWatchingArbitratorEvents(klerosCourt.address)
   }, 50000)
 })

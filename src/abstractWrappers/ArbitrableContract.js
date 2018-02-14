@@ -12,9 +12,10 @@ class ArbitrableContract extends AbstractWrapper {
    * Arbitrable Contract Constructor
    * @param {object} storeProvider store provider object
    * @param {object} arbitrableWrapper arbitrable contract wrapper object
+   * @param {object} eventListener event listener object
    */
-  constructor(storeProvider, arbitrableWrapper) {
-    super(storeProvider, undefined, arbitrableWrapper)
+  constructor(storeProvider, arbitrableWrapper, eventListener) {
+    super(storeProvider, undefined, arbitrableWrapper, eventListener)
   }
 
   /**

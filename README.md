@@ -45,19 +45,22 @@ Open documentation UI
 yarn docs
 ```
 
-## Smart contract commands (testrpc)
+## Event Listeners
 
+For notifications and event based updates the api uses event listeners. In order to register and start listening to events use these commands:
+
+##### Quick Start
+To register all events and start the listener call
 ```
-yarn deployCentralCourt
-yarn deployArbitrableTransaction
-yarn createArbitrableTransactionDispute
-yarn getDisputeDataFromCentralCourt
-yarn getDataFromArbitrableTransaction
-yarn postDataToStore
-yarn getDataFromStore
-yarn deployKlerosPOC
-yarn buyPNK
-yarn activatePNK
-yarn passPeriod
-yarn getDisputesForUser
+KlerosInstance.watchForEvents(arbitratorAddress, account, callback)
+```
+params:
+
+- arbitratorAddress: address of arbitrator contract. Needed to update store for disputes
+- account: <optional> address used for notification callbacks. If an address is provided push notifications will only be sent for notifications that involve the address. If it is omitted and a callback is included all notifications will be pushed.
+- callback: <optional> function to be called for push notifications
+
+##### Stop Listener
+```
+KlerosInstance.eventListener.stopWatchingArbitratorEvents(arbitratorAddress)
 ```

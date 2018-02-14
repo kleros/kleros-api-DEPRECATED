@@ -7,10 +7,11 @@ class AbstractWrapper {
    * @param {object} arbitratorWrapper arbitrator contract wrapper object
    * @param {object} arbitrableWrapper arbitrable contract wrapper object
    */
-  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
+  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper, eventListener) {
     this._StoreProvider = storeProvider
     this._Arbitrator = arbitratorWrapper
     this._ArbitrableContract = arbitrableWrapper
+    this._eventListener = eventListener
   }
 
   /**
@@ -35,6 +36,14 @@ class AbstractWrapper {
   */
   setArbitrable = arbitrableWrapper => {
     this._ArbitrableContract = arbitrableWrapper
+  }
+
+  /**
+  * set event listner
+  * @param {object} eventListener event listener objec
+  */
+  setEventListener = eventListener => {
+    this._eventListener = eventListener
   }
 
   /**

@@ -7,6 +7,8 @@ import BlockHashRNGWrapper from './contractWrappers/BlockHashRNGWrapper'
 import DisputesApi from './abstractWrappers/Disputes'
 import ArbitratorApi from './abstractWrappers/Arbitrator'
 import ArbitrableContractApi from './abstractWrappers/ArbitrableContract'
+import EventListeners from './abstractWrappers/EventListeners'
+import Notifications from './abstractWrappers/Notifications'
 import { LOCALHOST_STORE_PROVIDER, LOCALHOST_ETH_PROVIDER } from '../constants'
 
 class Kleros {
@@ -29,7 +31,6 @@ class Kleros {
     ethereumProvider = LOCALHOST_ETH_PROVIDER,
     storeProvider = LOCALHOST_STORE_PROVIDER
   ) {
-    console.log(storeProvider)
     this._web3Wrapper = new Web3Wrapper(ethereumProvider)
     this._storeWrapper = new StoreProviderWrapper(storeProvider)
     // low level contract api
@@ -37,15 +38,29 @@ class Kleros {
     this.arbitrableTransaction = new ArbitrableTransactionWrapper(this._web3Wrapper)
     this.pinakion = new PinakionWrapper(this._web3Wrapper)
     this.blockHashRng = new BlockHashRNGWrapper(this._web3Wrapper)
-    // abstracted api
+
     // FIXME allow user to pass which court and arbitrable contract they are using
-    this.disputes = new DisputesApi(this._storeWrapper, this.klerosPOC, this.arbitrableTransaction)
-    this.arbitrator = new ArbitratorApi(this._storeWrapper, this.klerosPOC)
-    this.arbitrableContract = new ArbitrableContractApi(this._storeWrapper, this.arbitrableTransaction)
+    // shared event listener for abstract wrappers
+    this.eventListener = new EventListeners(this._storeWrapper, this.klerosPOC, this.arbitrableTransaction)
+    // abstracted api
+    this.disputes = new DisputesApi(this._storeWrapper, this.klerosPOC, this.arbitrableTransaction, this.eventListener)
+    this.arbitrator = new ArbitratorApi(this._storeWrapper, this.klerosPOC, this.eventListener)
+    this.arbitrableContract = new ArbitrableContractApi(this._storeWrapper, this.arbitrableTransaction, this.eventListener)
+    this.notifications = new Notifications(this._storeWrapper, this.klerosPOC, this.arbitrableTransaction, this.eventListener)
   }
 
   getWeb3Wrapper = () => this._web3Wrapper
   getStoreWrapper = () => this._storeWrapper
+
+  watchForEvents = async (
+    arbitratorAddress, // for disputes
+    account, // for notification callback
+    callback // for notification callback
+  ) => {
+    await this.disputes.addDisputeEventListener(arbitratorAddress)
+    await this.notifications.registerNotificationListeners(account, callback)
+    await this.eventListener.watchForArbitratorEvents(arbitratorAddress)
+  }
 }
 
 export default Kleros
