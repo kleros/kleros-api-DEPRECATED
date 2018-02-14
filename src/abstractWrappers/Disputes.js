@@ -165,13 +165,18 @@ class Disputes extends AbstractWrapper {
     const period = arbitratorData.period
     const currentSession = arbitratorData.session
     // new jurors have not been chosen yet. don't update
-    if (period !== PERIODS.VOTE) {
+
+    const _getDisputesForUserFromStore = async account => {
       let disputes = await this._StoreProvider.getDisputesForUser(account)
       disputes = await Promise.all(disputes.map(async (dispute) => {
         return await this.getDataForDispute(dispute.arbitratorAddress, dispute.disputeId, account)
       }))
 
       return disputes
+    }
+
+    if (period !== PERIODS.VOTE) {
+      return _getDisputesForUserFromStore(account)
     }
 
     if (currentSession != profile.session) {
@@ -190,13 +195,8 @@ class Disputes extends AbstractWrapper {
       profile.session = currentSession
       await this._StoreProvider.updateUserProfile(account, profile)
     }
-    // return array of all disputes for user
-    let disputes = await this._StoreProvider.getDisputesForUser(account)
-    disputes = await Promise.all(disputes.map(async (dispute) => {
-      return await this.getDataForDispute(dispute.arbitratorAddress, dispute.disputeId, account)
-    }))
 
-    return disputes
+    return _getDisputesForUserFromStore(account)
   }
 
   /**
@@ -459,8 +459,14 @@ class Disputes extends AbstractWrapper {
       arbitrableContractAddress
     )
 
-    const partyAEvidence = partyAContractData ? partyAContractData.evidences : []
-    const partyBEvidence = partyBContractData ? partyBContractData.evidences : []
+    const partyAEvidence = (partyAContractData ? partyAContractData.evidences : []).map(evidence => {
+      evidence.submitter = arbitrableContractData.partyA
+      return evidence
+    })
+    const partyBEvidence = (partyBContractData ? partyBContractData.evidences : []).map(evidence => {
+      evidence.submitter = arbitrableContractData.partyB
+      return evidence
+    })
 
     return partyAEvidence.concat(partyBEvidence)
   }
