@@ -37,183 +37,263 @@ describe('Disputes', () => {
     disputesInstance.setArbitrable = mockArbitrableContractWrapper
   })
 
-  test('getDisputesForJuror is juror', async () => {
-    const session = 1
-    const numberOfAppeals = 0
-    const fakeDisputes = [
-      {
-        arbitratedContract: 'arbitrated-contract-address',
-        firstSession: session,
-        numberOfAppeals: numberOfAppeals,
-        rulingChoices: 2,
-        initialNumberJurors: 3,
-        arbitrationFeePerJuror: DEFAULT_ARBITRATION_COST,
-        state: 0
+  describe('getDisputesForJuror', () => {
+    test('is juror', async () => {
+      const session = 1
+      const numberOfAppeals = 0
+      const fakeDisputes = [
+        {
+          arbitratedContract: 'arbitrated-contract-address',
+          firstSession: session,
+          numberOfAppeals: numberOfAppeals,
+          rulingChoices: 2,
+          initialNumberJurors: 3,
+          arbitrationFeePerJuror: DEFAULT_ARBITRATION_COST,
+          state: 0
+        }
+      ]
+      const fetchDispute = (disputeID) => {
+        if (fakeDisputes[disputeID]) {
+          return fakeDisputes[disputeID]
+        } else {
+          throw new Error("no dispute")
+        }
       }
-    ]
-    const fetchDispute = (disputeID) => {
-      if (fakeDisputes[disputeID]) {
-        return fakeDisputes[disputeID]
-      } else {
-        throw new Error("no dispute")
+
+      // mock get data
+      disputesInstance._Arbitrator.getData = jest.fn().mockReturnValue(_asyncMockResponse(
+        {
+          session: session
+        }
+      ))
+
+      // mock get dispute
+      const mockGetDispute = async (contractAddress, disputeId) => {
+        return fetchDispute(disputeId)
       }
-    }
+      disputesInstance._Arbitrator.getDispute = mockGetDispute
 
-    // mock get data
-    disputesInstance._Arbitrator.getData = jest.fn().mockReturnValue(_asyncMockResponse(
-      {
-        session: session
+      // mock getVotesForJuror to say juror is selected
+      disputesInstance.getVotesForJuror = jest.fn().mockReturnValue(_asyncMockResponse(
+        [1]
+      ))
+
+      const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
+      // check results
+      expect(disputes).toEqual([0])
+    })
+
+    test('not juror', async () => {
+      const session = 1
+      const numberOfAppeals = 0
+      const fakeDisputes = [
+        {
+          arbitratedContract: 'arbitrated-contract-address',
+          firstSession: session,
+          numberOfAppeals: numberOfAppeals,
+          rulingChoices: 2,
+          initialNumberJurors: 3,
+          arbitrationFeePerJuror: DEFAULT_ARBITRATION_COST,
+          state: 0
+        }
+      ]
+      const fetchDispute = (disputeID) => {
+        if (fakeDisputes[disputeID]) {
+          return fakeDisputes[disputeID]
+        } else {
+          throw new Error("no dispute")
+        }
       }
-    ))
 
-    // mock get dispute
-    const mockGetDispute = async (contractAddress, disputeId) => {
-      return fetchDispute(disputeId)
-    }
-    disputesInstance._Arbitrator.getDispute = mockGetDispute
+      // mock get data
+      disputesInstance._Arbitrator.getData = jest.fn().mockReturnValue(_asyncMockResponse(
+        {
+          session: session
+        }
+      ))
 
-    // mock getVotesForJuror to say juror is selected
-    disputesInstance.getVotesForJuror = jest.fn().mockReturnValue(_asyncMockResponse(
-      [1]
-    ))
+      // mock get dispute
+      const mockGetDispute = async (contractAddress, disputeId) => {
+        return fetchDispute(disputeId)
+      }
+      disputesInstance._Arbitrator.getDispute = mockGetDispute
 
-    const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
-    // check results
-    expect(disputes).toEqual([0])
+      // mock getVotesForJuror to say juror has no votes
+      disputesInstance.getVotesForJuror = jest.fn().mockReturnValue(_asyncMockResponse(
+        []
+      ))
+
+      const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
+      // check results
+      expect(disputes).toEqual([])
+    })
+
+    test('case selected with appeal', async () => {
+      const session = 1
+      const numberOfAppeals = 1
+      const fakeDisputes = [
+        {
+          arbitratedContract: 'arbitrated-contract-address',
+          firstSession: session,
+          numberOfAppeals: numberOfAppeals,
+          rulingChoices: 2,
+          initialNumberJurors: 3,
+          arbitrationFeePerJuror: DEFAULT_ARBITRATION_COST,
+          state: 0
+        }
+      ]
+      const fetchDispute = (disputeID) => {
+        if (fakeDisputes[disputeID]) {
+          return fakeDisputes[disputeID]
+        } else {
+          throw new Error("no dispute")
+        }
+      }
+
+      // mock get data
+      disputesInstance._Arbitrator.getData = jest.fn().mockReturnValue(_asyncMockResponse(
+        {
+          session: (session + numberOfAppeals)
+        }
+      ))
+
+      // mock get dispute
+      const mockGetDispute = async (contractAddress, disputeId) => {
+        return fetchDispute(disputeId)
+      }
+      disputesInstance._Arbitrator.getDispute = mockGetDispute
+
+      // mock getVotesForJuror to say juror is selected
+      disputesInstance.getVotesForJuror = jest.fn().mockReturnValue(_asyncMockResponse(
+        [1]
+      ))
+
+      const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
+      // check results
+      expect(disputes).toEqual([0])
+    })
+
+    test('wrong session', async () => {
+      const session = 1
+      const numberOfAppeals = 0
+      const fakeDisputes = [
+        {
+          arbitratedContract: 'arbitrated-contract-address',
+          firstSession: session,
+          numberOfAppeals: numberOfAppeals,
+          rulingChoices: 2,
+          initialNumberJurors: 3,
+          arbitrationFeePerJuror: DEFAULT_ARBITRATION_COST,
+          state: 0
+        }
+      ]
+      const fetchDispute = (disputeID) => {
+        if (fakeDisputes[disputeID]) {
+          return fakeDisputes[disputeID]
+        } else {
+          throw new Error("no dispute")
+        }
+      }
+
+      // mock get data
+      disputesInstance._Arbitrator.getData = jest.fn().mockReturnValue(_asyncMockResponse(
+        {
+          session: session + 1
+        }
+      ))
+
+      // mock get dispute
+      const mockGetDispute = async (contractAddress, disputeId) => {
+        return fetchDispute(disputeId)
+      }
+      disputesInstance._Arbitrator.getDispute = mockGetDispute
+
+      // mock getVotesForJuror to say juror has votes so we will know if it is getting further than we expect
+      disputesInstance.getVotesForJuror = jest.fn().mockReturnValue(_asyncMockResponse(
+        [1]
+      ))
+
+      const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
+      // check results
+      expect(disputes).toEqual([])
+    })
   })
 
-  test('getDisputesForJuror not juror', async () => {
-    const session = 1
-    const numberOfAppeals = 0
-    const fakeDisputes = [
-      {
-        arbitratedContract: 'arbitrated-contract-address',
-        firstSession: session,
-        numberOfAppeals: numberOfAppeals,
-        rulingChoices: 2,
-        initialNumberJurors: 3,
-        arbitrationFeePerJuror: DEFAULT_ARBITRATION_COST,
-        state: 0
+  describe('getEvidenceForArbitrableContract', async () => {
+    test('merge evidence', async () => {
+      const partyA = 'partyAAddress'
+      const partyB = 'partyBAddress'
+
+      const userContracts = {
+        [partyA]: {
+          evidences: [{
+            name: 'partyAName',
+            description: 'partyADescription',
+            url: 'partyAURL'
+          }]
+        },
+        [partyB]: {
+          evidences: [{
+            name: 'partyBName',
+            description: 'partyBDescription',
+            url: 'partyBURL'
+          }]
+        }
       }
-    ]
-    const fetchDispute = (disputeID) => {
-      if (fakeDisputes[disputeID]) {
-        return fakeDisputes[disputeID]
-      } else {
-        throw new Error("no dispute")
+      disputesInstance._StoreProvider.getContractByAddress = account => {
+        return userContracts[account]
       }
-    }
 
-    // mock get data
-    disputesInstance._Arbitrator.getData = jest.fn().mockReturnValue(_asyncMockResponse(
-      {
-        session: session
+      disputesInstance._ArbitrableContract.getData = jest.fn().mockReturnValue(_asyncMockResponse(
+        {
+          partyA: partyA,
+          partyB, partyB
+        }
+      ))
+
+      const result = await disputesInstance.getEvidenceForArbitrableContract('fakeAddress')
+      expect(result.length).toEqual(2)
+      expect(result[0].submitter).not.toEqual(result[1].submitter)
+      result.map(evidence => {
+        const submitter = evidence.submitter
+        expect(evidence.name).toBe(userContracts[submitter].evidences[0].name)
+        expect(evidence.description).toBe(userContracts[submitter].evidences[0].description)
+        expect(evidence.url).toBe(userContracts[submitter].evidences[0].url)
+      })
+    })
+
+    test('no evidence partyA', async () => {
+      const partyA = 'partyAAddress'
+      const partyB = 'partyBAddress'
+
+      const userContracts = {
+        [partyB]: {
+          evidences: [{
+            name: 'partyBName',
+            description: 'partyBDescription',
+            url: 'partyBURL'
+          }]
+        }
       }
-    ))
-
-    // mock get dispute
-    const mockGetDispute = async (contractAddress, disputeId) => {
-      return fetchDispute(disputeId)
-    }
-    disputesInstance._Arbitrator.getDispute = mockGetDispute
-
-    // mock getVotesForJuror to say juror has no votes
-    disputesInstance.getVotesForJuror = jest.fn().mockReturnValue(_asyncMockResponse(
-      []
-    ))
-
-    const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
-    // check results
-    expect(disputes).toEqual([])
-  })
-
-  test('getDisputesForJuror case selected with appeal', async () => {
-    const session = 1
-    const numberOfAppeals = 1
-    const fakeDisputes = [
-      {
-        arbitratedContract: 'arbitrated-contract-address',
-        firstSession: session,
-        numberOfAppeals: numberOfAppeals,
-        rulingChoices: 2,
-        initialNumberJurors: 3,
-        arbitrationFeePerJuror: DEFAULT_ARBITRATION_COST,
-        state: 0
+      disputesInstance._StoreProvider.getContractByAddress = account => {
+        return userContracts[account]
       }
-    ]
-    const fetchDispute = (disputeID) => {
-      if (fakeDisputes[disputeID]) {
-        return fakeDisputes[disputeID]
-      } else {
-        throw new Error("no dispute")
-      }
-    }
 
-    // mock get data
-    disputesInstance._Arbitrator.getData = jest.fn().mockReturnValue(_asyncMockResponse(
-      {
-        session: (session + numberOfAppeals)
-      }
-    ))
+      disputesInstance._ArbitrableContract.getData = jest.fn().mockReturnValue(_asyncMockResponse(
+        {
+          partyA: partyA,
+          partyB, partyB
+        }
+      ))
 
-    // mock get dispute
-    const mockGetDispute = async (contractAddress, disputeId) => {
-      return fetchDispute(disputeId)
-    }
-    disputesInstance._Arbitrator.getDispute = mockGetDispute
+      const result = await disputesInstance.getEvidenceForArbitrableContract('fakeAddress')
+      expect(result.length).toEqual(1)
+      expect(result[0].submitter).toBeTruthy()
 
-    // mock getVotesForJuror to say juror is selected
-    disputesInstance.getVotesForJuror = jest.fn().mockReturnValue(_asyncMockResponse(
-      [1]
-    ))
-
-    const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
-    // check results
-    expect(disputes).toEqual([0])
-  })
-
-  test('getDisputesForJuror wrong session', async () => {
-    const session = 1
-    const numberOfAppeals = 0
-    const fakeDisputes = [
-      {
-        arbitratedContract: 'arbitrated-contract-address',
-        firstSession: session,
-        numberOfAppeals: numberOfAppeals,
-        rulingChoices: 2,
-        initialNumberJurors: 3,
-        arbitrationFeePerJuror: DEFAULT_ARBITRATION_COST,
-        state: 0
-      }
-    ]
-    const fetchDispute = (disputeID) => {
-      if (fakeDisputes[disputeID]) {
-        return fakeDisputes[disputeID]
-      } else {
-        throw new Error("no dispute")
-      }
-    }
-
-    // mock get data
-    disputesInstance._Arbitrator.getData = jest.fn().mockReturnValue(_asyncMockResponse(
-      {
-        session: session + 1
-      }
-    ))
-
-    // mock get dispute
-    const mockGetDispute = async (contractAddress, disputeId) => {
-      return fetchDispute(disputeId)
-    }
-    disputesInstance._Arbitrator.getDispute = mockGetDispute
-
-    // mock getVotesForJuror to say juror has votes so we will know if it is getting further than we expect
-    disputesInstance.getVotesForJuror = jest.fn().mockReturnValue(_asyncMockResponse(
-      [1]
-    ))
-
-    const disputes = await disputesInstance.getDisputesForJuror(arbitratorAddress, account)
-    // check results
-    expect(disputes).toEqual([])
+      const submitter = result[0].submitter
+      expect(result[0].name).toBe(userContracts[submitter].evidences[0].name)
+      expect(result[0].description).toBe(userContracts[submitter].evidences[0].description)
+      expect(result[0].url).toBe(userContracts[submitter].evidences[0].url)
+    })
   })
 })
