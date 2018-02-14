@@ -332,7 +332,7 @@ class Disputes extends AbstractWrapper {
     const arbitratorData = await this._Arbitrator.getData(arbitratorAddress)
 
     // Last period change + current period duration = deadline
-    return new Date(1000 * (arbitratorData.lastPeriodChange + (await this._Arbitrator.getTimeForPeriod(arbitratorAddress, period))))
+    return 1000 * (arbitratorData.lastPeriodChange + (await this._Arbitrator.getTimeForPeriod(arbitratorAddress, period)))
   }
 
   /**
