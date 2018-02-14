@@ -196,7 +196,7 @@ class Notifications extends AbstractWrapper {
   * Fetch all user notifications
   * @param {string} account address of user
   */
-  getNoticiations = async (
+  getNotifications = async (
     account
   ) => {
     const profile = await this._StoreProvider.getUserProfile(account)

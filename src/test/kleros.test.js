@@ -585,7 +585,7 @@ describe('Kleros', () => {
 
     expect(notifications.length).toBeTruthy()
     // partyA got notifications
-    const allNotifications = await KlerosInstance.notifications.getNoticiations(partyA)
+    const allNotifications = await KlerosInstance.notifications.getNotifications(partyA)
     expect(allNotifications.length).toBe(notifications.length)
     let unreadNotification = await KlerosInstance.notifications.getUnreadNotifications(partyA)
     expect(unreadNotification).toEqual(allNotifications)
@@ -593,7 +593,7 @@ describe('Kleros', () => {
     unreadNotification = await KlerosInstance.notifications.getUnreadNotifications(partyA)
     expect(unreadNotification.length).toBe(notifications.length - 1)
     // juror subscribed once drawn and got notifications
-    const jurorNotifications = await KlerosInstance.notifications.getNoticiations(juror)
+    const jurorNotifications = await KlerosInstance.notifications.getNotifications(juror)
     expect(jurorNotifications.length).toEqual(4) // should have 1 notification for arbitration fee and 3 token redistribution notifications
     // stop listening for new disputes
     KlerosInstance.eventListener.stopWatchingArbitratorEvents(klerosCourt.address)
