@@ -57,9 +57,9 @@ class Kleros {
     account, // for notification callback
     callback // for notification callback
   ) => {
-    await this.disputes.addDisputeEventListener(arbitratorAddress)
+    await this.disputes.addDisputeEventListener(arbitratorAddress, account)
     await this.notifications.registerNotificationListeners(account, callback)
-    await this.eventListener.watchForArbitratorEvents(arbitratorAddress)
+    await this.eventListener.watchForArbitratorEvents(arbitratorAddress, account)
   }
 }
 

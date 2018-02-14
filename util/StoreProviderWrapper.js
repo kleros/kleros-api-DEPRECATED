@@ -253,25 +253,17 @@ class StoreProviderWrapper {
     return disputes
   }
 
-  getLastBlock = async arbitratorAddress => {
-    const httpResponse = await this._makeRequest(
-      'GET',
-      `${this._storeUri}/arbitrators/${arbitratorAddress}`
-    )
+  getLastBlock = async account => {
+    const userProfile = await this.getUserProfile(account)
 
-    const arbitratorData = httpResponse.body
-    return arbitratorData ? arbitratorData.lastBlock : 0
+    return userProfile.lastBlock ? userProfile.lastBlock : 0
   }
 
-  updateLastBlock = async (arbitratorAddress, lastBlock) => {
-    const httpResponse = await this._makeRequest(
-      'POST',
-      `${this._storeUri}/arbitrators/${arbitratorAddress}`,
-      JSON.stringify({
-        lastBlock
-      })
-    )
+  updateLastBlock = async (account, lastBlock) => {
+    const userProfile = await this.getUserProfile(account)
 
+    userProfile.lastBlock = lastBlock
+    const httpResponse = await this.updateUserProfile(account, userProfile)
     return httpResponse
   }
 
@@ -293,22 +285,6 @@ class StoreProviderWrapper {
         read,
         message,
         data
-      })
-    )
-
-    return httpResponse
-  }
-
-  addSubscriber = async (
-    arbitratorAddress,
-    disputeId,
-    subscriberAddress
-  ) => {
-    const httpResponse = await this._makeRequest(
-      'POST',
-      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}/subscribers`,
-      JSON.stringify({
-        address: subscriberAddress
       })
     )
 

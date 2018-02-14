@@ -14,8 +14,10 @@ class EventListeners extends AbstractWrapper {
     this._arbitrableEventMap = {}
     // key: contract address, value: true/false
     this._arbitratorEventsWatcher
-    this.arbitratorAddress
     this._arbitrableEventsWatcher
+    // store these here so we can switch accounts/contracts on the fly
+    this.arbitratorAddress
+    this.account
   }
 
   /** Update store for events we missed and watch for events on arbitrator contract.
@@ -24,18 +26,20 @@ class EventListeners extends AbstractWrapper {
   *   @param {string} arbitratorAddress address of arbitrator contract
   */
   watchForArbitratorEvents = async (
-    arbitratorAddress
+    arbitratorAddress,
+    account
   ) => {
     this._checkArbitratorWrappersSet()
     // don't need to add another listener if we already have one
     if (this._arbitratorEventsWatcher) return
+    if (arbitratorAddress) this.arbitratorAddress = arbitratorAddress
+    if (account) this.account = account
 
-    const lastBlock = await this._StoreProvider.getLastBlock(arbitratorAddress)
+    const lastBlock = await this._StoreProvider.getLastBlock(this.account)
     const currentBlock = await this._Arbitrator._getCurrentBlockNumber()
-    const contractInstance = await this._loadArbitratorInstance(arbitratorAddress)
+    const contractInstance = await this._loadArbitratorInstance(this.arbitratorAddress)
     const eventWatcher = contractInstance.allEvents({}, {fromBlock: lastBlock, toBlock: 'latest'})
 
-    this.arbitratorAddress = arbitratorAddress
     this._arbitratorEventsWatcher = eventWatcher
 
     if (!lastBlock || lastBlock < currentBlock) {
@@ -43,7 +47,6 @@ class EventListeners extends AbstractWrapper {
       eventWatcher.get((error, eventResult) => {
         if (!error) {
           eventResult.map(result => {
-            // add new dispute to store
             const handlers = this._arbitratorEventMap[result.event]
             if (handlers.length > 0) {
               handlers.map(callback => {
@@ -52,24 +55,20 @@ class EventListeners extends AbstractWrapper {
             }
           })
 
-          this._StoreProvider.updateLastBlock(arbitratorAddress, currentBlock)
+          this._StoreProvider.updateLastBlock(this.account, currentBlock)
         }
       })
     }
 
-    // WATCH FOR NEW DISPUTES
     eventWatcher.watch((error, result) => {
       if (!error) {
-        // add new dispute to store
-        // add new dispute to store
         const handlers = this._arbitratorEventMap[result.event]
         if (handlers) {
-          // call all event handlers
           handlers.map(callback => {
             callback(result)
           })
         }
-        this._StoreProvider.updateLastBlock(arbitratorAddress, result.blockNumber)
+        this._StoreProvider.updateLastBlock(this.account, result.blockNumber)
       }
     })
   }
@@ -109,6 +108,17 @@ class EventListeners extends AbstractWrapper {
 
   deregisterArbitrableEvent = eventName => {
     delete this._arbitrableEventMap[eventName]
+  }
+
+  changeAccount = account => {
+    this.account = account
+
+    this.stopWatchingArbitratorEvents()
+    this.watchForArbitratorEvents()
+  }
+
+  changeArbitrator = arbitratorAddress => {
+    this.arbitratorAddress = arbitratorAddress
   }
 }
 

@@ -31,38 +31,25 @@ class Disputes extends AbstractWrapper {
   * @param {string} arbitratorAddress
   */
   addDisputeEventListener = async (
-    arbitratorAddress
+    arbitratorAddress,
+    account
   ) => {
     if (!this._eventListener) return
 
-    const _disputeCreatedHandler = (
+    const _disputeCreatedHandler = async (
       event,
-      contractAddress = arbitratorAddress
+      contractAddress = arbitratorAddress,
+      address = account
     ) => {
       const disputeId = event.args._disputeID.toNumber()
-      const arbitratorAddress = contractAddress
-      this._updateStoreForDispute(arbitratorAddress, disputeId)
+      const disputeData = await this.getDataForDispute(contractAddress, disputeId, account)
+      // if listener is a party in dispute add to store
+      if (disputeData.partyA === address || disputeData.partyB === address) {
+        await this._updateStoreForDispute(contractAddress, disputeId, address)
+      }
     }
 
     await this._eventListener.registerArbitratorEvent('DisputeCreation', _disputeCreatedHandler)
-  }
-
-  /**
-  * Subscribe to receive notifications for a dispute. In order for jurors to receive push notifications they must be subscribed
-  * @param {string} arbitratorAddress address of arbitrator contract
-  * @param {number} disputeId index of dispute
-  * @param {string} subscriberAddress address of new subscriber
-  */
-  subscribeToDispute = async (
-    arbitratorAddress,
-    disputeId,
-    subscriberAddress
-  ) => {
-    await this._StoreProvider.addSubscriber(
-      arbitratorAddress,
-      disputeId,
-      subscriberAddress
-    )
   }
 
   // **************************** //
@@ -186,8 +173,6 @@ class Disputes extends AbstractWrapper {
       await Promise.all(myDisputeIds.map(async disputeId => {
         // add dispute to db if it doesn't already exist
         await this._updateStoreForDispute(arbitratorAddress, disputeId, account)
-        // subscribe for notifications
-        await this.subscribeToDispute(arbitratorAddress, disputeId, account)
       }))
 
       // update session on profile
@@ -339,17 +324,17 @@ class Disputes extends AbstractWrapper {
   * update store with new dispute data
   * @param {string} arbitratorAddress Address address of arbitrator contract
   * @param {int} disputeId index of dispute
-  * @param {string} jurorAddress <optional> address of juror
+  * @param {string} account address of party to update dispute or
   */
   _updateStoreForDispute = async (
     arbitratorAddress,
     disputeId,
-    jurorAddress
+    account
   ) => {
     const disputeData = await this.getDataForDispute(
       arbitratorAddress,
       disputeId,
-      jurorAddress
+      account
     )
 
     // update dispute
@@ -368,51 +353,15 @@ class Disputes extends AbstractWrapper {
       disputeData.resolutionOptions
     )).body
 
-    // if no subscribers (a new dispute) add partyA and partyB
-    if (!dispute.subscribers.length) {
-      await this._StoreProvider.addSubscriber(
-        disputeData.arbitratorAddress,
-        disputeData.disputeId,
-        disputeData.partyA
-      )
-      await this._StoreProvider.addSubscriber(
-        disputeData.arbitratorAddress,
-        disputeData.disputeId,
-        disputeData.partyB
-      )
-    }
-
-    // update profile partyA
+    // update profile for account
     await this._StoreProvider.updateDisputeProfile(
-      disputeData.partyA,
-      [],
+      account,
+      disputeData.votes,
       disputeData.arbitratorAddress,
       disputeData.disputeId,
-      false,
+      disputeData.votes.length > 0 ? true : false,
       false
     )
-
-    // update profile partyB
-    await this._StoreProvider.updateDisputeProfile(
-      disputeData.partyB,
-      [],
-      disputeData.arbitratorAddress,
-      disputeData.disputeId,
-      false,
-      false
-    )
-
-    if (jurorAddress) {
-      // update juror profile <optional>
-      await this._StoreProvider.updateDisputeProfile(
-        jurorAddress,
-        disputeData.votes,
-        disputeData.arbitratorAddress,
-        disputeData.disputeId,
-        disputeData.votes.length > 0 ? true : false,
-        false
-      )
-    }
   }
 
   /**
