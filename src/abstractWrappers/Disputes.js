@@ -541,27 +541,34 @@ class Disputes extends AbstractWrapper {
     const ruling = await this._Arbitrator.currentRulingForDispute(arbitratorAddress, disputeId)
 
     return ({
+      // Arbitrable Contract Data
       // FIXME hash not being stored in contract atm
       hash: arbitrableContractAddress,
+      arbitrableContractAddress: arbitrableContractAddress,
+      arbitrableContractStatus: arbitrableContractData.status,
+      arbitratorAddress: arbitratorAddress,
       partyA: arbitrableContractData.partyA,
       partyB: arbitrableContractData.partyB,
-      arbitrableContractStatus: arbitrableContractData.status,
-      disputeState: dispute.state,
-      disputeStatus: dispute.status,
-      arbitrableContractAddress: arbitrableContractAddress,
-      arbitratorAddress: arbitratorAddress,
-      fee: dispute.arbitrationFeePerJuror,
+
+      // Dispute Data
       disputeId: disputeId,
       session: dispute.firstSession + dispute.numberOfAppeals,
+      numberOfAppeals: dispute.numberOfAppeals,
+      fee: dispute.arbitrationFeePerJuror,
       deadline: deadline,
-      // store data
+      disputeState: dispute.state,
+      disputeStatus: dispute.status,
+      voteCounters: dispute.voteCounters,
+      appealsRepartitioned: dispute.appealsRepartitioned,
+
+      // Store Data
       description: constractStoreData ? constractStoreData.description : undefined,
       email: constractStoreData ? constractStoreData.email : undefined,
-      votes: votes,
+      evidence: evidence,
       isJuror: isJuror,
+      votes: votes,
       hasRuled: hasRuled,
       ruling: ruling,
-      evidence: evidence
     })
   }
 }
