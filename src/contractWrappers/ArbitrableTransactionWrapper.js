@@ -390,8 +390,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       status: status.toNumber(),
       arbitratorExtraData,
       disputeId: disputeId.toNumber(),
-      partyAFee: this._Web3Wrapper.fromWei(partyAFee.toNumber(), 'ether'),
-      partyBFee: this._Web3Wrapper.fromWei(partyBFee.toNumber(), 'ether'),
+      partyAFee: this._Web3Wrapper.fromWei(partyAFee, 'ether'),
+      partyBFee: this._Web3Wrapper.fromWei(partyBFee, 'ether'),
       lastInteraction,
     }
   }

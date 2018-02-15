@@ -147,7 +147,7 @@ describe('Kleros', () => {
     const mockArbitratorExtraData = ''
     const mockEmail = 'test@kleros.io'
     const mockDescription = 'test description'
-    const contractPaymentAmount = web3.toWei(1, 'ether') // contract payment be 1 ether
+    const contractPaymentAmount = KlerosInstance._web3Wrapper.toWei(1, 'ether') // contract payment be 1 ether
     let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
       .deployContract(
         partyA,
@@ -206,7 +206,7 @@ describe('Kleros', () => {
     const mockArbitratorExtraData = ''
     const mockEmail = 'test@kleros.io'
     const mockDescription = 'test description'
-    const contractPaymentAmount = web3.toWei(1, 'ether') // contract payment be 1 ether
+    const contractPaymentAmount = KlerosInstance._web3Wrapper.toWei(1, 'ether') // contract payment be 1 ether
     let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
       .deployContract(
         partyA,
@@ -242,7 +242,7 @@ describe('Kleros', () => {
     let extraDataContractInstance = await arbitrableContractInstance
       .arbitratorExtraData()
 
-    // return a bigint with the default value : 10000 wei fees
+    // return a bigint with the default value : 10000 wei fees in ether
     const arbitrationCost = await KlerosInstance.klerosPOC.getArbitrationCost(
       klerosCourt.address,
       extraDataContractInstance
@@ -253,9 +253,7 @@ describe('Kleros', () => {
       .raiseDisputePartyA(
         partyA,
         contractArbitrableTransactionData.address,
-        web3.fromWei(
-          arbitrationCost - partyAFeeContractInstance.toNumber(), 'ether'
-        )
+        arbitrationCost - KlerosInstance._web3Wrapper.fromWei(partyAFeeContractInstance, 'ether')
       )
     expect(txHashRaiseDisputeByPartyA)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
@@ -329,7 +327,7 @@ describe('Kleros', () => {
 
     // Juror should have no balance to start with
     const initialBalance = await KlerosInstance.arbitrator.getPNKBalance(klerosCourt.address, juror)
-    expect(initialBalance.tokenBalance).toEqual('0')
+    expect(initialBalance.tokenBalance).toEqual(0)
 
     // stateful notifications juror
     let jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(juror, true)
@@ -338,13 +336,13 @@ describe('Kleros', () => {
 
     // buy 1 PNK
     const newBalance = await KlerosInstance.arbitrator.buyPNK(1, klerosCourt.address, juror)
-    expect(newBalance.tokenBalance).toEqual('1')
+    expect(newBalance.tokenBalance).toEqual(1)
 
     // activate PNK
     const activatedTokenAmount = 0.5
     const balance = await KlerosInstance.arbitrator.activatePNK(activatedTokenAmount, klerosCourt.address, juror)
-    expect(balance.tokenBalance).toEqual('1')
-    expect(balance.activatedTokens).toEqual('0.5')
+    expect(balance.tokenBalance).toEqual(1)
+    expect(balance.activatedTokens).toEqual(0.5)
 
     // stateful notifications juror
     jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(juror, true)
@@ -352,7 +350,7 @@ describe('Kleros', () => {
 
     const jurorData = await klerosPOCInstance.jurors(juror)
     expect(jurorData[2].toNumber()).toEqual((await klerosPOCInstance.session()).toNumber())
-    expect((jurorData[4].toNumber() - jurorData[3].toNumber())).toEqual(parseInt(web3.toWei(activatedTokenAmount, 'ether')))
+    expect((jurorData[4].toNumber() - jurorData[3].toNumber())).toEqual(KlerosInstance._web3Wrapper.toWei(activatedTokenAmount, 'ether'))
 
     // deploy a contract and create dispute
     const mockHash = 'mock-hash-contract'
@@ -360,7 +358,7 @@ describe('Kleros', () => {
     const mockArbitratorExtraData = ''
     const mockEmail = 'test@kleros.io'
     const mockDescription = 'test description'
-    const contractPaymentAmount = web3.toWei(1, 'ether') // contract payment be 1 ether
+    const contractPaymentAmount = KlerosInstance._web3Wrapper.toWei(1, 'ether') // contract payment be 1 ether
     let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
       .deployContract(
         partyA,
@@ -396,20 +394,18 @@ describe('Kleros', () => {
     let extraDataContractInstance = await arbitrableContractInstance
       .arbitratorExtraData()
 
-    // return a bigint with the default value : 10000 wei fees
+    // return a bigint with the default value : 10000 wei fees in ether
     const arbitrationCost = await KlerosInstance.klerosPOC.getArbitrationCost(
       klerosCourt.address,
       extraDataContractInstance
     )
-
+    
     // raise dispute party A
     const txHashRaiseDisputeByPartyA = await KlerosInstance.disputes
       .raiseDisputePartyA(
         partyA,
         contractArbitrableTransactionData.address,
-        web3.fromWei(
-          arbitrationCost - partyAFeeContractInstance.toNumber(), 'ether'
-        )
+        arbitrationCost - KlerosInstance._web3Wrapper.fromWei(partyAFeeContractInstance, 'ether')
       )
     expect(txHashRaiseDisputeByPartyA)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
@@ -428,9 +424,7 @@ describe('Kleros', () => {
       .raiseDisputePartyB(
         partyB,
         contractArbitrableTransactionData.address,
-        web3.fromWei(
-          arbitrationCost - partyBFeeContractInstance.toNumber(), 'ether'
-        )
+        arbitrationCost - KlerosInstance._web3Wrapper.fromWei(partyBFeeContractInstance, 'ether')
       )
     expect(txHashRaiseDisputeByPartyB)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
@@ -568,7 +562,7 @@ describe('Kleros', () => {
     await KlerosInstance.klerosPOC.executeRuling(klerosCourt.address, 0, other)
     // balances after ruling
     // partyA wins so they should recieve their arbitration fee as well as the value locked in contract
-    expect(web3.eth.getBalance(partyA).toNumber() - partyABalance).toEqual(arbitrationCost + parseInt(contractPaymentAmount))
+    expect(web3.eth.getBalance(partyA).toNumber() - partyABalance).toEqual(KlerosInstance._web3Wrapper.toWei(arbitrationCost, 'ether') + contractPaymentAmount)
     // partyB lost so their balance should remain the same
     expect(web3.eth.getBalance(partyB).toNumber()).toEqual(partyBBalance)
 

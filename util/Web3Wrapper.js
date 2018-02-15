@@ -18,9 +18,15 @@ class Web3Wrapper {
 
   getCoinbase = () => this._web3.eth.coinbase
 
-  toWei = (amount, unit) => this._web3.toWei(amount, unit)
+  toWei = (amount, unit) => {
+    const newAmount = this._web3.toWei(amount, unit)
+    return newAmount.toNumber ? newAmount.toNumber() : Number(newAmount)
+  }
 
-  fromWei = (amount, unit) => this._web3.fromWei(amount, unit)
+  fromWei = (amount, unit) => {
+    const newAmount = this._web3.fromWei(amount, unit)
+    return newAmount.toNumber ? newAmount.toNumber() : Number(newAmount)
+  }
 
   toBigNumber = (number) => this._web3.toBigNumber(number)
 
