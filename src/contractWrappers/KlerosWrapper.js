@@ -382,6 +382,8 @@ class KlerosWrapper extends ContractWrapper {
         initialNumberJurors: dispute[4].toNumber(),
         arbitrationFeePerJuror: this._Web3Wrapper.fromWei(dispute[5], 'ether'),
         state: dispute[6].toNumber(),
+        voteCounters: dispute[8],
+        appealsRepartitioned: dispute[11],
         status: (await contractInstance.disputeStatus(disputeId)).toNumber()
       }
     } catch (e) {
