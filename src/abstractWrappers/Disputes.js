@@ -559,7 +559,7 @@ class Disputes extends AbstractWrapper {
       disputeState: dispute.state,
       disputeStatus: dispute.status,
       voteCounters: dispute.voteCounters,
-      appealsRepartitioned: dispute.appealsRepartitioned,
+      PNKRepartitions: dispute.PNKRepartitions,
 
       // Store Data
       description: constractStoreData ? constractStoreData.description : undefined,

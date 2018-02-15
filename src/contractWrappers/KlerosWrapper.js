@@ -374,16 +374,33 @@ class KlerosWrapper extends ContractWrapper {
     const contractInstance = await this.load(contractAddress)
     try {
       const dispute = await contractInstance.disputes(disputeId)
+
+      const numberOfAppeals = dispute[2].toNumber()
+      const rulingChoices = dispute[3].toNumber()
+
+      const voteCounters = []
+      const PNKRepartitions = []
+      for (let appeal = 0; appeal <= numberOfAppeals; appeal++) {
+        const counter = []
+        const repartition = []
+        for (let choice = 0; choice <= rulingChoices; choice++) {
+          counter.push(contractInstance.getVoteCount(disputeId, appeal, choice))
+          repartition.push(contractInstance.repartitionedPNK(disputeId, appeal, choice))
+        }
+        voteCounters.push(counter)
+        PNKRepartitions.push(repartition)
+      }
+
       return {
         arbitratedContract: dispute[0],
         firstSession: dispute[1].toNumber(),
-        numberOfAppeals: dispute[2].toNumber(),
-        rulingChoices: dispute[3].toNumber(),
+        numberOfAppeals,
+        rulingChoices,
         initialNumberJurors: dispute[4].toNumber(),
         arbitrationFeePerJuror: this._Web3Wrapper.fromWei(dispute[5], 'ether'),
         state: dispute[6].toNumber(),
-        voteCounters: dispute[8],
-        appealsRepartitioned: dispute[11],
+        voteCounters,
+        PNKRepartitions,
         status: (await contractInstance.disputeStatus(disputeId)).toNumber()
       }
     } catch (e) {
