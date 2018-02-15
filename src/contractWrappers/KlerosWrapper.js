@@ -120,7 +120,7 @@ class KlerosWrapper extends ContractWrapper {
     if (!juror) throw new Error(`${account} is not a juror for contract ${contractAddress}`)
 
     // total tokens stored in contract
-    const contractBalance = this._Web3Wrapper.fromWei(juror[0].toNumber(), 'ether')
+    const contractBalance = this._Web3Wrapper.fromWei(juror[0], 'ether')
     // tokens activated in court session
     const currentSession = await contractInstance.session.call()
     let activatedTokens = 0
@@ -128,7 +128,7 @@ class KlerosWrapper extends ContractWrapper {
       activatedTokens = this._Web3Wrapper.fromWei((juror[4].toNumber() - juror[3].toNumber()), 'ether')
     }
     // tokens locked into disputes
-    const lockedTokens = this._Web3Wrapper.fromWei(juror[2].toNumber(), 'ether')
+    const lockedTokens = this._Web3Wrapper.fromWei(juror[2], 'ether')
 
     return {
       activatedTokens,
@@ -184,7 +184,7 @@ class KlerosWrapper extends ContractWrapper {
     try {
       const arbitrationCost = await contractInstance.arbitrationCost(contractExtraData)
 
-      return this._Web3Wrapper.fromWei(arbitrationCost.toNumber(), 'ether')
+      return this._Web3Wrapper.fromWei(arbitrationCost, 'ether')
     } catch (e) {
       throw new Error(e)
     }
@@ -380,7 +380,7 @@ class KlerosWrapper extends ContractWrapper {
         numberOfAppeals: dispute[2].toNumber(),
         rulingChoices: dispute[3].toNumber(),
         initialNumberJurors: dispute[4].toNumber(),
-        arbitrationFeePerJuror: this._Web3Wrapper.fromWei(dispute[5].toNumber(), 'ether'),
+        arbitrationFeePerJuror: this._Web3Wrapper.fromWei(dispute[5], 'ether'),
         state: dispute[6].toNumber(),
         status: (await contractInstance.disputeStatus(disputeId)).toNumber()
       }
