@@ -53,12 +53,12 @@ class Kleros {
   getStoreWrapper = () => this._storeWrapper
 
   watchForEvents = async (
-    arbitratorAddress, // for disputes
-    account, // for notification callback
+    arbitratorAddress,
+    account,
     callback // for notification callback
   ) => {
     await this.disputes.addDisputeEventListener(arbitratorAddress, account)
-    await this.notifications.registerNotificationListeners(account, callback)
+    await this.notifications.registerNotificationListeners(arbitratorAddress, account, callback)
     await this.eventListener.watchForArbitratorEvents(arbitratorAddress, account)
   }
 }

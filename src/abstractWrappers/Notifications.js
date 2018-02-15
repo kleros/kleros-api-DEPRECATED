@@ -236,16 +236,12 @@ class Notifications extends AbstractWrapper {
   _disputeCreationHandler = async (event, arbitratorAddress, account, callback) => {
     const userProfile = await this._StoreProvider.getUserProfile(account)
     const disputeId = event.args._disputeID.toNumber()
-    // if accout has this dispute
-    if (_.findIndex(userProfile.disputes, dispute => {
-      return (dispute.disputeId === disputeId && dispute.arbitratorAddress === arbitratorAddress)
-    }) >= 0) {
-      const txHash = event.transactionHash
-      const dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
-      const arbitrableData = await this._ArbitrableContract.getData(dispute.arbitratedContract)
+    const txHash = event.transactionHash
+    const arbitrableData = await this._ArbitrableContract.getData(event.args._arbitrable)
 
+    if (arbitrableData.partyA === account || arbitrableData.partyB === account) {
       await this._StoreProvider.newNotification(
-        subscriber,
+        account,
         txHash,
         event.logIndex,
         NOTIFICATION_TYPES.DISPUTE_CREATED,
@@ -262,7 +258,7 @@ class Notifications extends AbstractWrapper {
 
   /**
   * handler for AppealPossible event
-  * sends notification informing subscribers that a ruling has been made and an appeal possible
+  * sends notification informing accounts that a ruling has been made and an appeal possible
   */
   _appealPossibleHandler = async (event, arbitratorAddress, account, callback) => {
     const userProfile = await this._StoreProvider.getUserProfile(account)
@@ -273,7 +269,7 @@ class Notifications extends AbstractWrapper {
       return (dispute.disputeId === disputeId && dispute.arbitratorAddress === arbitratorAddress)
     }) >= 0) {
       await this._StoreProvider.newNotification(
-        subscriber,
+        account,
         event.transactionHash,
         event.logIndex,
         NOTIFICATION_TYPES.APPEAL_POSSIBLE,
@@ -301,7 +297,7 @@ class Notifications extends AbstractWrapper {
       return (dispute.disputeId === disputeId && dispute.arbitratorAddress === arbitratorAddress)
     }) >= 0) {
       await this._StoreProvider.newNotification(
-        subscriber,
+        account,
         event.transactionHash,
         event.logIndex,
         NOTIFICATION_TYPES.RULING_APPEALED,

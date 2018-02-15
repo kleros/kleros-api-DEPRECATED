@@ -399,7 +399,7 @@ describe('Kleros', () => {
       klerosCourt.address,
       extraDataContractInstance
     )
-    
+
     // raise dispute party A
     const txHashRaiseDisputeByPartyA = await KlerosInstance.disputes
       .raiseDisputePartyA(
@@ -587,9 +587,6 @@ describe('Kleros', () => {
     await KlerosInstance.notifications.markNotificationAsRead(partyA, allNotifications[0].txHash, allNotifications[0].logIndex)
     unreadNotification = await KlerosInstance.notifications.getUnreadNotifications(partyA)
     expect(unreadNotification.length).toBe(notifications.length - 1)
-    // juror subscribed once drawn and got notifications
-    const jurorNotifications = await KlerosInstance.notifications.getNotifications(juror)
-    expect(jurorNotifications.length).toEqual(4) // should have 1 notification for arbitration fee and 3 token redistribution notifications
     // stop listening for new disputes
     KlerosInstance.eventListener.stopWatchingArbitratorEvents(klerosCourt.address)
   }, 50000)
