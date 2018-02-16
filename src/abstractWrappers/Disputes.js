@@ -519,14 +519,12 @@ class Disputes extends AbstractWrapper {
     let isJuror = false
     let votes = []
     let hasRuled = false
-    let netPNK = 0
     if (account) {
       votes = await this.getVotesForJuror(arbitratorAddress, disputeId, account)
       try {
         const userData = await this.getUserDisputeFromStore(arbitratorAddress, disputeId, account)
         isJuror = userData.isJuror
         hasRuled = userData.hasRuled
-        netPNK = userData.netPNK || 0
       } catch (e) {
         isJuror = false
         hasRuled = false
@@ -569,8 +567,7 @@ class Disputes extends AbstractWrapper {
       isJuror,
       votes,
       hasRuled,
-      ruling,
-      netPNK
+      ruling
     })
   }
 }

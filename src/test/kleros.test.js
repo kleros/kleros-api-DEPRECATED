@@ -499,7 +499,6 @@ describe('Kleros', () => {
     expect(disputesForJuror[0].deadline).toBe(1000 * (newState.lastPeriodChange + (await klerosPOCInstance.timePerPeriod(newState.period)).toNumber()))
     expect(disputesForJuror[0].arbitrableContractAddress).toEqual(contractArbitrableTransactionData.address)
     expect(disputesForJuror[0].votes).toEqual([1,2,3])
-    expect(disputesForJuror[0].netPNK).toBe(0)
 
     // stateful notifications juror
     jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(juror, true)
