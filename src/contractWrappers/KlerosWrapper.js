@@ -380,14 +380,14 @@ class KlerosWrapper extends ContractWrapper {
       let voteCounters = []
       let status
       for (let appeal = 0; appeal <= numberOfAppeals; appeal++) {
-        const counter = []
+        const voteCounts = []
         for (let choice = 0; choice <= rulingChoices; choice++)
-          counter.push(contractInstance.getVoteCount(disputeId, appeal, choice).then(v => v.toNumber()))
-        voteCounters.push(counter)
+          voteCounts.push(contractInstance.getVoteCount(disputeId, appeal, choice).then(v => v.toNumber()))
+        voteCounters.push(voteCounts)
       }
       [voteCounters, status] = await Promise.all(
         [
-          Promise.all(voteCounters.map(counter => Promise.all(counter))),
+          Promise.all(voteCounters.map(voteCounts => Promise.all(voteCounts))),
           contractInstance.disputeStatus(disputeId)
         ]
       )
