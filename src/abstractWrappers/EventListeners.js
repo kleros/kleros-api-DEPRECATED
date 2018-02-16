@@ -38,26 +38,32 @@ class EventListeners extends AbstractWrapper {
     const lastBlock = await this._StoreProvider.getLastBlock(this.account)
     const currentBlock = await this._Arbitrator._getCurrentBlockNumber()
     const contractInstance = await this._loadArbitratorInstance(this.arbitratorAddress)
-    const eventWatcher = contractInstance.allEvents({}, {fromBlock: lastBlock, toBlock: 'latest'})
+    const eventWatcher = contractInstance.allEvents({fromBlock: lastBlock, toBlock: 'latest'})
 
     this._arbitratorEventsWatcher = eventWatcher
 
     if (!lastBlock || lastBlock < currentBlock) {
       // FETCH EVENTS WE MIGHT HAVE MISSED
-      eventWatcher.get((error, eventResult) => {
-        if (!error) {
-          eventResult.map(result => {
-            const handlers = this._arbitratorEventMap[result.event]
-            if (handlers.length > 0) {
-              handlers.map(callback => {
-                callback(result)
-              })
-            }
-          })
+      await new Promise(async (resolve, reject) => {
+        eventWatcher.get(async (error, eventResult) => {
+          if (!error) {
+            await Promise.all(eventResult.map(async result => {
+              const handlers = this._arbitratorEventMap[result.event]
+              if (handlers.length > 0) {
+                return Promise.all(handlers.map(callback => {
+                  return callback(result)
+                }))
+              }
+            }))
+            this._StoreProvider.updateLastBlock(this.account, currentBlock)
 
-          this._StoreProvider.updateLastBlock(this.account, currentBlock)
-        }
+            resolve()
+          } else {
+            reject(error)
+          }
+        })
       })
+
     }
 
     eventWatcher.watch((error, result) => {
@@ -78,7 +84,9 @@ class EventListeners extends AbstractWrapper {
   */
   stopWatchingArbitratorEvents = arbitratorAddress => {
     if (this._arbitratorEventsWatcher) this._arbitratorEventsWatcher.stopWatching()
+    this._arbitratorEventsWatcher = null
     this.arbitratorAddress = null
+    this._arbitratorEventMap = {}
   }
 
   /** register event listener callback for event

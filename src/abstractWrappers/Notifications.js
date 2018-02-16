@@ -30,7 +30,6 @@ class Notifications extends AbstractWrapper {
     account,
     callback
   ) => {
-
     const eventHandlerMap = {
       DisputeCreation: this._disputeCreationHandler,
       AppealPossible: this._appealPossibleHandler,
@@ -329,7 +328,7 @@ class Notifications extends AbstractWrapper {
         event.transactionHash,
         event.logIndex,
         NOTIFICATION_TYPES.TOKEN_SHIFT,
-        'Tokens have be redistributed',
+        'Tokens have been redistributed',
         {
           disputeId,
           arbitratorAddress,
