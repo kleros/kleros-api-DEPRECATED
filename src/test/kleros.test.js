@@ -587,7 +587,21 @@ describe('Kleros', () => {
     await KlerosInstance.notifications.markNotificationAsRead(partyA, allNotifications[0].txHash, allNotifications[0].logIndex)
     unreadNotification = await KlerosInstance.notifications.getUnreadNotifications(partyA)
     expect(unreadNotification.length).toBe(notifications.length - 1)
-    // stop listening for new disputes
+    // stop listening for partyA
+    KlerosInstance.eventListener.stopWatchingArbitratorEvents(klerosCourt.address)
+
+    // spin up juror notifications listener. should populate missed notifications
+    notifications = []
+    await KlerosInstance.watchForEvents(
+      klerosCourt.address,
+      juror,
+      notificationCallback
+    )
+
+    const jurorNotifications = await KlerosInstance.notifications.getNoticiations(juror)
+    expect(notifications.length).toBeTruthy()
+    expect(jurorNotifications.length).toBe(notifications.length)
+
     KlerosInstance.eventListener.stopWatchingArbitratorEvents(klerosCourt.address)
   }, 50000)
 })
