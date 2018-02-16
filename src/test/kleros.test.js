@@ -436,6 +436,7 @@ describe('Kleros', () => {
     expect(dispute.arbitratedContract).toEqual(contractArbitrableTransactionData.address)
     expect(dispute.firstSession).toEqual((await klerosPOCInstance.session()).toNumber())
     expect(dispute.numberOfAppeals).toEqual(0)
+    expect(dispute.voteCounters).toEqual(Array(dispute.numberOfAppeals + 1).fill(Array(dispute.rulingChoices + 1).fill(0)))
 
     // check fetch resolution options
     const resolutionOptions = await KlerosInstance.disputes.getRulingOptions(klerosCourt.address, 0)
@@ -498,6 +499,7 @@ describe('Kleros', () => {
     expect(disputesForJuror[0].deadline).toBe(1000 * (newState.lastPeriodChange + (await klerosPOCInstance.timePerPeriod(newState.period)).toNumber()))
     expect(disputesForJuror[0].arbitrableContractAddress).toEqual(contractArbitrableTransactionData.address)
     expect(disputesForJuror[0].votes).toEqual([1,2,3])
+    expect(disputesForJuror[0].netPNK).toBe(0)
 
     // stateful notifications juror
     jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(juror, true)

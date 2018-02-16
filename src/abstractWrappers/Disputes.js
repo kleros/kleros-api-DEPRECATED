@@ -516,15 +516,17 @@ class Disputes extends AbstractWrapper {
       arbitrableContractAddress
     )
 
-    let votes = []
     let isJuror = false
+    let votes = []
     let hasRuled = false
+    let netPNK = 0
     if (account) {
       votes = await this.getVotesForJuror(arbitratorAddress, disputeId, account)
       try {
         const userData = await this.getUserDisputeFromStore(arbitratorAddress, disputeId, account)
         isJuror = userData.isJuror
         hasRuled = userData.hasRuled
+        netPNK = userData.netPNK || 0
       } catch (e) {
         isJuror = false
         hasRuled = false
@@ -544,31 +546,31 @@ class Disputes extends AbstractWrapper {
       // Arbitrable Contract Data
       // FIXME hash not being stored in contract atm
       hash: arbitrableContractAddress,
-      arbitrableContractAddress: arbitrableContractAddress,
+      arbitrableContractAddress,
       arbitrableContractStatus: arbitrableContractData.status,
-      arbitratorAddress: arbitratorAddress,
+      arbitratorAddress,
       partyA: arbitrableContractData.partyA,
       partyB: arbitrableContractData.partyB,
 
       // Dispute Data
-      disputeId: disputeId,
+      disputeId,
       session: dispute.firstSession + dispute.numberOfAppeals,
       numberOfAppeals: dispute.numberOfAppeals,
       fee: dispute.arbitrationFeePerJuror,
-      deadline: deadline,
+      deadline,
       disputeState: dispute.state,
       disputeStatus: dispute.status,
       voteCounters: dispute.voteCounters,
-      PNKRepartitions: dispute.PNKRepartitions,
 
       // Store Data
       description: constractStoreData ? constractStoreData.description : undefined,
       email: constractStoreData ? constractStoreData.email : undefined,
-      evidence: evidence,
-      isJuror: isJuror,
-      votes: votes,
-      hasRuled: hasRuled,
-      ruling: ruling,
+      evidence,
+      isJuror,
+      votes,
+      hasRuled,
+      ruling,
+      netPNK
     })
   }
 }

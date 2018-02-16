@@ -374,23 +374,24 @@ class KlerosWrapper extends ContractWrapper {
     const contractInstance = await this.load(contractAddress)
     try {
       const dispute = await contractInstance.disputes(disputeId)
-
       const numberOfAppeals = dispute[2].toNumber()
       const rulingChoices = dispute[3].toNumber()
 
-      const voteCounters = []
-      const PNKRepartitions = []
+      let voteCounters = []
+      let status
       for (let appeal = 0; appeal <= numberOfAppeals; appeal++) {
         const counter = []
-        const repartition = []
-        for (let choice = 0; choice <= rulingChoices; choice++) {
-          counter.push(contractInstance.getVoteCount(disputeId, appeal, choice))
-          repartition.push(contractInstance.repartitionedPNK(disputeId, appeal, choice))
-        }
+        for (let choice = 0; choice <= rulingChoices; choice++)
+          counter.push(contractInstance.getVoteCount(disputeId, appeal, choice).then(v => v.toNumber()))
         voteCounters.push(counter)
-        PNKRepartitions.push(repartition)
       }
-
+      [voteCounters, status] = await Promise.all(
+        [
+          Promise.all(voteCounters.map(counter => Promise.all(counter))),
+          contractInstance.disputeStatus(disputeId)
+        ]
+      )
+  
       return {
         arbitratedContract: dispute[0],
         firstSession: dispute[1].toNumber(),
@@ -400,8 +401,7 @@ class KlerosWrapper extends ContractWrapper {
         arbitrationFeePerJuror: this._Web3Wrapper.fromWei(dispute[5], 'ether'),
         state: dispute[6].toNumber(),
         voteCounters,
-        PNKRepartitions,
-        status: (await contractInstance.disputeStatus(disputeId)).toNumber()
+        status: status.toNumber()
       }
     } catch (e) {
       throw new Error(e)
