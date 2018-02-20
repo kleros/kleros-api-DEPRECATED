@@ -30,49 +30,49 @@ class EventListeners extends AbstractWrapper {
     account
   ) => {
     this._checkArbitratorWrappersSet()
-    // don't need to add another listener if we already have one
-    if (this._arbitratorEventsWatcher) return
     if (arbitratorAddress) this.arbitratorAddress = arbitratorAddress
     if (account) this.account = account
 
     const lastBlock = await this._StoreProvider.getLastBlock(this.account)
     const currentBlock = await this._Arbitrator._getCurrentBlockNumber()
     const contractInstance = await this._loadArbitratorInstance(this.arbitratorAddress)
-    const eventWatcher = contractInstance.allEvents({fromBlock: lastBlock, toBlock: 'latest'})
-
-    this._arbitratorEventsWatcher = eventWatcher
+    // don't need to add another listener if we already have one
+    if (!this._arbitratorEventsWatcher) {
+      this._arbitratorEventsWatcher = contractInstance.allEvents({fromBlock: lastBlock, toBlock: 'latest'})
+    }
 
     if (!lastBlock || lastBlock < currentBlock) {
+      const eventGetter = contractInstance.allEvents({fromBlock: lastBlock, toBlock: 'latest'})
       // FETCH EVENTS WE MIGHT HAVE MISSED
       await new Promise(async (resolve, reject) => {
-        eventWatcher.get(async (error, eventResult) => {
+        eventGetter.get(async (error, eventResult) => {
           if (!error) {
-            await Promise.all(eventResult.map(async result => {
+            for (let i=0; i<eventResult.length; i++) {
+              const result = eventResult[i]
               const handlers = this._arbitratorEventMap[result.event]
               if (handlers.length > 0) {
-                return Promise.all(handlers.map(callback => {
-                  return callback(result)
-                }))
+                for (let i=0; i<handlers.length; i++) {
+                  await handlers[i](result)
+                }
               }
-            }))
+            }
             this._StoreProvider.updateLastBlock(this.account, currentBlock)
-
             resolve()
           } else {
             reject(error)
           }
         })
       })
-
     }
 
-    eventWatcher.watch((error, result) => {
+    this._arbitratorEventsWatcher.watch(async (error, result) => {
       if (!error) {
         const handlers = this._arbitratorEventMap[result.event]
         if (handlers) {
-          handlers.map(callback => {
-            callback(result)
-          })
+          // have to use for loop here so they aren't done in parallel
+          for (let i=0; i<handlers.length; i++) {
+            await handlers[i](result)
+          }
         }
         this._StoreProvider.updateLastBlock(this.account, result.blockNumber)
       }
@@ -84,8 +84,6 @@ class EventListeners extends AbstractWrapper {
   */
   stopWatchingArbitratorEvents = arbitratorAddress => {
     if (this._arbitratorEventsWatcher) this._arbitratorEventsWatcher.stopWatching()
-    this._arbitratorEventsWatcher = null
-    this.arbitratorAddress = null
     this._arbitratorEventMap = {}
   }
 
@@ -100,6 +98,10 @@ class EventListeners extends AbstractWrapper {
       } else {
         this._arbitratorEventMap[eventName].push(eventHandler)
       }
+  }
+
+  clearArbitratorHandlers = () => {
+    this._arbitratorEventMap = {}
   }
 
   /** deletes event listeners for event
