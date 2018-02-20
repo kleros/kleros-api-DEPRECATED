@@ -174,7 +174,8 @@ class StoreProviderWrapper {
     arbitratorAddress,
     disputeId,
     isJuror,
-    hasRuled
+    hasRuled,
+    netPNK
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
@@ -184,7 +185,8 @@ class StoreProviderWrapper {
         arbitratorAddress,
         disputeId,
         isJuror,
-        hasRuled
+        hasRuled,
+        netPNK
       })
     )
 

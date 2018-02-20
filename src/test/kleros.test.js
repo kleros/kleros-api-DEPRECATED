@@ -501,8 +501,6 @@ describe('Kleros', () => {
       if (await KlerosInstance.klerosPOC.isJurorDrawnForDispute(0, i, klerosCourt.address, juror1)) { drawA.push(i) } else { drawB.push(i) }
     }
     expect(drawA.length + drawB.length).toEqual(3)
-    console.log(drawA)
-    console.log(drawB)
     const disputesForJuror1 = await KlerosInstance.disputes.getDisputesForUser(klerosCourt.address, juror1)
     const disputesForJuror2 = await KlerosInstance.disputes.getDisputesForUser(klerosCourt.address, juror2)
     expect(disputesForJuror1.length > 0 || disputesForJuror2.length > 0).toBeTruthy()
@@ -595,9 +593,6 @@ describe('Kleros', () => {
     const updatedContractData = await KlerosInstance.arbitrableContract.getData(contractArbitrableTransactionData.address)
     expect(parseInt(updatedContractData.status)).toEqual(4)
 
-    const juror1Profile = await storeProvider.getUserProfile(juror1)
-    expect(juror1Profile.disputes.length).toEqual(1)
-
     // NOTIFICATIONS
     // stateful notifications
     juror1StatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, juror1, true)
@@ -625,6 +620,9 @@ describe('Kleros', () => {
       juror1,
       notificationCallback
     )
+
+    const juror1Profile = await storeProvider.getUserProfile(juror1)
+    expect(juror1Profile.disputes.length).toEqual(1)
 
     await delaySecond()
     const juror1Notifications = await KlerosInstance.notifications.getNoticiations(juror1)
