@@ -75,8 +75,17 @@ class Disputes extends AbstractWrapper {
 
         // if dispute is not in store ignore
         if (disputeIndex < 0) return
-        userProfile.disputes[disputeIndex].netPNK += amountShift
-        await this._StoreProvider.updateUserProfile(address, userProfile)
+        const dispute = userProfile.disputes[disputeIndex]
+        const currentAmount = userProfile.disputes[disputeIndex].netPNK
+        await this._StoreProvider.updateDisputeProfile(
+          address,
+          dispute.votes,
+          dispute.arbitratorAddress,
+          dispute.disputeId,
+          dispute.isJuror,
+          dispute.hasRuled,
+          (dispute.netPNK ? dispute.netPNK : 0) + amountShift
+        )
       }
     }
 
@@ -325,7 +334,8 @@ class Disputes extends AbstractWrapper {
         arbitratorAddress,
         disputeId,
         true,
-        true
+        true,
+        0
       )
 
       return txHash
@@ -391,7 +401,8 @@ class Disputes extends AbstractWrapper {
       disputeData.arbitratorAddress,
       disputeData.disputeId,
       disputeData.votes.length > 0 ? true : false,
-      false
+      false,
+      0
     )
   }
 
