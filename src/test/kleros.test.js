@@ -9,7 +9,8 @@ import mockDisputes from '../contractWrappers/mockDisputes'
 describe('Kleros', () => {
   let partyA
   let partyB
-  let juror
+  let juror1
+  let juror2
   let other
   let web3
   let KlerosInstance
@@ -27,8 +28,9 @@ describe('Kleros', () => {
 
     partyA = web3.eth.accounts[0]
     partyB = web3.eth.accounts[1]
-    juror = web3.eth.accounts[2]
-    other = web3.eth.accounts[3]
+    juror1 = web3.eth.accounts[2]
+    juror2 = web3.eth.accounts[3]
+    other = web3.eth.accounts[4]
 
     storeProvider = await KlerosInstance.getStoreWrapper()
 
@@ -41,7 +43,8 @@ describe('Kleros', () => {
     // reset user profile in store
     await storeProvider.newUserProfile(partyA, {address: partyA})
     await storeProvider.newUserProfile(partyB, {address: partyB})
-    await storeProvider.newUserProfile(juror, {address: juror})
+    await storeProvider.newUserProfile(juror1, {address: juror1})
+    await storeProvider.newUserProfile(juror2, {address: juror2})
     await storeProvider.newUserProfile(other, {address: other})
   })
 
@@ -65,7 +68,6 @@ describe('Kleros', () => {
     expect(klerosCourt.transactionHash)
       .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
 
-
     const mockHash = 'mock-hash-contract'
     const mockTimeout = 1
     const mockArbitratorExtraData = ''
@@ -83,7 +85,6 @@ describe('Kleros', () => {
         mockEmail,
         mockDescription
       )
-
     expect(contractArbitrableTransactionData.address)
       .toBeDefined() // contract address
     expect(contractArbitrableTransactionData.arbitrator)
@@ -325,32 +326,36 @@ describe('Kleros', () => {
       notificationCallback
     )
 
-    // Juror should have no balance to start with
-    const initialBalance = await KlerosInstance.arbitrator.getPNKBalance(klerosCourt.address, juror)
+    // juror1 should have no balance to start with
+    const initialBalance = await KlerosInstance.arbitrator.getPNKBalance(klerosCourt.address, juror1)
     expect(initialBalance.tokenBalance).toEqual(0)
 
-    // stateful notifications juror
-    let jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, juror, true)
-    expect(jurorStatefullNotifications.length).toEqual(1)
-    expect(jurorStatefullNotifications[0].notificationType).toEqual(NOTIFICATION_TYPES.CAN_ACTIVATE)
+    // stateful notifications juror1
+    let juror1StatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, juror1, true)
+    expect(juror1StatefullNotifications.length).toEqual(1)
+    expect(juror1StatefullNotifications[0].notificationType).toEqual(NOTIFICATION_TYPES.CAN_ACTIVATE)
 
-    // buy 1 PNK
-    const newBalance = await KlerosInstance.arbitrator.buyPNK(1, klerosCourt.address, juror)
+    // buy 1 PNK juror1
+    const newBalance = await KlerosInstance.arbitrator.buyPNK(1, klerosCourt.address, juror1)
     expect(newBalance.tokenBalance).toEqual(1)
+    // buy PNK for juror2
+    await KlerosInstance.arbitrator.buyPNK(1, klerosCourt.address, juror2)
 
-    // activate PNK
+    // activate PNK juror1
     const activatedTokenAmount = 0.5
-    const balance = await KlerosInstance.arbitrator.activatePNK(activatedTokenAmount, klerosCourt.address, juror)
+    const balance = await KlerosInstance.arbitrator.activatePNK(activatedTokenAmount, klerosCourt.address, juror1)
     expect(balance.tokenBalance).toEqual(1)
     expect(balance.activatedTokens).toEqual(0.5)
+    // activate PNK juror2
+    await KlerosInstance.arbitrator.activatePNK(activatedTokenAmount, klerosCourt.address, juror2)
 
-    // stateful notifications juror
-    jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, juror, true)
-    expect(jurorStatefullNotifications.length).toEqual(0)
+    // stateful notifications juror1
+    juror1StatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, juror1, true)
+    expect(juror1StatefullNotifications.length).toEqual(0)
 
-    const jurorData = await klerosPOCInstance.jurors(juror)
-    expect(jurorData[2].toNumber()).toEqual((await klerosPOCInstance.session()).toNumber())
-    expect((jurorData[4].toNumber() - jurorData[3].toNumber())).toEqual(KlerosInstance._web3Wrapper.toWei(activatedTokenAmount, 'ether'))
+    const juror1Data = await klerosPOCInstance.jurors(juror1)
+    expect(juror1Data[2].toNumber()).toEqual((await klerosPOCInstance.session()).toNumber())
+    expect((juror1Data[4].toNumber() - juror1Data[3].toNumber())).toEqual(parseInt(web3.toWei(activatedTokenAmount, 'ether')))
 
     // deploy a contract and create dispute
     const mockHash = 'mock-hash-contract'
@@ -482,7 +487,7 @@ describe('Kleros', () => {
     }
 
     let newState
-    // pass state so jurors are selected
+    // pass state so juror1s are selected
     for (let i=1; i<3; i++) {
       // NOTE we need to make another block before we can generate the random number. Should not be an issue on main nets where avg block time < period length
       if (i == 2) web3.eth.sendTransaction({from: partyA, to: partyB, value: 10000, data: '0x'})
@@ -490,33 +495,46 @@ describe('Kleros', () => {
       newState = await KlerosInstance.arbitrator.passPeriod(klerosCourt.address, other)
       expect(newState.period).toEqual(i)
     }
-    const randomNumber = (await klerosPOCInstance.randomNumber()).toNumber()
-    const shouldBeJuror = await klerosPOCInstance.isDrawn(0, juror, 1)
-    expect(shouldBeJuror).toEqual(true)
+    let drawA = []
+    let drawB = []
+    for (let i = 1; i <= 3; i++) {
+      if (await KlerosInstance.klerosPOC.isJurorDrawnForDispute(0, i, klerosCourt.address, juror1)) { drawA.push(i) } else { drawB.push(i) }
+    }
+    expect(drawA.length + drawB.length).toEqual(3)
+    console.log(drawA)
+    console.log(drawB)
+    const disputesForJuror1 = await KlerosInstance.disputes.getDisputesForUser(klerosCourt.address, juror1)
+    const disputesForJuror2 = await KlerosInstance.disputes.getDisputesForUser(klerosCourt.address, juror2)
+    expect(disputesForJuror1.length > 0 || disputesForJuror2.length > 0).toBeTruthy()
+    const disputeForJuror = disputesForJuror1.length > 0 ? disputesForJuror1[0] : disputesForJuror2[0]
+    expect(disputeForJuror.deadline).toBe(1000 * (newState.lastPeriodChange + (await klerosPOCInstance.timePerPeriod(newState.period)).toNumber()))
+    expect(disputeForJuror.arbitrableContractAddress).toEqual(contractArbitrableTransactionData.address)
 
-    const disputesForJuror = await KlerosInstance.disputes.getDisputesForUser(klerosCourt.address, juror)
-    expect(disputesForJuror.length).toEqual(1)
-    expect(disputesForJuror[0].deadline).toBe(1000 * (newState.lastPeriodChange + (await klerosPOCInstance.timePerPeriod(newState.period)).toNumber()))
-    expect(disputesForJuror[0].arbitrableContractAddress).toEqual(contractArbitrableTransactionData.address)
-    expect(disputesForJuror[0].votes).toEqual([1,2,3])
-
-    // stateful notifications juror
-    jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, juror, true)
+    const jurorForNotifications = drawA.length > drawB.length ? juror1 : juror2
+    // stateful notifications juror1
+    let jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, jurorForNotifications, true)
     expect(jurorStatefullNotifications.length).toEqual(1)
     expect(jurorStatefullNotifications[0].notificationType).toEqual(NOTIFICATION_TYPES.CAN_VOTE)
 
-    // partyA wins
-    const ruling = 1
-    const submitTxHash = await KlerosInstance.disputes.submitVotesForDispute(
+    // submit rulings
+    const rulingJuror1 = 1
+    await KlerosInstance.disputes.submitVotesForDispute(
       klerosCourt.address,
       0,
-      ruling,
-      [1,2,3],
-      juror
+      rulingJuror1,
+      drawA,
+      juror1
+    )
+    const rulingJuror2 = 2
+    await KlerosInstance.disputes.submitVotesForDispute(
+      klerosCourt.address,
+      0,
+      rulingJuror2,
+      drawB,
+      juror2
     )
 
-    expect(submitTxHash)
-      .toEqual(expect.stringMatching(/^0x[a-f0-9]{64}$/)) // tx hash
+    const winningRuling = drawA.length > drawB.length ? rulingJuror1 : rulingJuror2
 
     // delay 1 second
     await delaySecond()
@@ -524,7 +542,7 @@ describe('Kleros', () => {
     await KlerosInstance.arbitrator.passPeriod(klerosCourt.address, other)
 
     const currentRuling = await klerosCourt.currentRuling(0)
-    expect(`${currentRuling}`).toEqual(`${ruling}`)
+    expect(`${currentRuling}`).toEqual(`${winningRuling}`)
 
     contracts = await KlerosInstance.arbitrator.getContractsForUser(partyA)
     expect(contracts).toBeTruthy()
@@ -536,7 +554,7 @@ describe('Kleros', () => {
     // move to execute period
     await KlerosInstance.arbitrator.passPeriod(klerosCourt.address, other)
     // stateful notifications
-    jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, juror, true)
+    jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, jurorForNotifications, true)
     expect(jurorStatefullNotifications.length).toEqual(1)
     expect(jurorStatefullNotifications[0].notificationType).toEqual(NOTIFICATION_TYPES.CAN_REPARTITION)
 
@@ -551,7 +569,7 @@ describe('Kleros', () => {
     await KlerosInstance.klerosPOC.repartitionJurorTokens(klerosCourt.address, 0, other)
 
     // stateful notifications
-    jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, juror, true)
+    jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, jurorForNotifications, true)
     expect(jurorStatefullNotifications.length).toEqual(1)
     expect(jurorStatefullNotifications[0].notificationType).toEqual(NOTIFICATION_TYPES.CAN_EXECUTE)
 
@@ -563,17 +581,27 @@ describe('Kleros', () => {
     await KlerosInstance.klerosPOC.executeRuling(klerosCourt.address, 0, other)
     // balances after ruling
     // partyA wins so they should recieve their arbitration fee as well as the value locked in contract
-    expect(web3.eth.getBalance(partyA).toNumber() - partyABalance).toEqual(KlerosInstance._web3Wrapper.toWei(arbitrationCost, 'ether') + contractPaymentAmount)
-    // partyB lost so their balance should remain the same
-    expect(web3.eth.getBalance(partyB).toNumber()).toEqual(partyBBalance)
+    if (winningRuling === rulingJuror1) {
+      expect(web3.eth.getBalance(partyA).toNumber() - partyABalance).toEqual(arbitrationCost + parseInt(contractPaymentAmount))
+      // partyB lost so their balance should remain the same
+      expect(web3.eth.getBalance(partyB).toNumber()).toEqual(partyBBalance)
+    } else {
+      expect(web3.eth.getBalance(partyB).toNumber() - partyBBalance).toEqual(arbitrationCost + parseInt(contractPaymentAmount))
+      // partyB lost so their balance should remain the same
+      expect(web3.eth.getBalance(partyA).toNumber()).toEqual(partyABalance)
+    }
+
 
     const updatedContractData = await KlerosInstance.arbitrableContract.getData(contractArbitrableTransactionData.address)
     expect(parseInt(updatedContractData.status)).toEqual(4)
 
+    const juror1Profile = await storeProvider.getUserProfile(juror1)
+    expect(juror1Profile.disputes.length).toEqual(1)
+
     // NOTIFICATIONS
     // stateful notifications
-    jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, juror, true)
-    expect(jurorStatefullNotifications.length).toEqual(0)
+    juror1StatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, juror1, true)
+    expect(juror1StatefullNotifications.length).toEqual(0)
 
     partyBStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(klerosCourt.address, partyB, false)
     expect(partyBStatefullNotifications.length).toEqual(0)
@@ -590,17 +618,25 @@ describe('Kleros', () => {
     // stop listening for partyA
     KlerosInstance.eventListener.stopWatchingArbitratorEvents(klerosCourt.address)
 
-    // spin up juror notifications listener. should populate missed notifications
+    // spin up juror1 notifications listener. should populate missed notifications
     notifications = []
     await KlerosInstance.watchForEvents(
       klerosCourt.address,
-      juror,
+      juror1,
       notificationCallback
     )
 
-    const jurorNotifications = await KlerosInstance.notifications.getNoticiations(juror)
+    await delaySecond()
+    const juror1Notifications = await KlerosInstance.notifications.getNoticiations(juror1)
     expect(notifications.length).toBeTruthy()
-    expect(jurorNotifications.length).toBe(notifications.length)
+    expect(juror1Notifications.length).toBe(notifications.length)
+    let totalRedistributedJuror1 = 0
+    for (let i=0; i<juror1Notifications.length; i++) {
+      if (juror1Notifications[i].notificationType === NOTIFICATION_TYPES.TOKEN_SHIFT) {
+        totalRedistributedJuror1 += juror1Notifications[i].data.amount
+      }
+    }
+    expect(juror1Profile.disputes[0] ? juror1Profile.disputes[0].netPNK : 0).toEqual(totalRedistributedJuror1)
 
     KlerosInstance.eventListener.stopWatchingArbitratorEvents(klerosCourt.address)
   }, 50000)

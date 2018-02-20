@@ -22,7 +22,7 @@ class Disputes extends AbstractWrapper {
   }
 
   // **************************** //
-  // *      Notifications       * //
+  // *         Events           * //
   // **************************** //
 
   /**
@@ -50,6 +50,37 @@ class Disputes extends AbstractWrapper {
     }
 
     await this._eventListener.registerArbitratorEvent('DisputeCreation', _disputeCreatedHandler)
+  }
+
+  addTokenShiftToJurorProfileEventListener = async (
+    arbitratorAddress,
+    account
+  ) => {
+    if (!this._eventListener) return
+
+    const _tokenShiftHandler = async (
+      event,
+      contractAddress = arbitratorAddress,
+      address = account
+    ) => {
+      const disputeId = event.args._disputeID.toNumber()
+      const account = event.args._account
+      const amountShift = event.args._amount.toNumber()
+      // juror won/lost tokens
+      if (account === address) {
+        const userProfile = await this._StoreProvider.getUserProfile(address)
+        const disputeIndex = _.findIndex(userProfile.disputes, dispute => {
+          return (dispute.disputeId === disputeId && dispute.arbitratorAddress === contractAddress)
+        })
+
+        // if dispute is not in store ignore
+        if (disputeIndex < 0) return
+        userProfile.disputes[disputeIndex].netPNK += amountShift
+        await this._StoreProvider.updateUserProfile(address, userProfile)
+      }
+    }
+
+    await this._eventListener.registerArbitratorEvent('TokenShift', _tokenShiftHandler)
   }
 
   // **************************** //
@@ -468,12 +499,14 @@ class Disputes extends AbstractWrapper {
     let isJuror = false
     let votes = []
     let hasRuled = false
+    let netPNK = 0
     if (account) {
       votes = await this.getVotesForJuror(arbitratorAddress, disputeId, account)
       try {
         const userData = await this.getUserDisputeFromStore(arbitratorAddress, disputeId, account)
         isJuror = userData.isJuror
         hasRuled = userData.hasRuled
+        netPNK = userData.netPNK
       } catch (e) {
         isJuror = false
         hasRuled = false
@@ -512,11 +545,12 @@ class Disputes extends AbstractWrapper {
       // Store Data
       description: constractStoreData ? constractStoreData.description : undefined,
       email: constractStoreData ? constractStoreData.email : undefined,
-      evidence,
-      isJuror,
       votes,
+      isJuror,
       hasRuled,
-      ruling
+      ruling,
+      evidence,
+      netPNK
     })
   }
 }

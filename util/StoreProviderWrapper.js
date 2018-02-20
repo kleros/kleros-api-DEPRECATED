@@ -288,7 +288,7 @@ class StoreProviderWrapper {
       })
     )
 
-    return httpResponse
+    return httpResponse.body
   }
 }
 

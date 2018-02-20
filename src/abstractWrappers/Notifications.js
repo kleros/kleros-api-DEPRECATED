@@ -89,8 +89,8 @@ class Notifications extends AbstractWrapper {
           ))
         }
       } else if (currentPeriod === PERIODS.VOTE) {
-        await Promise.all(userProfile.disputes.map(async dispute => {
-          if (dispute.isJuror && dispute.votes.length > 1 && !dispute.hasRuled) {
+        userProfile.disputes.map(dispute => {
+          if (dispute.isJuror && dispute.votes.length > 0 && !dispute.hasRuled) {
             notifications.push(this._createNotification(
               NOTIFICATION_TYPES.CAN_VOTE,
               "Need to vote on dispute",
@@ -100,7 +100,7 @@ class Notifications extends AbstractWrapper {
               }
             ))
           }
-        }))
+        })
       }
     } else {
       /* Counterparty notifications:
@@ -251,7 +251,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback, `_disputeCreationHandler}: ${account}`)
     }
   }
 
@@ -280,7 +280,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback, `_appealPossibleHandler}: ${account}`)
     }
   }
 
@@ -307,7 +307,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback, `_appealingDecisionHandler}: ${account}`)
     }
   }
 
@@ -323,8 +323,8 @@ class Notifications extends AbstractWrapper {
     const amount = event.args._amount.toNumber()
 
     if (account === address) {
-      await this._StoreProvider.newNotification(
-        address,
+      const response = await this._StoreProvider.newNotification(
+        account,
         event.transactionHash,
         event.logIndex,
         NOTIFICATION_TYPES.TOKEN_SHIFT,
@@ -337,7 +337,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback, `_tokenShiftHandler: ${account}`)
     }
   }
 
@@ -362,7 +362,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback, `_arbitrationRewardHandler: ${account}`)
     }
   }
 
@@ -378,7 +378,7 @@ class Notifications extends AbstractWrapper {
     ) => handler(args, arbitratorAddress, account, callback)
   }
 
-  _sendPushNotification = async (txHash, logIndex, account, callback) => {
+  _sendPushNotification = async (txHash, logIndex, account, callback, cameFrom) => {
     if (callback) {
       const userProfile = await this._StoreProvider.getUserProfile(account)
       const notification = _.filter(userProfile.notifications, notification => {
