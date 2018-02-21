@@ -1,6 +1,6 @@
 {
   "name": "kleros-api",
-  "version": "0.0.58",
+  "version": "0.0.59",
   "description": "Kleros API",
   "main": "lib/kleros-api.js",
   "scripts": {
