@@ -318,7 +318,6 @@ describe('Kleros', () => {
 
     // set instance of kleros court for assertions
     const klerosPOCInstance = await KlerosInstance.klerosPOC.load(klerosCourt.address)
-
     // initialize dispute watcher
     await KlerosInstance.watchForEvents(
       klerosCourt.address,
@@ -580,15 +579,14 @@ describe('Kleros', () => {
     // balances after ruling
     // partyA wins so they should recieve their arbitration fee as well as the value locked in contract
     if (winningRuling === rulingJuror1) {
-      expect(web3.eth.getBalance(partyA).toNumber() - partyABalance).toEqual(arbitrationCost + parseInt(contractPaymentAmount))
+      expect(web3.eth.getBalance(partyA).toNumber() - partyABalance).toEqual(KlerosInstance._web3Wrapper.toWei(arbitrationCost, 'ether') + contractPaymentAmount)
       // partyB lost so their balance should remain the same
       expect(web3.eth.getBalance(partyB).toNumber()).toEqual(partyBBalance)
     } else {
-      expect(web3.eth.getBalance(partyB).toNumber() - partyBBalance).toEqual(arbitrationCost + parseInt(contractPaymentAmount))
+      expect(web3.eth.getBalance(partyB).toNumber() - partyBBalance).toEqual(KlerosInstance._web3Wrapper.toWei(arbitrationCost, 'ether') + contractPaymentAmount)
       // partyB lost so their balance should remain the same
       expect(web3.eth.getBalance(partyA).toNumber()).toEqual(partyABalance)
     }
-
 
     const updatedContractData = await KlerosInstance.arbitrableContract.getData(contractArbitrableTransactionData.address)
     expect(parseInt(updatedContractData.status)).toEqual(4)
@@ -625,7 +623,7 @@ describe('Kleros', () => {
     expect(juror1Profile.disputes.length).toEqual(1)
 
     await delaySecond()
-    const juror1Notifications = await KlerosInstance.notifications.getNoticiations(juror1)
+    const juror1Notifications = await KlerosInstance.notifications.getNotifications(juror1)
     expect(notifications.length).toBeTruthy()
     expect(juror1Notifications.length).toBe(notifications.length)
     let totalRedistributedJuror1 = 0
@@ -637,5 +635,5 @@ describe('Kleros', () => {
     expect(juror1Profile.disputes[0] ? juror1Profile.disputes[0].netPNK : 0).toEqual(totalRedistributedJuror1)
 
     KlerosInstance.eventListener.stopWatchingArbitratorEvents(klerosCourt.address)
-  }, 50000)
+  }, 80000)
 })
