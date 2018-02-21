@@ -603,6 +603,13 @@ describe('Kleros', () => {
     // partyA got notifications
     const allNotifications = await KlerosInstance.notifications.getNotifications(partyA)
     expect(allNotifications.length).toBe(notifications.length)
+
+    let notificationTypesExpected = [NOTIFICATION_TYPES.DISPUTE_CREATED, NOTIFICATION_TYPES.APPEAL_POSSIBLE]
+    let notificationTypes = allNotifications.map(notification => {
+      return notification.notificationType
+    })
+    expect(notificationTypes.sort()).toEqual(notificationTypesExpected.sort())
+
     let unreadNotification = await KlerosInstance.notifications.getUnreadNotifications(partyA)
     expect(unreadNotification).toEqual(allNotifications)
     await KlerosInstance.notifications.markNotificationAsRead(partyA, allNotifications[0].txHash, allNotifications[0].logIndex)

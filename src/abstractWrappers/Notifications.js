@@ -1,5 +1,10 @@
 import AbstractWrapper from './AbstractWrapper'
-import { NOTIFICATION_TYPES, PERIODS, DISPUTE_STATES } from '../../constants'
+import {
+  NOTIFICATION_TYPES,
+  PERIODS,
+  DISPUTE_STATES,
+  NULL_ADDRESS
+} from '../../constants'
 import _ from 'lodash'
 
 /**
@@ -226,7 +231,64 @@ class Notifications extends AbstractWrapper {
   * TODO Send push notifications for period state events?
   * We can get a list of subscribers by having jurors subscribe to an arbitrator. Raises new problems however
   */
-  _newPeriodHandler = async (event, arbitratorAddress, account, callback) => {}
+  _newPeriodHandler = async (event, arbitratorAddress, account, callback) => {
+    const newPeriod = event.args._period.toNumber()
+
+    // send appeal possible notifications
+    if (newPeriod === PERIODS.APPEAL) {
+      this._checkArbitratorWrappersSet()
+      const userProfile = await this._StoreProvider.getUserProfile(account)
+      // contract data
+      const arbitratorData = await this._Arbitrator.getData(arbitratorAddress, account)
+      const currentDisputes = []
+      let disputeId = 0
+      const currentSession = arbitratorData.session
+
+      let dispute
+      while (1) {
+        // iterate over all disputes (FIXME inefficient)
+        try {
+           dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
+           if (dispute.arbitratedContract === NULL_ADDRESS) break
+           // session + number of appeals
+           const disputeSession = dispute.firstSession + dispute.numberOfAppeals
+           // if dispute not in current session skip
+           if (disputeSession !== currentSession) {
+             disputeId++
+             dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
+             continue
+           }
+
+           // FIXME DRY this out with _appealPossibleHandler. Cant call directly because we don't have the actual event being called
+           const ruling = await this._Arbitrator.currentRulingForDispute(arbitratorAddress, disputeId)
+
+           if (_.findIndex(userProfile.disputes, dispute => {
+             return (dispute.disputeId === disputeId && dispute.arbitratorAddress === arbitratorAddress)
+           }) >= 0) {
+             await this._StoreProvider.newNotification(
+               account,
+               event.transactionHash,
+               disputeId, // use disputeId instead of logIndex since it doens't have its own event
+               NOTIFICATION_TYPES.APPEAL_POSSIBLE,
+               'A ruling has been made. Appeal is possible',
+               {
+                 disputeId,
+                 arbitratorAddress,
+                 ruling
+               }
+             )
+
+             await this._sendPushNotification(event.transactionHash, disputeId, account, callback)
+           }
+           // check next dispute
+           disputeId += 1
+        } catch (e) {
+          // getDispute(n) throws an error if index out of range
+          break
+        }
+      }
+    }
+  }
 
   /**
   * handler for DisputeCreation event
@@ -251,7 +313,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback, `_disputeCreationHandler}: ${account}`)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
     }
   }
 
@@ -280,7 +342,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback, `_appealPossibleHandler}: ${account}`)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
     }
   }
 
@@ -307,7 +369,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback, `_appealingDecisionHandler}: ${account}`)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
     }
   }
 
@@ -337,7 +399,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback, `_tokenShiftHandler: ${account}`)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
     }
   }
 
@@ -362,7 +424,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback, `_arbitrationRewardHandler: ${account}`)
+      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
     }
   }
 
@@ -378,7 +440,7 @@ class Notifications extends AbstractWrapper {
     ) => handler(args, arbitratorAddress, account, callback)
   }
 
-  _sendPushNotification = async (txHash, logIndex, account, callback, cameFrom) => {
+  _sendPushNotification = async (txHash, logIndex, account, callback) => {
     if (callback) {
       const userProfile = await this._StoreProvider.getUserProfile(account)
       const notification = _.filter(userProfile.notifications, notification => {
