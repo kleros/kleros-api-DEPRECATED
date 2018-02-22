@@ -85,7 +85,8 @@ class Kleros {
     await this.disputes.addDisputeEventListener(arbitratorAddress, account)
     await this.disputes.addTokenShiftToJurorProfileEventListener(
       arbitratorAddress,
-      account
+      account,
+      callback
     )
     await this.notifications.registerNotificationListeners(
       arbitratorAddress,

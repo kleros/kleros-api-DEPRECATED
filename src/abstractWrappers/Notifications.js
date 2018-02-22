@@ -160,46 +160,34 @@ class Notifications extends AbstractWrapper {
     }
 
     // Repartition and execute
-    if (currentPeriod === arbitratorConstants.PERIOD.EXECUTE) {
-      await Promise.all(
-        userProfile.disputes.map(async dispute => {
-          const disputeData = await this._Arbitrator.getDispute(
-            dispute.arbitratorAddress,
-            dispute.disputeId
-          )
-
-          if (
-            disputeData.firstSession + disputeData.numberOfAppeals ===
-            currentSession
-          ) {
-            if (disputeData.state <= disputeConstants.STATE.RESOLVING) {
-              notifications.push(
-                this._createNotification(
-                  notificationConstants.TYPE.CAN_REPARTITION,
-                  'Ready to repartition dispute',
-                  {
-                    disputeId: dispute.disputeId,
-                    arbitratorAddress: dispute.arbitratorAddress
-                  }
-                )
-              )
-            } else if (
-              disputeData.state === disputeConstants.STATE.EXECUTABLE
-            ) {
-              notifications.push(
-                this._createNotification(
-                  notificationConstants.TYPE.CAN_EXECUTE,
-                  'Ready to execute dispute',
-                  {
-                    disputeId: dispute.disputeId,
-                    arbitratorAddress: dispute.arbitratorAddress
-                  }
-                )
-              )
-            }
+    if (currentPeriod === PERIODS.EXECUTE) {
+      console.log("Starting....")
+      await Promise.all(userProfile.disputes.map(async dispute => {
+        const disputeData = await this._Arbitrator.getDispute(dispute.arbitratorAddress, dispute.disputeId)
+        if (disputeData.firstSession + disputeData.numberOfAppeals === currentSession) {
+          if (disputeData.state <= DISPUTE_STATES.RESOLVING) {
+            notifications.push(this._createNotification(
+              NOTIFICATION_TYPES.CAN_REPARTITION,
+              "Ready to repartition dispute",
+              {
+                disputeId: dispute.disputeId,
+                arbitratorAddress: dispute.arbitratorAddress
+              }
+            ))
+            console.log("did stuff")
+          } else if (disputeData.state === DISPUTE_STATES.EXECUTABLE) {
+            notifications.push(this._createNotification(
+              NOTIFICATION_TYPES.CAN_EXECUTE,
+              "Ready to execute dispute",
+              {
+                disputeId: dispute.disputeId,
+                arbitratorAddress: dispute.arbitratorAddress
+              }
+            ))
           }
-        })
-      )
+        }
+      }))
+      console.log("Done....")
     }
 
     return notifications

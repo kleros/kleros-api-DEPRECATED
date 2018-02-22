@@ -28,6 +28,7 @@ class Disputes extends AbstractWrapper {
       contractAddress = arbitratorAddress,
       address = account
     ) => {
+      console.log("adding dispute for " + address)
       const disputeId = event.args._disputeID.toNumber()
       const disputeData = await this.getDataForDispute(
         contractAddress,
@@ -36,7 +37,12 @@ class Disputes extends AbstractWrapper {
       )
       // if listener is a party in dispute add to store
       if (disputeData.partyA === address || disputeData.partyB === address) {
-        await this._updateStoreForDispute(contractAddress, disputeId, address)
+        console.log("should be for partyA")
+        const blockNumber = event.blockNumber
+        const block = this._Arbitrator._Web3Wrapper.getBlock(blockNumber)
+
+        // add new dispute with timestamp
+        const dispute = await this._updateStoreForDispute(contractAddress, disputeId, address, block.timestamp)
       }
     }
 
@@ -97,6 +103,95 @@ class Disputes extends AbstractWrapper {
     )
   }
 
+  addDisputeRulingHandler = async (
+    arbitratorAddress,
+    account,
+    callback
+  ) => {
+    if (!this._eventListener) return
+
+    const _disputeRulingHandler = async (
+      event,
+      contractAddress = arbitratorAddress,
+      address = account,
+      notificationCallback = callback
+    ) => {
+      console.log("in handler")
+      const newPeriod = event.args._period.toNumber()
+      const txHash = event.transactionHash
+      // send appeal possible notifications
+      if (newPeriod === PERIODS.APPEAL) {
+        console.log("doing the do")
+        this._checkArbitratorWrappersSet()
+        const userProfile = await this._StoreProvider.getUserProfile(address)
+        // contract data
+        const arbitratorData = await this._Arbitrator.getData(contractAddress, address)
+        const currentDisputes = []
+        let disputeId = 0
+        const currentSession = arbitratorData.session
+
+        let dispute
+        while (1) {
+          // iterate over all disputes (FIXME inefficient)
+          try {
+             dispute = await this._Arbitrator.getDispute(contractAddress, disputeId)
+             if (dispute.arbitratedContract === NULL_ADDRESS) break
+             // session + number of appeals
+             const disputeSession = dispute.firstSession + dispute.numberOfAppeals
+             // if dispute not in current session skip
+             if (disputeSession !== currentSession) {
+               disputeId++
+               dispute = await this._Arbitrator.getDispute(contractAddress, disputeId)
+               continue
+             }
+
+             const ruling = await this._Arbitrator.currentRulingForDispute(contractAddress, disputeId)
+
+             if (_.findIndex(userProfile.disputes, dispute => {
+               return (dispute.disputeId === disputeId && dispute.arbitratorAddress === contractAddress)
+             }) >= 0) {
+               await this._StoreProvider.newNotification(
+                 address,
+                 txHash,
+                 disputeId, // use disputeId instead of logIndex since it doens't have its own event
+                 NOTIFICATION_TYPES.APPEAL_POSSIBLE,
+                 'A ruling has been made. Appeal is possible',
+                 {
+                   disputeId,
+                   contractAddress,
+                   ruling
+                 }
+               )
+               // get ruledAt from block timestamp
+               const blockNumber = event.blockNumber
+               const block = this._Arbitrator._Web3Wrapper.getBlock(blockNumber)
+               // add ruledAt to store
+               await this._updateStoreForDispute(contractAddress, disputeId, address, null, block.timestamp)
+
+               if (callback) {
+                 const userProfile = await this._StoreProvider.getUserProfile(address)
+                 const notification = _.filter(userProfile.notifications, notification => {
+                   return (notification.txHash === txHash && notification.logIndex === disputeId)
+                 })
+
+                 if (notification) {
+                   callback(notification[0])
+                 }
+               }
+             }
+             // check next dispute
+             disputeId += 1
+          } catch (e) {
+            // getDispute(n) throws an error if index out of range
+            break
+          }
+        }
+      }
+    }
+
+    await this._eventListener.registerArbitratorEvent('NewPeriod', _disputeRulingHandler)
+  }
+
   // **************************** //
   // *          Public          * //
   // **************************** //
@@ -123,7 +218,6 @@ class Disputes extends AbstractWrapper {
       )
 
       if (!txHash) throw new Error('unable to pay arbitration fee for party A')
-      await this._storeNewDispute(arbitrableContractAddress, account)
       return txHash
     } catch (err) {
       throw new Error(err)
@@ -151,39 +245,14 @@ class Disputes extends AbstractWrapper {
     )
 
     if (!txHash) throw new Error('unable to pay arbitration fee for party B')
-    await this._storeNewDispute(arbitrableContractAddress, account)
     return txHash
   }
 
   /**
-   * If there is a dispute in contract update store.
-   * @param {string} arbitrableContractAddress - The arbitrable contract's address.
-   * @param {string} account - The account.
-   */
-  _storeNewDispute = async (arbitrableContractAddress, account) => {
-    this._checkArbitratorWrappersSet()
-    this._checkArbitrableWrappersSet()
-
-    const arbitrableContractData = await this._ArbitrableContract.getData(
-      arbitrableContractAddress
-    )
-
-    if (
-      arbitrableContractData.status === contractConstants.STATUS.DISPUTE_CREATED
-    ) {
-      await this._updateStoreForDispute(
-        arbitrableContractData.arbitrator,
-        arbitrableContractData.disputeId,
-        account
-      )
-    }
-  }
-
-  /**
-   * Get disputes for user with extra data from arbitrated transaction and store.
-   * @param {string} arbitratorAddress - Address of Kleros contract.
-   * @param {string} account - Address of user.
-   * @returns {object[]} - Dispute data objects for user.
+   * Get disputes for user with extra data from arbitrated transaction and store
+   * @param {string} arbitratorAddress address of Kleros contract
+   * @param {string} account address of user
+   * @return {object[]} dispute data objects for user
    */
   getDisputesForUser = async (arbitratorAddress, account) => {
     // FIXME don't like having to call this every fnc
@@ -400,12 +469,18 @@ class Disputes extends AbstractWrapper {
   }
 
   /**
-   * update store with new dispute data
-   * @param {string} arbitratorAddress Address address of arbitrator contract
-   * @param {int} disputeId index of dispute
-   * @param {string} account address of party to update dispute or
-   */
-  _updateStoreForDispute = async (arbitratorAddress, disputeId, account) => {
+  * update store with new dispute data
+  * @param {string} arbitratorAddress Address address of arbitrator contract
+  * @param {int} disputeId index of dispute
+  * @param {string} account address of party to update dispute or
+  */
+  _updateStoreForDispute = async (
+    arbitratorAddress,
+    disputeId,
+    account,
+    createdAt,
+    ruledAt
+  ) => {
     const disputeData = await this.getDataForDispute(
       arbitratorAddress,
       disputeId,
@@ -425,7 +500,9 @@ class Disputes extends AbstractWrapper {
       disputeData.fee,
       disputeData.information,
       disputeData.justification,
-      disputeData.resolutionOptions
+      disputeData.resolutionOptions,
+      createdAt ? createdAt : disputeData.createdAt,
+      ruledAt ? ruledAt : disputeData.ruledAt
     ).body
 
     // update profile for account
@@ -435,9 +512,11 @@ class Disputes extends AbstractWrapper {
       disputeData.arbitratorAddress,
       disputeData.disputeId,
       disputeData.votes.length > 0,
-      false,
-      0
+      disputeData.hasRuled,
+      disputeData.netPNK ? disputeData.netPNK : 0
     )
+
+    return dispute
   }
 
   /**
@@ -561,6 +640,8 @@ class Disputes extends AbstractWrapper {
     let votes = []
     let hasRuled = false
     let netPNK = 0
+    let createdAt
+    let ruledAt
     if (account) {
       votes = await this.getVotesForJuror(arbitratorAddress, disputeId, account)
       try {
@@ -572,6 +653,8 @@ class Disputes extends AbstractWrapper {
         isJuror = userData.isJuror
         hasRuled = userData.hasRuled
         netPNK = userData.netPNK
+        createdAt = userData.createdAt
+        ruledAt = userData.ruledAt
         // eslint-disable-next-line no-unused-vars
       } catch (err) {
         // fetching dispute will fail if it hasn't been added to the store yet. this is ok we can just not return store data
@@ -622,8 +705,10 @@ class Disputes extends AbstractWrapper {
       hasRuled,
       ruling,
       evidence,
-      netPNK
-    }
+      netPNK,
+      ruledAt,
+      createdAt
+    })
   }
 }
 

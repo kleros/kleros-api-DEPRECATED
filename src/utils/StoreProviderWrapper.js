@@ -218,7 +218,9 @@ class StoreProviderWrapper {
     fee,
     information,
     justification,
-    resolutionOptions
+    resolutionOptions,
+    createdAt,
+    ruledAt
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
@@ -238,7 +240,9 @@ class StoreProviderWrapper {
         fee,
         information,
         justification,
-        resolutionOptions
+        resolutionOptions,
+        createdAt,
+        ruledAt
       })
     )
 
