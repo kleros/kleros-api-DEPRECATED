@@ -265,7 +265,7 @@ class Notifications extends AbstractWrapper {
            if (_.findIndex(userProfile.disputes, dispute => {
              return (dispute.disputeId === disputeId && dispute.arbitratorAddress === arbitratorAddress)
            }) >= 0) {
-             await this._StoreProvider.newNotification(
+             const notification = await this._newNotification(
                account,
                event.transactionHash,
                disputeId, // use disputeId instead of logIndex since it doens't have its own event
@@ -278,7 +278,7 @@ class Notifications extends AbstractWrapper {
                }
              )
 
-             await this._sendPushNotification(event.transactionHash, disputeId, account, callback)
+             await this._sendPushNotification(callback, notification)
            }
            // check next dispute
            disputeId += 1
@@ -301,7 +301,7 @@ class Notifications extends AbstractWrapper {
     const arbitrableData = await this._ArbitrableContract.getData(event.args._arbitrable)
 
     if (arbitrableData.partyA === account || arbitrableData.partyB === account) {
-      await this._StoreProvider.newNotification(
+      const notification = await this._newNotification(
         account,
         txHash,
         event.logIndex,
@@ -313,7 +313,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+      if (notification) await this._sendPushNotification(callback, notification)
     }
   }
 
@@ -329,7 +329,7 @@ class Notifications extends AbstractWrapper {
     if (_.findIndex(userProfile.disputes, dispute => {
       return (dispute.disputeId === disputeId && dispute.arbitratorAddress === arbitratorAddress)
     }) >= 0) {
-      await this._StoreProvider.newNotification(
+      const notification = await this._newNotification(
         account,
         event.transactionHash,
         event.logIndex,
@@ -342,7 +342,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+      if (notification) await this._sendPushNotification(callback, notification)
     }
   }
 
@@ -357,7 +357,7 @@ class Notifications extends AbstractWrapper {
     if (_.findIndex(userProfile.disputes, dispute => {
       return (dispute.disputeId === disputeId && dispute.arbitratorAddress === arbitratorAddress)
     }) >= 0) {
-      await this._StoreProvider.newNotification(
+      const notification = await this._newNotification(
         account,
         event.transactionHash,
         event.logIndex,
@@ -369,7 +369,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+      if (notification) await this._sendPushNotification(callback, notification)
     }
   }
 
@@ -385,7 +385,7 @@ class Notifications extends AbstractWrapper {
     const amount = event.args._amount.toNumber()
 
     if (account === address) {
-      const response = await this._StoreProvider.newNotification(
+      const notification = await this._newNotification(
         account,
         event.transactionHash,
         event.logIndex,
@@ -399,7 +399,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+      if (notification) await this._sendPushNotification(callback, notification)
     }
   }
 
@@ -410,7 +410,7 @@ class Notifications extends AbstractWrapper {
     const amount = event.args._amount.toNumber()
 
     if (account === address) {
-      await this._StoreProvider.newNotification(
+      const notification = await this._newNotification(
         account,
         event.transactionHash,
         event.logIndex,
@@ -424,7 +424,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._sendPushNotification(event.transactionHash, event.logIndex, account, callback)
+      if (notification) await this._sendPushNotification(callback, notification)
     }
   }
 
@@ -440,16 +440,9 @@ class Notifications extends AbstractWrapper {
     ) => handler(args, arbitratorAddress, account, callback)
   }
 
-  _sendPushNotification = async (txHash, logIndex, account, callback) => {
-    if (callback) {
-      const userProfile = await this._StoreProvider.getUserProfile(account)
-      const notification = _.filter(userProfile.notifications, notification => {
-        return (notification.txHash === txHash && notification.logIndex === logIndex)
-      })
-
-      if (notification) {
-        callback(notification[0])
-      }
+  _sendPushNotification = async (callback, notification) => {
+    if (callback && notification) {
+      callback(notification)
     }
   }
 
@@ -458,6 +451,33 @@ class Notifications extends AbstractWrapper {
       notificationType,
       message,
       data
+    }
+  }
+
+  _newNotification = async (
+    account,
+    txHash,
+    logIndex,
+    notificationType,
+    message = '',
+    data = {},
+    read = false,
+  ) => {
+    const response = await this._StoreProvider.newNotification(
+      account,
+      txHash,
+      logIndex,
+      notificationType,
+      message,
+      data,
+      read,
+    )
+
+    if (response.status === 201) {
+      const notification = response.body.notifications.filter(notification =>
+        (notification.txHash === txHash && notification.logIndex === logIndex)
+      )
+      return notification[0]
     }
   }
 }
