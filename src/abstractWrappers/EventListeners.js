@@ -37,33 +37,8 @@ class EventListeners extends AbstractWrapper {
     const currentBlock = await this._Arbitrator._getCurrentBlockNumber()
     const contractInstance = await this._loadArbitratorInstance(this.arbitratorAddress)
     // don't need to add another listener if we already have one
-    if (!this._arbitratorEventsWatcher) {
-      this._arbitratorEventsWatcher = contractInstance.allEvents({fromBlock: lastBlock, toBlock: 'latest'})
-    }
-
-    if (!lastBlock || lastBlock < currentBlock) {
-      const eventGetter = contractInstance.allEvents({fromBlock: lastBlock, toBlock: 'latest'})
-      // FETCH EVENTS WE MIGHT HAVE MISSED
-      await new Promise(async (resolve, reject) => {
-        eventGetter.get(async (error, eventResult) => {
-          if (!error) {
-            for (let i=0; i<eventResult.length; i++) {
-              const result = eventResult[i]
-              const handlers = this._arbitratorEventMap[result.event]
-              if (handlers.length > 0) {
-                for (let i=0; i<handlers.length; i++) {
-                  await handlers[i](result)
-                }
-              }
-            }
-            this._StoreProvider.updateLastBlock(this.account, currentBlock)
-            resolve()
-          } else {
-            reject(error)
-          }
-        })
-      })
-    }
+    if (this._arbitratorEventsWatcher) this._arbitratorEventsWatcher.stopWatching()
+    this._arbitratorEventsWatcher = contractInstance.allEvents({fromBlock: lastBlock + 1, toBlock: 'latest'})
 
     this._arbitratorEventsWatcher.watch(async (error, result) => {
       if (!error) {
@@ -84,14 +59,14 @@ class EventListeners extends AbstractWrapper {
   */
   stopWatchingArbitratorEvents = arbitratorAddress => {
     if (this._arbitratorEventsWatcher) this._arbitratorEventsWatcher.stopWatching()
-    this._arbitratorEventMap = {}
+    this.clearArbitratorHandlers()
   }
 
   /** register event listener callback for event
   *   @param {string} eventName name of event
   *   @param {function} eventHandler will be called when event is found
   */
-  registerArbitratorEvent = async (eventName, eventHandler) => {
+  registerArbitratorEvent = (eventName, eventHandler) => {
     const handlers = this._arbitratorEventMap[eventName]
       if (!handlers) {
         this._arbitratorEventMap[eventName] = [eventHandler]

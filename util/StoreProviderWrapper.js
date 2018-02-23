@@ -290,7 +290,7 @@ class StoreProviderWrapper {
       })
     )
 
-    return httpResponse.body
+    return httpResponse
   }
 }
 
