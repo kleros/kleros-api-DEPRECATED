@@ -258,7 +258,6 @@ class Notifications extends AbstractWrapper {
              dispute = await this._Arbitrator.getDispute(arbitratorAddress, disputeId)
              continue
            }
-
            // FIXME DRY this out with _appealPossibleHandler. Cant call directly because we don't have the actual event being called
            const ruling = await this._Arbitrator.currentRulingForDispute(arbitratorAddress, disputeId)
 
@@ -312,7 +311,6 @@ class Notifications extends AbstractWrapper {
           arbitratorAddress: arbitratorAddress
         }
       )
-
       if (notification) await this._sendPushNotification(callback, notification)
     }
   }
@@ -399,6 +397,7 @@ class Notifications extends AbstractWrapper {
         }
       )
 
+      const userProfile = await this._StoreProvider.getUserProfile(account)
       if (notification) await this._sendPushNotification(callback, notification)
     }
   }
@@ -423,6 +422,7 @@ class Notifications extends AbstractWrapper {
           amount
         }
       )
+      const userProfile = await this._StoreProvider.getUserProfile(account)
 
       if (notification) await this._sendPushNotification(callback, notification)
     }

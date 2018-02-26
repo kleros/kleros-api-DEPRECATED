@@ -480,11 +480,11 @@ describe('Kleros', () => {
     expect(initialState.session).toEqual(1)
     expect(initialState.period).toEqual(0)
 
-    const delaySecond = async () => {
+    const delaySecond = async (seconds = 1) => {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(true)
-        }, 1000)
+        }, 1000 * seconds)
       })
     }
 
@@ -629,10 +629,11 @@ describe('Kleros', () => {
       notificationCallback
     )
 
+    // FIXME unreliable. need a better way to "wait" on getting caught up on events
+    await delaySecond(10)
+
     const juror1Profile = await storeProvider.getUserProfile(juror1)
     expect(juror1Profile.disputes.length).toEqual(1)
-
-    await delaySecond()
     const juror1Notifications = await KlerosInstance.notifications.getNotifications(juror1)
     expect(notifications.length).toBeTruthy()
     expect(juror1Notifications.length).toBe(notifications.length)
