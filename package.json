@@ -67,8 +67,6 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.1",
-    "better-queue": "^3.8.6",
-    "better-queue-memory": "^1.0.2",
     "bignumber": "^1.1.0",
     "dotenv-webpack": "^1.5.4",
     "esdoc": "^1.0.4",
