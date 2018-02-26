@@ -57,6 +57,7 @@ class Kleros {
     account,
     callback // for notification callback
   ) => {
+    await this._storeWrapper.setUpUserProfile(account)
     this.eventListener.clearArbitratorHandlers()
     await this.disputes.addDisputeEventListener(arbitratorAddress, account)
     await this.disputes.addTokenShiftToJurorProfileEventListener(arbitratorAddress, account)

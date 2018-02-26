@@ -186,8 +186,7 @@ class Disputes extends AbstractWrapper {
     const arbitratorData = await this._Arbitrator.getData(arbitratorAddress, account)
 
     // fetch user profile
-    let profile = await this._StoreProvider.getUserProfile(account)
-    if (_.isNull(profile)) profile = await this._StoreProvider.newUserProfile(account)
+    let profile = await this._StoreProvider.setUpUserProfile(account)
     // fetch current contract period
     const period = arbitratorData.period
     const currentSession = arbitratorData.session
