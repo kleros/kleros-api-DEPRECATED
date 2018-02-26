@@ -49,10 +49,6 @@ class EventListeners extends AbstractWrapper {
           handlers.map(handler => {
             this._queueEvent(handler, result)
           })
-          // for (let i=0; i<handlers.length; i++) {
-          //   await handlers[i](result)
-          // }
-          // await this._StoreProvider.updateLastBlock(this.account, result.blockNumber)
         }
       }
     })
