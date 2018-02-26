@@ -34,8 +34,7 @@ class Arbitrator extends AbstractWrapper {
     const txHash = await this._Arbitrator.buyPNK(amount, arbitratorAddress, account)
     if (txHash) {
       // update store so user can get instantaneous feedback
-      let userProfile = await this._StoreProvider.getUserProfile(account)
-      if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
+      const userProfile = await this._StoreProvider.setUpUserProfile(account)
       // FIXME seems like a super hacky way to update store
       userProfile.balance = (parseInt(userProfile.balance) ? userProfile.balance : 0) + parseInt(amount)
       delete userProfile._id
@@ -57,8 +56,7 @@ class Arbitrator extends AbstractWrapper {
     account
   ) => {
     // fetch user profile
-    let userProfile = await this._StoreProvider.getUserProfile(account)
-    if (_.isNull(userProfile)) userProfile = await this._StoreProvider.newUserProfile(account)
+    const userProfile = await this._StoreProvider.setUpUserProfile(account)
 
     return userProfile.contracts
   }

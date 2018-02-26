@@ -54,6 +54,18 @@ class StoreProviderWrapper {
     return httpResponse
   }
 
+  /**
+  * Set up a new user profile if one does not exist
+  * @param {string} address user's address
+  * @return {object} users existing or created profile
+  */
+  setUpUserProfile = async (address) => {
+    let userProfile = await this.getUserProfile(address)
+    if (_.isNull(userProfile)) userProfile = await this.newUserProfile(address)
+
+    return userProfile
+  }
+
   updateUserProfile = async (address, userProfile) => {
     delete userProfile._id
     delete userProfile.created_at
@@ -289,7 +301,7 @@ class StoreProviderWrapper {
         data
       })
     )
-    
+
     return httpResponse
   }
 }

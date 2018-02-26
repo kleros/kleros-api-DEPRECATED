@@ -1,4 +1,4 @@
-import Queue from 'better-queue'
+import PromiseQueue from '../../util/PromiseQueue'
 import AbstractWrapper from './AbstractWrapper'
 
 class EventListeners extends AbstractWrapper {
@@ -20,7 +20,7 @@ class EventListeners extends AbstractWrapper {
     this.arbitratorAddress
     this.account
     // event handler queue
-    this.eventHandlerQueue = new Queue(this._queueEvent, {concurrent: 1})
+    this.eventHandlerQueue = new PromiseQueue()
   }
 
   /** Update store for events we missed and watch for events on arbitrator contract.
@@ -46,10 +46,13 @@ class EventListeners extends AbstractWrapper {
       if (!error) {
         const handlers = this._arbitratorEventMap[result.event]
         if (handlers) {
-          // have to use for loop here so they aren't done in parallel
           handlers.map(handler => {
-            this.eventHandlerQueue.push({handler: handler, event: result})
+            this._queueEvent(handler, result)
           })
+          // for (let i=0; i<handlers.length; i++) {
+          //   await handlers[i](result)
+          // }
+          // await this._StoreProvider.updateLastBlock(this.account, result.blockNumber)
         }
       }
     })
@@ -107,10 +110,13 @@ class EventListeners extends AbstractWrapper {
     this.arbitratorAddress = arbitratorAddress
   }
 
-  _queueEvent = async (task, cb) => {
-    await task.handler(task.event)
-    await this._StoreProvider.updateLastBlock(this.account, task.blockNumber)
-    cb()
+  _queueEvent = async (handler, event) => {
+    const eventTask = async () => {
+      await handler(event)
+      await this._StoreProvider.updateLastBlock(this.account, event.blockNumber)
+    }
+
+    this.eventHandlerQueue.push(eventTask)
   }
 }
 
