@@ -72,6 +72,7 @@ describe('Kleros', () => {
     const mockTimeout = 1
     const mockArbitratorExtraData = ''
     const mockEmail = 'test@kleros.io'
+    const mockName = 'test name'
     const mockDescription = 'test description'
     let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
       .deployContract(
@@ -83,6 +84,7 @@ describe('Kleros', () => {
         partyB,
         mockArbitratorExtraData,
         mockEmail,
+        mockName,
         mockDescription
       )
     expect(contractArbitrableTransactionData.address)
@@ -147,6 +149,7 @@ describe('Kleros', () => {
     const mockTimeout = 1
     const mockArbitratorExtraData = ''
     const mockEmail = 'test@kleros.io'
+    const mockName = 'test name'
     const mockDescription = 'test description'
     const contractPaymentAmount = KlerosInstance._web3Wrapper.toWei(1, 'ether') // contract payment be 1 ether
     let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
@@ -159,6 +162,7 @@ describe('Kleros', () => {
         partyB,
         mockArbitratorExtraData,
         mockEmail,
+        mockName,
         mockDescription
       )
 
@@ -206,6 +210,7 @@ describe('Kleros', () => {
     const mockTimeout = 1
     const mockArbitratorExtraData = ''
     const mockEmail = 'test@kleros.io'
+    const mockName = 'test name'
     const mockDescription = 'test description'
     const contractPaymentAmount = KlerosInstance._web3Wrapper.toWei(1, 'ether') // contract payment be 1 ether
     let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
@@ -218,6 +223,7 @@ describe('Kleros', () => {
         partyB,
         mockArbitratorExtraData,
         mockEmail,
+        mockName,
         mockDescription
       )
 
@@ -361,6 +367,7 @@ describe('Kleros', () => {
     const mockTimeout = 1
     const mockArbitratorExtraData = ''
     const mockEmail = 'test@kleros.io'
+    const mockName = 'test name'
     const mockDescription = 'test description'
     const contractPaymentAmount = KlerosInstance._web3Wrapper.toWei(1, 'ether') // contract payment be 1 ether
     let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
@@ -373,6 +380,7 @@ describe('Kleros', () => {
         partyB,
         mockArbitratorExtraData,
         mockEmail,
+        mockName,
         mockDescription
       )
 

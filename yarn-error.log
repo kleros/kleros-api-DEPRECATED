@@ -16,7 +16,7 @@ Platform:
 npm manifest: 
   {
     "name": "kleros-api",
-    "version": "0.0.57",
+    "version": "0.0.60",
     "description": "Kleros API",
     "main": "lib/kleros-api.js",
     "scripts": {
@@ -4708,7 +4708,7 @@ Lockfile:
 
 Trace: 
   Error: Command failed.
-  Exit code: 1
+  Exit code: 127
   Command: sh
   Arguments: -c jest
   Directory: /private/tmp/kleros-api
