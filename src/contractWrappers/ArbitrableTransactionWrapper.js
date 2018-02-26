@@ -360,6 +360,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       partyAFee,
       partyBFee,
       lastInteraction,
+      amount
       ] = await Promise.all(
         [
           contractInstance.arbitrator.call(),
@@ -374,6 +375,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
           contractInstance.partyAFee.call(),
           contractInstance.partyBFee.call(),
           contractInstance.lastInteraction.call(),
+          contractInstance.amount.call(),
         ]
       ).catch(err => {
         throw new Error(err)
@@ -393,6 +395,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       partyAFee: this._Web3Wrapper.fromWei(partyAFee, 'ether'),
       partyBFee: this._Web3Wrapper.fromWei(partyBFee, 'ether'),
       lastInteraction,
+      amount
     }
   }
 }
