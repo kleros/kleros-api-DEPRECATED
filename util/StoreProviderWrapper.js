@@ -7,7 +7,7 @@ class StoreProviderWrapper {
 
   _makeRequest = async (verb, uri, body = null) => {
     const httpRequest = new XMLHttpRequest()
-    return new Promise ((resolve, reject) => {
+    return await new Promise ((resolve, reject) => {
       try {
         httpRequest.open(verb, uri, true)
         if (body) {
@@ -16,7 +16,7 @@ class StoreProviderWrapper {
             'application/json;charset=UTF-8'
           )
         }
-        httpRequest.onreadystatechange =  () => {
+        httpRequest.onreadystatechange = () => {
           if (httpRequest.readyState === 4) {
             let body = null
             try {
@@ -289,7 +289,7 @@ class StoreProviderWrapper {
         data
       })
     )
-
+    
     return httpResponse
   }
 }

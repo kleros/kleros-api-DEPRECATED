@@ -1,3 +1,4 @@
+import Queue from 'better-queue'
 import AbstractWrapper from './AbstractWrapper'
 
 class EventListeners extends AbstractWrapper {
@@ -18,6 +19,8 @@ class EventListeners extends AbstractWrapper {
     // store these here so we can switch accounts/contracts on the fly
     this.arbitratorAddress
     this.account
+    // event handler queue
+    this.eventHandlerQueue = new Queue(this._queueEvent, {concurrent: 1})
   }
 
   /** Update store for events we missed and watch for events on arbitrator contract.
@@ -39,17 +42,15 @@ class EventListeners extends AbstractWrapper {
     // don't need to add another listener if we already have one
     if (this._arbitratorEventsWatcher) this._arbitratorEventsWatcher.stopWatching()
     this._arbitratorEventsWatcher = contractInstance.allEvents({fromBlock: lastBlock + 1, toBlock: 'latest'})
-
     this._arbitratorEventsWatcher.watch(async (error, result) => {
       if (!error) {
         const handlers = this._arbitratorEventMap[result.event]
         if (handlers) {
           // have to use for loop here so they aren't done in parallel
-          for (let i=0; i<handlers.length; i++) {
-            await handlers[i](result)
-          }
+          handlers.map(handler => {
+            this.eventHandlerQueue.push({handler: handler, event: result})
+          })
         }
-        this._StoreProvider.updateLastBlock(this.account, result.blockNumber)
       }
     })
   }
@@ -104,6 +105,12 @@ class EventListeners extends AbstractWrapper {
 
   changeArbitrator = arbitratorAddress => {
     this.arbitratorAddress = arbitratorAddress
+  }
+
+  _queueEvent = async (task, cb) => {
+    await task.handler(task.event)
+    await this._StoreProvider.updateLastBlock(this.account, task.blockNumber)
+    cb()
   }
 }
 
