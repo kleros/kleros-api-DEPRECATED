@@ -73,10 +73,11 @@ describe('Kleros', () => {
     const mockArbitratorExtraData = ''
     const mockEmail = 'test@kleros.io'
     const mockDescription = 'test description'
+    const mockPaymentAmount = KlerosInstance._web3Wrapper.toWei(1, 'ether') // contract payment be 1 ether
     let contractArbitrableTransactionData = await KlerosInstance.arbitrableContract
       .deployContract(
         partyA,
-        undefined, // use default value (0)
+        mockPaymentAmount,
         mockHash,
         klerosCourt.address,
         mockTimeout,
@@ -96,6 +97,8 @@ describe('Kleros', () => {
     expect(contractArbitrableTransactionData.partyB)
       .toEqual(partyB)
     // TODO add test for lastInteraction, fix typeof of the var
+    expect(parseInt(contractArbitrableTransactionData.amount))
+      .toEqual(mockPaymentAmount)
   }, 10000)
 
   test(
