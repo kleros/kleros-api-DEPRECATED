@@ -1,80 +1,55 @@
 {
   "name": "kleros-api",
   "version": "0.0.61",
-  "description": "Kleros API",
-  "main": "lib/kleros-api.js",
-  "scripts": {
-    "build": "webpack --env build",
-    "dev": "webpack --progress --colors --watch --env dev",
-    "test": "jest",
-    "deploy": "yarn build && npm publish",
-    "generate-docs": "./node_modules/.bin/esdoc -c .esdoc.json",
-    "docs": "open ./docs/index.html",
-    "publish-docs": "./node_modules/.bin/esdoc -c .esdoc.json && gh-pages -d docs",
-    "deployCentralCourt": "./node_modules/.bin/babel-node script/deployCentralCourt.js",
-    "deployArbitrableTransaction": "./node_modules/.bin/babel-node script/deployArbitrableTransaction.js",
-    "createArbitrableTransactionDispute": "./node_modules/.bin/babel-node script/createArbitrableTransactionDispute.js",
-    "getDisputeDataFromCentralCourt": "./node_modules/.bin/babel-node script/getDisputeDataFromCentralCourt.js",
-    "getDataFromArbitrableTransaction": "./node_modules/.bin/babel-node script/getDataFromArbitrableTransaction.js",
-    "postDataToStore": "./node_modules/.bin/babel-node script/postDataToStore.js",
-    "getDataFromStore": "./node_modules/.bin/babel-node script/getDataFromStore.js",
-    "deployKlerosPOC": "./node_modules/.bin/babel-node script/deployKlerosPOC.js",
-    "buyPNK": "./node_modules/.bin/babel-node script/buyPNK.js",
-    "activatePNK": "./node_modules/.bin/babel-node script/activatePNK.js",
-    "passPeriod": "./node_modules/.bin/babel-node script/passPeriod.js",
-    "getDisputesForUser": "./node_modules/.bin/babel-node script/getDisputesForUser.js"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "verbose": true
-  },
-  "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "6.24.1",
-    "babel-jest": "^20.0.3",
-    "babel-loader": "7.0.0",
-    "babel-plugin-add-module-exports": "0.2.1",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-preset-es2015": "6.24.1",
-    "babel-preset-es2017": "^6.24.1",
-    "babel-preset-stage-0": "^6.24.1",
-    "jest-cli": "^20.0.4",
-    "regenerator-runtime": "^0.11.0",
-    "webpack": "3.1.0",
-    "webpack-dotenv-plugin": "^2.0.2",
-    "yargs": "7.1.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kleros/kleros-api.git"
-  },
-  "keywords": [
-    "Kleros",
-    "justice system",
-    "Ethereum"
-  ],
+  "description":
+    "A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol.",
+  "keywords": ["Blockchain", "Ethereum", "Kleros"],
+  "homepage": "https://kleros.io",
+  "repository": "github:kleros/kleros-api",
+  "bugs": "https://github.com/kleros/kleros-api/issues",
   "author": "Kleros's team <contact@kleros.io> (https://github.com/kleros)",
   "contributors": [
     "Wagner Nicolas <nicolas@kleros.io> (https://github.com/n1c01a5)",
-    "Sam Vitello (https://github.com/satello)"
+    "Sam Vitello (https://github.com/satello)",
+    "Enrique Piqueras <enrique@kleros.io> (https://github.com/epiqueras)"
   ],
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/kleros/kleros-api.git"
+  "private": true,
+  "main": "lib/kleros-api.js",
+  "scripts": {
+    "prettify": "kleros-scripts prettify",
+    "lint": "kleros-scripts lint:js --config ./.eslintrc.js",
+    "test": "jest --config ./jest.config.js",
+    "test:coveralls": "coveralls < ./coverage/lcov.info",
+    "precommit": "kleros-scripts precommit",
+    "commitmsg": "kleros-scripts commitmsg",
+    "cz": "kleros-scripts cz",
+    "start": "webpack --env.NODE_ENV=development --progress --watch",
+    "build": "webpack --env.NODE_ENV=production -p"
   },
-  "homepage": "https://kleros.io",
-  "dependencies": {
+  "commitlint": {
+    "extends": ["@commitlint/config-conventional"]
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-jest": "^22.4.1",
+    "babel-loader": "^7.1.3",
     "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.6.0",
-    "babel-preset-react": "^6.24.1",
-    "bignumber": "^1.1.0",
-    "dotenv-webpack": "^1.5.4",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "coveralls": "^3.0.0",
     "esdoc": "^1.0.4",
     "esdoc-ecmascript-proposal-plugin": "^1.0.0",
     "esdoc-standard-plugin": "^1.0.0",
-    "ethereumjs-testrpc": "^4.1.1",
-    "global": "^4.3.2",
-    "jest": "^20.0.4",
+    "ganache-cli": "^6.0.3",
+    "husky": "^0.14.3",
+    "jest": "^22.4.2",
+    "kleros-scripts": "^0.4.0",
+    "standard-version": "^4.3.0",
+    "webpack": "^4.0.1"
+  },
+  "dependencies": {
+    "babel-runtime": "^6.26.0",
     "kleros": "^0.0.5",
     "kleros-interaction": "^0.0.8",
     "lodash": "^4.17.4",

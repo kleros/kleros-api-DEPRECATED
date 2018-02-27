@@ -1,37 +1,33 @@
 import AbstractWrapper from './AbstractWrapper'
-import {
-  DEFAULT_ARBITRATION_COST,
-  DISPUTE_STATUS
-} from '../../constants'
 
 /**
- * Arbitrable Contract api
+ * Arbitrable Contract API.
  */
 class ArbitrableContract extends AbstractWrapper {
   /**
-   * Arbitrable Contract Constructor
-   * @param {object} storeProvider store provider object
-   * @param {object} arbitrableWrapper arbitrable contract wrapper object
-   * @param {object} eventListener event listener object
+   * ArbitrableContract Constructor.
+   * @param {object} storeProvider - Store provider object.
+   * @param {object} arbitrableWrapper - Arbitrable contract wrapper object.
+   * @param {object} eventListener - EventListener instance.
    */
   constructor(storeProvider, arbitrableWrapper, eventListener) {
     super(storeProvider, undefined, arbitrableWrapper, eventListener)
   }
 
   /**
-  * Deploy a contract and add to the Store
-  * @param {string} account Ethereum address
-  * @param {int} value funds to be placed in contract
-  * @param {string} hashContract Keccak hash of the plain English contract
-  * @param {string} arbitratorAddress The address of the arbitrator contract
-  * @param {int} timeout Time after which a party automatically loose a dispute
-  * @param {string} partyB Ethereum address of the other party in the contract
-  * @param {bytes} arbitratorExtraData Extra data for the arbitrator
-  * @param {string} email Email address of the contract creator (default empty string)
-  * @param {string} description Description of what the contract is about (default empty string)
-  * @param args Extra arguments for the contract
-  * @return object | Error
-  */
+   * Deploy a contract and add to the Store.
+   * @param {string} account - Ethereum address.
+   * @param {int} value - funds to be placed in contract.
+   * @param {string} hashContract - Keccak hash of the plain English contract.
+   * @param {string} arbitratorAddress - The address of the arbitrator contract.
+   * @param {int} timeout - Time after which a party automatically loose a dispute.
+   * @param {string} partyB - Ethereum address of the other party in the contract.
+   * @param {bytes} arbitratorExtraData - Extra data for the arbitrator.
+   * @param {string} email - Email address of the contract creator (default empty string).
+   * @param {string} description - Description of what the contract is about (default empty string).
+   * @param {...any} args - Extra arguments for the contract.
+   * @returns {object | Error} - The contract object or an error.
+   */
   deployContract = async (
     account,
     value,
@@ -69,17 +65,17 @@ class ArbitrableContract extends AbstractWrapper {
     )
 
     // return contract data
-    return await this.getData(contractInstance.address, account)
+    return this.getData(contractInstance.address, account)
   }
 
   /**
-   * Submit evidence
-   * @param {string} account ETH address of user
-   * @param {string} contractAddress ETH address of contract
-   * @param {string} name name of evidence
-   * @param {string} description description of evidence
-   * @param {string} evidence A link to an evidence using its URI.
-   * @return {string} txHash Hash transaction
+   * Submit evidence.
+   * @param {string} account - ETH address of user.
+   * @param {string} contractAddress - ETH address of contract.
+   * @param {string} name - Name of evidence.
+   * @param {string} description - Description of evidence.
+   * @param {string} url - A link to an evidence using its URI.
+   * @returns {string} - txHash Hash transaction.
    */
   submitEvidence = async (
     account,
@@ -107,28 +103,34 @@ class ArbitrableContract extends AbstractWrapper {
     return txHash
   }
 
-  getArbitrator = async (
-    arbitrableContractAddress
-  ) => {
-    const contractInstance = await this._loadArbitrableInstance(arbitrableContractAddress)
+  /**
+   * Gets the arbitrator address of the contract.
+   * @param {string} arbitrableContractAddress - The address of the contract.
+   * @returns {string} - The arbitratror's address.
+   */
+  getArbitrator = async arbitrableContractAddress => {
+    const contractInstance = await this._loadArbitrableInstance(
+      arbitrableContractAddress
+    )
 
-    return await contractInstance.arbitrator()
+    return contractInstance.arbitrator()
   }
 
   /**
-  * Get data from the store and contract for Arbitrable Contract
-  * @param {string} contractAddress address of Arbitrable Contract
-  * @param {string} account ETH address of user
-  * @return {object} contract data
-  */
-  getData = async (
-    contractAddress,
-    account
-  ) => {
+   * Get data from the store and contract for Arbitrable Contract.
+   * @param {string} contractAddress - Address of Arbitrable Contract.
+   * @param {string} account - ETH address of user.
+   * @returns {object} - Contract data.
+   */
+  getData = async (contractAddress, account) => {
     const contractData = await this._ArbitrableContract.getData(contractAddress)
 
     let storeData = {}
-    if (account) storeData = await this._StoreProvider.getContractByAddress(account, contractAddress)
+    if (account)
+      storeData = await this._StoreProvider.getContractByAddress(
+        account,
+        contractAddress
+      )
 
     return Object.assign({}, storeData, contractData)
   }

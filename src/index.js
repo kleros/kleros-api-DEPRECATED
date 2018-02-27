@@ -1,2 +1,3 @@
 import Kleros from './kleros.js'
-export {Kleros}
+
+export { Kleros }

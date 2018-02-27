@@ -1,20 +1,24 @@
-# Dependency directory
-# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
-node_modules
+# See https://help.github.com/ignore-files/ for more about ignoring files.
 
-# Remove some common IDE working directories
-.idea
-.vscode
+# Dependencies
+/node_modules/
 
-# Env configuration
-.env
+# Testing
+/coverage/
 
-# built js
-lib
+# Documentation
+/docs/
 
-# Files generated
-package-lock.json
-yarn-error.log
+# Production
+/lib/
 
-# docs
-docs
+# Logs
+/yarn-debug.log*
+/yarn-error.log*
+
+# Editors
+/.vscode/
+/.idea/*
+
+# Misc
+/.DS_Store
