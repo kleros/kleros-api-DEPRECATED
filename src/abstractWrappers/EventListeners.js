@@ -1,52 +1,55 @@
 import PromiseQueue from '../../util/PromiseQueue'
+
 import AbstractWrapper from './AbstractWrapper'
 
 class EventListeners extends AbstractWrapper {
-  /** Listen for events in contract
-  *   Handles callbacks with registered event handlers
-  *   @param {object} storeProvider store provider object
-  *   @param {object} arbitratorWrapper arbitrator contract wrapper object
-  *   @param {object} arbitrableWrapper arbitrable contract wrapper object
-  */
+  /**
+   * Listen for events in contract and handles callbacks with registered event handlers
+   * @param {object} storeProvider - store provider object.
+   * @param {object} arbitratorWrapper - arbitrator contract wrapper object.
+   * @param {object} arbitrableWrapper - arbitrable contract wrapper object.
+   */
   constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
     super(storeProvider, arbitratorWrapper, arbitrableWrapper)
     // key: event name, value: [event handlers, ...]
     this._arbitratorEventMap = {}
     this._arbitrableEventMap = {}
     // key: contract address, value: true/false
-    this._arbitratorEventsWatcher
-    this._arbitrableEventsWatcher
+    // this._arbitratorEventsWatcher
+    // this._arbitrableEventsWatcher
     // store these here so we can switch accounts/contracts on the fly
-    this.arbitratorAddress
-    this.account
+    // this.arbitratorAddress
+    // this.account
     // event handler queue
     this.eventHandlerQueue = new PromiseQueue()
   }
 
-  /** Update store for events we missed and watch for events on arbitrator contract.
-  *   Handles callbacks with registered event handlers
-  *   FIXME DRY this out for arbitrable
-  *   @param {string} arbitratorAddress address of arbitrator contract
-  */
-  watchForArbitratorEvents = async (
-    arbitratorAddress,
-    account
-  ) => {
+  /**
+   * Update store for events we missed and watch for events on arbitrator contract. FIXME DRY this out for arbitrable.
+   * @param {string} arbitratorAddress - Address of arbitrator contract.
+   * @param {string} account - The account.
+   */
+  watchForArbitratorEvents = async (arbitratorAddress, account) => {
     this._checkArbitratorWrappersSet()
     if (arbitratorAddress) this.arbitratorAddress = arbitratorAddress
     if (account) this.account = account
 
     const lastBlock = await this._StoreProvider.getLastBlock(this.account)
-    const currentBlock = await this._Arbitrator._getCurrentBlockNumber()
-    const contractInstance = await this._loadArbitratorInstance(this.arbitratorAddress)
+    const contractInstance = await this._loadArbitratorInstance(
+      this.arbitratorAddress
+    )
     // don't need to add another listener if we already have one
-    if (this._arbitratorEventsWatcher) this._arbitratorEventsWatcher.stopWatching()
-    this._arbitratorEventsWatcher = contractInstance.allEvents({fromBlock: lastBlock + 1, toBlock: 'latest'})
+    if (this._arbitratorEventsWatcher)
+      this._arbitratorEventsWatcher.stopWatching()
+    this._arbitratorEventsWatcher = contractInstance.allEvents({
+      fromBlock: lastBlock + 1,
+      toBlock: 'latest'
+    })
     this._arbitratorEventsWatcher.watch(async (error, result) => {
       if (!error) {
         const handlers = this._arbitratorEventMap[result.event]
         if (handlers) {
-          handlers.map(handler => {
+          handlers.forEach(handler => {
             this._queueEvent(handler, result)
           })
         }
@@ -54,47 +57,66 @@ class EventListeners extends AbstractWrapper {
     })
   }
 
-  /** stop listening on contract
-  *   @param {string} arbitratorAddress address of arbitrator contract
-  */
-  stopWatchingArbitratorEvents = arbitratorAddress => {
-    if (this._arbitratorEventsWatcher) this._arbitratorEventsWatcher.stopWatching()
+  /**
+   * Stop listening on contract.
+   */
+  stopWatchingArbitratorEvents = () => {
+    if (this._arbitratorEventsWatcher)
+      this._arbitratorEventsWatcher.stopWatching()
     this.clearArbitratorHandlers()
   }
 
-  /** register event listener callback for event
-  *   @param {string} eventName name of event
-  *   @param {function} eventHandler will be called when event is found
-  */
+  /**
+   * Register event listener callback for event.
+   * @param {string} eventName - Name of event.
+   * @param {function} eventHandler - Will be called when event is found.
+   */
   registerArbitratorEvent = (eventName, eventHandler) => {
     const handlers = this._arbitratorEventMap[eventName]
-      if (!handlers) {
-        this._arbitratorEventMap[eventName] = [eventHandler]
-      } else {
-        this._arbitratorEventMap[eventName].push(eventHandler)
-      }
+    if (!handlers) {
+      this._arbitratorEventMap[eventName] = [eventHandler]
+    } else {
+      this._arbitratorEventMap[eventName].push(eventHandler)
+    }
   }
 
+  /**
+   * Clear arbitrator handlers.
+   */
   clearArbitratorHandlers = () => {
     this._arbitratorEventMap = {}
   }
 
-  /** deletes event listeners for event
-  *   FIXME make a way to unregister a single event listener
-  *   @param {string} eventName name of event to stop doing actions for
-  */
+  /**
+   * Deletes event listeners for event.
+   * FIXME make a way to unregister a single event listener
+   * @param {string} eventName - Name of event to stop doing actions for.
+   */
   deregisterArbitratorEvent = eventName => {
     delete this._arbitratorEventMap[eventName]
   }
 
+  /**
+   * Registers an event.
+   * @param {string} eventName - The event name.
+   * @param {object} eventHandler - The event handler.
+   */
   registerArbitrableEvent = (eventName, eventHandler) => {
     this._arbitrableEventMap[eventName] = eventHandler
   }
 
+  /**
+   * Deregisters an event.
+   * @param {string} eventName - The event name.
+   */
   deregisterArbitrableEvent = eventName => {
     delete this._arbitrableEventMap[eventName]
   }
 
+  /**
+   * Changes the account.
+   * @param {string} account - The account.
+   */
   changeAccount = account => {
     this.account = account
 
@@ -102,10 +124,19 @@ class EventListeners extends AbstractWrapper {
     this.watchForArbitratorEvents()
   }
 
+  /**
+   * Changes the arbitrator.
+   * @param {string} arbitratorAddress - The arbitrator address.
+   */
   changeArbitrator = arbitratorAddress => {
     this.arbitratorAddress = arbitratorAddress
   }
 
+  /**
+   * Queues an event.
+   * @param {function} handler - The handler.
+   * @param {object} event - The event.
+   */
   _queueEvent = async (handler, event) => {
     const eventTask = async () => {
       await handler(event)

@@ -5,9 +5,9 @@ class StoreProviderWrapper {
     this._storeUri = storeProviderUri
   }
 
-  _makeRequest = async (verb, uri, body = null) => {
+  _makeRequest = (verb, uri, body = null) => {
     const httpRequest = new XMLHttpRequest()
-    return await new Promise ((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         httpRequest.open(verb, uri, true)
         if (body) {
@@ -21,7 +21,9 @@ class StoreProviderWrapper {
             let body = null
             try {
               body = JSON.parse(httpRequest.responseText)
-            } catch (e) {}
+            } catch (err) {
+              console.log(err)
+            }
             resolve({
               body: body,
               status: httpRequest.status
@@ -29,8 +31,8 @@ class StoreProviderWrapper {
           }
         }
         httpRequest.send(body)
-      } catch (e) {
-        reject(e)
+      } catch (err) {
+        reject(err)
       }
     })
   }
@@ -55,11 +57,11 @@ class StoreProviderWrapper {
   }
 
   /**
-  * Set up a new user profile if one does not exist
-  * @param {string} address user's address
-  * @return {object} users existing or created profile
-  */
-  setUpUserProfile = async (address) => {
+   * Set up a new user profile if one does not exist
+   * @param {string} address user's address
+   * @returns {object} users existing or created profile
+   */
+  setUpUserProfile = async address => {
     let userProfile = await this.getUserProfile(address)
     if (_.isNull(userProfile)) userProfile = await this.newUserProfile(address)
 
@@ -80,11 +82,14 @@ class StoreProviderWrapper {
 
   getDisputeData = async (userAddress, arbitratorAddress, disputeId) => {
     const userProfile = await this.getUserProfile(userAddress)
-    if (!userProfile) throw new Error(`No profile found for address: ${userAddress}`)
+    if (!userProfile)
+      throw new Error(`No profile found for address: ${userAddress}`)
 
-    let disputeData = _.filter(userProfile.disputes, (o) => {
-      return (o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeId)
-    })
+    let disputeData = _.filter(
+      userProfile.disputes,
+      o =>
+        o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeId
+    )
 
     if (_.isEmpty(disputeData)) return null
     const httpResponse = await this._makeRequest(
@@ -96,23 +101,24 @@ class StoreProviderWrapper {
 
   getContractByHash = async (userAddress, hash) => {
     const userProfile = await this.getUserProfile(userAddress)
-    if (!userProfile) throw new Error(`No profile found for address: ${userAddress}`)
+    if (!userProfile)
+      throw new Error(`No profile found for address: ${userAddress}`)
 
-    let contractData = _.filter(userProfile.contracts, (o) => {
-      return o.hash === hash
-    })
+    let contractData = _.filter(userProfile.contracts, o => o.hash === hash)
 
-    if (contractData.length < 1) return null
+    if (contractData.length === 0) return null
     return contractData[0]
   }
 
   getContractByAddress = async (userAddress, addressContract) => {
     const userProfile = await this.getUserProfile(userAddress)
-    if (!userProfile) throw new Error(`No profile found for this address: ${userAddress}`)
+    if (!userProfile)
+      throw new Error(`No profile found for this address: ${userAddress}`)
 
-    let contract = _.filter(userProfile.contracts, contract => {
-      return contract.address === addressContract
-    })
+    let contract = _.filter(
+      userProfile.contracts,
+      contract => contract.address === addressContract
+    )
 
     return contract[0]
   }
@@ -147,13 +153,7 @@ class StoreProviderWrapper {
     return httpResponse
   }
 
-  addEvidenceContract = async (
-    address,
-    account,
-    name,
-    description,
-    url
-  ) => {
+  addEvidenceContract = async (address, account, name, description, url) => {
     const httpResponse = await this._makeRequest(
       'POST',
       `${this._storeUri}/${account}/contracts/${address}/evidence`,
@@ -167,10 +167,7 @@ class StoreProviderWrapper {
     return httpResponse
   }
 
-  getDispute = async (
-    arbitratorAddress,
-    disputeId
-  ) => {
+  getDispute = async (arbitratorAddress, disputeId) => {
     const httpResponse = await this._makeRequest(
       'GET',
       `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
@@ -191,7 +188,9 @@ class StoreProviderWrapper {
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
-      `${this._storeUri}/${account}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`,
+      `${
+        this._storeUri
+      }/${account}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`,
       JSON.stringify({
         votes,
         arbitratorAddress,
@@ -223,7 +222,9 @@ class StoreProviderWrapper {
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
-      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`,
+      `${
+        this._storeUri
+      }/arbitrators/${arbitratorAddress}/disputes/${disputeId}`,
       JSON.stringify({
         disputeId,
         arbitratorAddress,
@@ -249,18 +250,18 @@ class StoreProviderWrapper {
     if (!userProfile) return []
 
     const disputes = []
-    for (let i=0; i<userProfile.disputes.length; i++) {
+    for (let i = 0; i < userProfile.disputes.length; i++) {
       const dispute = userProfile.disputes[i]
       if (!dispute.arbitratorAddress || _.isNil(dispute.disputeId)) continue
       // fetch dispute data
       const httpResponse = await this._makeRequest(
         'GET',
-        `${this._storeUri}/arbitrators/${dispute.arbitratorAddress}/disputes/${dispute.disputeId}`
+        `${this._storeUri}/arbitrators/${dispute.arbitratorAddress}/disputes/${
+          dispute.disputeId
+        }`
       )
       if (httpResponse.status === 200) {
-        disputes.push(
-          Object.assign({}, httpResponse.body, dispute)
-        )
+        disputes.push(Object.assign({}, httpResponse.body, dispute))
       }
     }
 
@@ -288,7 +289,7 @@ class StoreProviderWrapper {
     notificationType,
     message = '',
     data = {},
-    read = false,
+    read = false
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',

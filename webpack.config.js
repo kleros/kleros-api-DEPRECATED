@@ -1,41 +1,25 @@
-/* global __dirname, require, module*/
-const _ = require('lodash');
-const webpack = require('webpack');
-const path = require('path');
-const env = require('yargs').argv.env; // use --env with webpack 2
+const { resolve } = require('path')
 
-let libraryName = 'kleros-api';
-
-let plugins = [], outputFile;
-
-if (env === 'build') {
-  outputFile = libraryName + '.js';
-}
-
-const config = {
-  entry: __dirname + '/src/index.js',
-  devtool: 'source-map',
+const libraryName = 'kleros-api'
+module.exports = env => ({
+  entry: './src/index.js',
   output: {
-    path: __dirname + '/lib',
-    filename: outputFile,
-    library: libraryName,
+    path: resolve(__dirname, 'lib/'),
+    filename: env.NODE_ENV === 'production' ? libraryName + '.js' : undefined,
     libraryTarget: 'umd',
-    umdNamedDefine: true
+    umdNamedDefine: true,
+    library: libraryName
   },
+
+  devtool: 'source-map',
+
   module: {
     rules: [
       {
-        test: /(\.jsx|\.js)$/,
+        test: /\.js$/,
         loader: 'babel-loader',
-        exclude: /(node_modules|bower_components)/
+        exclude: /node_modules/
       }
     ]
-  },
-  resolve: {
-    modules: [path.resolve('./node_modules'), path.resolve('./src')],
-    extensions: ['.json', '.js']
-  },
-  plugins: plugins
-};
-
-module.exports = config;
+  }
+})

@@ -1,7 +1,4 @@
 {
-  "presets": ["env"],
-  "plugins": [
-    "transform-class-properties",
-    "transform-runtime"
-  ]
+  "presets": ["env", "stage-2"],
+  "plugins": ["transform-runtime"]
 }

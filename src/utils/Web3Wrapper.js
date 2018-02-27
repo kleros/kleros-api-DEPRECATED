@@ -1,10 +1,10 @@
-import * as _ from 'lodash'
+import _ from 'lodash'
 import Web3 from 'web3'
 
 class Web3Wrapper {
   /**
    * Constructor Web3 wrapper.
-   * @param web3Provider web3 instance
+   * @param {object} web3Provider - The web3 instance.
    */
   constructor(web3Provider) {
     this._web3 = new Web3(web3Provider)
@@ -28,7 +28,7 @@ class Web3Wrapper {
     return newAmount.toNumber ? newAmount.toNumber() : Number(newAmount)
   }
 
-  toBigNumber = (number) => this._web3.toBigNumber(number)
+  toBigNumber = number => this._web3.toBigNumber(number)
 
   blockNumber = () => this._web3.eth.blockNumber
 
@@ -51,6 +51,7 @@ class Web3Wrapper {
       this.networkIdIfExists = Number(networkId)
       return this.networkIdIfExists
     } catch (err) {
+      console.log(err)
       return undefined
     }
   }
@@ -62,7 +63,6 @@ class Web3Wrapper {
   }
 
   getBalanceInWeiAsync = owner => {
-
     if (_.isUndefined(owner)) {
       owner = this._web3.eth.accounts[0]
     }

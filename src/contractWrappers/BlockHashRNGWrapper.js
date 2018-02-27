@@ -1,8 +1,9 @@
-import * as _ from 'lodash'
-import contract from 'truffle-contract'
-import ContractWrapper from './ContractWrapper'
 import RNG from 'kleros-interaction/build/contracts/BlockHashRNG'
-import config from '../../config'
+import _ from 'lodash'
+
+import * as ethConstants from '../constants/eth'
+
+import ContractWrapper from './ContractWrapper'
 
 /**
  * Kleros API
@@ -10,8 +11,8 @@ import config from '../../config'
 class BlockHashRNGWrapper extends ContractWrapper {
   /**
    * Constructor Kleros.
-   * @param {object} web3 instance
-   * @param {string} address of the contract (optionnal)
+   * @param {object} web3Provider - instance
+   * @param {string} address - of the contract (optionnal)
    */
   constructor(web3Provider, address) {
     super(web3Provider)
@@ -23,16 +24,14 @@ class BlockHashRNGWrapper extends ContractWrapper {
 
   /**
    * Kleros deploy.
-   * @param {string} account (default: accounts[0])
-   * @param {number} value (default: 10000)
-   * @return {object} truffle-contract Object | err The contract object or error deploy
+   * @param {string} account - (default: accounts[0])
+   * @param {number} value - (default: 10000)
+   * @returns {object} - truffle-contract Object | err The contract object or error deploy
    */
-  deploy = async (
-      account = this._Web3Wrapper.getAccount(0),
-    ) => {
+  deploy = async (account = this._Web3Wrapper.getAccount(0)) => {
     const contractDeployed = await this._deployAsync(
       account,
-      config.value,
+      ethConstants.TRANSACTION.VALUE,
       RNG
     )
 
@@ -43,19 +42,20 @@ class BlockHashRNGWrapper extends ContractWrapper {
 
   /**
    * Load an existing contract
-   * @param {string} address contract address
-   * @return {object} Conract Instance | Error
+   * @param {string} address - contract address
+   * @returns {object} - Conract Instance | Error
    */
-  load = async (
-    address
-  ) => {
+  load = async address => {
     try {
-      const contractInstance = await this._instantiateContractIfExistsAsync(RNG, address)
+      const contractInstance = await this._instantiateContractIfExistsAsync(
+        RNG,
+        address
+      )
       this.contractInstance = contractInstance
       this.address = address
       return contractInstance
-    } catch (e) {
-      throw new Error(e)
+    } catch (err) {
+      throw new Error(err)
     }
   }
 }

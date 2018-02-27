@@ -1,6 +1,7 @@
-import * as _ from 'lodash'
 import contract from 'truffle-contract'
-import config from '../../config'
+import _ from 'lodash'
+
+import * as ethConstants from '../constants/eth'
 
 /**
  * Contract wrapper
@@ -17,9 +18,9 @@ class ContractWrapper {
   /**
    * Instantiate contract.
    * @private
-   * @param {object} artifact
-   * @param {string} address    The hex encoded contract Ethereum address
-   * @return {object} truffle-contract object | Error
+   * @param {object} artifact - The contract artifact.
+   * @param {string} address - The hex encoded contract Ethereum address
+   * @returns {object} - truffle-contract object | Error
    */
   _instantiateContractIfExistsAsync = async (artifact, address) => {
     const c = await contract(artifact)
@@ -30,8 +31,8 @@ class ContractWrapper {
 
     try {
       const contractInstance = _.isUndefined(address)
-                              ? await c.deployed()
-                              : await c.at(address)
+        ? await c.deployed()
+        : await c.at(address)
 
       return contractInstance
     } catch (err) {
@@ -47,11 +48,11 @@ class ContractWrapper {
 
   /**
    * Deploy contract.
-   * @param {string} account
-   * @param {number} value
-   * @param {object} artifact json artifact of the contract
-   * @param rest arguments
-   * @return {object} truffle-contract Object | err The contract object or an error
+   * @param {string} account - The account to deploy it under.
+   * @param {number} value - The value to send.
+   * @param {object} artifact - JSON artifact of the contract.
+   * @param {...any} args - Extra arguments.
+   * @returns {object} - truffle-contract Object | err The contract object or an error
    */
   _deployAsync = async (account, value, artifact, ...args) => {
     if (_.isEmpty(account)) {
@@ -60,32 +61,31 @@ class ContractWrapper {
 
     const MyContract = contract({
       abi: artifact.abi,
-      unlinked_binary: artifact.bytecode ? artifact.bytecode : artifact.unlinked_binary
+      unlinked_binary: artifact.bytecode
+        ? artifact.bytecode
+        : artifact.unlinked_binary
     })
 
     const provider = await this._Web3Wrapper.getProvider()
     MyContract.setProvider(provider)
     try {
-      let contractDeployed = await MyContract.new(
-        ...args,
-        {
-          from: account,
-          value: value,
-          gas: config.GAS,
-        }
-      )
+      let contractDeployed = await MyContract.new(...args, {
+        from: account,
+        value: value,
+        gas: ethConstants.TRANSACTION.GAS
+      })
       return contractDeployed
-    } catch (e) {
-      throw new Error(e)
+    } catch (err) {
+      throw new Error(err)
     }
   }
 
   /**
    * Metamask safe, syncronous method to fetch current block number
-   * @return {number} current block number
+   * @returns {number} current block number
    */
-  _getCurrentBlockNumber = async () => {
-    return await new Promise((resolve, reject) => {
+  _getCurrentBlockNumber = async () =>
+    new Promise((resolve, reject) => {
       this._Web3Wrapper._web3.eth.getBlockNumber((error, result) => {
         if (error) {
           reject(error)
@@ -94,7 +94,6 @@ class ContractWrapper {
         }
       })
     })
-  }
 }
 
 export default ContractWrapper
