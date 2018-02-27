@@ -321,8 +321,8 @@ class Notifications extends AbstractWrapper {
           }
           // check next dispute
           disputeId += 1
+          // eslint-disable-next-line no-unused-vars
         } catch (err) {
-          console.log(err)
           // getDispute(n) throws an error if index out of range
           break
         }
@@ -486,7 +486,6 @@ class Notifications extends AbstractWrapper {
         }
       )
 
-      await this._StoreProvider.getUserProfile(account)
       if (notification) await this._sendPushNotification(callback, notification)
     }
   }

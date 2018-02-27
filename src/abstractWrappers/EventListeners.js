@@ -11,15 +11,13 @@ class EventListeners extends AbstractWrapper {
    */
   constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
     super(storeProvider, arbitratorWrapper, arbitrableWrapper)
-    // key: event name, value: [event handlers, ...]
-    this._arbitratorEventMap = {}
-    this._arbitrableEventMap = {}
-    // key: contract address, value: true/false
-    // this._arbitratorEventsWatcher
-    // this._arbitrableEventsWatcher
+    this._arbitratorEventMap = {} // key: event name, value: [event handlers, ...]
+    this._arbitrableEventMap = {} // key: event name, value: [event handlers, ...]
+    this._arbitratorEventsWatcher = null
+    this._arbitrableEventsWatcher = null
     // store these here so we can switch accounts/contracts on the fly
-    // this.arbitratorAddress
-    // this.account
+    this.arbitratorAddress = ''
+    this.account = ''
     // event handler queue
     this.eventHandlerQueue = new PromiseQueue()
   }
