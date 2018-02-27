@@ -21,9 +21,8 @@ class StoreProviderWrapper {
             let body = null
             try {
               body = JSON.parse(httpRequest.responseText)
-            } catch (err) {
-              console.log(err)
-            }
+              // eslint-disable-next-line no-unused-vars
+            } catch (err) {}
             resolve({
               body: body,
               status: httpRequest.status
@@ -153,13 +152,16 @@ class StoreProviderWrapper {
   }
 
   addEvidenceContract = async (address, account, name, description, url) => {
+    // get timestamp for submission
+    const submittedAt = new Date().getTime()
     const httpResponse = await this._makeRequest(
       'POST',
       `${this._storeUri}/${account}/contracts/${address}/evidence`,
       JSON.stringify({
         name,
         description,
-        url
+        url,
+        submittedAt
       })
     )
 

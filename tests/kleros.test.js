@@ -537,7 +537,6 @@ describe('Kleros', () => {
       expect(resolutionOptions.length).toEqual(2)
 
       // add an evidence for partyA
-      // FIXME use arbitrableTransaction
       const testName = 'test name'
       const testDesc = 'test description'
       const testURL = 'http://test.com'
@@ -563,6 +562,7 @@ describe('Kleros', () => {
       )
 
       expect(contractStoreData.evidences[0].url).toBe(testURL)
+      expect(contractStoreData.evidences[0].submittedAt).toBeTruthy()
 
       // check initial state of contract
       // FIXME var must be more explicit
