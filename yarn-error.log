@@ -4708,7 +4708,7 @@ Lockfile:
 
 Trace: 
   Error: Command failed.
-  Exit code: 1
+  Exit code: 127
   Command: sh
   Arguments: -c jest
   Directory: /private/tmp/kleros-api

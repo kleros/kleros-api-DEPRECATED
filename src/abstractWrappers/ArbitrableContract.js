@@ -41,6 +41,7 @@ class ArbitrableContract extends AbstractWrapper {
     partyB,
     arbitratorExtraData = '',
     email = '',
+    name = '',
     description = '',
     ...args
   ) => {
@@ -65,6 +66,7 @@ class ArbitrableContract extends AbstractWrapper {
       arbitratorAddress,
       timeout,
       email,
+      name,
       description
     )
 
