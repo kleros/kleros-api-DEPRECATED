@@ -88,6 +88,11 @@ class Kleros {
       account,
       callback
     )
+    await this.disputes.addDisputeRulingHandler(
+      arbitratorAddress,
+      account,
+      callback
+    )
     await this.notifications.registerNotificationListeners(
       arbitratorAddress,
       account,

@@ -80,7 +80,7 @@ class StoreProviderWrapper {
     return httpResponse
   }
 
-  getDisputeData = async (userAddress, arbitratorAddress, disputeId) => {
+  getDisputeData = async (arbitratorAddress, disputeId, userAddress) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile)
       throw new Error(`No profile found for address: ${userAddress}`)
@@ -91,7 +91,6 @@ class StoreProviderWrapper {
         o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeId
     )
 
-    if (_.isEmpty(disputeData)) return null
     const httpResponse = await this._makeRequest(
       'GET',
       `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
@@ -245,7 +244,6 @@ class StoreProviderWrapper {
         ruledAt
       })
     )
-
     return httpResponse
   }
 
@@ -306,7 +304,6 @@ class StoreProviderWrapper {
         data
       })
     )
-
     return httpResponse
   }
 }

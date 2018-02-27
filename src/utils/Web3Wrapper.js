@@ -32,7 +32,7 @@ class Web3Wrapper {
 
   blockNumber = () => this._web3.eth.blockNumber
 
-  getBlock = () => this._web3.eth.getBlock
+  getBlock = blockNumber => this._web3.eth.getBlock(blockNumber)
 
   doesContractExistAtAddressAsync = async address => {
     const code = await this._web3.eth.getCode(address)
