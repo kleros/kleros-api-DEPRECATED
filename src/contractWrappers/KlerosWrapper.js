@@ -384,7 +384,7 @@ class KlerosWrapper extends ContractWrapper {
           )
         voteCounters.push(voteCounts)
       }
-      // eslint-disable-next-line prettier/prettier
+
       ;[voteCounters, status] = await Promise.all([
         Promise.all(voteCounters.map(voteCounts => Promise.all(voteCounts))),
         contractInstance.disputeStatus(disputeId)
