@@ -46,7 +46,8 @@
     "jest": "^22.4.2",
     "kleros-scripts": "^0.4.0",
     "standard-version": "^4.3.0",
-    "webpack": "^4.0.1"
+    "webpack": "^4.0.1",
+    "webpack-cli": "^2.0.9"
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
