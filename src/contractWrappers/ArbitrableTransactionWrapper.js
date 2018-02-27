@@ -35,12 +35,12 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @returns {object} truffle-contract Object | err The deployed contract or an error
    */
   deploy = async (
-    account = this._Web3Wrapper.getAccount(0),
+    account,
     value = ethConstants.TRANSACTION.VALUE,
-    hashContract = '0x6aa0bb2779ab006be0739900654a89f1f8a2d7373ed38490a7cbab9c9392e1ff',
+    hashContract,
     arbitratorAddress,
-    timeout = 100,
-    partyB = this._Web3Wrapper.getAccount(1),
+    timeout,
+    partyB,
     arbitratorExtraData = ''
   ) => {
     const contractDeployed = await this._deployAsync(

@@ -298,8 +298,8 @@ class Disputes extends AbstractWrapper {
         }
         // check next dispute
         disputeId += 1
+        // eslint-disable-next-line no-unused-vars
       } catch (err) {
-        console.log(err)
         break
       }
     }
@@ -572,10 +572,9 @@ class Disputes extends AbstractWrapper {
         isJuror = userData.isJuror
         hasRuled = userData.hasRuled
         netPNK = userData.netPNK
+        // eslint-disable-next-line no-unused-vars
       } catch (err) {
-        console.log(err)
-        isJuror = false
-        hasRuled = false
+        // fetching dispute will fail if it hasn't been added to the store yet. this is ok we can just not return store data
       }
     }
 
