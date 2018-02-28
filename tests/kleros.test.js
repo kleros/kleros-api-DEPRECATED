@@ -156,8 +156,8 @@ describe('Kleros', () => {
       const mockHash = 'mock-hash-contract'
       const mockTimeout = 1
       const mockArbitratorExtraData = ''
-      const mockEmail = 'test@kleros.io'
       const mockTitle = 'test title'
+      const mockName = 'test name'
       const mockDescription = 'test description'
       const contractPaymentAmount = KlerosInstance._web3Wrapper.toWei(
         1,
@@ -424,8 +424,8 @@ describe('Kleros', () => {
       const mockTimeout = 1
       const mockArbitratorExtraData = ''
       const mockEmail = 'test@kleros.io'
-      const mockName = 'test name'
       const mockTitle = 'test title'
+      const mockDescription = 'test description'
       const contractPaymentAmount = KlerosInstance._web3Wrapper.toWei(
         1,
         'ether'
