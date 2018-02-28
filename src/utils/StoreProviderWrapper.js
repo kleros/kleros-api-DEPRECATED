@@ -129,6 +129,7 @@ class StoreProviderWrapper {
     arbitratorAddress,
     timeout,
     email,
+    title,
     description,
     disputeId
   ) => {
@@ -143,6 +144,7 @@ class StoreProviderWrapper {
         arbitrator: arbitratorAddress,
         timeout,
         email,
+        title,
         description,
         disputeId
       })
