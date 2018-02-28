@@ -167,7 +167,6 @@ class Notifications extends AbstractWrapper {
             dispute.arbitratorAddress,
             dispute.disputeId
           )
-
           if (
             disputeData.firstSession + disputeData.numberOfAppeals ===
             currentSession
