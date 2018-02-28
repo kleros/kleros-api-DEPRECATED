@@ -21,9 +21,8 @@ class StoreProviderWrapper {
             let body = null
             try {
               body = JSON.parse(httpRequest.responseText)
-            } catch (err) {
-              console.log(err)
-            }
+              // eslint-disable-next-line no-unused-vars
+            } catch (err) {}
             resolve({
               body: body,
               status: httpRequest.status
@@ -80,7 +79,7 @@ class StoreProviderWrapper {
     return httpResponse
   }
 
-  getDisputeData = async (userAddress, arbitratorAddress, disputeId) => {
+  getDisputeData = async (arbitratorAddress, disputeId, userAddress) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile)
       throw new Error(`No profile found for address: ${userAddress}`)
@@ -91,7 +90,6 @@ class StoreProviderWrapper {
         o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeId
     )
 
-    if (_.isEmpty(disputeData)) return null
     const httpResponse = await this._makeRequest(
       'GET',
       `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
@@ -154,13 +152,16 @@ class StoreProviderWrapper {
   }
 
   addEvidenceContract = async (address, account, name, description, url) => {
+    // get timestamp for submission
+    const submittedAt = new Date().getTime()
     const httpResponse = await this._makeRequest(
       'POST',
       `${this._storeUri}/${account}/contracts/${address}/evidence`,
       JSON.stringify({
         name,
         description,
-        url
+        url,
+        submittedAt
       })
     )
 
@@ -218,7 +219,9 @@ class StoreProviderWrapper {
     fee,
     information,
     justification,
-    resolutionOptions
+    resolutionOptions,
+    createdAt,
+    ruledAt
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
@@ -238,10 +241,11 @@ class StoreProviderWrapper {
         fee,
         information,
         justification,
-        resolutionOptions
+        resolutionOptions,
+        createdAt,
+        ruledAt
       })
     )
-
     return httpResponse
   }
 
@@ -302,7 +306,6 @@ class StoreProviderWrapper {
         data
       })
     )
-
     return httpResponse
   }
 }
