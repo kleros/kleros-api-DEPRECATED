@@ -20,6 +20,23 @@ class PinakionWrapper extends ContractWrapper {
       this.address = address
     }
     this.contractInstance = null
+
+    PinakionPOC.abi.filter(abi => abi.type === 'function').forEach(abi => {
+      this[abi.name] = async address => {
+        const instance = await this.load(address)
+
+        const result = await instance[abi.name].call()
+
+        if(abi.outputs.length === 1) {
+          const output = abi.outputs[0]
+          if(output.type.includes('int')) {
+            result = result.toNumber()
+          }
+        }
+
+        return result
+      }
+    })
   }
 
   /**
