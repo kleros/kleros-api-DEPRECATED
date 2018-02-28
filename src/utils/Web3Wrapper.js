@@ -32,6 +32,8 @@ class Web3Wrapper {
 
   blockNumber = () => this._web3.eth.blockNumber
 
+  getBlock = blockNumber => this._web3.eth.getBlock(blockNumber)
+
   doesContractExistAtAddressAsync = async address => {
     const code = await this._web3.eth.getCode(address)
     // Regex matches 0x0, 0x00, 0x in order to accommodate poorly implemented clients
