@@ -1,9 +1,12 @@
 {
   "name": "kleros-api",
-  "version": "0.0.61",
-  "description":
-    "A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol.",
-  "keywords": ["Blockchain", "Ethereum", "Kleros"],
+  "version": "0.0.62",
+  "description": "A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol.",
+  "keywords": [
+    "Blockchain",
+    "Ethereum",
+    "Kleros"
+  ],
   "homepage": "https://kleros.io",
   "repository": "github:kleros/kleros-api",
   "bugs": "https://github.com/kleros/kleros-api/issues",
@@ -28,7 +31,9 @@
     "build": "webpack --env.NODE_ENV=production -p"
   },
   "commitlint": {
-    "extends": ["@commitlint/config-conventional"]
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
