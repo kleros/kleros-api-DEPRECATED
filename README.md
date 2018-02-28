@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
+  <a href="https://badge.fury.io/js/kleros-api"><img src="https://badge.fury.io/js/kleros-api.svg" alt="NPM Version"></a>
   <a href="https://travis-ci.org/kleros/kleros-api"><img src="https://travis-ci.org/kleros/kleros-api.svg?branch=master" alt="Build Status"></a>
-  <a href="https://badge.fury.io/js/kleros-api"><img src="https://badge.fury.io/js/kleros-api.svg" alt="npm version" height="18"></a>
   <a href="https://coveralls.io/github/kleros/kleros-api?branch=master"><img src="https://coveralls.io/repos/github/kleros/kleros-api/badge.svg?branch=master" alt="Coverage Status"></a>
   <a href="https://david-dm.org/kleros/kleros-api"><img src="https://david-dm.org/kleros/kleros-api.svg" alt="Dependencies"></a>
   <a href="https://david-dm.org/kleros/kleros-api?type=dev"><img src="https://david-dm.org/kleros/kleros-api/dev-status.svg" alt="Dev Dependencies"></a>
