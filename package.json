@@ -14,7 +14,7 @@
     "Enrique Piqueras <enrique@kleros.io> (https://github.com/epiqueras)"
   ],
   "license": "MIT",
-  "private": true,
+  "private": false,
   "main": "lib/kleros-api.js",
   "scripts": {
     "prettify": "kleros-scripts prettify",
