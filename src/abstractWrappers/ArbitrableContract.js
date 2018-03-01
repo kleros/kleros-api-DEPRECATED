@@ -24,7 +24,7 @@ class ArbitrableContract extends AbstractWrapper {
    * @param {string} partyB - Ethereum address of the other party in the contract.
    * @param {bytes} arbitratorExtraData - Extra data for the arbitrator.
    * @param {string} email - Email address of the contract creator (default empty string).
-   * @param {string} title - Title of the contract(default empty string).
+   * @param {string} title - Title of the contract (default empty string).
    * @param {string} description - Description of what the contract is about (default empty string).
    * @param {...any} args - Extra arguments for the contract.
    * @returns {object | Error} - The contract object or an error.

@@ -156,8 +156,8 @@ describe('Kleros', () => {
       const mockHash = 'mock-hash-contract'
       const mockTimeout = 1
       const mockArbitratorExtraData = ''
-      const mockEmail = 'test@kleros.io'
       const mockTitle = 'test title'
+      const mockName = 'test name'
       const mockDescription = 'test description'
       const contractPaymentAmount = KlerosInstance._web3Wrapper.toWei(
         1,
@@ -424,8 +424,8 @@ describe('Kleros', () => {
       const mockTimeout = 1
       const mockArbitratorExtraData = ''
       const mockEmail = 'test@kleros.io'
-      const mockName = 'test name'
       const mockTitle = 'test title'
+      const mockDescription = 'test description'
       const contractPaymentAmount = KlerosInstance._web3Wrapper.toWei(
         1,
         'ether'
@@ -545,7 +545,6 @@ describe('Kleros', () => {
       expect(resolutionOptions.length).toEqual(2)
 
       // add an evidence for partyA
-      // FIXME use arbitrableTransaction
       const testName = 'test name'
       const testDesc = 'test description'
       const testURL = 'http://test.com'
@@ -571,6 +570,7 @@ describe('Kleros', () => {
       )
 
       expect(contractStoreData.evidences[0].url).toBe(testURL)
+      expect(contractStoreData.evidences[0].submittedAt).toBeTruthy()
 
       // check initial state of contract
       // FIXME var must be more explicit
@@ -588,7 +588,7 @@ describe('Kleros', () => {
         })
 
       let newState
-      // pass state so juror1s are selected
+      // pass state so jurors are selected
       for (let i = 1; i < 3; i++) {
         // NOTE we need to make another block before we can generate the random number. Should not be an issue on main nets where avg block time < period length
         if (i === 2)
@@ -695,6 +695,7 @@ describe('Kleros', () => {
 
       // delay 1 second
       await delaySecond()
+
       // move to execute period
       await KlerosInstance.arbitrator.passPeriod(klerosCourt.address, other)
       // stateful notifications
@@ -708,13 +709,13 @@ describe('Kleros', () => {
         notificationConstants.TYPE.CAN_REPARTITION
       )
 
-      partyBStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
+      let partyAStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
         klerosCourt.address,
-        partyB,
+        partyA,
         false
       )
-      expect(partyBStatefullNotifications.length).toEqual(1)
-      expect(partyBStatefullNotifications[0].notificationType).toEqual(
+      expect(partyAStatefullNotifications.length).toEqual(1)
+      expect(partyAStatefullNotifications[0].notificationType).toEqual(
         notificationConstants.TYPE.CAN_REPARTITION
       )
 
@@ -739,13 +740,13 @@ describe('Kleros', () => {
         notificationConstants.TYPE.CAN_EXECUTE
       )
 
-      partyBStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
+      partyAStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
         klerosCourt.address,
-        partyB,
+        partyA,
         false
       )
-      expect(partyBStatefullNotifications.length).toEqual(1)
-      expect(partyBStatefullNotifications[0].notificationType).toEqual(
+      expect(partyAStatefullNotifications.length).toEqual(1)
+      expect(partyAStatefullNotifications[0].notificationType).toEqual(
         notificationConstants.TYPE.CAN_EXECUTE
       )
 
@@ -787,12 +788,12 @@ describe('Kleros', () => {
       )
       expect(juror1StatefullNotifications.length).toEqual(0)
 
-      partyBStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
+      partyAStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
         klerosCourt.address,
-        partyB,
+        partyA,
         false
       )
-      expect(partyBStatefullNotifications.length).toEqual(0)
+      expect(partyAStatefullNotifications.length).toEqual(0)
 
       expect(notifications.length).toBeTruthy()
       // partyA got notifications
@@ -844,7 +845,7 @@ describe('Kleros', () => {
       const juror1Notifications = await KlerosInstance.notifications.getNotifications(
         juror1
       )
-      expect(notifications.length).toBeTruthy()
+      // expect(notifications.length).toBeTruthy()
       expect(juror1Notifications.length).toBe(notifications.length)
       let totalRedistributedJuror1 = 0
       for (let i = 0; i < juror1Notifications.length; i++) {
@@ -862,6 +863,16 @@ describe('Kleros', () => {
       KlerosInstance.eventListener.stopWatchingArbitratorEvents(
         klerosCourt.address
       )
+
+      // make sure createdAt set
+      const disputeData = await KlerosInstance.disputes.getDataForDispute(
+        klerosCourt.address,
+        0,
+        partyA
+      )
+
+      expect(disputeData.createdAt).toBeTruthy()
+      expect(disputeData.ruledAt).toBeTruthy()
     },
     80000
   )
