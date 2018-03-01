@@ -93,8 +93,6 @@ class Disputes extends AbstractWrapper {
           dispute.votes,
           dispute.arbitratorAddress,
           dispute.disputeId,
-          dispute.isJuror,
-          dispute.hasRuled,
           (dispute.netPNK ? dispute.netPNK : 0) + amountShift
         )
       }
@@ -392,12 +390,12 @@ class Disputes extends AbstractWrapper {
           continue
         }
 
-        const votes = await this.getVotesForJuror(
+        const draws = await this.getDrawsForJuror(
           arbitratorAddress,
           disputeId,
           account
         )
-        if (votes.length > 0) {
+        if (draws.length > 0) {
           myDisputes.push(disputeId)
         }
         // check next dispute
@@ -418,13 +416,12 @@ class Disputes extends AbstractWrapper {
    * @param {string} account - Potential jurors address.
    * @returns {number[]} - Array of integers indicating the draw.
    */
-  getVotesForJuror = async (arbitratorAddress, disputeId, account) => {
+  getDrawsForJuror = async (arbitratorAddress, disputeId, account) => {
     const numberOfJurors = await this._Arbitrator.getAmountOfJurorsForDispute(
       arbitratorAddress,
       disputeId
     )
-    const votes = []
-    // FIXME map doesn't seem to make sense here. would need to construct array of possible choices and then filter?
+    const draws = []
     for (let draw = 1; draw <= numberOfJurors; draw++) {
       const isJuror = await this._Arbitrator.isJurorDrawnForDispute(
         disputeId,
@@ -433,11 +430,11 @@ class Disputes extends AbstractWrapper {
         account
       )
       if (isJuror) {
-        votes.push(draw)
+        draws.push(draw)
       }
     }
 
-    return votes
+    return draws
   }
 
   /**
@@ -453,29 +450,18 @@ class Disputes extends AbstractWrapper {
     arbitratorAddress,
     disputeId,
     ruling,
-    votes,
+    draws,
     account
   ) => {
     const txHash = await this._Arbitrator.submitVotes(
       arbitratorAddress,
       disputeId,
       ruling,
-      votes,
+      draws,
       account
     )
 
     if (txHash) {
-      // Mark in store that you have ruled on dispute
-      await this._StoreProvider.updateDisputeProfile(
-        account,
-        votes,
-        arbitratorAddress,
-        disputeId,
-        true,
-        true,
-        0
-      )
-
       return txHash
     } else {
       throw new Error('unable to submit votes')
@@ -544,14 +530,23 @@ class Disputes extends AbstractWrapper {
       ruledAt || disputeData.ruledAt
     )
 
+    const storedDisputeData = await this.getDisputeData(
+      arbitratorAddress,
+      disputeId,
+      account
+    )
+    const sessionDraws = await this.getDrawsForJuror(
+      arbitratorAddress,
+      disputeId,
+      account
+    )
+    storedDisputeData.appealDraws[disputeData.lastSession] = sessionDraws
     // update profile for account
     await this._StoreProvider.updateDisputeProfile(
       account,
-      disputeData.votes,
+      storedDisputeData.appealDraws,
       disputeData.arbitratorAddress,
       disputeData.disputeId,
-      disputeData.votes.length > 0,
-      disputeData.hasRuled,
       disputeData.netPNK ? disputeData.netPNK : 0
     )
 
@@ -675,25 +670,21 @@ class Disputes extends AbstractWrapper {
       arbitrableContractAddress
     )
 
-    let isJuror = false
-    let votes = []
-    let hasRuled = false
+    let appealDraws = []
     let netPNK = 0
-    let createdAt
-    let ruledAt
+    let appealCreatedAt = []
+    let appealRuledAt = []
     if (account) {
-      votes = await this.getVotesForJuror(arbitratorAddress, disputeId, account)
       try {
         const userData = await this._StoreProvider.getDisputeData(
           arbitratorAddress,
           disputeId,
           account
         )
-        isJuror = userData.isJuror
-        hasRuled = userData.hasRuled
+        appealDraws = userData.appealDraws
         netPNK = userData.netPNK
-        createdAt = userData.createdAt
-        ruledAt = userData.ruledAt
+        appealCreatedAt = userData.appealCreatedAt
+        appealRuledAt = userData.appealRuledAt
         // eslint-disable-next-line no-unused-vars
       } catch (err) {
         // fetching dispute will fail if it hasn't been added to the store yet. this is ok we can just not return store data
@@ -705,19 +696,42 @@ class Disputes extends AbstractWrapper {
       arbitrableContractAddress
     )
 
-    // get deadline
-    const deadline = await this.getDeadlineForDispute(arbitratorAddress)
+    const firstSession = dispute.firstSession
+    const lastSession = dispute.firstSession + dispute.numberOfAppeals
+    // NOTE arrays indexed by appeal number
+    const appealRulings = []
+    const appealJuror = []
+    for (let appeal = 0; appeal < lastSession - firstSession; appeal++) {
+      // get ruling for appeal. Note appeal 0 is first session
+      const ruling = await this._Arbitrator.currentRulingForDispute(
+        arbitratorAddress,
+        disputeId,
+        appeal
+      )
 
-    // get ruling
-    const ruling = await this._Arbitrator.currentRulingForDispute(
-      arbitratorAddress,
-      disputeId
-    )
+      appealRulings[appeal] = {
+        ruling,
+        voteCounter: dispute.voteCounters[appeal],
+        ruledAt: appealsRuledAt[appeal],
+        deadline: this.getDeadlineForDispute(arbitratorAddress, appeal)
+      }
+
+      const baseFee = dispute.arbitrationFeePerJuror
+      const draws = appealDraws[appeal]
+      let canRule = false
+      if (appeal === lastSession && draws.length) {
+        canRule = this._Arbitrator.canRuleDispute(account, disputeId, draws)
+      }
+
+      appealJuror[appeal] = {
+        fee: baseFee * draws.length,
+        draws: appealDraws[appeal],
+        canRule
+      }
+    }
 
     return {
       // Arbitrable Contract Data
-      // FIXME hash not being stored in contract atm
-      hash: arbitrableContractAddress,
       arbitrableContractAddress,
       arbitrableContractStatus: arbitrableContractData.status,
       arbitratorAddress,
@@ -726,27 +740,22 @@ class Disputes extends AbstractWrapper {
 
       // Dispute Data
       disputeId,
-      session: dispute.firstSession + dispute.numberOfAppeals,
+      firstSession,
+      lastSession,
       numberOfAppeals: dispute.numberOfAppeals,
-      fee: dispute.arbitrationFeePerJuror,
-      deadline,
       disputeState: dispute.state,
       disputeStatus: dispute.status,
-      voteCounters: dispute.voteCounters,
+      appealRulings,
+      appealJuror,
 
       // Store Data
       description: constractStoreData
         ? constractStoreData.description
         : undefined,
       email: constractStoreData ? constractStoreData.email : undefined,
-      votes,
-      isJuror,
-      hasRuled,
-      ruling,
       evidence,
       netPNK,
-      ruledAt,
-      createdAt
+      appealCreatedAt
     }
   }
 }
