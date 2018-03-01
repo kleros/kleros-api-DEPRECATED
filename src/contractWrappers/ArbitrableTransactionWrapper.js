@@ -6,6 +6,8 @@ import * as contractConstants from '../constants/contract'
 
 import ContractWrapper from './ContractWrapper'
 
+import * as utils from '../utils'
+
 /**
  * ArbitrableTransaction API
  */
@@ -22,26 +24,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     }
     this.contractInstance = null
 
-    arbitrableTransaction.abi.filter(abi => abi.type === 'function').forEach(abi => {
-      this[abi.name] = async address => {
-        const instance = await this.load(address)
-
-        const result = await instance[abi.name].call()
-
-        if(abi.name === 'partyAFee' || abi.name === 'partyBFee') {
-          result = this._Web3Wrapper.fromWei(result, 'ether')
-        }
-        else if(abi.outputs.length === 1) {
-          const output = abi.outputs[0]
-
-          if(output.type.includes('int')) {
-            result = result.toNumber()
-          }
-        }
-
-        return result
-      }
-    })
+    utils.setABIGetters(this, arbitrableTransaction.abi)
   }
 
   /**
