@@ -438,9 +438,9 @@ class KlerosWrapper extends ContractWrapper {
     contractAddress,
     jurorAddress = this._Web3Wrapper.getAccount(0)
   ) => {
-    const contractInstance = await this.load(contractAddress)
+    this.contractInstance = await this.load(contractAddress)
 
-    const isDrawn = await contractInstance.isDrawn(
+    const isDrawn = await this.contractInstance.isDrawn(
       disputeId,
       jurorAddress,
       draw
@@ -450,17 +450,27 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
+   * Can juror currently rule in dispute
+   *
+   */
+  canRuleDispute = async (arbitratorAddress, disputeId, draws, account) => {
+    this.contractInstance = await this.load(contractAddress)
+
+    return this.contractInstance.validDraws(account, disputeId, draws)
+  }
+
+  /**
    * Get number of jurors for a dispute.
    * @param {string} contractAddress - Address of KlerosPOC contract.
    * @param {number} disputeId - Index of dispute.
    * @returns {number} - Int indicating the ruling of the dispute.
    */
-  currentRulingForDispute = async (contractAddress, disputeId) => {
-    const contractInstance = await this.load(contractAddress)
+  currentRulingForDispute = async (contractAddress, disputeId, appeal) => {
+    this.contractInstance = await this.load(contractAddress)
 
-    const currentRuling = await contractInstance.currentRuling(disputeId)
+    const ruling = await contractInstance.getWinningChoice(disputeId, appeal)
 
-    return currentRuling.toNumber()
+    return ruling.toNumber()
   }
 
   /**
@@ -469,7 +479,7 @@ class KlerosWrapper extends ContractWrapper {
    * @returns {number} - Int indicating the period.
    */
   getPeriod = async contractAddress => {
-    const contractInstance = await this.load(contractAddress)
+    this.contractInstance = await this.load(contractAddress)
 
     const currentPeriod = await contractInstance.period()
 
@@ -482,7 +492,7 @@ class KlerosWrapper extends ContractWrapper {
    * @returns {number} - Int indicating the session.
    */
   getSession = async contractAddress => {
-    const contractInstance = await this.load(contractAddress)
+    this.contractInstance = await this.load(contractAddress)
 
     const currentSession = await contractInstance.session()
 
