@@ -92,12 +92,15 @@ class Notifications extends AbstractWrapper {
           )
         }
       } else if (currentPeriod === arbitratorConstants.PERIOD.VOTE) {
-        userProfile.disputes.forEach(dispute => {
-          if (
-            dispute.isJuror &&
-            dispute.votes.length > 0 &&
-            !dispute.hasRuled
-          ) {
+        for (let dispute of userProfile.disputes) {
+          const draws = dispute.appealDraws[dispute.appealDraws.length - 1]
+          const canVote = await this._Arbitrator.canRuleDispute(
+            dispute.arbitratorAddress,
+            dispute.disputeId,
+            draws,
+            account
+          )
+          if (canVote) {
             notifications.push(
               this._createNotification(
                 notificationConstants.TYPE.CAN_VOTE,
@@ -109,7 +112,7 @@ class Notifications extends AbstractWrapper {
               )
             )
           }
-        })
+        }
       }
     } else {
       /* Counterparty notifications:

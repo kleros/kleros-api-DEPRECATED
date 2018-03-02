@@ -182,11 +182,9 @@ class StoreProviderWrapper {
   // FIXME very complicated to update
   updateDisputeProfile = async (
     account,
-    votes,
+    appealDraws,
     arbitratorAddress,
     disputeId,
-    isJuror,
-    hasRuled,
     netPNK
   ) => {
     const httpResponse = await this._makeRequest(
@@ -195,11 +193,9 @@ class StoreProviderWrapper {
         this._storeUri
       }/${account}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`,
       JSON.stringify({
-        votes,
+        appealDraws,
         arbitratorAddress,
         disputeId,
-        isJuror,
-        hasRuled,
         netPNK
       })
     )
@@ -211,19 +207,16 @@ class StoreProviderWrapper {
   updateDispute = async (
     disputeId,
     arbitratorAddress,
-    hash,
     arbitrableContractAddress,
     partyA,
     partyB,
     title,
-    deadline,
     status,
-    fee,
     information,
     justification,
     resolutionOptions,
-    createdAt,
-    ruledAt
+    appealCreatedAt,
+    appealRuledAt
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
@@ -233,19 +226,16 @@ class StoreProviderWrapper {
       JSON.stringify({
         disputeId,
         arbitratorAddress,
-        hash,
-        contractAddress: arbitrableContractAddress,
+        arbitrableContractAddress,
         partyA,
         partyB,
         title,
-        deadline,
         status,
-        fee,
         information,
         justification,
         resolutionOptions,
-        createdAt,
-        ruledAt
+        appealCreatedAt,
+        appealRuledAt
       })
     )
     return httpResponse
