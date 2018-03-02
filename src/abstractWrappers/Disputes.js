@@ -90,7 +90,7 @@ class Disputes extends AbstractWrapper {
         const dispute = userProfile.disputes[disputeIndex]
         await this._StoreProvider.updateDisputeProfile(
           address,
-          dispute.votes,
+          dispute.appealDraws,
           dispute.arbitratorAddress,
           dispute.disputeId,
           (dispute.netPNK ? dispute.netPNK : 0) + amountShift
@@ -137,10 +137,17 @@ class Disputes extends AbstractWrapper {
         while (1) {
           // iterate over all disputes (FIXME inefficient)
           try {
-            dispute = await this._Arbitrator.getDispute(
-              contractAddress,
-              disputeId
-            )
+            try {
+              dispute = await this._Arbitrator.getDispute(
+                contractAddress,
+                disputeId
+              )
+              // eslint-disable-next-line no-unused-vars
+            } catch (err) {
+              // FIXME standardize
+              throw new Error('DisputeOutOfRange')
+            }
+
             if (dispute.arbitratedContract === ethConstants.NULL_ADDRESS) break
             // session + number of appeals
             const disputeSession =
@@ -148,16 +155,13 @@ class Disputes extends AbstractWrapper {
             // if dispute not in current session skip
             if (disputeSession !== currentSession) {
               disputeId++
-              dispute = await this._Arbitrator.getDispute(
-                contractAddress,
-                disputeId
-              )
               continue
             }
 
             const ruling = await this._Arbitrator.currentRulingForDispute(
               contractAddress,
-              disputeId
+              disputeId,
+              dispute.numberOfAppeals
             )
 
             if (
@@ -168,7 +172,7 @@ class Disputes extends AbstractWrapper {
                   dispute.arbitratorAddress === contractAddress
               ) >= 0
             ) {
-              await this._StoreProvider.newNotification(
+              const notification = await this._StoreProvider.newNotification(
                 address,
                 txHash,
                 disputeId, // use disputeId instead of logIndex since it doens't have its own event
@@ -192,28 +196,15 @@ class Disputes extends AbstractWrapper {
                 block.timestamp * 1000
               )
 
-              if (notificationCallback) {
-                const userProfile = await this._StoreProvider.getUserProfile(
-                  address
-                )
-                const notification = _.filter(
-                  userProfile.notifications,
-                  notification =>
-                    notification.txHash === txHash &&
-                    notification.logIndex === disputeId
-                )
-
-                if (notification) {
-                  notificationCallback(notification[0])
-                }
+              if (notificationCallback && notification) {
+                notificationCallback(notification[0])
               }
             }
             // check next dispute
             disputeId += 1
-            // eslint-disable-next-line no-unused-vars
           } catch (err) {
-            // getDispute(n) throws an error if index out of range
-            break
+            if (err === 'DisputeOutOfRange') break
+            throw err
           }
         }
       }
@@ -433,7 +424,6 @@ class Disputes extends AbstractWrapper {
         draws.push(draw)
       }
     }
-
     return draws
   }
 
@@ -442,7 +432,7 @@ class Disputes extends AbstractWrapper {
    * @param {string} arbitratorAddress - Address of KlerosPOC contract.
    * @param {number} disputeId - Index of the dispute.
    * @param {number} ruling - Int representing the jurors decision.
-   * @param {number[]} votes - Int[] of drawn votes for dispute.
+   * @param {number[]} draws - Int[] of drawn votes for dispute.
    * @param {string} account - Address of user.
    * @returns {string} - Transaction hash | Error.
    */
@@ -482,11 +472,12 @@ class Disputes extends AbstractWrapper {
     const arbitratorData = await this._Arbitrator.getData(arbitratorAddress)
 
     // Last period change + current period duration = deadline
-    return (
+    const result =
       1000 *
       (arbitratorData.lastPeriodChange +
         (await this._Arbitrator.getTimeForPeriod(arbitratorAddress, period)))
-    )
+
+    return result
   }
 
   /**
@@ -511,36 +502,45 @@ class Disputes extends AbstractWrapper {
       account
     )
 
+    if (createdAt)
+      disputeData.appealCreatedAt[disputeData.numberOfAppeals] = createdAt
+    if (ruledAt)
+      disputeData.appealRuledAt[disputeData.numberOfAppeals] = ruledAt
+
     // update dispute
     const dispute = await this._StoreProvider.updateDispute(
       disputeData.disputeId,
       disputeData.arbitratorAddress,
-      disputeData.hash,
       disputeData.arbitrableContractAddress,
       disputeData.partyA,
       disputeData.partyB,
       disputeData.title,
-      disputeData.deadline,
       disputeData.status,
-      disputeData.fee,
       disputeData.information,
       disputeData.justification,
       disputeData.resolutionOptions,
-      createdAt || disputeData.createdAt,
-      ruledAt || disputeData.ruledAt
+      disputeData.appealCreatedAt,
+      disputeData.appealRuledAt
     )
 
-    const storedDisputeData = await this.getDisputeData(
+    const storedDisputeData = await this._StoreProvider.getDisputeData(
       arbitratorAddress,
       disputeId,
       account
     )
-    const sessionDraws = await this.getDrawsForJuror(
-      arbitratorAddress,
-      disputeId,
-      account
-    )
-    storedDisputeData.appealDraws[disputeData.lastSession] = sessionDraws
+
+    const currentSession = await this._Arbitrator.getSession(arbitratorAddress)
+    if (disputeData.lastSession === currentSession) {
+      const sessionDraws = await this.getDrawsForJuror(
+        arbitratorAddress,
+        disputeId,
+        account
+      )
+
+      if (!storedDisputeData.appealDraws) storedDisputeData.appealDraws = []
+      storedDisputeData.appealDraws[disputeData.numberOfAppeals] = sessionDraws
+    }
+
     // update profile for account
     await this._StoreProvider.updateDisputeProfile(
       account,
@@ -681,10 +681,10 @@ class Disputes extends AbstractWrapper {
           disputeId,
           account
         )
-        appealDraws = userData.appealDraws
-        netPNK = userData.netPNK
-        appealCreatedAt = userData.appealCreatedAt
-        appealRuledAt = userData.appealRuledAt
+        appealDraws = userData.appealDraws || []
+        netPNK = userData.netPNK || 0
+        appealCreatedAt = userData.appealCreatedAt || []
+        appealRuledAt = userData.appealRuledAt || []
         // eslint-disable-next-line no-unused-vars
       } catch (err) {
         // fetching dispute will fail if it hasn't been added to the store yet. this is ok we can just not return store data
@@ -701,7 +701,7 @@ class Disputes extends AbstractWrapper {
     // NOTE arrays indexed by appeal number
     const appealRulings = []
     const appealJuror = []
-    for (let appeal = 0; appeal < lastSession - firstSession; appeal++) {
+    for (let appeal = 0; appeal <= lastSession - firstSession; appeal++) {
       // get ruling for appeal. Note appeal 0 is first session
       const ruling = await this._Arbitrator.currentRulingForDispute(
         arbitratorAddress,
@@ -712,20 +712,24 @@ class Disputes extends AbstractWrapper {
       appealRulings[appeal] = {
         ruling,
         voteCounter: dispute.voteCounters[appeal],
-        ruledAt: appealsRuledAt[appeal],
-        deadline: this.getDeadlineForDispute(arbitratorAddress, appeal)
+        ruledAt: appealRuledAt[appeal],
+        deadline: await this.getDeadlineForDispute(arbitratorAddress, appeal)
       }
 
       const baseFee = dispute.arbitrationFeePerJuror
-      const draws = appealDraws[appeal]
+      const draws = appealDraws[appeal] || []
       let canRule = false
-      if (appeal === lastSession && draws.length) {
-        canRule = this._Arbitrator.canRuleDispute(account, disputeId, draws)
+      if (appeal === lastSession && draws.length > 0) {
+        canRule = await this._Arbitrator.canRuleDispute(
+          account,
+          disputeId,
+          draws
+        )
       }
 
       appealJuror[appeal] = {
         fee: baseFee * draws.length,
-        draws: appealDraws[appeal],
+        draws,
         canRule
       }
     }
@@ -755,7 +759,8 @@ class Disputes extends AbstractWrapper {
       email: constractStoreData ? constractStoreData.email : undefined,
       evidence,
       netPNK,
-      appealCreatedAt
+      appealCreatedAt,
+      appealRuledAt
     }
   }
 }

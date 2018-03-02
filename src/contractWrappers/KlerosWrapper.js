@@ -438,9 +438,9 @@ class KlerosWrapper extends ContractWrapper {
     contractAddress,
     jurorAddress = this._Web3Wrapper.getAccount(0)
   ) => {
-    this.contractInstance = await this.load(contractAddress)
+    const contractInstance = await this.load(contractAddress)
 
-    const isDrawn = await this.contractInstance.isDrawn(
+    const isDrawn = await contractInstance.isDrawn(
       disputeId,
       jurorAddress,
       draw
@@ -450,23 +450,28 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
-   * Can juror currently rule in dispute
-   *
+   * Can juror currently rule in dispute.
+   * @param {string} arbitratorAddress - address of arbitrator contract.
+   * @param {number} disputeId - index of dispute.
+   * @param {int[]} draws - voting positions for dispute.
+   * @param {string} account - address of user.
+   * @returns {bool} - Boolean indicating if juror can rule or not.
    */
   canRuleDispute = async (arbitratorAddress, disputeId, draws, account) => {
-    this.contractInstance = await this.load(contractAddress)
+    const contractInstance = await this.load(arbitratorAddress)
 
-    return this.contractInstance.validDraws(account, disputeId, draws)
+    return contractInstance.validDraws(account, disputeId, draws)
   }
 
   /**
    * Get number of jurors for a dispute.
    * @param {string} contractAddress - Address of KlerosPOC contract.
    * @param {number} disputeId - Index of dispute.
+   * @param {number} appeal - Index of appeal.
    * @returns {number} - Int indicating the ruling of the dispute.
    */
   currentRulingForDispute = async (contractAddress, disputeId, appeal) => {
-    this.contractInstance = await this.load(contractAddress)
+    const contractInstance = await this.load(contractAddress)
 
     const ruling = await contractInstance.getWinningChoice(disputeId, appeal)
 
@@ -479,7 +484,7 @@ class KlerosWrapper extends ContractWrapper {
    * @returns {number} - Int indicating the period.
    */
   getPeriod = async contractAddress => {
-    this.contractInstance = await this.load(contractAddress)
+    const contractInstance = await this.load(contractAddress)
 
     const currentPeriod = await contractInstance.period()
 
@@ -492,7 +497,7 @@ class KlerosWrapper extends ContractWrapper {
    * @returns {number} - Int indicating the session.
    */
   getSession = async contractAddress => {
-    this.contractInstance = await this.load(contractAddress)
+    const contractInstance = await this.load(contractAddress)
 
     const currentSession = await contractInstance.session()
 
