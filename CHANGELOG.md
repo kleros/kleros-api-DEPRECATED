@@ -3,15 +3,14 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 <a name="0.0.62"></a>
-## 0.0.62 (2018-02-28)
 
+## 0.0.62 (2018-02-28)
 
 ### Bug Fixes
 
 * **getDeadlineForDispute:** fix wrong computation and return date object ([7ee05f5](https://github.com/kleros/kleros-api/commit/7ee05f5))
 * skip broken test assertions ([d210c53](https://github.com/kleros/kleros-api/commit/d210c53))
 * test suite ([98b777d](https://github.com/kleros/kleros-api/commit/98b777d))
-
 
 ### Features
 
@@ -24,8 +23,6 @@ All notable changes to this project will be documented in this file. See [standa
 * **disputes:** return deadline as epoch in ms instead of a date object ([90d4856](https://github.com/kleros/kleros-api/commit/90d4856))
 * **disputes:** return dispute status ([32db45c](https://github.com/kleros/kleros-api/commit/32db45c))
 * **disputes:** submittedAt timestamp for evidence ([3656d33](https://github.com/kleros/kleros-api/commit/3656d33))
-
-
 
 <a name="0.0.61"></a>
 
