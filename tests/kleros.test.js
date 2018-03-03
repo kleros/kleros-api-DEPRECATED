@@ -14,6 +14,7 @@ describe('Kleros', () => {
   let KlerosInstance
   let storeProvider
   let notificationCallback
+  let waitNotifications
   let notifications = []
 
   beforeAll(async () => {
@@ -36,6 +37,29 @@ describe('Kleros', () => {
 
     notificationCallback = notification => {
       notifications.push(notification)
+    }
+    waitNotifications = (initialAmount = undefined) => {
+      let amount
+      let currentAmount = 0
+      let notificationList = []
+      let resolver
+      let promise = new Promise(resolve => {
+        resolver = resolve
+      })
+      let callback = notification => {
+        notificationCallback(notification)
+        notificationList.push(notification)
+        currentAmount += 1
+        if (typeof amount !== 'undefined' && currentAmount >= amount)
+          resolver(notificationList)
+      }
+      let setAmount = n => {
+        amount = n
+        if (currentAmount >= amount) resolver(notificationList)
+      }
+      if (typeof initialAmount !== 'undefined') setAmount(initialAmount)
+
+      return { promise, callback, setAmount }
     }
   })
 
@@ -831,14 +855,16 @@ describe('Kleros', () => {
 
       // spin up juror1 notifications listener. should populate missed notifications
       notifications = []
+      let { promise: waitPromise, callback: waitCallback } = waitNotifications(
+        2
+      )
       await KlerosInstance.watchForEvents(
         klerosCourt.address,
         juror1,
-        notificationCallback
+        waitCallback
       )
 
-      // FIXME unreliable. need a better way to "wait" on getting caught up on events
-      await delaySecond(10)
+      await waitPromise
 
       const juror1Profile = await storeProvider.getUserProfile(juror1)
       expect(juror1Profile.disputes.length).toEqual(1)
