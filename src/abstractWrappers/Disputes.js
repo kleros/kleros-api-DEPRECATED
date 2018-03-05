@@ -121,7 +121,6 @@ class Disputes extends AbstractWrapper {
       notificationCallback = callback
     ) => {
       const newPeriod = event.args._period.toNumber()
-      const txHash = event.transactionHash
       // send appeal possible notifications
       if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
         this._checkArbitratorWrappersSet()
@@ -152,7 +151,7 @@ class Disputes extends AbstractWrapper {
             ) {
               const notification = await this._StoreProvider.newNotification(
                 address,
-                txHash,
+                arbitratorAddress, // use arbitratorAddress so that we know it is unique. not event based
                 disputeId, // use disputeId instead of logIndex since it doens't have its own event
                 notificationConstants.TYPE.APPEAL_POSSIBLE,
                 'A ruling has been made. Appeal is possible',
