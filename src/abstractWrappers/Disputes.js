@@ -3,6 +3,7 @@ import _ from 'lodash'
 import * as ethConstants from '../constants/eth'
 import * as arbitratorConstants from '../constants/arbitrator'
 import * as notificationConstants from '../constants/notification'
+import * as errorConstants from '../constants/error'
 
 import AbstractWrapper from './AbstractWrapper'
 
@@ -125,39 +126,16 @@ class Disputes extends AbstractWrapper {
       if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
         this._checkArbitratorWrappersSet()
         const userProfile = await this._StoreProvider.getUserProfile(address)
-        // contract data
-        const arbitratorData = await this._Arbitrator.getData(
-          contractAddress,
-          address
+        const openDisputes = await this._getOpenDisputesForSession(
+          arbitratorAddress
         )
-        let disputeId = 0
-        const currentSession = arbitratorData.session
 
-        let dispute
-        while (1) {
-          // iterate over all disputes (FIXME inefficient)
-          try {
-            try {
-              dispute = await this._Arbitrator.getDispute(
-                contractAddress,
-                disputeId
-              )
-              // eslint-disable-next-line no-unused-vars
-            } catch (err) {
-              // FIXME standardize
-              throw new Error('DisputeOutOfRange')
-            }
-
-            if (dispute.arbitratedContract === ethConstants.NULL_ADDRESS) break
-            // session + number of appeals
-            const disputeSession =
-              dispute.firstSession + dispute.numberOfAppeals
-            // if dispute not in current session skip
-            if (disputeSession !== currentSession) {
-              disputeId++
-              continue
-            }
-
+        await Promise.all(
+          openDisputes.map(async disputeId => {
+            const dispute = await this._Arbitrator.getDispute(
+              arbitratorAddress,
+              disputeId
+            )
             const ruling = await this._Arbitrator.currentRulingForDispute(
               contractAddress,
               disputeId,
@@ -200,19 +178,72 @@ class Disputes extends AbstractWrapper {
                 notificationCallback(notification[0])
               }
             }
-            // check next dispute
-            disputeId += 1
-          } catch (err) {
-            if (err === 'DisputeOutOfRange') break
-            throw err
-          }
-        }
+          })
+        )
       }
     }
 
     await this._eventListener.registerArbitratorEvent(
       'NewPeriod',
       _disputeRulingHandler
+    )
+  }
+
+  /**
+   * Event listener that sets the deadline for an appeal
+   * @param {string} arbitratorAddress - The arbitrator contract's address.
+   * @param {string} account - The users eth account.
+   * @param {function} callback - <optional> function to be called when event is triggered.
+   */
+  addDisputeDeadlineHandler = async (arbitratorAddress, account) => {
+    if (!this._eventListener) return
+
+    const _disputeDeadlineHandler = async (
+      event,
+      contractAddress = arbitratorAddress,
+      address = account
+    ) => {
+      const newPeriod = event.args._period.toNumber()
+      // send appeal possible notifications
+      if (newPeriod === arbitratorConstants.PERIOD.VOTE) {
+        this._checkArbitratorWrappersSet()
+        const userProfile = await this._StoreProvider.getUserProfile(address)
+        // contract data
+        const openDisputes = await this._getOpenDisputesForSession(
+          arbitratorAddress
+        )
+
+        await Promise.all(
+          openDisputes.map(async disputeId => {
+            if (
+              _.findIndex(
+                userProfile.disputes,
+                dispute =>
+                  dispute.disputeId === disputeId &&
+                  dispute.arbitratorAddress === contractAddress
+              ) >= 0
+            ) {
+              const deadline = await this.getDeadlineForOpenDispute(
+                arbitratorAddress
+              )
+              // add ruledAt to store
+              await this._updateStoreForDispute(
+                contractAddress,
+                disputeId,
+                address,
+                null,
+                null,
+                deadline
+              )
+            }
+          })
+        )
+      }
+    }
+
+    await this._eventListener.registerArbitratorEvent(
+      'NewPeriod',
+      _disputeDeadlineHandler
     )
   }
 
@@ -351,36 +382,13 @@ class Disputes extends AbstractWrapper {
     // FIXME don't like having to call this every fnc
     this._checkArbitratorWrappersSet()
     // contract data
-    const arbitratorData = await this._Arbitrator.getData(
-      arbitratorAddress,
-      account
+    const openDisputes = await this._getOpenDisputesForSession(
+      arbitratorAddress
     )
     const myDisputes = []
-    let disputeId = 0
-    const currentSession = arbitratorData.session
 
-    let dispute
-    while (1) {
-      // iterate over all disputes (FIXME inefficient)
-      // IDEA iterate over DisputeCreated events between last session and this session
-      try {
-        dispute = await this._Arbitrator.getDispute(
-          arbitratorAddress,
-          disputeId
-        )
-        if (dispute.arbitratedContract === ethConstants.NULL_ADDRESS) break
-        // session + number of appeals
-        const disputeSession = dispute.firstSession + dispute.numberOfAppeals
-        // if dispute not in current session skip
-        if (disputeSession !== currentSession) {
-          disputeId++
-          dispute = await this._Arbitrator.getDispute(
-            arbitratorAddress,
-            disputeId
-          )
-          continue
-        }
-
+    await Promise.all(
+      openDisputes.map(async disputeId => {
         const draws = await this.getDrawsForJuror(
           arbitratorAddress,
           disputeId,
@@ -389,13 +397,8 @@ class Disputes extends AbstractWrapper {
         if (draws.length > 0) {
           myDisputes.push(disputeId)
         }
-        // check next dispute
-        disputeId += 1
-        // eslint-disable-next-line no-unused-vars
-      } catch (err) {
-        break
-      }
-    }
+      })
+    )
 
     return myDisputes
   }
@@ -464,7 +467,7 @@ class Disputes extends AbstractWrapper {
    * @param {number} [period=PERIODS.VOTE] - The period to get the deadline for.
    * @returns {number} - epoch timestamp
    */
-  getDeadlineForDispute = async (
+  getDeadlineForOpenDispute = async (
     arbitratorAddress,
     period = arbitratorConstants.PERIOD.VOTE
   ) => {
@@ -487,6 +490,7 @@ class Disputes extends AbstractWrapper {
    * @param {string} account address of party to update dispute or
    * @param {number} createdAt <optional> epoch timestamp of when dispute was created
    * @param {number} ruledAt <optional> epoch timestamp of when dispute was ruled on
+   * @param {number} deadline <optional> epoch timestamp of dispute deadline
    * @returns {object} updated dispute object
    */
   _updateStoreForDispute = async (
@@ -494,7 +498,8 @@ class Disputes extends AbstractWrapper {
     disputeId,
     account,
     createdAt,
-    ruledAt
+    ruledAt,
+    deadline
   ) => {
     const disputeData = await this.getDataForDispute(
       arbitratorAddress,
@@ -506,6 +511,8 @@ class Disputes extends AbstractWrapper {
       disputeData.appealCreatedAt[disputeData.numberOfAppeals] = createdAt
     if (ruledAt)
       disputeData.appealRuledAt[disputeData.numberOfAppeals] = ruledAt
+    if (deadline)
+      disputeData.appealDeadlines[disputeData.numberOfAppeals] = deadline
 
     // update dispute
     const dispute = await this._StoreProvider.updateDispute(
@@ -520,7 +527,8 @@ class Disputes extends AbstractWrapper {
       disputeData.justification,
       disputeData.resolutionOptions,
       disputeData.appealCreatedAt,
-      disputeData.appealRuledAt
+      disputeData.appealRuledAt,
+      disputeData.appealDeadlines
     )
 
     const storedDisputeData = await this._StoreProvider.getDisputeData(
@@ -674,6 +682,7 @@ class Disputes extends AbstractWrapper {
     let netPNK = 0
     let appealCreatedAt = []
     let appealRuledAt = []
+    let appealDeadlines = []
     if (account) {
       try {
         const userData = await this._StoreProvider.getDisputeData(
@@ -685,6 +694,7 @@ class Disputes extends AbstractWrapper {
         netPNK = userData.netPNK || 0
         appealCreatedAt = userData.appealCreatedAt || []
         appealRuledAt = userData.appealRuledAt || []
+        appealDeadlines = userData.appealDeadlines || []
         // eslint-disable-next-line no-unused-vars
       } catch (err) {
         // fetching dispute will fail if it hasn't been added to the store yet. this is ok we can just not return store data
@@ -713,7 +723,7 @@ class Disputes extends AbstractWrapper {
         ruling,
         voteCounter: dispute.voteCounters[appeal],
         ruledAt: appealRuledAt[appeal],
-        deadline: await this.getDeadlineForDispute(arbitratorAddress, appeal)
+        deadline: appealDeadlines[appeal]
       }
 
       const baseFee = dispute.arbitrationFeePerJuror
@@ -760,8 +770,56 @@ class Disputes extends AbstractWrapper {
       evidence,
       netPNK,
       appealCreatedAt,
-      appealRuledAt
+      appealRuledAt,
+      appealDeadlines
     }
+  }
+
+  /** Listener to set dispute deadline when period passes to Vote
+   * @param {string} arbitratorAddress - address of arbitrator contract
+   * @returns {int[]} - array of active disputeId
+   */
+  _getOpenDisputesForSession = async arbitratorAddress => {
+    const openDisputes = []
+    // contract data
+    const arbitratorData = await this._Arbitrator.getData(arbitratorAddress)
+    let disputeId = 0
+    const currentSession = arbitratorData.session
+
+    let dispute
+    while (1) {
+      // iterate over all disputes (FIXME inefficient)
+      try {
+        try {
+          dispute = await this._Arbitrator.getDispute(
+            arbitratorAddress,
+            disputeId
+          )
+          // eslint-disable-next-line no-unused-vars
+        } catch (err) {
+          // FIXME standardize
+          throw new Error(errorConstants.TYPE.DISPUTE_OUT_OF_RANGE)
+        }
+
+        if (dispute.arbitratedContract === ethConstants.NULL_ADDRESS) break
+        // session + number of appeals
+        const disputeSession = dispute.firstSession + dispute.numberOfAppeals
+        // if dispute not in current session skip
+        if (disputeSession !== currentSession) {
+          disputeId++
+          continue
+        }
+
+        openDisputes.push(disputeId)
+        // check next dispute
+        disputeId += 1
+      } catch (err) {
+        if (err.message === errorConstants.TYPE.DISPUTE_OUT_OF_RANGE) break
+        throw err
+      }
+    }
+
+    return openDisputes
   }
 }
 

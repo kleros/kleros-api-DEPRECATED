@@ -216,7 +216,8 @@ class StoreProviderWrapper {
     justification,
     resolutionOptions,
     appealCreatedAt,
-    appealRuledAt
+    appealRuledAt,
+    appealDeadlines
   ) => {
     const httpResponse = await this._makeRequest(
       'POST',
@@ -235,7 +236,8 @@ class StoreProviderWrapper {
         justification,
         resolutionOptions,
         appealCreatedAt,
-        appealRuledAt
+        appealRuledAt,
+        appealDeadlines
       })
     )
     return httpResponse

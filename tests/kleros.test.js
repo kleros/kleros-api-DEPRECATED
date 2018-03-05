@@ -621,6 +621,10 @@ describe('Kleros', () => {
           drawB.push(i)
         }
       }
+
+      // FIXME bandaid until PR #92 is merged
+      await delaySecond(2)
+
       expect(drawA.length + drawB.length).toEqual(3)
       const disputesForJuror1 = await KlerosInstance.disputes.getDisputesForUser(
         klerosCourt.address,
