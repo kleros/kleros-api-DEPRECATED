@@ -132,7 +132,7 @@ class KlerosWrapper extends ContractWrapper {
       )
     }
     // tokens locked into disputes
-    const lockedTokens = this._Web3Wrapper.fromWei(juror[2], 'ether')
+    const lockedTokens = this._Web3Wrapper.fromWei(juror[1], 'ether')
 
     return {
       activatedTokens,

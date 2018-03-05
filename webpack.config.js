@@ -1,6 +1,6 @@
 const { resolve } = require('path')
 
-module.exports = env => ({
+module.exports = {
   entry: './src/index.js',
   output: {
     path: resolve(__dirname, 'lib/'),
@@ -21,4 +21,4 @@ module.exports = env => ({
       }
     ]
   }
-})
+}
