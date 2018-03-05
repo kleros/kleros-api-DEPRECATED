@@ -88,6 +88,7 @@ class Kleros {
       account,
       callback
     )
+    await this.disputes.addDisputeDeadlineHandler(arbitratorAddress, account)
     await this.disputes.addDisputeRulingHandler(
       arbitratorAddress,
       account,
