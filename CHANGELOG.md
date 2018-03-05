@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.0.63"></a>
+
+## [0.0.63](https://github.com/kleros/kleros-api/compare/v0.0.62...v0.0.63) (2018-03-05)
+
+### Features
+
+* **disputes:** all functions working with new structure ([39e9b2c](https://github.com/kleros/kleros-api/commit/39e9b2c))
+* **disputes:** DRY out fetch open disputes for session and add deadline event handler ([c66548a](https://github.com/kleros/kleros-api/commit/c66548a))
+* **disputes:** skeleton for new dispute data ([2382e39](https://github.com/kleros/kleros-api/commit/2382e39))
+
 <a name="0.0.62"></a>
 
 ## 0.0.62 (2018-02-28)
