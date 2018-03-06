@@ -14,7 +14,7 @@ script:
   - yarn run lint
   - nohup yarn run ganache-cli &
   - yarn test
-  - 'yarn run test:coveralls'
+  - if [ -n "$COVERALLS_REPO_TOKEN" ]; then yarn run test:coveralls; fi
   - yarn run build
 notifications:
   slack: kleros:Ub8n81EgKJ3iRrMDyWyQIVJp

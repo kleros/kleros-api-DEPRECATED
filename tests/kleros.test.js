@@ -645,6 +645,10 @@ describe('Kleros', () => {
           drawB.push(i)
         }
       }
+
+      // FIXME bandaid until PR #92 is merged
+      await delaySecond(2)
+
       expect(drawA.length + drawB.length).toEqual(3)
       const disputesForJuror1 = await KlerosInstance.disputes.getDisputesForUser(
         klerosCourt.address,
@@ -661,7 +665,7 @@ describe('Kleros', () => {
         disputesForJuror1.length > 0
           ? disputesForJuror1[0]
           : disputesForJuror2[0]
-      expect(disputeForJuror.deadline).toBe(
+      expect(disputeForJuror.appealRulings[0].deadline).toBe(
         1000 *
           (newState.lastPeriodChange +
             (await klerosPOCInstance.timePerPeriod(newState.period)).toNumber())
@@ -824,7 +828,7 @@ describe('Kleros', () => {
       const allNotifications = await KlerosInstance.notifications.getNotifications(
         partyA
       )
-      // expect(allNotifications.length).toBe(notifications.length) // TODO Broken
+      expect(allNotifications.length).toBe(notifications.length) // TODO Broken
 
       let notificationTypesExpected = [
         notificationConstants.TYPE.DISPUTE_CREATED,
@@ -894,11 +898,10 @@ describe('Kleros', () => {
       const disputeData = await KlerosInstance.disputes.getDataForDispute(
         klerosCourt.address,
         0,
-        partyA
+        juror1
       )
-
-      expect(disputeData.createdAt).toBeTruthy()
-      expect(disputeData.ruledAt).toBeTruthy()
+      expect(disputeData.appealCreatedAt.length).toEqual(1)
+      expect(disputeData.appealRuledAt.length).toEqual(1)
     },
     80000
   )
