@@ -34,6 +34,28 @@ class ContractWrapper {
         ? await c.deployed()
         : await c.at(address)
 
+      // Estimate gas before sending transactions
+      // for (const funcABI of contractInstance.abi) {
+      //   if (funcABI.constant === false) {
+      // const func = contractInstance[funcABI.name]
+      // // eslint-disable-next-line no-loop-func
+      // contractInstance[funcABI.name] = async (...args) => {
+      //   try {
+      //     console.log(args)
+      //     await func.estimateGas(...args)
+      //     return func(...args)
+      //   } catch (err) {
+      //     console.log('ERRRRRRR')
+      //     throw err
+      //   }
+      // }
+      //   } else if (funcABI.constant === true) {
+      //     const func = contractInstance[funcABI.name]
+      //     // eslint-disable-next-line no-loop-func
+      //     contractInstance[funcABI.name] = (...args) => func.call(...args)
+      //   }
+      // }
+
       return contractInstance
     } catch (err) {
       const errMsg = `${err}`
