@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.0.66"></a>
+## [0.0.66](https://github.com/kleros/kleros-api/compare/v0.0.65...v0.0.66) (2018-03-07)
+
+
+### Bug Fixes
+
+* fix test on develop ([8f361c8](https://github.com/kleros/kleros-api/commit/8f361c8))
+* **disputes:** fix bug in determining canRule ([6628fb7](https://github.com/kleros/kleros-api/commit/6628fb7))
+
+
+
 <a name="0.0.65"></a>
 ## [0.0.65](https://github.com/kleros/kleros-api/compare/v0.0.62...v0.0.65) (2018-03-05)
 
