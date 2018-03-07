@@ -202,7 +202,7 @@ class KlerosWrapper extends ContractWrapper {
   ) => {
     const contractInstance = await this.load(contractAddress)
     try {
-      await contractInstance.passPeriod({
+      await contractInstance.passPeriod.original({
         from: account,
         gas: ethConstants.TRANSACTION.GAS
       })
