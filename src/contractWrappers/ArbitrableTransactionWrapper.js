@@ -122,13 +122,15 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     arbitrationCost = 0.15
   ) => {
     try {
+      console.log(account)
       this.contractInstance = await this.load(contractAddress)
       const txHashObj = await this.contractInstance.payArbitrationFeeByPartyA({
         from: account,
         gas: ethConstants.TRANSACTION.GAS,
         value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
       })
-
+      const data = await this.getData(contractAddress)
+      console.log(data.status)
       return txHashObj.tx
     } catch (err) {
       throw new Error(err)
@@ -234,7 +236,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @returns {string} - txHash Hash transaction.
    */
   callTimeOutPartyB = async (
-    account = this._Web3Wrapper.getAccount(0),
+    account = this._Web3Wrapper.getAccount(1),
     contractAddress
   ) => {
     try {
@@ -330,7 +332,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
 
     const [
       arbitrator,
-      // hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
       extraData,
       timeout,
       partyA,
@@ -372,8 +373,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       disputeId: disputeId.toNumber(),
       partyAFee: this._Web3Wrapper.fromWei(partyAFee, 'ether'),
       partyBFee: this._Web3Wrapper.fromWei(partyBFee, 'ether'),
-      lastInteraction,
-      amount
+      lastInteraction: lastInteraction.toNumber(),
+      amount: amount.toNumber()
     }
   }
 }
