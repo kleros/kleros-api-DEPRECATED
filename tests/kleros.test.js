@@ -673,6 +673,7 @@ describe('Kleros', () => {
       expect(disputeForJuror.arbitrableContractAddress).toEqual(
         contractArbitrableTransactionData.address
       )
+      expect(disputeForJuror.appealJuror[0].canRule).toBeTruthy()
 
       const jurorForNotifications =
         drawA.length > drawB.length ? juror1 : juror2
