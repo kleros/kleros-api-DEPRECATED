@@ -203,9 +203,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     try {
       this.contractInstance = await this.load(contractAddress)
 
-      const status = await this.contractInstance.status.call()
-      const timeout = await this.contractInstance.timeout.call()
-      const lastInteraction = await this.contractInstance.lastInteraction.call()
+      const status = await this.contractInstance.status()
+      const timeout = await this.contractInstance.timeout()
+      const lastInteraction = await this.contractInstance.lastInteraction()
 
       if (status !== contractConstants.STATUS.WAITING_PARTY_B) {
         throw new Error('Status contract is not WAITING_PARTY_B')
@@ -240,9 +240,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     try {
       this.contractInstance = await this.load(contractAddress)
 
-      const status = await this.contractInstance.status.call()
-      const timeout = await this.contractInstance.timeout.call()
-      const lastInteraction = await this.contractInstance.lastInteraction.call()
+      const status = await this.contractInstance.status()
+      const timeout = await this.contractInstance.timeout()
+      const lastInteraction = await this.contractInstance.lastInteraction()
 
       if (status !== contractConstants.STATUS.WAITING_PARTY_A) {
         throw new Error('Status contract is not WAITING_PARTY_A')
@@ -343,19 +343,19 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       lastInteraction,
       amount
     ] = await Promise.all([
-      contractInstance.arbitrator.call(),
-      contractInstance.arbitratorExtraData.call(),
-      //  contractInstance.hashContract.call(),
-      contractInstance.timeout.call(),
-      contractInstance.partyA.call(),
-      contractInstance.partyB.call(),
-      contractInstance.status.call(),
-      contractInstance.arbitratorExtraData.call(),
-      contractInstance.disputeID.call(),
-      contractInstance.partyAFee.call(),
-      contractInstance.partyBFee.call(),
-      contractInstance.lastInteraction.call(),
-      contractInstance.amount.call()
+      contractInstance.arbitrator(),
+      contractInstance.arbitratorExtraData(),
+      //  contractInstance.hashContract(),
+      contractInstance.timeout(),
+      contractInstance.partyA(),
+      contractInstance.partyB(),
+      contractInstance.status(),
+      contractInstance.arbitratorExtraData(),
+      contractInstance.disputeID(),
+      contractInstance.partyAFee(),
+      contractInstance.partyBFee(),
+      contractInstance.lastInteraction(),
+      contractInstance.amount()
     ]).catch(err => {
       throw new Error(err)
     })
