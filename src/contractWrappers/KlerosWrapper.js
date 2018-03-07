@@ -123,7 +123,7 @@ class KlerosWrapper extends ContractWrapper {
     // total tokens stored in contract
     const contractBalance = this._Web3Wrapper.fromWei(juror[0], 'ether')
     // tokens activated in court session
-    const currentSession = await contractInstance.session.call()
+    const currentSession = await contractInstance.session()
     let activatedTokens = 0
     if (juror[2].toNumber() === currentSession.toNumber()) {
       activatedTokens = this._Web3Wrapper.fromWei(
