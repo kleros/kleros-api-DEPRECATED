@@ -460,7 +460,18 @@ class KlerosWrapper extends ContractWrapper {
   canRuleDispute = async (arbitratorAddress, disputeId, draws, account) => {
     const contractInstance = await this.load(arbitratorAddress)
 
-    return contractInstance.validDraws(account, disputeId, draws)
+    const validDraws = await contractInstance.validDraws(
+      account,
+      disputeId,
+      draws
+    )
+    const lastRuling = (await contractInstance.getLastSessionVote(
+      disputeId,
+      account
+    )).toNumber()
+    const currentSession = await this.getSession(arbitratorAddress)
+
+    return validDraws && lastRuling !== currentSession
   }
 
   /**

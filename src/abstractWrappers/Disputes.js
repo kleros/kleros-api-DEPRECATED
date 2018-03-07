@@ -728,11 +728,12 @@ class Disputes extends AbstractWrapper {
       const baseFee = dispute.arbitrationFeePerJuror
       const draws = appealDraws[appeal] || []
       let canRule = false
-      if (appeal === lastSession && draws.length > 0) {
+      if (firstSession + appeal === lastSession && draws.length > 0) {
         canRule = await this._Arbitrator.canRuleDispute(
-          account,
+          arbitratorAddress,
           disputeId,
-          draws
+          draws,
+          account
         )
       }
 
