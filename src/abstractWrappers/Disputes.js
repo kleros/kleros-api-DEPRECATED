@@ -2,6 +2,7 @@ import _ from 'lodash'
 
 import * as ethConstants from '../constants/eth'
 import * as arbitratorConstants from '../constants/arbitrator'
+import * as disputeConstants from '../constants/dispute'
 import * as notificationConstants from '../constants/notification'
 import * as errorConstants from '../constants/error'
 
@@ -331,7 +332,8 @@ class Disputes extends AbstractWrapper {
           this.getDataForDispute(
             dispute.arbitratorAddress,
             dispute.disputeId,
-            account
+            account,
+            arbitratorData
           )
         )
       )
@@ -649,99 +651,123 @@ class Disputes extends AbstractWrapper {
 
   /**
    * Get data for a dispute.
-   * @param {string} arbitratorAddress - Address for arbitrator contract.
-   * @param {number} disputeId - Index of dispute.
-   * @param {string} account - Juror account address.
-   * @returns {object} - Data object for dispute that uses data from the contract and store.
+   * @param {string} arbitratorAddress - The arbitrator contract's address.
+   * @param {number} disputeID - The dispute's ID.
+   * @param {string} account - The juror's address.
+   * @param {object} [arbitratorData={}] - Optional arbitrator data for computing `canRepartition`.
+   * @returns {object} - Data object for the dispute that uses data from the contract and the store.
+   * TODO: Should we return what we have in the store even if dispute is not in the contract?
    */
-  getDataForDispute = async (arbitratorAddress, disputeId, account) => {
+  getDataForDispute = async (
+    arbitratorAddress,
+    disputeID,
+    account,
+    { session, period } = {}
+  ) => {
     this._checkArbitratorWrappersSet()
     this._checkArbitrableWrappersSet()
 
-    // FIXME should we just return what we have in the store?
+    // Get dispute data from contract, and throw if not found. Also get current session and period
     const dispute = await this._Arbitrator.getDispute(
       arbitratorAddress,
-      disputeId
+      disputeID
     )
     if (!dispute) {
       throw new Error(
-        `Dispute with arbitrator: ${arbitratorAddress} and disputeId: ${disputeId} does not exist`
+        `Dispute with arbitrator: ${arbitratorAddress} and disputeId: ${disputeID} does not exist`
       )
     }
-    const arbitrableContractAddress = dispute.arbitratedContract
 
-    const arbitrableContractData = await this._ArbitrableContract.getData(
-      arbitrableContractAddress
-    )
-    const constractStoreData = await this._StoreProvider.getContractByAddress(
+    // Get arbitrable contract data and evidence
+    const arbitrableContractAddress = dispute.arbitratedContract
+    const [arbitrableContractData, evidence] = await Promise.all([
+      this._ArbitrableContract.getData(arbitrableContractAddress),
+      this.getEvidenceForArbitrableContract(arbitrableContractAddress)
+    ])
+    const contractStoreData = await this._StoreProvider.getContractByAddress(
       arbitrableContractData.partyA,
       arbitrableContractAddress
     )
 
+    // Get dispute data from the store
     let appealDraws = []
-    let netPNK = 0
     let appealCreatedAt = []
-    let appealRuledAt = []
     let appealDeadlines = []
-    if (account) {
-      try {
-        const userData = await this._StoreProvider.getDisputeData(
-          arbitratorAddress,
-          disputeId,
-          account
-        )
-        appealDraws = userData.appealDraws || []
-        netPNK = userData.netPNK || 0
-        appealCreatedAt = userData.appealCreatedAt || []
-        appealRuledAt = userData.appealRuledAt || []
-        appealDeadlines = userData.appealDeadlines || []
-        // eslint-disable-next-line no-unused-vars
-      } catch (err) {
-        // fetching dispute will fail if it hasn't been added to the store yet. this is ok we can just not return store data
-      }
+    let appealRuledAt = []
+    let netPNK = 0
+    try {
+      const userData = await this._StoreProvider.getDisputeData(
+        arbitratorAddress,
+        disputeID,
+        account
+      )
+      if (userData.appealDraws) appealDraws = userData.appealDraws
+      if (userData.appealCreatedAt) appealCreatedAt = userData.appealCreatedAt
+      if (userData.appealDeadlines) appealDeadlines = userData.appealDeadlines
+      if (userData.appealRuledAt) appealRuledAt = userData.appealRuledAt
+      if (userData.netPNK) netPNK = userData.netPNK
+      // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      // Fetching a dispute will fail if it hasn't been added to the store yet. This is ok, we can just not return store data
     }
 
-    // get evidence
-    const evidence = await this.getEvidenceForArbitrableContract(
-      arbitrableContractAddress
-    )
-
-    const firstSession = dispute.firstSession
+    // Build juror info and ruling arrays, indexed by appeal number
     const lastSession = dispute.firstSession + dispute.numberOfAppeals
-    // NOTE arrays indexed by appeal number
-    const appealRulings = []
     const appealJuror = []
-    for (let appeal = 0; appeal <= lastSession - firstSession; appeal++) {
-      // get ruling for appeal. Note appeal 0 is first session
-      const ruling = await this._Arbitrator.currentRulingForDispute(
-        arbitratorAddress,
-        disputeId,
-        appeal
-      )
+    const appealRulings = []
+    for (let appeal = 0; appeal <= dispute.numberOfAppeals; appeal++) {
+      const isLastAppeal = dispute.firstSession + appeal === lastSession
 
-      appealRulings[appeal] = {
-        ruling,
-        voteCounter: dispute.voteCounters[appeal],
-        ruledAt: appealRuledAt[appeal],
-        deadline: appealDeadlines[appeal]
-      }
-
-      const baseFee = dispute.arbitrationFeePerJuror
+      // Get appeal data
       const draws = appealDraws[appeal] || []
       let canRule = false
-      if (firstSession + appeal === lastSession && draws.length > 0) {
-        canRule = await this._Arbitrator.canRuleDispute(
+      let canRepartition = false
+      let canExecute = false
+      let ruling
+      const promises = [
+        this._Arbitrator.currentRulingForDispute(
           arbitratorAddress,
-          disputeId,
-          draws,
-          account
+          disputeID,
+          appeal
         )
+      ]
+
+      // Extra info for the last appeal
+      if (isLastAppeal) {
+        if (draws.length > 0)
+          promises.push(
+            this._Arbitrator.canRuleDispute(
+              arbitratorAddress,
+              disputeID,
+              draws,
+              account
+            )
+          )
+
+        if (session && period)
+          canRepartition =
+            lastSession <= session && // Not appealed to the next session
+            period === arbitratorConstants.PERIOD.EXECUTE && // Executable period
+            dispute.state === disputeConstants.STATE.OPEN // Open dispute
+        canExecute = dispute.state === disputeConstants.STATE.EXECUTABLE // Executable state
       }
 
+      // Wait for parallel requests to complete
+      ;[ruling, canRule] = await Promise.all(promises)
+
       appealJuror[appeal] = {
-        fee: baseFee * draws.length,
+        createdAt: appealCreatedAt[appeal],
+        fee: dispute.arbitrationFeePerJuror * draws.length,
         draws,
         canRule
+      }
+      appealRulings[appeal] = {
+        voteCounter: dispute.voteCounters[appeal],
+        deadline: appealDeadlines[appeal],
+        ruledAt: appealRuledAt[appeal],
+        ruling,
+        canRepartition,
+        canExecute
       }
     }
 
@@ -754,25 +780,27 @@ class Disputes extends AbstractWrapper {
       partyB: arbitrableContractData.partyB,
 
       // Dispute Data
-      disputeId,
-      firstSession,
+      disputeID,
+      firstSession: dispute.firstSession,
       lastSession,
       numberOfAppeals: dispute.numberOfAppeals,
       disputeState: dispute.state,
       disputeStatus: dispute.status,
-      appealRulings,
       appealJuror,
+      appealRulings,
 
       // Store Data
-      description: constractStoreData
-        ? constractStoreData.description
+      description: contractStoreData
+        ? contractStoreData.description
         : undefined,
-      email: constractStoreData ? constractStoreData.email : undefined,
+      email: contractStoreData ? contractStoreData.email : undefined,
       evidence,
       netPNK,
+
+      // Deprecated Data // TODO: Remove
       appealCreatedAt,
-      appealRuledAt,
-      appealDeadlines
+      appealDeadlines,
+      appealRuledAt
     }
   }
 
