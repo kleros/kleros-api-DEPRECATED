@@ -3,8 +3,8 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 <a name="0.0.67"></a>
-## [0.0.67](https://github.com/kleros/kleros-api/compare/v0.0.65...v0.0.67) (2018-03-07)
 
+## [0.0.67](https://github.com/kleros/kleros-api/compare/v0.0.65...v0.0.67) (2018-03-07)
 
 ### Bug Fixes
 
@@ -12,53 +12,43 @@ All notable changes to this project will be documented in this file. See [standa
 * check session of jurors last vote ([bf4fde5](https://github.com/kleros/kleros-api/commit/bf4fde5))
 * fix test on develop ([8f361c8](https://github.com/kleros/kleros-api/commit/8f361c8))
 
-
-
 <a name="0.0.66"></a>
-## [0.0.66](https://github.com/kleros/kleros-api/compare/v0.0.65...v0.0.66) (2018-03-07)
 
+## [0.0.66](https://github.com/kleros/kleros-api/compare/v0.0.65...v0.0.66) (2018-03-07)
 
 ### Bug Fixes
 
 * fix test on develop ([8f361c8](https://github.com/kleros/kleros-api/commit/8f361c8))
 * **disputes:** fix bug in determining canRule ([6628fb7](https://github.com/kleros/kleros-api/commit/6628fb7))
 
-
-
 <a name="0.0.65"></a>
-## [0.0.65](https://github.com/kleros/kleros-api/compare/v0.0.62...v0.0.65) (2018-03-05)
 
+## [0.0.65](https://github.com/kleros/kleros-api/compare/v0.0.62...v0.0.65) (2018-03-05)
 
 ### Bug Fixes
 
 * **kleros-wrapper:** use correct index for juror.atStake ([143bbc0](https://github.com/kleros/kleros-api/commit/143bbc0)), closes [#63](https://github.com/kleros/kleros-api/issues/63)
 * **notifications:** make sure appeal possible notifications unique ([30ea202](https://github.com/kleros/kleros-api/commit/30ea202))
 
-
 ### Features
 
 * **disputes:** all functions working with new structure ([66541a6](https://github.com/kleros/kleros-api/commit/66541a6))
 * **disputes:** DRY out fetch open disputes for session and add deadline event handler ([77b21ce](https://github.com/kleros/kleros-api/commit/77b21ce))
 * **disputes:** skeleton for new dispute data ([0b99b55](https://github.com/kleros/kleros-api/commit/0b99b55))
 
-
-
 <a name="0.0.64"></a>
-## [0.0.64](https://github.com/kleros/kleros-api/compare/v0.0.62...v0.0.64) (2018-03-05)
 
+## [0.0.64](https://github.com/kleros/kleros-api/compare/v0.0.62...v0.0.64) (2018-03-05)
 
 ### Bug Fixes
 
 * **notifications:** make sure appeal possible notifications unique ([b7c55e6](https://github.com/kleros/kleros-api/commit/b7c55e6))
 
-
 ### Features
 
 * **disputes:** all functions working with new structure ([66541a6](https://github.com/kleros/kleros-api/commit/66541a6))
 * **disputes:** DRY out fetch open disputes for session and add deadline event handler ([77b21ce](https://github.com/kleros/kleros-api/commit/77b21ce))
 * **disputes:** skeleton for new dispute data ([0b99b55](https://github.com/kleros/kleros-api/commit/0b99b55))
-
-
 
 <a name="0.0.63"></a>
 

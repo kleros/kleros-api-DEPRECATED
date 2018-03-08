@@ -30,7 +30,7 @@ class Disputes extends AbstractWrapper {
       contractAddress = arbitratorAddress,
       address = account
     ) => {
-      const disputeId = event.args._disputeID.toNumber()
+      const disputeId = event.args._disputeId.toNumber()
       const disputeData = await this.getDataForDispute(
         contractAddress,
         disputeId,
@@ -74,7 +74,7 @@ class Disputes extends AbstractWrapper {
       contractAddress = arbitratorAddress,
       address = defaultAccount
     ) => {
-      const disputeId = event.args._disputeID.toNumber()
+      const disputeId = event.args._disputeId.toNumber()
       const account = event.args._account
       const amountShift = event.args._amount.toNumber()
       // juror won/lost tokens
@@ -332,8 +332,7 @@ class Disputes extends AbstractWrapper {
           this.getDataForDispute(
             dispute.arbitratorAddress,
             dispute.disputeId,
-            account,
-            arbitratorData
+            account
           )
         )
       )
@@ -652,29 +651,23 @@ class Disputes extends AbstractWrapper {
   /**
    * Get data for a dispute.
    * @param {string} arbitratorAddress - The arbitrator contract's address.
-   * @param {number} disputeID - The dispute's ID.
+   * @param {number} disputeId - The dispute's ID.
    * @param {string} account - The juror's address.
-   * @param {object} [arbitratorData={}] - Optional arbitrator data for computing `canRepartition`.
    * @returns {object} - Data object for the dispute that uses data from the contract and the store.
    * TODO: Should we return what we have in the store even if dispute is not in the contract?
    */
-  getDataForDispute = async (
-    arbitratorAddress,
-    disputeID,
-    account,
-    { session, period } = {}
-  ) => {
+  getDataForDispute = async (arbitratorAddress, disputeId, account) => {
     this._checkArbitratorWrappersSet()
     this._checkArbitrableWrappersSet()
 
     // Get dispute data from contract, and throw if not found. Also get current session and period
-    const dispute = await this._Arbitrator.getDispute(
-      arbitratorAddress,
-      disputeID
-    )
+    const [dispute, arbitratorData] = Promise.all([
+      this._Arbitrator.getDispute(arbitratorAddress, disputeId),
+      this._Arbitrator.getData(arbitratorAddress, account)
+    ])
     if (!dispute) {
       throw new Error(
-        `Dispute with arbitrator: ${arbitratorAddress} and disputeId: ${disputeID} does not exist`
+        `Dispute with arbitrator: ${arbitratorAddress} and disputeId: ${disputeId} does not exist`
       )
     }
 
@@ -698,7 +691,7 @@ class Disputes extends AbstractWrapper {
     try {
       const userData = await this._StoreProvider.getDisputeData(
         arbitratorAddress,
-        disputeID,
+        disputeId,
         account
       )
       if (userData.appealDraws) appealDraws = userData.appealDraws
@@ -724,10 +717,10 @@ class Disputes extends AbstractWrapper {
       let canRepartition = false
       let canExecute = false
       let ruling
-      const promises = [
+      const rulingPromises = [
         this._Arbitrator.currentRulingForDispute(
           arbitratorAddress,
-          disputeID,
+          disputeId,
           appeal
         )
       ]
@@ -735,25 +728,25 @@ class Disputes extends AbstractWrapper {
       // Extra info for the last appeal
       if (isLastAppeal) {
         if (draws.length > 0)
-          promises.push(
+          rulingPromises.push(
             this._Arbitrator.canRuleDispute(
               arbitratorAddress,
-              disputeID,
+              disputeId,
               draws,
               account
             )
           )
 
-        if (session && period)
+        if (arbitratorData.session && arbitratorData.period)
           canRepartition =
-            lastSession <= session && // Not appealed to the next session
-            period === arbitratorConstants.PERIOD.EXECUTE && // Executable period
+            lastSession <= arbitratorData.session && // Not appealed to the next session
+            arbitratorData.period === arbitratorConstants.PERIOD.EXECUTE && // Executable period
             dispute.state === disputeConstants.STATE.OPEN // Open dispute
         canExecute = dispute.state === disputeConstants.STATE.EXECUTABLE // Executable state
       }
 
       // Wait for parallel requests to complete
-      ;[ruling, canRule] = await Promise.all(promises)
+      ;[ruling, canRule] = await Promise.all(rulingPromises)
 
       appealJuror[appeal] = {
         createdAt: appealCreatedAt[appeal],
@@ -780,7 +773,7 @@ class Disputes extends AbstractWrapper {
       partyB: arbitrableContractData.partyB,
 
       // Dispute Data
-      disputeID,
+      disputeId,
       firstSession: dispute.firstSession,
       lastSession,
       numberOfAppeals: dispute.numberOfAppeals,
