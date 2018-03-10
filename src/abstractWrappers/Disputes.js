@@ -661,7 +661,7 @@ class Disputes extends AbstractWrapper {
     this._checkArbitrableWrappersSet()
 
     // Get dispute data from contract, and throw if not found. Also get current session and period
-    const [dispute, arbitratorData] = Promise.all([
+    const [dispute, arbitratorData] = await Promise.all([
       this._Arbitrator.getDispute(arbitratorAddress, disputeId),
       this._Arbitrator.getData(arbitratorAddress, account)
     ])
