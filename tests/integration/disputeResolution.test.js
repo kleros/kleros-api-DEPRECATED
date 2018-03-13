@@ -2,11 +2,8 @@ import Web3 from 'web3'
 
 import Kleros from '../../src/kleros'
 import * as ethConstants from '../../src/constants/eth'
-import * as notificationConstants from '../../src/constants/notification'
 
-import {
-  setUpContracts
-} from './helpers'
+import { setUpContracts } from './helpers'
 
 describe('Dispute Resolution', () => {
   let partyA

@@ -122,7 +122,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     arbitrationCost = 0.15
   ) => {
     try {
-      console.log(account)
       this.contractInstance = await this.load(contractAddress)
       const txHashObj = await this.contractInstance.payArbitrationFeeByPartyA({
         from: account,
@@ -130,7 +129,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
         value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
       })
       const data = await this.getData(contractAddress)
-      console.log(data.status)
       return txHashObj.tx
     } catch (err) {
       throw new Error(err)
@@ -205,10 +203,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     try {
       this.contractInstance = await this.load(contractAddress)
 
-      const status = await this.contractInstance.status()
-      const timeout = await this.contractInstance.timeout()
-      const lastInteraction = await this.contractInstance.lastInteraction()
-
+      const status = (await this.contractInstance.status()).toNumber()
+      const timeout = (await this.contractInstance.timeout()).toNumber()
+      const lastInteraction = (await this.contractInstance.lastInteraction()).toNumber()
       if (status !== contractConstants.STATUS.WAITING_PARTY_B) {
         throw new Error('Status contract is not WAITING_PARTY_B')
       }

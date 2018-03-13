@@ -164,6 +164,7 @@ class Notifications extends AbstractWrapper {
 
     // Repartition and execute
     if (currentPeriod === arbitratorConstants.PERIOD.EXECUTE) {
+      console.log("should be here...")
       await Promise.all(
         userProfile.disputes.map(async dispute => {
           const disputeData = await this._Arbitrator.getDispute(
@@ -174,7 +175,9 @@ class Notifications extends AbstractWrapper {
             disputeData.firstSession + disputeData.numberOfAppeals ===
             currentSession
           ) {
+            console.log("checking")
             if (disputeData.state <= disputeConstants.STATE.RESOLVING) {
+              console.log("pushing")
               notifications.push(
                 this._createNotification(
                   notificationConstants.TYPE.CAN_REPARTITION,
@@ -202,8 +205,9 @@ class Notifications extends AbstractWrapper {
           }
         })
       )
+      console.log(notifications)
     }
-
+    console.log("done")
     return notifications
   }
 
@@ -224,19 +228,7 @@ class Notifications extends AbstractWrapper {
    * @param {number} logIndex index of the log. used to differentiate logs if multiple logs per tx
    */
   markNotificationAsRead = async (account, txHash, logIndex) => {
-    const profile = await this._StoreProvider.getUserProfile(account)
-    const notificationIndex = await _.findIndex(
-      profile.notifications,
-      notification =>
-        notification.txHash === txHash && notification.logIndex === logIndex
-    )
-
-    if (_.isNull(notificationIndex)) {
-      throw new TypeError(`No notification with txHash ${txHash} exists`)
-    }
-
-    profile.notifications[notificationIndex].read = true
-    await this._StoreProvider.updateUserProfile(account, profile)
+    this._StoreProvider.markNotificationAsRead(account, txHash, logIndex, true)
   }
 
   /**

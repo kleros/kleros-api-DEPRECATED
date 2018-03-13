@@ -1,4 +1,8 @@
-export const setUpContracts = async (KlerosInstance, klerosPOCParams, arbitrableContractParams) => {
+export const setUpContracts = async (
+  KlerosInstance,
+  klerosPOCParams,
+  arbitrableContractParams
+) => {
   // initialize RNG and Pinakion contracts
   const rngInstance = await KlerosInstance.blockHashRng.deploy(undefined)
 
@@ -14,12 +18,12 @@ export const setUpContracts = async (KlerosInstance, klerosPOCParams, arbitrable
   )
 
   // transfer ownership and set kleros instance
-  const setKlerosHash = await KlerosInstance.pinakion.setKleros(
+  await KlerosInstance.pinakion.setKleros(
     pinakionInstance.address,
     klerosCourt.address
   )
 
-  const transferOwnershipHash = await KlerosInstance.pinakion.transferOwnership(
+  await KlerosInstance.pinakion.transferOwnership(
     pinakionInstance.address,
     klerosCourt.address
   )
@@ -45,7 +49,10 @@ export const setUpContracts = async (KlerosInstance, klerosPOCParams, arbitrable
   ]
 }
 
-export const waitNotifications = (initialAmount = undefined, notificationCallback) => {
+export const waitNotifications = (
+  initialAmount = undefined,
+  notificationCallback
+) => {
   let amount
   let currentAmount = 0
   let notificationList = []
