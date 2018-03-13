@@ -1,5 +1,5 @@
-import DisputesApi from '../../src/abstractWrappers/Disputes'
-import * as arbitratorConstants from '../../src/constants/arbitrator'
+import DisputesApi from '../../../src/abstractWrappers/Disputes'
+import * as arbitratorConstants from '../../../src/constants/arbitrator'
 
 describe('Disputes', () => {
   let mockArbitratorWrapper = {}

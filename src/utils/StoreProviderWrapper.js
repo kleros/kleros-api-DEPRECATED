@@ -1,8 +1,11 @@
 import _ from 'lodash'
 
+import PromiseQueue from '../../util/PromiseQueue'
+
 class StoreProviderWrapper {
   constructor(storeProviderUri) {
     this._storeUri = storeProviderUri
+    this._storeQueue = new PromiseQueue()
   }
 
   _makeRequest = (verb, uri, body = null) => {
@@ -36,6 +39,33 @@ class StoreProviderWrapper {
     })
   }
 
+  /**
+   * use the queue for write request. this allows a function to be passed so we can read immediately before we write
+   * @param {fn} getBodyFn async function to call before we write. Should to reads and return JSON to be used as body.
+   * @param {string} verb POST or PUT
+   * @param {string} uri uri to call
+   */
+  queueWriteRequest = (getBodyFn, verb, uri = null) => {
+    this._storeQueue.push(() =>
+      getBodyFn().then(result => {
+        this._makeRequest(verb, uri, result)})
+    )
+  }
+
+  /**
+   * If we know we are waiting on some other write before we want to read we can add a read request to the end of the queue.
+   * @param {string} uri uri to hit
+   * @returns {promise} promise of the result function
+   */
+  queueReadRequest = uri =>
+    this._storeQueue.fetch(() => {
+      return this._makeRequest('GET', uri)
+    })
+
+  // **************************** //
+  // *          Read            * //
+  // **************************** //
+
   getUserProfile = async userAddress => {
     const httpResponse = await this._makeRequest(
       'GET',
@@ -43,40 +73,6 @@ class StoreProviderWrapper {
     )
 
     return httpResponse.body
-  }
-
-  newUserProfile = async (address, userProfile) => {
-    const httpResponse = await this._makeRequest(
-      'POST',
-      `${this._storeUri}/${address}`,
-      JSON.stringify(userProfile)
-    )
-
-    return httpResponse
-  }
-
-  /**
-   * Set up a new user profile if one does not exist
-   * @param {string} address user's address
-   * @returns {object} users existing or created profile
-   */
-  setUpUserProfile = async address => {
-    let userProfile = await this.getUserProfile(address)
-    if (_.isNull(userProfile)) userProfile = await this.newUserProfile(address)
-
-    return userProfile
-  }
-
-  updateUserProfile = async (address, userProfile) => {
-    delete userProfile._id
-    delete userProfile.created_at
-    const httpResponse = await this._makeRequest(
-      'POST',
-      `${this._storeUri}/${address}`,
-      JSON.stringify(userProfile)
-    )
-
-    return httpResponse
   }
 
   getDisputeData = async (arbitratorAddress, disputeId, userAddress) => {
@@ -119,6 +115,85 @@ class StoreProviderWrapper {
     )
 
     return contract[0]
+  }
+
+  getDisputesForUser = async address => {
+    const userProfile = await this.getUserProfile(address)
+    if (!userProfile) return []
+
+    const disputes = []
+    for (let i = 0; i < userProfile.disputes.length; i++) {
+      const dispute = userProfile.disputes[i]
+      if (!dispute.arbitratorAddress || _.isNil(dispute.disputeId)) continue
+      // fetch dispute data
+      const httpResponse = await this._makeRequest(
+        'GET',
+        `${this._storeUri}/arbitrators/${dispute.arbitratorAddress}/disputes/${
+          dispute.disputeId
+        }`
+      )
+      if (httpResponse.status === 200) {
+        disputes.push(Object.assign({}, httpResponse.body, dispute))
+      }
+    }
+
+    return disputes
+  }
+
+  getLastBlock = async account => {
+    const userProfile = await this.getUserProfile(account)
+
+    return userProfile.lastBlock ? userProfile.lastBlock : 0
+  }
+
+  getDispute = async (arbitratorAddress, disputeId) => {
+    const httpResponse = await this._makeRequest(
+      'GET',
+      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
+    )
+
+    return httpResponse.body
+  }
+
+  // **************************** //
+  // *          Write           * //
+  // **************************** //
+
+  newUserProfile = async (address, userProfile) => {
+    // NOTE we overwrite every time. No check
+    const getBodyFn = () =>
+      new Promise(resolve => {
+        resolve(JSON.stringify(userProfile))
+      })
+
+    this.queueWriteRequest(getBodyFn, 'POST', `${this._storeUri}/${address}`)
+  }
+
+  /**
+   * Set up a new user profile if one does not exist
+   * @param {string} address user's address
+   * @returns {object} users existing or created profile
+   */
+  setUpUserProfile = async address => {
+    let userProfile = await this.getUserProfile(address)
+    if (_.isNull(userProfile)) {
+      this.newUserProfile(address, {})
+      userProfile = await this.queueReadRequest(`${this._storeUri}/${address}`)
+    }
+
+    return userProfile
+  }
+
+  updateUserProfileSession = async (account, session) => {
+    const getBodyFn = async () => {
+      const currentProfile = await this.getUserProfile(account)
+      currentProfile.session = session
+      delete currentProfile._id
+      delete currentProfile._createdAt
+      return new Promise(resolve => resolve(JSON.stringify(currentProfile)))
+    }
+
+    this.queueWriteRequest(getBodyFn, 'POST', `${this._storeUri}/${account}`)
   }
 
   updateContract = async (
@@ -170,16 +245,6 @@ class StoreProviderWrapper {
     return httpResponse
   }
 
-  getDispute = async (arbitratorAddress, disputeId) => {
-    const httpResponse = await this._makeRequest(
-      'GET',
-      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
-    )
-
-    return httpResponse.body
-  }
-
-  // FIXME very complicated to update
   updateDisputeProfile = async (
     account,
     appealDraws,
@@ -243,41 +308,16 @@ class StoreProviderWrapper {
     return httpResponse
   }
 
-  getDisputesForUser = async address => {
-    const userProfile = await this.getUserProfile(address)
-    if (!userProfile) return []
-
-    const disputes = []
-    for (let i = 0; i < userProfile.disputes.length; i++) {
-      const dispute = userProfile.disputes[i]
-      if (!dispute.arbitratorAddress || _.isNil(dispute.disputeId)) continue
-      // fetch dispute data
-      const httpResponse = await this._makeRequest(
-        'GET',
-        `${this._storeUri}/arbitrators/${dispute.arbitratorAddress}/disputes/${
-          dispute.disputeId
-        }`
-      )
-      if (httpResponse.status === 200) {
-        disputes.push(Object.assign({}, httpResponse.body, dispute))
-      }
+  updateLastBlock = (account, lastBlock) => {
+    const getBodyFn = async () => {
+      const currentProfile = await this.getUserProfile(account)
+      currentProfile.lastBlock = lastBlock
+      delete currentProfile._id
+      delete currentProfile._createdAt
+      return new Promise(resolve => resolve(JSON.stringify(currentProfile)))
     }
 
-    return disputes
-  }
-
-  getLastBlock = async account => {
-    const userProfile = await this.getUserProfile(account)
-
-    return userProfile.lastBlock ? userProfile.lastBlock : 0
-  }
-
-  updateLastBlock = async (account, lastBlock) => {
-    const userProfile = await this.getUserProfile(account)
-
-    userProfile.lastBlock = lastBlock
-    const httpResponse = await this.updateUserProfile(account, userProfile)
-    return httpResponse
+    this.queueWriteRequest(getBodyFn, 'POST', `${this._storeUri}/${account}`)
   }
 
   newNotification = async (
@@ -301,6 +341,27 @@ class StoreProviderWrapper {
       })
     )
     return httpResponse
+  }
+
+  markNotificationAsRead = async (account, txHash, logIndex, isRead = true) => {
+    const getBodyFn = async () => {
+      const userProfile = await this.getUserProfile(account)
+
+      const notificationIndex = await _.findIndex(
+        userProfile.notifications,
+        notification =>
+          notification.txHash === txHash && notification.logIndex === logIndex
+      )
+
+      if (_.isNull(notificationIndex)) {
+        throw new TypeError(`No notification with txHash ${txHash} exists`)
+      }
+
+      userProfile.notifications[notificationIndex].read = isRead
+      return new Promise(resolve => resolve(JSON.stringify(userProfile)))
+    }
+
+    this.queueWriteRequest(getBodyFn, 'POST', `${this._storeUri}/${account}`)
   }
 }
 

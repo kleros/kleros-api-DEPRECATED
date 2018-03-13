@@ -113,7 +113,6 @@ class Disputes extends AbstractWrapper {
    */
   addDisputeRulingHandler = async (arbitratorAddress, account, callback) => {
     if (!this._eventListener) return
-
     const _disputeRulingHandler = async (
       event,
       contractAddress = arbitratorAddress,
@@ -263,9 +262,6 @@ class Disputes extends AbstractWrapper {
     arbitrationCost = arbitratorConstants.DEFAULT_ARBITRATION_FEE
   ) => {
     this._checkArbitrableWrappersSet()
-    console.log(account)
-    console.log(arbitrableContractAddress)
-    console.log(arbitrationCost)
     try {
       const txHash = await this._ArbitrableContract.payArbitrationFeeByPartyA(
         account,
@@ -364,10 +360,7 @@ class Disputes extends AbstractWrapper {
         })
       )
 
-      // update session on profile
-      profile = await this._StoreProvider.getUserProfile(account)
-      profile.session = currentSession
-      await this._StoreProvider.updateUserProfile(account, profile)
+      this._StoreProvider.updateUserProfileSession(account, currentSession)
     }
 
     return _getDisputesForUserFromStore(account)
