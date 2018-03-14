@@ -12,7 +12,7 @@ addons:
 install: yarn install --pure-lockfile
 script:
   - yarn run lint
-  - nohup yarn run ganache-cli &
+  - nohup yarn run ganache-cli -a 15 &
   - yarn test
   - if [ -n "$COVERALLS_REPO_TOKEN" ]; then yarn run test:coveralls; fi
   - yarn run build

@@ -28,7 +28,8 @@
     "commitmsg": "kleros-scripts commitmsg",
     "cz": "kleros-scripts cz",
     "start": "webpack --env.NODE_ENV=development --progress --watch",
-    "build": "webpack --env.NODE_ENV=production -p"
+    "build": "webpack --env.NODE_ENV=production -p",
+    "ganache": "ganache-cli -a 15"
   },
   "commitlint": {
     "extends": [

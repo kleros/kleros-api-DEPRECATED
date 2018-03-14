@@ -31,11 +31,11 @@ describe('Dispute Resolution', () => {
 
     web3 = await new Web3(provider)
 
-    partyA = web3.eth.accounts[0]
-    partyB = web3.eth.accounts[1]
-    juror1 = web3.eth.accounts[2]
-    juror2 = web3.eth.accounts[3]
-    other = web3.eth.accounts[4]
+    partyA = web3.eth.accounts[5]
+    partyB = web3.eth.accounts[6]
+    juror1 = web3.eth.accounts[7]
+    juror2 = web3.eth.accounts[8]
+    other = web3.eth.accounts[9]
 
     storeProvider = await KlerosInstance.getStoreWrapper()
 
