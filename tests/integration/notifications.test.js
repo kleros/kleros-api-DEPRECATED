@@ -34,11 +34,11 @@ describe('Notifications and Event Listeners', () => {
 
     web3 = await new Web3(provider)
 
-    partyA = web3.eth.accounts[0]
-    partyB = web3.eth.accounts[1]
-    juror1 = web3.eth.accounts[2]
-    juror2 = web3.eth.accounts[3]
-    other = web3.eth.accounts[4]
+    partyA = web3.eth.accounts[10]
+    partyB = web3.eth.accounts[11]
+    juror1 = web3.eth.accounts[12]
+    juror2 = web3.eth.accounts[13]
+    other = web3.eth.accounts[14]
 
     storeProvider = await KlerosInstance.getStoreWrapper()
 
