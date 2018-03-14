@@ -128,7 +128,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
         gas: ethConstants.TRANSACTION.GAS,
         value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
       })
-      const data = await this.getData(contractAddress)
       return txHashObj.tx
     } catch (err) {
       throw new Error(err)

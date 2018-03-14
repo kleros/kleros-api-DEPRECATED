@@ -40,16 +40,6 @@ class Arbitrator extends AbstractWrapper {
       account
     )
     if (txHash) {
-      // update store so user can get instantaneous feedback
-      const userProfile = await this._StoreProvider.setUpUserProfile(account)
-      // FIXME seems like a super hacky way to update store
-      userProfile.balance =
-        (parseInt(userProfile.balance, 10) ? userProfile.balance : 0) +
-        parseInt(amount, 10)
-      delete userProfile._id
-      delete userProfile.created_at
-      await this._StoreProvider.newUserProfile(account, userProfile)
-
       return this.getPNKBalance(arbitratorAddress, account)
     } else {
       throw new Error('unable to buy PNK')

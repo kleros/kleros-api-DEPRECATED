@@ -18,7 +18,7 @@ describe('Disputes', () => {
 
   const mockStore = {
     getUserProfile: jest.fn().mockReturnValue(_asyncMockResponse({})),
-    newUserProfile: jest.fn().mockReturnValue(_asyncMockResponse({}))
+    updateUserProfile: jest.fn().mockReturnValue(_asyncMockResponse({}))
   }
 
   beforeEach(async () => {

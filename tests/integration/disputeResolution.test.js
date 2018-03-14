@@ -3,7 +3,7 @@ import Web3 from 'web3'
 import Kleros from '../../src/kleros'
 import * as ethConstants from '../../src/constants/eth'
 
-import { setUpContracts } from './helpers'
+import { setUpContracts, resetUserProfile } from './helpers'
 
 describe('Dispute Resolution', () => {
   let partyA
@@ -40,7 +40,7 @@ describe('Dispute Resolution', () => {
     storeProvider = await KlerosInstance.getStoreWrapper()
 
     klerosPOCData = {
-      timesPerPeriod: [1,1,1,1,1],
+      timesPerPeriod: [1, 1, 1, 1, 1],
       account: other,
       value: 0
     }
@@ -49,12 +49,12 @@ describe('Dispute Resolution', () => {
       partyA,
       partyB,
       value: 1,
-      hash: "test",
+      hash: 'test',
       timeout: 1,
       extraData: '',
-      title: "test title",
-      description: "test description",
-      email: "test@test.test",
+      title: 'test title',
+      description: 'test description',
+      email: 'test@test.test'
     }
 
     klerosPOCAddress = undefined
@@ -65,17 +65,17 @@ describe('Dispute Resolution', () => {
 
   beforeEach(async () => {
     // reset user profile in store
-    await storeProvider.newUserProfile(partyA, { address: partyA })
-    await storeProvider.newUserProfile(partyB, { address: partyB })
-    await storeProvider.newUserProfile(juror1, { address: juror1 })
-    await storeProvider.newUserProfile(juror2, { address: juror2 })
-    await storeProvider.newUserProfile(other, { address: other })
+    await resetUserProfile(storeProvider, partyA)
+    await resetUserProfile(storeProvider, partyB)
+    await resetUserProfile(storeProvider, juror1)
+    await resetUserProfile(storeProvider, juror2)
+    await resetUserProfile(storeProvider, other)
   })
 
   it(
     'KlerosPOC full dispute resolution flow',
     async () => {
-      [
+      ;[
         klerosPOCAddress,
         arbitrableContractAddress,
         rngAddress,
@@ -124,7 +124,9 @@ describe('Dispute Resolution', () => {
       )
 
       // load klerosPOC
-      const klerosPOCInstance = await KlerosInstance.klerosPOC.load(klerosPOCAddress)
+      const klerosPOCInstance = await KlerosInstance.klerosPOC.load(
+        klerosPOCAddress
+      )
 
       const juror1Data = await klerosPOCInstance.jurors(juror1)
       expect(juror1Data[2].toNumber()).toEqual(
@@ -186,9 +188,7 @@ describe('Dispute Resolution', () => {
         klerosPOCAddress,
         0
       )
-      expect(dispute.arbitratedContract).toEqual(
-        arbitrableContractAddress
-      )
+      expect(dispute.arbitratedContract).toEqual(arbitrableContractAddress)
       expect(dispute.firstSession).toEqual(
         (await klerosPOCInstance.session()).toNumber()
       )
@@ -348,11 +348,7 @@ describe('Dispute Resolution', () => {
       )
 
       // execute ruling
-      await KlerosInstance.klerosPOC.executeRuling(
-        klerosPOCAddress,
-        0,
-        other
-      )
+      await KlerosInstance.klerosPOC.executeRuling(klerosPOCAddress, 0, other)
       // balances after ruling
       // partyA wins so they should recieve their arbitration fee as well as the value locked in contract
       if (winningRuling === rulingJuror1) {
@@ -379,6 +375,6 @@ describe('Dispute Resolution', () => {
         klerosPOCAddress
       )
     },
-    50000
+    80000
   )
 })

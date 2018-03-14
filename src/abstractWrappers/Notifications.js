@@ -18,7 +18,7 @@ class Notifications extends AbstractWrapper {
    * register event listeners for arbitrator.
    * @param {string} arbitratorAddress - The arbitrator contract's address.
    * @param {string} account - Filter notifications for account.
-   * @param {function} callback - If we want notifications to be "pushed" provide a callback function to call when a new notificiation is created.
+   * @param {function} callback - If we want notifications to be "pushed" provide a callback function to call when a new notification is created.
    */
   registerNotificationListeners = async (
     arbitratorAddress,
@@ -62,7 +62,7 @@ class Notifications extends AbstractWrapper {
     isJuror = true
   ) => {
     const notifications = []
-    const userProfile = await this._StoreProvider.getUserProfile(account) // FIXME have caller pass this instead?
+    const userProfile = await this._StoreProvider.getUserProfile(account)
     const currentPeriod = await this._Arbitrator.getPeriod(arbitratorAddress)
     const currentSession = await this._Arbitrator.getSession(arbitratorAddress)
 
@@ -164,7 +164,6 @@ class Notifications extends AbstractWrapper {
 
     // Repartition and execute
     if (currentPeriod === arbitratorConstants.PERIOD.EXECUTE) {
-      console.log("should be here...")
       await Promise.all(
         userProfile.disputes.map(async dispute => {
           const disputeData = await this._Arbitrator.getDispute(
@@ -175,9 +174,7 @@ class Notifications extends AbstractWrapper {
             disputeData.firstSession + disputeData.numberOfAppeals ===
             currentSession
           ) {
-            console.log("checking")
             if (disputeData.state <= disputeConstants.STATE.RESOLVING) {
-              console.log("pushing")
               notifications.push(
                 this._createNotification(
                   notificationConstants.TYPE.CAN_REPARTITION,
@@ -205,9 +202,7 @@ class Notifications extends AbstractWrapper {
           }
         })
       )
-      console.log(notifications)
     }
-    console.log("done")
     return notifications
   }
 
@@ -226,10 +221,10 @@ class Notifications extends AbstractWrapper {
    * @param {string} account address of user
    * @param {string} txHash hash of transaction that produced event
    * @param {number} logIndex index of the log. used to differentiate logs if multiple logs per tx
+   * @returns {promise} promise that can be waited on for syncronousity
    */
-  markNotificationAsRead = async (account, txHash, logIndex) => {
+  markNotificationAsRead = async (account, txHash, logIndex) =>
     this._StoreProvider.markNotificationAsRead(account, txHash, logIndex, true)
-  }
 
   /**
    * Fetch all user notifications.
