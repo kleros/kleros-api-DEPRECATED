@@ -47,7 +47,7 @@
     "esdoc": "^1.0.4",
     "esdoc-ecmascript-proposal-plugin": "^1.0.0",
     "esdoc-standard-plugin": "^1.0.0",
-    "ganache-cli": "^6.0.3",
+    "ganache-cli": "^6.1.0",
     "husky": "^0.14.3",
     "jest": "^22.4.2",
     "kleros-scripts": "^0.4.0",
