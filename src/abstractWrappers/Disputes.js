@@ -91,10 +91,11 @@ class Disputes extends AbstractWrapper {
         const dispute = userProfile.disputes[disputeIndex]
         await this._StoreProvider.updateDisputeProfile(
           address,
-          dispute.appealDraws,
           dispute.arbitratorAddress,
           dispute.disputeId,
-          (dispute.netPNK ? dispute.netPNK : 0) + amountShift
+          {
+            netPNK: (dispute.netPNK ? dispute.netPNK : 0) + amountShift
+          }
         )
       }
     }
@@ -360,7 +361,9 @@ class Disputes extends AbstractWrapper {
         })
       )
 
-      this._StoreProvider.updateUserProfileSession(account, currentSession)
+      this._StoreProvider.updateUserProfile(account, {
+        session: currentSession
+      })
     }
 
     return _getDisputesForUserFromStore(account)
@@ -546,10 +549,11 @@ class Disputes extends AbstractWrapper {
     // update profile for account
     await this._StoreProvider.updateDisputeProfile(
       account,
-      storedDisputeData.appealDraws,
       disputeData.arbitratorAddress,
       disputeData.disputeId,
-      disputeData.netPNK ? disputeData.netPNK : 0
+      {
+        appealDraws: storedDisputeData.appealDraws
+      }
     )
 
     return dispute

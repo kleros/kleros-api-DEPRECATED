@@ -5,7 +5,6 @@ import * as ethConstants from '../../src/constants/eth'
 
 describe('StoreProviderWrapper', () => {
   let KlerosInstance
-  let web3
   let storeProvider
 
   beforeAll(async () => {
@@ -15,8 +14,6 @@ describe('StoreProviderWrapper', () => {
     )
 
     KlerosInstance = await new Kleros(provider)
-
-    web3 = await new Web3(provider)
 
     storeProvider = await KlerosInstance.getStoreWrapper()
   })

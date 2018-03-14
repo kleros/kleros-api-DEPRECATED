@@ -75,3 +75,6 @@ export const waitNotifications = (
 
   return { promise, callback, setAmount }
 }
+
+export const resetUserProfile = async (storeProvider, account) =>
+  storeProvider.resetUserProfile(account)

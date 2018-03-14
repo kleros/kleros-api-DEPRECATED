@@ -138,7 +138,9 @@ class EventListeners extends AbstractWrapper {
   _queueEvent = async (handler, event) => {
     const eventTask = async () => {
       await handler(event)
-      await this._StoreProvider.updateLastBlock(this.account, event.blockNumber)
+      await this._StoreProvider.updateUserProfile(this.account, {
+        lastBlock: event.blockNumber
+      })
     }
 
     this.eventHandlerQueue.push(eventTask)

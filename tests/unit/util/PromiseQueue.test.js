@@ -36,7 +36,7 @@ describe('PromiseQueue', () => {
     promiseQueue.push(promiseB)
 
     await delaySecond(1)
-    expect(resolvedValues).toEqual([1,2])
+    expect(resolvedValues).toEqual([1, 2])
   })
 
   it('get return value from promise in queue', async () => {
