@@ -135,7 +135,6 @@ describe('Dispute Resolution', () => {
       expect(juror1Data[4].toNumber() - juror1Data[3].toNumber()).toEqual(
         parseInt(web3.toWei(activatedTokenAmount, 'ether'), 10)
       )
-
       // return a bigint
       // FIXME use arbitrableTransaction
       const arbitrableContractInstance = await KlerosInstance.arbitrableTransaction.load(
@@ -183,7 +182,6 @@ describe('Dispute Resolution', () => {
       expect(txHashRaiseDisputeByPartyB).toEqual(
         expect.stringMatching(/^0x[a-f0-9]{64}$/)
       ) // tx hash
-
       const dispute = await KlerosInstance.klerosPOC.getDispute(
         klerosPOCAddress,
         0
@@ -205,7 +203,6 @@ describe('Dispute Resolution', () => {
         0
       )
       expect(resolutionOptions.length).toEqual(2)
-
       // add an evidence for partyA
       const testName = 'test name'
       const testDesc = 'test description'
@@ -230,7 +227,6 @@ describe('Dispute Resolution', () => {
         arbitrableContractAddress,
         partyA
       )
-
       expect(contractStoreData.evidences[0].url).toBe(testURL)
       expect(contractStoreData.evidences[0].submittedAt).toBeTruthy()
 
@@ -321,7 +317,6 @@ describe('Dispute Resolution', () => {
         drawB,
         juror2
       )
-
       const winningRuling =
         drawA.length > drawB.length ? rulingJuror1 : rulingJuror2
 
@@ -346,7 +341,6 @@ describe('Dispute Resolution', () => {
         0,
         other
       )
-
       // execute ruling
       await KlerosInstance.klerosPOC.executeRuling(klerosPOCAddress, 0, other)
       // balances after ruling
@@ -375,6 +369,6 @@ describe('Dispute Resolution', () => {
         klerosPOCAddress
       )
     },
-    80000
+    100000
   )
 })

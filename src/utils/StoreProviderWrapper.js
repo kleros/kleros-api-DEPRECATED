@@ -140,7 +140,7 @@ class StoreProviderWrapper {
   getLastBlock = async account => {
     const userProfile = await this.getUserProfile(account)
 
-    return userProfile.lastBlock ? userProfile.lastBlock : 0
+    return userProfile.lastBlock || 0
   }
 
   getDispute = async (arbitratorAddress, disputeId) => {
@@ -157,7 +157,7 @@ class StoreProviderWrapper {
   // **************************** //
 
   resetUserProfile = async account => {
-    const getBodyFn = async () =>
+    const getBodyFn = () =>
       new Promise(resolve =>
         resolve(
           JSON.stringify({
@@ -179,22 +179,15 @@ class StoreProviderWrapper {
    * @param {object} params object containing kwargs to update
    * @returns {promise} resulting profile
    */
-  updateUserProfile = async (account, params = {}) => {
+  updateUserProfile = (account, params = {}) => {
     const getBodyFn = async () => {
       const currentProfile = (await this.getUserProfile(account)) || {}
+      delete currentProfile._id
+      delete currentProfile.created_at
 
-      return new Promise(resolve => {
-        resolve(
-          JSON.stringify({
-            address: account,
-            session: params.session || currentProfile.session,
-            lastBlock: params.session || currentProfile.session,
-            contracts: params.contracts || currentProfile.contracts, // DANGER use contract updating methods
-            disputes: params.disputes || currentProfile.disputes, // DANGER user dispute updating methods
-            notifications: params.notifications || currentProfile.notifications // DANGER user notification updating methods
-          })
-        )
-      })
+      params.address = account
+
+      return JSON.stringify({ ...currentProfile, ...params })
     }
 
     return this.queueWriteRequest(
@@ -219,30 +212,18 @@ class StoreProviderWrapper {
     return userProfile
   }
 
-  updateContract = async (account, address, params) => {
+  updateContract = (account, address, params) => {
     const getBodyFn = async () => {
       let currentContractData = await this.getContractByAddress(
         account,
         address
       )
       if (!currentContractData) currentContractData = {}
+      delete currentContractData._id
 
-      return new Promise(resolve =>
-        resolve(
-          JSON.stringify({
-            address: address || currentContractData.address,
-            hashContract: params.hashContract || currentContractData.hash,
-            partyA: params.partyA || currentContractData.partyA,
-            partyB: params.partyB || currentContractData.partyB,
-            arbitrator: params.arbitrator || currentContractData.arbitrator,
-            timeout: params.timeout || currentContractData.timeout,
-            email: params.email || currentContractData.email,
-            title: params.title || currentContractData.title,
-            description: params.description || currentContractData.description,
-            disputeId: params.disputeId || currentContractData.disputeId
-          })
-        )
-      )
+      params.address = address
+
+      return JSON.stringify({ ...currentContractData, ...params })
     }
 
     return this.queueWriteRequest(
@@ -252,7 +233,7 @@ class StoreProviderWrapper {
     )
   }
 
-  addEvidenceContract = async (address, account, name, description, url) => {
+  addEvidenceContract = (address, account, name, description, url) => {
     // get timestamp for submission
     const submittedAt = new Date().getTime()
 
@@ -275,12 +256,7 @@ class StoreProviderWrapper {
     )
   }
 
-  updateDisputeProfile = async (
-    account,
-    arbitratorAddress,
-    disputeId,
-    params
-  ) => {
+  updateDisputeProfile = (account, arbitratorAddress, disputeId, params) => {
     const getBodyFn = async () => {
       const userProfile = await this.getUserProfile(account)
 
@@ -292,18 +268,12 @@ class StoreProviderWrapper {
       )
 
       const currentDisputeProfile = userProfile.disputes[disputeIndex] || {}
+      delete currentDisputeProfile._id
+      // set these so if it is a new dispute they are included
+      params.disputeId = disputeId
+      params.arbitratorAddress = arbitratorAddress
 
-      return new Promise(resolve =>
-        resolve(
-          JSON.stringify({
-            arbitratorAddress: arbitratorAddress,
-            disputeId: disputeId,
-            appealDraws:
-              params.appealDraws || currentDisputeProfile.appealDraws,
-            netPNK: params.netPNK || currentDisputeProfile.netPNK
-          })
-        )
-      )
+      return JSON.stringify({ ...currentDisputeProfile, ...params })
     }
 
     return this.queueWriteRequest(
@@ -319,31 +289,13 @@ class StoreProviderWrapper {
     const getBodyFn = async () => {
       const currentDispute =
         (await this.getDispute(arbitratorAddress, disputeId)) || {}
+      delete currentDispute._id
+      delete currentDispute.updated_at
 
-      return new Promise(resolve =>
-        resolve(
-          JSON.stringify({
-            disputeId,
-            arbitratorAddress,
-            arbitrableContractAddress:
-              params.arbitrableContractAddress ||
-              currentDispute.arbitrableContractAddress,
-            partyA: params.partyA || currentDispute.partyA,
-            partyB: params.partyB || currentDispute.partyB,
-            title: params.title || currentDispute.title,
-            status: params.status || currentDispute.status,
-            information: params.information || currentDispute.information,
-            justification: params.justification || currentDispute.justification,
-            resolutionOptions:
-              params.resolutionOptions || currentDispute.resolutionOptions,
-            appealCreatedAt:
-              params.appealCreatedAt || currentDispute.appealCreatedAt,
-            appealRuledAt: params.appealRuledAt || currentDispute.appealRuledAt,
-            appealDeadlines:
-              params.appealDeadlines || currentDispute.appealDeadlines
-          })
-        )
-      )
+      params.arbitratorAddress = arbitratorAddress
+      params.disputeId = disputeId
+
+      return JSON.stringify({ ...currentDispute, ...params })
     }
 
     return this.queueWriteRequest(
@@ -362,7 +314,7 @@ class StoreProviderWrapper {
     data = {},
     read = false
   ) => {
-    const getBodyFn = async () =>
+    const getBodyFn = () =>
       new Promise(resolve =>
         resolve(
           JSON.stringify({
@@ -399,7 +351,7 @@ class StoreProviderWrapper {
       userProfile.notifications[notificationIndex].read = isRead
       delete userProfile._id
       delete userProfile.created_at
-      return new Promise(resolve => resolve(JSON.stringify(userProfile)))
+      return JSON.stringify(userProfile)
     }
 
     return this.queueWriteRequest(
