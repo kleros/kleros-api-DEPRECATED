@@ -30,7 +30,7 @@ class Disputes extends AbstractWrapper {
       contractAddress = arbitratorAddress,
       address = account
     ) => {
-      const disputeId = event.args._disputeId.toNumber()
+      const disputeId = event.args._disputeID.toNumber()
       const disputeData = await this.getDataForDispute(
         contractAddress,
         disputeId,
@@ -74,7 +74,7 @@ class Disputes extends AbstractWrapper {
       contractAddress = arbitratorAddress,
       address = defaultAccount
     ) => {
-      const disputeId = event.args._disputeId.toNumber()
+      const disputeId = event.args._disputeID.toNumber()
       const account = event.args._account
       const amountShift = event.args._amount.toNumber()
       // juror won/lost tokens

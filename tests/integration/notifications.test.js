@@ -460,6 +460,6 @@ describe('Notifications and Event Listeners', () => {
       )
       // TODO find way to check timestamps and other non-callback notifications
     },
-    200000
+    250000
   )
 })
