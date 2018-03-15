@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import PromiseQueue from '../../util/PromiseQueue'
+import PromiseQueue from './PromiseQueue'
 
 class StoreProviderWrapper {
   constructor(storeProviderUri) {
