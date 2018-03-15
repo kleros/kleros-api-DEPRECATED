@@ -1,4 +1,4 @@
-import PromiseQueue from '../../util/PromiseQueue'
+import PromiseQueue from '../utils/PromiseQueue'
 
 import AbstractWrapper from './AbstractWrapper'
 

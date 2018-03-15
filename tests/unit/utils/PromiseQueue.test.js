@@ -1,4 +1,4 @@
-import PromiseQueue from '../../../util/PromiseQueue'
+import PromiseQueue from '../../../src/utils/PromiseQueue'
 
 describe('PromiseQueue', () => {
   let promiseQueue
