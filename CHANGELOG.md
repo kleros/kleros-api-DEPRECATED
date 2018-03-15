@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.0.69"></a>
+## [0.0.69](https://github.com/kleros/kleros-api/compare/v0.0.68...v0.0.69) (2018-03-15)
+
+
+### Bug Fixes
+
+* untranspiled files outside src directory ([83f1d59](https://github.com/kleros/kleros-api/commit/83f1d59))
+
+
+
 <a name="0.0.68"></a>
 
 ## [0.0.68](https://github.com/kleros/kleros-api/compare/v0.0.65...v0.0.68) (2018-03-15)
