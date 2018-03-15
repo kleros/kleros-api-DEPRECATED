@@ -126,8 +126,8 @@ class PinakionWrapper extends ContractWrapper {
     const contractInstance = await this.load(contractAddress)
 
     const [owner, kleros] = await Promise.all([
-      contractInstance.owner.call(),
-      contractInstance.kleros.call()
+      contractInstance.owner(),
+      contractInstance.kleros()
     ]).catch(err => {
       throw new Error(err)
     })

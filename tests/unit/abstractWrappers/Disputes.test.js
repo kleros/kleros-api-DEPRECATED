@@ -1,5 +1,5 @@
-import DisputesApi from '../../src/abstractWrappers/Disputes'
-import * as arbitratorConstants from '../../src/constants/arbitrator'
+import DisputesApi from '../../../src/abstractWrappers/Disputes'
+import * as arbitratorConstants from '../../../src/constants/arbitrator'
 
 describe('Disputes', () => {
   let mockArbitratorWrapper = {}
@@ -18,7 +18,7 @@ describe('Disputes', () => {
 
   const mockStore = {
     getUserProfile: jest.fn().mockReturnValue(_asyncMockResponse({})),
-    newUserProfile: jest.fn().mockReturnValue(_asyncMockResponse({}))
+    updateUserProfile: jest.fn().mockReturnValue(_asyncMockResponse({}))
   }
 
   beforeEach(async () => {
@@ -76,8 +76,8 @@ describe('Disputes', () => {
 
       disputesInstance._Arbitrator.getDispute = mockGetDispute
 
-      // mock getVotesForJuror to say juror is selected
-      disputesInstance.getVotesForJuror = jest
+      // mock getDrawsForJuror to say juror is selected
+      disputesInstance.getDrawsForJuror = jest
         .fn()
         .mockReturnValue(_asyncMockResponse([1]))
 
@@ -124,8 +124,8 @@ describe('Disputes', () => {
 
       disputesInstance._Arbitrator.getDispute = mockGetDispute
 
-      // mock getVotesForJuror to say juror has no votes
-      disputesInstance.getVotesForJuror = jest
+      // mock getDrawsForJuror to say juror has no votes
+      disputesInstance.getDrawsForJuror = jest
         .fn()
         .mockReturnValue(_asyncMockResponse([]))
 
@@ -172,8 +172,8 @@ describe('Disputes', () => {
 
       disputesInstance._Arbitrator.getDispute = mockGetDispute
 
-      // mock getVotesForJuror to say juror is selected
-      disputesInstance.getVotesForJuror = jest
+      // mock getDrawsForJuror to say juror is selected
+      disputesInstance.getDrawsForJuror = jest
         .fn()
         .mockReturnValue(_asyncMockResponse([1]))
 
@@ -220,8 +220,8 @@ describe('Disputes', () => {
 
       disputesInstance._Arbitrator.getDispute = mockGetDispute
 
-      // mock getVotesForJuror to say juror has votes so we will know if it is getting further than we expect
-      disputesInstance.getVotesForJuror = jest
+      // mock getDrawsForJuror to say juror has votes so we will know if it is getting further than we expect
+      disputesInstance.getDrawsForJuror = jest
         .fn()
         .mockReturnValue(_asyncMockResponse([1]))
 

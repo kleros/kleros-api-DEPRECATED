@@ -132,7 +132,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
         gas: ethConstants.TRANSACTION.GAS,
         value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
       })
-
       return txHashObj.tx
     } catch (err) {
       throw new Error(err)
@@ -207,10 +206,9 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     try {
       this.contractInstance = await this.load(contractAddress)
 
-      const status = await this.contractInstance.status.call()
-      const timeout = await this.contractInstance.timeout.call()
-      const lastInteraction = await this.contractInstance.lastInteraction.call()
-
+      const status = (await this.contractInstance.status()).toNumber()
+      const timeout = (await this.contractInstance.timeout()).toNumber()
+      const lastInteraction = (await this.contractInstance.lastInteraction()).toNumber()
       if (status !== contractConstants.STATUS.WAITING_PARTY_B) {
         throw new Error('Status contract is not WAITING_PARTY_B')
       }
@@ -238,15 +236,15 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @returns {string} - txHash Hash transaction.
    */
   callTimeOutPartyB = async (
-    account = this._Web3Wrapper.getAccount(0),
+    account = this._Web3Wrapper.getAccount(1),
     contractAddress
   ) => {
     try {
       this.contractInstance = await this.load(contractAddress)
 
-      const status = await this.contractInstance.status.call()
-      const timeout = await this.contractInstance.timeout.call()
-      const lastInteraction = await this.contractInstance.lastInteraction.call()
+      const status = await this.contractInstance.status()
+      const timeout = await this.contractInstance.timeout()
+      const lastInteraction = await this.contractInstance.lastInteraction()
 
       if (status !== contractConstants.STATUS.WAITING_PARTY_A) {
         throw new Error('Status contract is not WAITING_PARTY_A')
@@ -334,7 +332,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
 
     const [
       arbitrator,
-      // hashContract, // FIXME getter for the hash contract see contractHash see https://github.com/kleros/kleros-interaction/blob/master/test/TwoPartyArbitrable.js#L19
       extraData,
       timeout,
       partyA,
@@ -347,19 +344,19 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       lastInteraction,
       amount
     ] = await Promise.all([
-      contractInstance.arbitrator.call(),
-      contractInstance.arbitratorExtraData.call(),
-      //  contractInstance.hashContract.call(),
-      contractInstance.timeout.call(),
-      contractInstance.partyA.call(),
-      contractInstance.partyB.call(),
-      contractInstance.status.call(),
-      contractInstance.arbitratorExtraData.call(),
-      contractInstance.disputeID.call(),
-      contractInstance.partyAFee.call(),
-      contractInstance.partyBFee.call(),
-      contractInstance.lastInteraction.call(),
-      contractInstance.amount.call()
+      contractInstance.arbitrator(),
+      contractInstance.arbitratorExtraData(),
+      //  contractInstance.hashContract(),
+      contractInstance.timeout(),
+      contractInstance.partyA(),
+      contractInstance.partyB(),
+      contractInstance.status(),
+      contractInstance.arbitratorExtraData(),
+      contractInstance.disputeID(),
+      contractInstance.partyAFee(),
+      contractInstance.partyBFee(),
+      contractInstance.lastInteraction(),
+      contractInstance.amount()
     ]).catch(err => {
       throw new Error(err)
     })
@@ -376,8 +373,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       disputeId: disputeId.toNumber(),
       partyAFee: this._Web3Wrapper.fromWei(partyAFee, 'ether'),
       partyBFee: this._Web3Wrapper.fromWei(partyBFee, 'ether'),
-      lastInteraction,
-      amount
+      lastInteraction: lastInteraction.toNumber(),
+      amount: amount.toNumber()
     }
   }
 }

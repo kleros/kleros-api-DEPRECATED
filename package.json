@@ -1,9 +1,12 @@
 {
   "name": "kleros-api",
-  "version": "0.0.62",
-  "description":
-    "A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol.",
-  "keywords": ["Blockchain", "Ethereum", "Kleros"],
+  "version": "0.0.67",
+  "description": "A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol.",
+  "keywords": [
+    "Blockchain",
+    "Ethereum",
+    "Kleros"
+  ],
   "homepage": "https://kleros.io",
   "repository": "github:kleros/kleros-api",
   "bugs": "https://github.com/kleros/kleros-api/issues",
@@ -19,6 +22,7 @@
   "scripts": {
     "prettify": "kleros-scripts prettify",
     "lint": "kleros-scripts lint:js --config ./.eslintrc.js",
+    "ganache": "ganache-cli -a 15",
     "test": "jest --config ./jest.config.js",
     "test:coveralls": "coveralls < ./coverage/lcov.info",
     "precommit": "kleros-scripts precommit",
@@ -28,7 +32,9 @@
     "build": "webpack --env.NODE_ENV=production -p"
   },
   "commitlint": {
-    "extends": ["@commitlint/config-conventional"]
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -41,7 +47,7 @@
     "esdoc": "^1.0.4",
     "esdoc-ecmascript-proposal-plugin": "^1.0.0",
     "esdoc-standard-plugin": "^1.0.0",
-    "ganache-cli": "^6.0.3",
+    "ganache-cli": "^6.1.0",
     "husky": "^0.14.3",
     "jest": "^22.4.2",
     "kleros-scripts": "^0.4.0",

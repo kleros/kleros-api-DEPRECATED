@@ -56,15 +56,18 @@ class ArbitrableContract extends AbstractWrapper {
     )
 
     await this._StoreProvider.updateContract(
-      contractInstance.address,
-      hashContract,
       account,
-      partyB,
-      arbitratorAddress,
-      timeout,
-      email,
-      title,
-      description
+      contractInstance.address,
+      {
+        hashContract,
+        partyA: account,
+        partyB,
+        arbitrator: arbitratorAddress,
+        timeout,
+        email,
+        title,
+        description
+      }
     )
 
     // return contract data

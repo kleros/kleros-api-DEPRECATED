@@ -1,8 +1,11 @@
 import _ from 'lodash'
 
+import PromiseQueue from '../../util/PromiseQueue'
+
 class StoreProviderWrapper {
   constructor(storeProviderUri) {
     this._storeUri = storeProviderUri
+    this._storeQueue = new PromiseQueue()
   }
 
   _makeRequest = (verb, uri, body = null) => {
@@ -36,6 +39,30 @@ class StoreProviderWrapper {
     })
   }
 
+  /**
+   * use the queue for write request. this allows a function to be passed so we can read immediately before we write
+   * @param {fn} getBodyFn async function to call before we write. Should to reads and return JSON to be used as body.
+   * @param {string} verb POST or PUT
+   * @param {string} uri uri to call
+   * @returns {promise} promise that returns result of request. wait on this if you need it to be syncronous
+   */
+  queueWriteRequest = (getBodyFn, verb, uri = null) =>
+    this._storeQueue.fetch(() =>
+      getBodyFn().then(result => this._makeRequest(verb, uri, result))
+    )
+
+  /**
+   * If we know we are waiting on some other write before we want to read we can add a read request to the end of the queue.
+   * @param {string} uri uri to hit
+   * @returns {promise} promise of the result function
+   */
+  queueReadRequest = uri =>
+    this._storeQueue.fetch(() => this._makeRequest('GET', uri))
+
+  // **************************** //
+  // *          Read            * //
+  // **************************** //
+
   getUserProfile = async userAddress => {
     const httpResponse = await this._makeRequest(
       'GET',
@@ -43,40 +70,6 @@ class StoreProviderWrapper {
     )
 
     return httpResponse.body
-  }
-
-  newUserProfile = async (address, userProfile) => {
-    const httpResponse = await this._makeRequest(
-      'POST',
-      `${this._storeUri}/${address}`,
-      JSON.stringify(userProfile)
-    )
-
-    return httpResponse
-  }
-
-  /**
-   * Set up a new user profile if one does not exist
-   * @param {string} address user's address
-   * @returns {object} users existing or created profile
-   */
-  setUpUserProfile = async address => {
-    let userProfile = await this.getUserProfile(address)
-    if (_.isNull(userProfile)) userProfile = await this.newUserProfile(address)
-
-    return userProfile
-  }
-
-  updateUserProfile = async (address, userProfile) => {
-    delete userProfile._id
-    delete userProfile.created_at
-    const httpResponse = await this._makeRequest(
-      'POST',
-      `${this._storeUri}/${address}`,
-      JSON.stringify(userProfile)
-    )
-
-    return httpResponse
   }
 
   getDisputeData = async (arbitratorAddress, disputeId, userAddress) => {
@@ -121,136 +114,6 @@ class StoreProviderWrapper {
     return contract[0]
   }
 
-  updateContract = async (
-    address,
-    hashContract,
-    account,
-    partyB,
-    arbitratorAddress,
-    timeout,
-    email,
-    title,
-    description,
-    disputeId
-  ) => {
-    const httpResponse = await this._makeRequest(
-      'POST',
-      `${this._storeUri}/${account}/contracts/${address}`,
-      JSON.stringify({
-        address,
-        hashContract,
-        partyA: account,
-        partyB,
-        arbitrator: arbitratorAddress,
-        timeout,
-        email,
-        title,
-        description,
-        disputeId
-      })
-    )
-
-    return httpResponse
-  }
-
-  addEvidenceContract = async (address, account, name, description, url) => {
-    // get timestamp for submission
-    const submittedAt = new Date().getTime()
-    const httpResponse = await this._makeRequest(
-      'POST',
-      `${this._storeUri}/${account}/contracts/${address}/evidence`,
-      JSON.stringify({
-        name,
-        description,
-        url,
-        submittedAt
-      })
-    )
-
-    return httpResponse
-  }
-
-  getDispute = async (arbitratorAddress, disputeId) => {
-    const httpResponse = await this._makeRequest(
-      'GET',
-      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
-    )
-
-    return httpResponse.body
-  }
-
-  // FIXME very complicated to update
-  updateDisputeProfile = async (
-    account,
-    votes,
-    arbitratorAddress,
-    disputeId,
-    isJuror,
-    hasRuled,
-    netPNK
-  ) => {
-    const httpResponse = await this._makeRequest(
-      'POST',
-      `${
-        this._storeUri
-      }/${account}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`,
-      JSON.stringify({
-        votes,
-        arbitratorAddress,
-        disputeId,
-        isJuror,
-        hasRuled,
-        netPNK
-      })
-    )
-
-    return httpResponse
-  }
-
-  // FIXME very complicated to update
-  updateDispute = async (
-    disputeId,
-    arbitratorAddress,
-    hash,
-    arbitrableContractAddress,
-    partyA,
-    partyB,
-    title,
-    deadline,
-    status,
-    fee,
-    information,
-    justification,
-    resolutionOptions,
-    createdAt,
-    ruledAt
-  ) => {
-    const httpResponse = await this._makeRequest(
-      'POST',
-      `${
-        this._storeUri
-      }/arbitrators/${arbitratorAddress}/disputes/${disputeId}`,
-      JSON.stringify({
-        disputeId,
-        arbitratorAddress,
-        hash,
-        contractAddress: arbitrableContractAddress,
-        partyA,
-        partyB,
-        title,
-        deadline,
-        status,
-        fee,
-        information,
-        justification,
-        resolutionOptions,
-        createdAt,
-        ruledAt
-      })
-    )
-    return httpResponse
-  }
-
   getDisputesForUser = async address => {
     const userProfile = await this.getUserProfile(address)
     if (!userProfile) return []
@@ -277,15 +140,169 @@ class StoreProviderWrapper {
   getLastBlock = async account => {
     const userProfile = await this.getUserProfile(account)
 
-    return userProfile.lastBlock ? userProfile.lastBlock : 0
+    return userProfile.lastBlock || 0
   }
 
-  updateLastBlock = async (account, lastBlock) => {
-    const userProfile = await this.getUserProfile(account)
+  getDispute = async (arbitratorAddress, disputeId) => {
+    const httpResponse = await this._makeRequest(
+      'GET',
+      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
+    )
 
-    userProfile.lastBlock = lastBlock
-    const httpResponse = await this.updateUserProfile(account, userProfile)
-    return httpResponse
+    return httpResponse.body
+  }
+
+  // **************************** //
+  // *          Write           * //
+  // **************************** //
+
+  resetUserProfile = async account => {
+    const getBodyFn = () =>
+      new Promise(resolve =>
+        resolve(
+          JSON.stringify({
+            account
+          })
+        )
+      )
+
+    return this.queueWriteRequest(
+      getBodyFn,
+      'POST',
+      `${this._storeUri}/${account}`
+    )
+  }
+
+  /**
+   * Update user profile. NOTE: This should only be used for session and lastBlock. It is dangerous to overwrite arrays
+   * @param {string} account users account
+   * @param {object} params object containing kwargs to update
+   * @returns {promise} resulting profile
+   */
+  updateUserProfile = (account, params = {}) => {
+    const getBodyFn = async () => {
+      const currentProfile = (await this.getUserProfile(account)) || {}
+      delete currentProfile._id
+      delete currentProfile.created_at
+
+      params.address = account
+
+      return JSON.stringify({ ...currentProfile, ...params })
+    }
+
+    return this.queueWriteRequest(
+      getBodyFn,
+      'POST',
+      `${this._storeUri}/${account}`
+    )
+  }
+
+  /**
+   * Set up a new user profile if one does not exist
+   * @param {string} account user's address
+   * @returns {object} users existing or created profile
+   */
+  setUpUserProfile = async account => {
+    let userProfile = await this.getUserProfile(account)
+    if (_.isNull(userProfile)) {
+      this.updateUserProfile(account, {})
+      userProfile = await this.queueReadRequest(`${this._storeUri}/${account}`)
+    }
+
+    return userProfile
+  }
+
+  updateContract = (account, address, params) => {
+    const getBodyFn = async () => {
+      let currentContractData = await this.getContractByAddress(
+        account,
+        address
+      )
+      if (!currentContractData) currentContractData = {}
+      delete currentContractData._id
+
+      params.address = address
+
+      return JSON.stringify({ ...currentContractData, ...params })
+    }
+
+    return this.queueWriteRequest(
+      getBodyFn,
+      'POST',
+      `${this._storeUri}/${account}/contracts/${address}`
+    )
+  }
+
+  addEvidenceContract = (address, account, name, description, url) => {
+    // get timestamp for submission
+    const submittedAt = new Date().getTime()
+
+    const getBodyFn = () =>
+      new Promise(resolve =>
+        resolve(
+          JSON.stringify({
+            name,
+            description,
+            url,
+            submittedAt
+          })
+        )
+      )
+
+    return this.queueWriteRequest(
+      getBodyFn,
+      'POST',
+      `${this._storeUri}/${account}/contracts/${address}/evidence`
+    )
+  }
+
+  updateDisputeProfile = (account, arbitratorAddress, disputeId, params) => {
+    const getBodyFn = async () => {
+      const userProfile = await this.getUserProfile(account)
+
+      const disputeIndex = _.filter(
+        userProfile.disputes,
+        dispute =>
+          dispute.arbitratorAddress === arbitratorAddress &&
+          dispute.disputeId === disputeId
+      )
+
+      const currentDisputeProfile = userProfile.disputes[disputeIndex] || {}
+      delete currentDisputeProfile._id
+      // set these so if it is a new dispute they are included
+      params.disputeId = disputeId
+      params.arbitratorAddress = arbitratorAddress
+
+      return JSON.stringify({ ...currentDisputeProfile, ...params })
+    }
+
+    return this.queueWriteRequest(
+      getBodyFn,
+      'POST',
+      `${
+        this._storeUri
+      }/${account}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
+    )
+  }
+
+  updateDispute = async (arbitratorAddress, disputeId, params) => {
+    const getBodyFn = async () => {
+      const currentDispute =
+        (await this.getDispute(arbitratorAddress, disputeId)) || {}
+      delete currentDispute._id
+      delete currentDispute.updated_at
+
+      params.arbitratorAddress = arbitratorAddress
+      params.disputeId = disputeId
+
+      return JSON.stringify({ ...currentDispute, ...params })
+    }
+
+    return this.queueWriteRequest(
+      getBodyFn,
+      'POST',
+      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
+    )
   }
 
   newNotification = async (
@@ -297,18 +314,51 @@ class StoreProviderWrapper {
     data = {},
     read = false
   ) => {
-    const httpResponse = await this._makeRequest(
+    const getBodyFn = () =>
+      new Promise(resolve =>
+        resolve(
+          JSON.stringify({
+            notificationType,
+            logIndex,
+            read,
+            message,
+            data
+          })
+        )
+      )
+
+    return this.queueWriteRequest(
+      getBodyFn,
       'POST',
-      `${this._storeUri}/${account}/notifications/${txHash}`,
-      JSON.stringify({
-        notificationType,
-        logIndex,
-        read,
-        message,
-        data
-      })
+      `${this._storeUri}/${account}/notifications/${txHash}`
     )
-    return httpResponse
+  }
+
+  markNotificationAsRead = async (account, txHash, logIndex, isRead = true) => {
+    const getBodyFn = async () => {
+      const userProfile = await this.getUserProfile(account)
+
+      const notificationIndex = await _.findIndex(
+        userProfile.notifications,
+        notification =>
+          notification.txHash === txHash && notification.logIndex === logIndex
+      )
+
+      if (_.isNull(notificationIndex)) {
+        throw new TypeError(`No notification with txHash ${txHash} exists`)
+      }
+
+      userProfile.notifications[notificationIndex].read = isRead
+      delete userProfile._id
+      delete userProfile.created_at
+      return JSON.stringify(userProfile)
+    }
+
+    return this.queueWriteRequest(
+      getBodyFn,
+      'POST',
+      `${this._storeUri}/${account}`
+    )
   }
 }
 

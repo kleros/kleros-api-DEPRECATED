@@ -34,6 +34,30 @@ class ContractWrapper {
         ? await c.deployed()
         : await c.at(address)
 
+      // Estimate gas before sending transactions
+      for (const funcABI of contractInstance.abi) {
+        // Check for non-constant functions
+        if (funcABI.type === 'function' && funcABI.constant === false) {
+          const func = contractInstance[funcABI.name]
+
+          // eslint-disable-next-line no-loop-func
+          contractInstance[funcABI.name] = async (...args) => {
+            try {
+              await func.estimateGas(...args) // Estimate gas (also checks for possible failures)
+              return func(...args) // Call original function
+            } catch (err) {
+              throw err // TODO: Custom errors
+            }
+          }
+
+          // Keep reference to the original function for special cases
+          contractInstance[funcABI.name].original = func
+
+          // Forward other accessors to the original function
+          Object.setPrototypeOf(contractInstance[funcABI.name], func)
+        }
+      }
+
       return contractInstance
     } catch (err) {
       const errMsg = `${err}`

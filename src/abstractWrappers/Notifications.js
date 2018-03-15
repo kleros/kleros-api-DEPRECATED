@@ -18,7 +18,7 @@ class Notifications extends AbstractWrapper {
    * register event listeners for arbitrator.
    * @param {string} arbitratorAddress - The arbitrator contract's address.
    * @param {string} account - Filter notifications for account.
-   * @param {function} callback - If we want notifications to be "pushed" provide a callback function to call when a new notificiation is created.
+   * @param {function} callback - If we want notifications to be "pushed" provide a callback function to call when a new notification is created.
    */
   registerNotificationListeners = async (
     arbitratorAddress,
@@ -62,7 +62,7 @@ class Notifications extends AbstractWrapper {
     isJuror = true
   ) => {
     const notifications = []
-    const userProfile = await this._StoreProvider.getUserProfile(account) // FIXME have caller pass this instead?
+    const userProfile = await this._StoreProvider.getUserProfile(account)
     const currentPeriod = await this._Arbitrator.getPeriod(arbitratorAddress)
     const currentSession = await this._Arbitrator.getSession(arbitratorAddress)
 
@@ -92,12 +92,15 @@ class Notifications extends AbstractWrapper {
           )
         }
       } else if (currentPeriod === arbitratorConstants.PERIOD.VOTE) {
-        userProfile.disputes.forEach(dispute => {
-          if (
-            dispute.isJuror &&
-            dispute.votes.length > 0 &&
-            !dispute.hasRuled
-          ) {
+        for (let dispute of userProfile.disputes) {
+          const draws = dispute.appealDraws[dispute.appealDraws.length - 1]
+          const canVote = await this._Arbitrator.canRuleDispute(
+            dispute.arbitratorAddress,
+            dispute.disputeId,
+            draws,
+            account
+          )
+          if (canVote) {
             notifications.push(
               this._createNotification(
                 notificationConstants.TYPE.CAN_VOTE,
@@ -109,7 +112,7 @@ class Notifications extends AbstractWrapper {
               )
             )
           }
-        })
+        }
       }
     } else {
       /* Counterparty notifications:
@@ -200,7 +203,6 @@ class Notifications extends AbstractWrapper {
         })
       )
     }
-
     return notifications
   }
 
@@ -219,22 +221,10 @@ class Notifications extends AbstractWrapper {
    * @param {string} account address of user
    * @param {string} txHash hash of transaction that produced event
    * @param {number} logIndex index of the log. used to differentiate logs if multiple logs per tx
+   * @returns {promise} promise that can be waited on for syncronousity
    */
-  markNotificationAsRead = async (account, txHash, logIndex) => {
-    const profile = await this._StoreProvider.getUserProfile(account)
-    const notificationIndex = await _.findIndex(
-      profile.notifications,
-      notification =>
-        notification.txHash === txHash && notification.logIndex === logIndex
-    )
-
-    if (_.isNull(notificationIndex)) {
-      throw new TypeError(`No notification with txHash ${txHash} exists`)
-    }
-
-    profile.notifications[notificationIndex].read = true
-    await this._StoreProvider.updateUserProfile(account, profile)
-  }
+  markNotificationAsRead = (account, txHash, logIndex) =>
+    this._StoreProvider.markNotificationAsRead(account, txHash, logIndex, true)
 
   /**
    * Fetch all user notifications.

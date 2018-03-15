@@ -127,7 +127,7 @@ class KlerosWrapper extends ContractWrapper {
     // total tokens stored in contract
     const contractBalance = this._Web3Wrapper.fromWei(juror[0], 'ether')
     // tokens activated in court session
-    const currentSession = await contractInstance.session.call()
+    const currentSession = await contractInstance.session()
     let activatedTokens = 0
     if (juror[2].toNumber() === currentSession.toNumber()) {
       activatedTokens = this._Web3Wrapper.fromWei(
@@ -136,7 +136,7 @@ class KlerosWrapper extends ContractWrapper {
       )
     }
     // tokens locked into disputes
-    const lockedTokens = this._Web3Wrapper.fromWei(juror[2], 'ether')
+    const lockedTokens = this._Web3Wrapper.fromWei(juror[1], 'ether')
 
     return {
       activatedTokens,
@@ -206,7 +206,7 @@ class KlerosWrapper extends ContractWrapper {
   ) => {
     const contractInstance = await this.load(contractAddress)
     try {
-      await contractInstance.passPeriod({
+      await contractInstance.passPeriod.original({
         from: account,
         gas: ethConstants.TRANSACTION.GAS
       })
@@ -454,17 +454,43 @@ class KlerosWrapper extends ContractWrapper {
   }
 
   /**
+   * Can juror currently rule in dispute.
+   * @param {string} arbitratorAddress - address of arbitrator contract.
+   * @param {number} disputeId - index of dispute.
+   * @param {int[]} draws - voting positions for dispute.
+   * @param {string} account - address of user.
+   * @returns {bool} - Boolean indicating if juror can rule or not.
+   */
+  canRuleDispute = async (arbitratorAddress, disputeId, draws, account) => {
+    const contractInstance = await this.load(arbitratorAddress)
+
+    const validDraws = await contractInstance.validDraws(
+      account,
+      disputeId,
+      draws
+    )
+    const lastRuling = (await contractInstance.getLastSessionVote(
+      disputeId,
+      account
+    )).toNumber()
+    const currentSession = await this.getSession(arbitratorAddress)
+
+    return validDraws && lastRuling !== currentSession
+  }
+
+  /**
    * Get number of jurors for a dispute.
    * @param {string} contractAddress - Address of KlerosPOC contract.
    * @param {number} disputeId - Index of dispute.
+   * @param {number} appeal - Index of appeal.
    * @returns {number} - Int indicating the ruling of the dispute.
    */
-  currentRulingForDispute = async (contractAddress, disputeId) => {
+  currentRulingForDispute = async (contractAddress, disputeId, appeal) => {
     const contractInstance = await this.load(contractAddress)
 
-    const currentRuling = await contractInstance.currentRuling(disputeId)
+    const ruling = await contractInstance.getWinningChoice(disputeId, appeal)
 
-    return currentRuling.toNumber()
+    return ruling.toNumber()
   }
 
   /**
