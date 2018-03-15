@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.0.68"></a>
+
+## [0.0.68](https://github.com/kleros/kleros-api/compare/v0.0.65...v0.0.68) (2018-03-15)
+
+### Bug Fixes
+
+* **disputes:** fix bug in determining canRule ([49e2fc2](https://github.com/kleros/kleros-api/commit/49e2fc2))
+* check session of jurors last vote ([72645a0](https://github.com/kleros/kleros-api/commit/72645a0))
+* fix test on develop ([8f361c8](https://github.com/kleros/kleros-api/commit/8f361c8))
+* **disputes:** wait for getDispute and getData in getDataForDispute ([d13f307](https://github.com/kleros/kleros-api/commit/d13f307))
+* revert event.\_args.disputeId to event.\_args.disputeID ([c722a04](https://github.com/kleros/kleros-api/commit/c722a04))
+
+### Features
+
+* **contract-wrapper:** estimate gas on all transactions ([34d92fe](https://github.com/kleros/kleros-api/commit/34d92fe))
+* **contract-wrapper:** first pass at using estimate gas ([e455c55](https://github.com/kleros/kleros-api/commit/e455c55))
+* **disputes:** fetch session and period inside getDataForDispute and change var names ([9c08d20](https://github.com/kleros/kleros-api/commit/9c08d20))
+* **disputes:** implement canRepartition and canExecute ([7e7f68f](https://github.com/kleros/kleros-api/commit/7e7f68f))
+
 <a name="0.0.67"></a>
 
 ## [0.0.67](https://github.com/kleros/kleros-api/compare/v0.0.65...v0.0.67) (2018-03-07)
