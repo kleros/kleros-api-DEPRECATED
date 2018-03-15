@@ -458,7 +458,6 @@ describe('Notifications and Event Listeners', () => {
       KlerosInstance.eventListener.stopWatchingArbitratorEvents(
         klerosPOCAddress
       )
-
       // TODO find way to check timestamps and other non-callback notifications
     },
     200000

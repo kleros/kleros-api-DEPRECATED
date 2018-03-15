@@ -7,12 +7,15 @@ const PromiseQueue = () => {
     },
     fetch: fn => {
       let returnResolver
-      const returnPromise = new Promise(resolve => {
+      let returnRejecter
+      const returnPromise = new Promise((resolve, reject) => {
         returnResolver = resolve
+        returnRejecter = reject
       })
-      promise = promise.then(fn, fn).then(result => {
-        returnResolver(result)
-      })
+      promise = promise
+        .then(fn, fn)
+        .then(res => returnResolver(res), err => returnRejecter(err))
+
       return returnPromise
     }
   }

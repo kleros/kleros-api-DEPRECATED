@@ -223,7 +223,7 @@ class Notifications extends AbstractWrapper {
    * @param {number} logIndex index of the log. used to differentiate logs if multiple logs per tx
    * @returns {promise} promise that can be waited on for syncronousity
    */
-  markNotificationAsRead = async (account, txHash, logIndex) =>
+  markNotificationAsRead = (account, txHash, logIndex) =>
     this._StoreProvider.markNotificationAsRead(account, txHash, logIndex, true)
 
   /**

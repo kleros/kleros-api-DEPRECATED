@@ -22,14 +22,14 @@
   "scripts": {
     "prettify": "kleros-scripts prettify",
     "lint": "kleros-scripts lint:js --config ./.eslintrc.js",
+    "ganache": "ganache-cli -a 15",
     "test": "jest --config ./jest.config.js",
     "test:coveralls": "coveralls < ./coverage/lcov.info",
     "precommit": "kleros-scripts precommit",
     "commitmsg": "kleros-scripts commitmsg",
     "cz": "kleros-scripts cz",
     "start": "webpack --env.NODE_ENV=development --progress --watch",
-    "build": "webpack --env.NODE_ENV=production -p",
-    "ganache": "ganache-cli -a 15"
+    "build": "webpack --env.NODE_ENV=production -p"
   },
   "commitlint": {
     "extends": [

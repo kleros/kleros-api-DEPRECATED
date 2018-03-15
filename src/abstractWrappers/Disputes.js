@@ -94,7 +94,7 @@ class Disputes extends AbstractWrapper {
           dispute.arbitratorAddress,
           dispute.disputeId,
           {
-            netPNK: (dispute.netPNK ? dispute.netPNK : 0) + amountShift
+            netPNK: (dispute.netPNK || 0) + amountShift
           }
         )
       }
@@ -513,19 +513,21 @@ class Disputes extends AbstractWrapper {
 
     // update dispute
     const dispute = await this._StoreProvider.updateDispute(
-      disputeData.disputeId,
       disputeData.arbitratorAddress,
-      disputeData.arbitrableContractAddress,
-      disputeData.partyA,
-      disputeData.partyB,
-      disputeData.title,
-      disputeData.status,
-      disputeData.information,
-      disputeData.justification,
-      disputeData.resolutionOptions,
-      disputeData.appealCreatedAt,
-      disputeData.appealRuledAt,
-      disputeData.appealDeadlines
+      disputeData.disputeId,
+      {
+        contractAddress: disputeData.arbitrableContractAddress,
+        partyA: disputeData.partyA,
+        partyB: disputeData.partyB,
+        title: disputeData.title,
+        status: disputeData.status,
+        information: disputeData.information,
+        justification: disputeData.justification,
+        resolutionOptions: disputeData.resolutionOptions,
+        appealCreatedAt: disputeData.appealCreatedAt,
+        appealRuledAt: disputeData.appealRuledAt,
+        appealDeadlines: disputeData.appealDeadlines
+      }
     )
 
     const storedDisputeData = await this._StoreProvider.getDisputeData(
