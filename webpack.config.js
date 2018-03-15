@@ -3,11 +3,11 @@ const { resolve } = require('path')
 module.exports = {
   entry: './src/index.js',
   output: {
-    path: resolve(__dirname, 'lib/'),
+    path: resolve(__dirname, 'umd/'),
     filename: 'kleros-api.js',
     libraryTarget: 'umd',
     umdNamedDefine: true,
-    library: 'kleros-api'
+    library: 'KlerosAPI'
   },
 
   devtool: 'source-map',
