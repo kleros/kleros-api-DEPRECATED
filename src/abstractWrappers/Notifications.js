@@ -94,23 +94,25 @@ class Notifications extends AbstractWrapper {
       } else if (currentPeriod === arbitratorConstants.PERIOD.VOTE) {
         for (let dispute of userProfile.disputes) {
           const draws = dispute.appealDraws[dispute.appealDraws.length - 1]
-          const canVote = await this._Arbitrator.canRuleDispute(
-            dispute.arbitratorAddress,
-            dispute.disputeId,
-            draws,
-            account
-          )
-          if (canVote) {
-            notifications.push(
-              this._createNotification(
-                notificationConstants.TYPE.CAN_VOTE,
-                'Need to vote on dispute',
-                {
-                  disputeId: dispute.disputeId,
-                  arbitratorAddress: dispute.arbitratorAddress
-                }
-              )
+          if (draws) {
+            const canVote = await this._Arbitrator.canRuleDispute(
+              dispute.arbitratorAddress,
+              dispute.disputeId,
+              draws,
+              account
             )
+            if (canVote) {
+              notifications.push(
+                this._createNotification(
+                  notificationConstants.TYPE.CAN_VOTE,
+                  'Need to vote on dispute',
+                  {
+                    disputeId: dispute.disputeId,
+                    arbitratorAddress: dispute.arbitratorAddress
+                  }
+                )
+              )
+            }
           }
         }
       }
