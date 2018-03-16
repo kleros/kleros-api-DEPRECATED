@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.0.70"></a>
+## [0.0.70](https://github.com/kleros/kleros-api/compare/v0.0.69...v0.0.70) (2018-03-16)
+
+
+### Bug Fixes
+
+* **notifications:** error in stateful notifications ([2155f60](https://github.com/kleros/kleros-api/commit/2155f60))
+
+
+
 <a name="0.0.69"></a>
 ## [0.0.69](https://github.com/kleros/kleros-api/compare/v0.0.68...v0.0.69) (2018-03-15)
 
