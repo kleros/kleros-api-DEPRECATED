@@ -34,16 +34,8 @@ class Arbitrator extends AbstractWrapper {
     arbitratorAddress, // address of KlerosPOC
     account
   ) => {
-    const txHash = await this._Arbitrator.buyPNK(
-      amount,
-      arbitratorAddress,
-      account
-    )
-    if (txHash) {
-      return this.getPNKBalance(arbitratorAddress, account)
-    } else {
-      throw new Error('unable to buy PNK')
-    }
+    await this._Arbitrator.buyPNK(amount, arbitratorAddress, account)
+    return this.getPNKBalance(arbitratorAddress, account)
   }
 
   /**

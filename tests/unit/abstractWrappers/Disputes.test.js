@@ -1,5 +1,6 @@
 import DisputesApi from '../../../src/abstractWrappers/Disputes'
 import * as arbitratorConstants from '../../../src/constants/arbitrator'
+import * as errorConstants from '../../../src/constants/error'
 
 describe('Disputes', () => {
   let mockArbitratorWrapper = {}
@@ -59,7 +60,7 @@ describe('Disputes', () => {
         if (fakeDisputes[disputeID]) {
           return fakeDisputes[disputeID]
         } else {
-          throw new Error('no dispute')
+          throw new Error(errorConstants.UNABLE_TO_FETCH_DISPUTE)
         }
       }
 
@@ -107,7 +108,7 @@ describe('Disputes', () => {
         if (fakeDisputes[disputeID]) {
           return fakeDisputes[disputeID]
         } else {
-          throw new Error('no dispute')
+          throw new Error(errorConstants.UNABLE_TO_FETCH_DISPUTE)
         }
       }
 
@@ -155,7 +156,7 @@ describe('Disputes', () => {
         if (fakeDisputes[disputeID]) {
           return fakeDisputes[disputeID]
         } else {
-          throw new Error('no dispute')
+          throw new Error(errorConstants.UNABLE_TO_FETCH_DISPUTE)
         }
       }
 
@@ -203,7 +204,7 @@ describe('Disputes', () => {
         if (fakeDisputes[disputeID]) {
           return fakeDisputes[disputeID]
         } else {
-          throw new Error('no dispute')
+          throw new Error(errorConstants.UNABLE_TO_FETCH_DISPUTE)
         }
       }
 

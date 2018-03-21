@@ -1,5 +1,7 @@
 import _ from 'lodash'
 
+import * as errorConstants from '../constants/error'
+
 import PromiseQueue from './PromiseQueue'
 
 class StoreProviderWrapper {
@@ -75,7 +77,7 @@ class StoreProviderWrapper {
   getDisputeData = async (arbitratorAddress, disputeId, userAddress) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile)
-      throw new Error(`No profile found for address: ${userAddress}`)
+      throw new Error(errorConstants.PROFILE_NOT_FOUND(userAddress))
 
     let disputeData = _.filter(
       userProfile.disputes,
@@ -93,7 +95,7 @@ class StoreProviderWrapper {
   getContractByHash = async (userAddress, hash) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile)
-      throw new Error(`No profile found for address: ${userAddress}`)
+      throw new Error(errorConstants.PROFILE_NOT_FOUND(userAddress))
 
     let contractData = _.filter(userProfile.contracts, o => o.hash === hash)
 
@@ -104,7 +106,7 @@ class StoreProviderWrapper {
   getContractByAddress = async (userAddress, addressContract) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile)
-      throw new Error(`No profile found for this address: ${userAddress}`)
+      throw new Error(errorConstants.PROFILE_NOT_FOUND(userAddress))
 
     let contract = _.filter(
       userProfile.contracts,
@@ -344,9 +346,8 @@ class StoreProviderWrapper {
           notification.txHash === txHash && notification.logIndex === logIndex
       )
 
-      if (_.isNull(notificationIndex)) {
-        throw new TypeError(`No notification with txHash ${txHash} exists`)
-      }
+      if (_.isNull(notificationIndex))
+        throw new Error(errorConstants.NOTIFICATION_NOT_FOUND(txHash))
 
       userProfile.notifications[notificationIndex].read = isRead
       delete userProfile._id

@@ -2,6 +2,7 @@ import contract from 'truffle-contract'
 import _ from 'lodash'
 
 import * as ethConstants from '../constants/eth'
+import * as errorConstants from '../constants/error'
 
 /**
  * Contract wrapper
@@ -20,16 +21,12 @@ class ContractWrapper {
    * @private
    * @param {object} artifact - The contract artifact.
    * @param {string} address - The hex encoded contract Ethereum address
-   * @returns {object} - truffle-contract object | Error
+   * @returns {object} - The contract instance.
    */
   _instantiateContractIfExistsAsync = async (artifact, address) => {
-    const c = await contract(artifact)
-
-    const providerObj = await this._Web3Wrapper.getProvider()
-
-    await c.setProvider(providerObj)
-
     try {
+      const c = await contract(artifact)
+      await c.setProvider(await this._Web3Wrapper.getProvider())
       const contractInstance = _.isUndefined(address)
         ? await c.deployed()
         : await c.at(address)
@@ -42,12 +39,8 @@ class ContractWrapper {
 
           // eslint-disable-next-line no-loop-func
           contractInstance[funcABI.name] = async (...args) => {
-            try {
-              await func.estimateGas(...args) // Estimate gas (also checks for possible failures)
-              return func(...args) // Call original function
-            } catch (err) {
-              throw err // TODO: Custom errors
-            }
+            await func.estimateGas(...args) // Estimate gas (also checks for possible failures)
+            return func(...args) // Call original function
           }
 
           // Keep reference to the original function for special cases
@@ -60,13 +53,12 @@ class ContractWrapper {
 
       return contractInstance
     } catch (err) {
-      const errMsg = `${err}`
+      console.error(err)
 
-      if (_.includes(errMsg, 'not been deployed to detected network')) {
-        throw new Error('ContractDoesNotExist')
-      } else {
-        throw new Error('UnhandledError')
-      }
+      if (_.includes(err.message, 'not been deployed to detected network'))
+        throw new Error(errorConstants.CONTRACT_NOT_DEPLOYED)
+
+      throw new Error(errorConstants.UNABLE_TO_LOAD_CONTRACT)
     }
   }
 
@@ -79,28 +71,25 @@ class ContractWrapper {
    * @returns {object} - truffle-contract Object | err The contract object or an error
    */
   _deployAsync = async (account, value, artifact, ...args) => {
-    if (_.isEmpty(account)) {
-      account = this._Web3Wrapper.getAccount(0)
-    }
+    if (_.isEmpty(account)) account = this._Web3Wrapper.getAccount(0)
 
-    const MyContract = contract({
-      abi: artifact.abi,
-      unlinked_binary: artifact.bytecode
-        ? artifact.bytecode
-        : artifact.unlinked_binary
-    })
-
-    const provider = await this._Web3Wrapper.getProvider()
-    MyContract.setProvider(provider)
     try {
-      let contractDeployed = await MyContract.new(...args, {
+      const MyContract = contract({
+        abi: artifact.abi,
+        unlinked_binary: artifact.bytecode
+          ? artifact.bytecode
+          : artifact.unlinked_binary
+      })
+      MyContract.setProvider(await this._Web3Wrapper.getProvider())
+
+      return MyContract.new(...args, {
         from: account,
         value: value,
         gas: ethConstants.TRANSACTION.GAS
       })
-      return contractDeployed
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_DEPLOY_CONTRACT)
     }
   }
 

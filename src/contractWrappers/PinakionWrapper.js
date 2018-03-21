@@ -2,6 +2,7 @@ import PinakionPOC from 'kleros/build/contracts/PinakionPOC' // FIXME: mock
 import _ from 'lodash'
 
 import * as ethConstants from '../constants/eth'
+import * as errorConstants from '../constants/error'
 
 import ContractWrapper from './ContractWrapper'
 
@@ -45,18 +46,12 @@ class PinakionWrapper extends ContractWrapper {
    * @returns {object} - Contract Instance | Error.
    */
   load = async address => {
-    try {
-      const contractInstance = await this._instantiateContractIfExistsAsync(
-        PinakionPOC,
-        address
-      )
-      this.contractInstance = contractInstance
-      this.address = address
-
-      return contractInstance
-    } catch (err) {
-      throw new Error(err)
-    }
+    this.contractInstance = await this._instantiateContractIfExistsAsync(
+      PinakionPOC,
+      address
+    )
+    this.address = address
+    return this.contractInstance
   }
 
   /**
@@ -64,23 +59,23 @@ class PinakionWrapper extends ContractWrapper {
    * @param {string} contractAddress - Address of PNK contract.
    * @param {string} klerosAddress - Address of Kleros POC contract.
    * @param {string} account - Address of user.
-   * @returns {string} - Tx hash.
+   * @returns {object} - The result transaction object.
    */
   setKleros = async (
     contractAddress,
     klerosAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
+    await this.load(contractAddress)
+
     try {
-      let contractInstance = await this.load(contractAddress)
-      const txHashObj = await contractInstance.setKleros(klerosAddress, {
+      return this.contractInstance.setKleros(klerosAddress, {
         from: account,
         gas: ethConstants.TRANSACTION.GAS
       })
-
-      return txHashObj.tx
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_SET_KLEROS)
     }
   }
 
@@ -89,26 +84,23 @@ class PinakionWrapper extends ContractWrapper {
    * @param {string} contractAddress - Address of PNK contract.
    * @param {string} klerosAddress - Address of Kleros POC contract.
    * @param {string} account - Address of user.
-   * @returns {string} - Tx hash.
+   * @returns {object} - The result transaction object.
    */
   transferOwnership = async (
     contractAddress,
     klerosAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    try {
-      const contractInstance = await this.load(contractAddress)
-      const txHashObj = await contractInstance.transferOwnership(
-        klerosAddress,
-        {
-          from: account,
-          gas: ethConstants.TRANSACTION.GAS
-        }
-      )
+    await this.load(contractAddress)
 
-      return txHashObj.tx
+    try {
+      return this.contractInstance.transferOwnership(klerosAddress, {
+        from: account,
+        gas: ethConstants.TRANSACTION.GAS
+      })
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_TRANSFER_OWNERSHIP)
     }
   }
 
@@ -119,14 +111,12 @@ class PinakionWrapper extends ContractWrapper {
    * @returns {object} - Data from PNK contract.
    */
   getData = async contractAddress => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
 
     const [owner, kleros] = await Promise.all([
-      contractInstance.owner(),
-      contractInstance.kleros()
-    ]).catch(err => {
-      throw new Error(err)
-    })
+      this.contractInstance.owner(),
+      this.contractInstance.kleros()
+    ])
 
     return {
       owner,
