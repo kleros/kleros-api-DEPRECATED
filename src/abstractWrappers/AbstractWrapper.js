@@ -1,3 +1,5 @@
+import * as errorConstants from '../constants/error'
+
 class AbstractWrapper {
   /**
    * AbstractWrapper is the parent class for abstract classes that interact with the
@@ -58,9 +60,7 @@ class AbstractWrapper {
    */
   _checkArbitratorWrappersSet = () => {
     if (!this._Arbitrator)
-      throw new Error(
-        'No Arbitrator Contract Wrapper specified. Please call setArbitrator'
-      )
+      throw new Error(errorConstants.NO_ARBITRATOR_WRAPPER_SPECIFIED)
   }
 
   /**
@@ -69,9 +69,7 @@ class AbstractWrapper {
    */
   _checkArbitrableWrappersSet = () => {
     if (!this._ArbitrableContract)
-      throw new Error(
-        'No Arbitrable Contract Wrapper specified. Please call setArbitrable'
-      )
+      throw new Error(errorConstants.NO_ARBITRABLE_WRAPPER_SPECIFIED)
   }
 
   /**

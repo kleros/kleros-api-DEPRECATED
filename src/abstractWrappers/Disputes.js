@@ -256,26 +256,19 @@ class Disputes extends AbstractWrapper {
    * @param {string} account - Ethereum account.
    * @param {string} arbitrableContractAddress - Address address of arbitrable contract.
    * @param {number} [arbitrationCost=DEFAULT_ARBITRATION_FEE] - Amount to pay the arbitrator.
-   * @returns {string} - txHash hash transaction | Error.
+   * @returns {object} - The result transaction object.
    */
-  raiseDisputePartyA = async (
+  raiseDisputePartyA = (
     account,
     arbitrableContractAddress,
     arbitrationCost = arbitratorConstants.DEFAULT_ARBITRATION_FEE
   ) => {
     this._checkArbitrableWrappersSet()
-    try {
-      const txHash = await this._ArbitrableContract.payArbitrationFeeByPartyA(
-        account,
-        arbitrableContractAddress,
-        arbitrationCost
-      )
-
-      if (!txHash) throw new Error('unable to pay arbitration fee for party A')
-      return txHash
-    } catch (err) {
-      throw new Error(err)
-    }
+    return this._ArbitrableContract.payArbitrationFeeByPartyA(
+      account,
+      arbitrableContractAddress,
+      arbitrationCost
+    )
   }
 
   /**
@@ -283,23 +276,19 @@ class Disputes extends AbstractWrapper {
    * @param {string} account - Ethereum account.
    * @param {string} arbitrableContractAddress - Address address of arbitrable contract.
    * @param {number} [arbitrationCost=DEFAULT_ARBITRATION_FEE] - Amount to pay the arbitrator.
-   * @returns {string} - txHash hash of the transaction | Error.
+   * @returns {object} - The result transaction object.
    */
-  raiseDisputePartyB = async (
+  raiseDisputePartyB = (
     account,
     arbitrableContractAddress,
     arbitrationCost = arbitratorConstants.DEFAULT_ARBITRATION_FEE
   ) => {
     this._checkArbitrableWrappersSet()
-
-    const txHash = await this._ArbitrableContract.payArbitrationFeeByPartyB(
+    return this._ArbitrableContract.payArbitrationFeeByPartyB(
       account,
       arbitrableContractAddress,
       arbitrationCost
     )
-
-    if (!txHash) throw new Error('unable to pay arbitration fee for party B')
-    return txHash
   }
 
   /**
@@ -435,29 +424,22 @@ class Disputes extends AbstractWrapper {
    * @param {number} ruling - Int representing the jurors decision.
    * @param {number[]} draws - Int[] of drawn votes for dispute.
    * @param {string} account - Address of user.
-   * @returns {string} - Transaction hash | Error.
+   * @returns {object} - The result transaction object.
    */
-  submitVotesForDispute = async (
+  submitVotesForDispute = (
     arbitratorAddress,
     disputeId,
     ruling,
     draws,
     account
-  ) => {
-    const txHash = await this._Arbitrator.submitVotes(
+  ) =>
+    this._Arbitrator.submitVotes(
       arbitratorAddress,
       disputeId,
       ruling,
       draws,
       account
     )
-
-    if (txHash) {
-      return txHash
-    } else {
-      throw new Error('unable to submit votes')
-    }
-  }
 
   /**
    * Gets the deadline for an arbitrator's period, which is also the deadline for all its disputes.
@@ -580,7 +562,7 @@ class Disputes extends AbstractWrapper {
     )
 
     if (_.isEmpty(disputeArray))
-      throw new Error(`User ${account} does not have store data for dispute`)
+      throw new Error(errorConstants.NO_STORE_DATA_FOR_DISPUTE(account))
 
     return disputeArray[0]
   }
@@ -630,17 +612,10 @@ class Disputes extends AbstractWrapper {
    * @returns {object[]} - Array of ruling objects.
    */
   getRulingOptions = async (arbitratorAddress, disputeId) => {
-    const dispute = await this._Arbitrator.getDispute(
+    const arbitrableContractAddress = (await this._Arbitrator.getDispute(
       arbitratorAddress,
       disputeId
-    )
-    if (!dispute) {
-      throw new Error(
-        `Cannot fetch ruling options: Dispute from arbitrator ${arbitratorAddress} with disputeId: ${disputeId} does not exist`
-      )
-    }
-    const arbitrableContractAddress = dispute.arbitratedContract
-
+    )).arbitratedContract
     return this._ArbitrableContract.getRulingOptions(
       arbitrableContractAddress,
       arbitratorAddress,
@@ -660,16 +635,11 @@ class Disputes extends AbstractWrapper {
     this._checkArbitratorWrappersSet()
     this._checkArbitrableWrappersSet()
 
-    // Get dispute data from contract, and throw if not found. Also get current session and period
+    // Get dispute data from contract. Also get the current session and period.
     const [dispute, arbitratorData] = await Promise.all([
       this._Arbitrator.getDispute(arbitratorAddress, disputeId),
       this._Arbitrator.getData(arbitratorAddress, account)
     ])
-    if (!dispute) {
-      throw new Error(
-        `Dispute with arbitrator: ${arbitratorAddress} and disputeId: ${disputeId} does not exist`
-      )
-    }
 
     // Get arbitrable contract data and evidence
     const arbitrableContractAddress = dispute.arbitratedContract
@@ -802,43 +772,36 @@ class Disputes extends AbstractWrapper {
    * @returns {int[]} - array of active disputeId
    */
   _getOpenDisputesForSession = async arbitratorAddress => {
+    const currentSession = (await this._Arbitrator.getData(arbitratorAddress))
+      .session
     const openDisputes = []
-    // contract data
-    const arbitratorData = await this._Arbitrator.getData(arbitratorAddress)
-    let disputeId = 0
-    const currentSession = arbitratorData.session
 
+    let disputeId = 0
     let dispute
     while (1) {
-      // iterate over all disputes (FIXME inefficient)
+      // Iterate over all the disputes
+      // TODO: Implement a more performant solution
       try {
-        try {
-          dispute = await this._Arbitrator.getDispute(
-            arbitratorAddress,
-            disputeId
-          )
-          // eslint-disable-next-line no-unused-vars
-        } catch (err) {
-          // FIXME standardize
-          throw new Error(errorConstants.TYPE.DISPUTE_OUT_OF_RANGE)
-        }
-
-        if (dispute.arbitratedContract === ethConstants.NULL_ADDRESS) break
-        // session + number of appeals
-        const disputeSession = dispute.firstSession + dispute.numberOfAppeals
-        // if dispute not in current session skip
-        if (disputeSession !== currentSession) {
-          disputeId++
-          continue
-        }
-
-        openDisputes.push(disputeId)
-        // check next dispute
-        disputeId += 1
+        dispute = await this._Arbitrator.getDispute(
+          arbitratorAddress,
+          disputeId
+        )
       } catch (err) {
-        if (err.message === errorConstants.TYPE.DISPUTE_OUT_OF_RANGE) break
+        // Dispute out of range, break
+        if (err.message === errorConstants.UNABLE_TO_FETCH_DISPUTE) break
+        console.error(err)
         throw err
       }
+
+      // Dispute has no arbitrable contract, break
+      if (dispute.arbitratedContract === ethConstants.NULL_ADDRESS) break
+
+      // If dispute is in the current session, add it to the result array
+      if (dispute.firstSession + dispute.numberOfAppeals === currentSession)
+        openDisputes.push(disputeId)
+
+      // Advance to the next dispute
+      disputeId++
     }
 
     return openDisputes

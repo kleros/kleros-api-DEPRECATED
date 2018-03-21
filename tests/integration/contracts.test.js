@@ -204,7 +204,7 @@ describe('Contracts', () => {
         )
 
         // raise dispute party A
-        const txHashRaiseDisputeByPartyA = await KlerosInstance.disputes.raiseDisputePartyA(
+        const raiseDisputeByPartyATxObj = await KlerosInstance.disputes.raiseDisputePartyA(
           partyA,
           arbitrableContractAddress,
           arbitrationCost -
@@ -213,7 +213,7 @@ describe('Contracts', () => {
               'ether'
             )
         )
-        expect(txHashRaiseDisputeByPartyA).toEqual(
+        expect(raiseDisputeByPartyATxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
 

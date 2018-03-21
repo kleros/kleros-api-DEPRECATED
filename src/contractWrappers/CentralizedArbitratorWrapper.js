@@ -50,20 +50,15 @@ class CentralizedArbitratorWrapper extends ContractWrapper {
   /**
    * Load an existing contract
    * @param {string} address - contract address
-   * @returns {object} - Conract Instance | Error
+   * @returns {object} - The contract instance.
    */
   load = async address => {
-    try {
-      const contractInstance = await this._instantiateContractIfExistsAsync(
-        centralizedArbitrator,
-        address
-      )
-      this.contractInstance = contractInstance
-      this.address = address
-      return contractInstance
-    } catch (err) {
-      throw new Error(err)
-    }
+    this.contractInstance = await this._instantiateContractIfExistsAsync(
+      centralizedArbitrator,
+      address
+    )
+    this.address = address
+    return this.contractInstance
   }
 }
 

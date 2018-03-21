@@ -3,6 +3,7 @@ import _ from 'lodash'
 
 import * as ethConstants from '../constants/eth'
 import * as contractConstants from '../constants/contract'
+import * as errorConstants from '../constants/error'
 
 import ContractWrapper from './ContractWrapper'
 
@@ -61,51 +62,45 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   }
 
   /**
-   * Load an existing arbitrableTransaction contract
+   * Load an existing ArbitrableTransaction contract
    * @param {string} address Contract address
-   * @returns {object} contractInstance | Error
+   * @returns {object} - The contract instance.
    */
   load = async address => {
-    // return contract instance if already loaded
+    // Return contract instance if already loaded
     if (this.contractInstance && this.contractInstance.address === address)
       return this.contractInstance
 
-    try {
-      const contractInstance = await this._instantiateContractIfExistsAsync(
-        arbitrableTransaction,
-        address
-      )
+    this.contractInstance = await this._instantiateContractIfExistsAsync(
+      arbitrableTransaction,
+      address
+    )
+    this.address = address
 
-      this.contractInstance = contractInstance
-      this.address = address
-
-      return contractInstance
-    } catch (err) {
-      throw new Error(err)
-    }
+    return this.contractInstance
   }
 
   /**
    * Pay the party B. To be called when the good is delivered or the service rendered.
    * @param {string} account - Ethereum account (default account[0]).
    * @param {string} contractAddress - The address of the arbitrator contract.
-   * @returns {string} - txHash hash transaction | Error
+   * @returns {object} - The result transaction object.
    */
   pay = async (
     account = this._Web3Wrapper.getAccount(0),
     contractAddress // ethereum address of the contract
   ) => {
+    await this.load(contractAddress)
+
     try {
-      this.contractInstance = await this.load(contractAddress)
-      const txHashObj = await this.contractInstance.pay({
+      return this.contractInstance.pay({
         from: account,
         gas: ethConstants.TRANSACTION.GAS,
         value: 0
       })
-
-      return txHashObj.tx
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_PAY_SELLER)
     }
   }
 
@@ -114,23 +109,24 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @param {string} account - Ethereum account (default account[0]).
    * @param {string} contractAddress - The address of the arbitrator contract.
    * @param {number} arbitrationCost - Amount to pay the arbitrator. (default 10000 wei).
-   * @returns {string} - txHash hash transaction | Error.
+   * @returns {object} - The result transaction object.
    */
   payArbitrationFeeByPartyA = async (
     account = this._Web3Wrapper.getAccount(0),
     contractAddress, // ethereum address of the contract
     arbitrationCost = 0.15
   ) => {
+    await this.load(contractAddress)
+
     try {
-      this.contractInstance = await this.load(contractAddress)
-      const txHashObj = await this.contractInstance.payArbitrationFeeByPartyA({
+      return this.contractInstance.payArbitrationFeeByPartyA({
         from: account,
         gas: ethConstants.TRANSACTION.GAS,
         value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
       })
-      return txHashObj.tx
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_PAY_ARBITRATION_FEE)
     }
   }
 
@@ -139,24 +135,24 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @param {string} account Ethereum account (default account[1]).
    * @param {string} contractAddress - The address of the arbitrator contract.
    * @param {number} arbitrationCost Amount to pay the arbitrator. (default 10000 wei).
-   * @returns {string} txHash hash transaction | Error.
+   * @returns {object} - The result transaction object.
    */
   payArbitrationFeeByPartyB = async (
     account = this._Web3Wrapper.getAccount(1),
     contractAddress, // ethereum address of the contract
     arbitrationCost = 0.15
   ) => {
+    await this.load(contractAddress)
+
     try {
-      this.contractInstance = await this.load(contractAddress)
-      const txHashObj = await this.contractInstance.payArbitrationFeeByPartyB({
+      return this.contractInstance.payArbitrationFeeByPartyB({
         from: account,
         gas: ethConstants.TRANSACTION.GAS,
         value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
       })
-
-      return txHashObj.tx
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_PAY_ARBITRATION_FEE)
     }
   }
 
@@ -176,7 +172,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     description = '',
     url
   ) => {
-    this.contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
+
     const txHashObj = await this.contractInstance.submitEvidence(
       JSON.stringify(name, description, url),
       {
@@ -193,35 +190,33 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * Call by partyA if partyB is timeout
    * @param {string} account ETH address of user
    * @param {string} contractAddress ETH address of contract
-   * @returns {string} txHash Hash transaction
+   * @returns {object} The result transaction object.
    */
   callTimeOutPartyA = async (
     account = this._Web3Wrapper.getAccount(0),
     contractAddress
   ) => {
+    await this.load(contractAddress)
+
+    const status = (await this.contractInstance.status()).toNumber()
+    const timeout = (await this.contractInstance.timeout()).toNumber()
+    const lastInteraction = (await this.contractInstance.lastInteraction()).toNumber()
+
+    if (status !== contractConstants.STATUS.WAITING_PARTY_B) {
+      throw new Error(errorConstants.CONTRACT_IS_NOT_WAITING_ON_OTHER_PARTY)
+    } else if (Date.now() >= lastInteraction + timeout) {
+      throw new Error(errorConstants.TIMEOUT_NOT_REACHED)
+    }
+
     try {
-      this.contractInstance = await this.load(contractAddress)
-
-      const status = (await this.contractInstance.status()).toNumber()
-      const timeout = (await this.contractInstance.timeout()).toNumber()
-      const lastInteraction = (await this.contractInstance.lastInteraction()).toNumber()
-      if (status !== contractConstants.STATUS.WAITING_PARTY_B) {
-        throw new Error('Status contract is not WAITING_PARTY_B')
-      }
-
-      if (Date.now() >= lastInteraction + timeout) {
-        throw new Error('The timeout is not reached')
-      }
-
-      const txHashObj = await this.contractInstance.timeOutByPartyA({
+      return this.contractInstance.timeOutByPartyA({
         from: account,
         gas: ethConstants.TRANSACTION.GAS,
         value: 0
       })
-
-      return txHashObj.tx
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_CALL_TIMEOUT)
     }
   }
 
@@ -229,36 +224,33 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * Call by partyB if partyA is timeout.
    * @param {string} account - ETH address of user.
    * @param {string} contractAddress - ETH address of contract.
-   * @returns {string} - txHash Hash transaction.
+   * @returns {object} The result transaction object.
    */
   callTimeOutPartyB = async (
     account = this._Web3Wrapper.getAccount(1),
     contractAddress
   ) => {
+    await this.load(contractAddress)
+
+    const status = await this.contractInstance.status()
+    const timeout = await this.contractInstance.timeout()
+    const lastInteraction = await this.contractInstance.lastInteraction()
+
+    if (status !== contractConstants.STATUS.WAITING_PARTY_A) {
+      throw new Error(errorConstants.CONTRACT_IS_NOT_WAITING_ON_OTHER_PARTY)
+    } else if (Date.now() >= lastInteraction + timeout) {
+      throw new Error(errorConstants.TIMEOUT_NOT_REACHED)
+    }
+
     try {
-      this.contractInstance = await this.load(contractAddress)
-
-      const status = await this.contractInstance.status()
-      const timeout = await this.contractInstance.timeout()
-      const lastInteraction = await this.contractInstance.lastInteraction()
-
-      if (status !== contractConstants.STATUS.WAITING_PARTY_A) {
-        throw new Error('Status contract is not WAITING_PARTY_A')
-      }
-
-      if (Date.now() >= lastInteraction + timeout) {
-        throw new Error('The timeout is not reached')
-      }
-
-      const txHashObj = await this.contractInstance.timeOutByPartyB({
+      return this.contractInstance.timeOutByPartyB({
         from: account,
         gas: ethConstants.TRANSACTION.GAS,
         value: 0
       })
-
-      return txHashObj.tx
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_CALL_TIMEOUT)
     }
   }
 
@@ -275,17 +267,17 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     arbitratorAddress,
     disputeId
   ) => {
-    const contractInstance = await this.load(arbitrableContractAddress)
+    await this.load(arbitrableContractAddress)
 
     // fetch dispute resolution options
-    const statusNumber = (await contractInstance.status()).toNumber()
+    const statusNumber = (await this.contractInstance.status()).toNumber()
 
     // should this just be !== ?
     if (statusNumber < contractConstants.STATUS.DISPUTE_CREATED) return []
 
     // FIXME we should have a block number to start from so we don't have to rip through the entire chain
     const disputeEvents = await new Promise((resolve, reject) => {
-      contractInstance
+      this.contractInstance
         .Dispute({}, { fromBlock: 0, toBlock: 'latest' })
         .get((error, eventResult) => {
           if (error) reject(error)
@@ -324,7 +316,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @returns {object} Object Data of the contract.
    */
   getData = async address => {
-    const contractInstance = await this.load(address)
+    await this.load(address)
 
     const [
       arbitrator,
@@ -340,22 +332,20 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
       lastInteraction,
       amount
     ] = await Promise.all([
-      contractInstance.arbitrator(),
-      contractInstance.arbitratorExtraData(),
-      //  contractInstance.hashContract(),
-      contractInstance.timeout(),
-      contractInstance.partyA(),
-      contractInstance.partyB(),
-      contractInstance.status(),
-      contractInstance.arbitratorExtraData(),
-      contractInstance.disputeID(),
-      contractInstance.partyAFee(),
-      contractInstance.partyBFee(),
-      contractInstance.lastInteraction(),
-      contractInstance.amount()
-    ]).catch(err => {
-      throw new Error(err)
-    })
+      this.contractInstance.arbitrator(),
+      this.contractInstance.arbitratorExtraData(),
+      //  this.contractInstance.hashContract(),
+      this.contractInstance.timeout(),
+      this.contractInstance.partyA(),
+      this.contractInstance.partyB(),
+      this.contractInstance.status(),
+      this.contractInstance.arbitratorExtraData(),
+      this.contractInstance.disputeID(),
+      this.contractInstance.partyAFee(),
+      this.contractInstance.partyBFee(),
+      this.contractInstance.lastInteraction(),
+      this.contractInstance.amount()
+    ])
 
     return {
       address,

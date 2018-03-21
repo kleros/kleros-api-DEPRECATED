@@ -4,6 +4,7 @@ import * as ethConstants from '../constants/eth'
 import * as arbitratorConstants from '../constants/arbitrator'
 import * as notificationConstants from '../constants/notification'
 import * as disputeConstants from '../constants/dispute'
+import * as errorConstants from '../constants/error'
 
 import AbstractWrapper from './AbstractWrapper'
 
@@ -310,12 +311,14 @@ class Notifications extends AbstractWrapper {
 
             await this._sendPushNotification(callback, notification)
           }
-          // check next dispute
-          disputeId += 1
-          // eslint-disable-next-line no-unused-vars
+
+          // Check the next dispute
+          disputeId++
         } catch (err) {
-          // getDispute(n) throws an error if index out of range
-          break
+          // Dispute out of range, break
+          if (err.message === errorConstants.UNABLE_TO_FETCH_DISPUTE) break
+          console.error(err)
+          throw err
         }
       }
     }

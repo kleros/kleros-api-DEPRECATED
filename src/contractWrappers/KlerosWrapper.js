@@ -2,6 +2,7 @@ import kleros from 'kleros/build/contracts/KlerosPOC'
 import _ from 'lodash'
 
 import * as ethConstants from '../constants/eth'
+import * as errorConstants from '../constants/error'
 
 import ContractWrapper from './ContractWrapper'
 
@@ -55,89 +56,87 @@ class KlerosWrapper extends ContractWrapper {
   /**
    * Load an existing contract
    * @param {string} address - contract address
-   * @returns {object} - Conract Instance | Error
+   * @returns {object} - The contract instance.
    */
   load = async address => {
-    // return contract instance if already loaded
+    // Return contract instance if already loaded
     if (this.contractInstance && this.contractInstance.address === address)
       return this.contractInstance
 
-    try {
-      // instantiate new contract instance from address
-      const contractInstance = await this._instantiateContractIfExistsAsync(
-        kleros,
-        address
-      )
-      this.contractInstance = contractInstance
-      this.address = address
-
-      return contractInstance
-    } catch (err) {
-      throw new Error(err)
-    }
+    this.contractInstance = await this._instantiateContractIfExistsAsync(
+      kleros,
+      address
+    )
+    this.address = address
+    return this.contractInstance
   }
 
   /**
    * Use Arbitrator.buyPNK
-   * @param {string} amount - number of pinakion to buy
-   * @param {string} contractAddress - address of klerosPOC contract
-   * @param {string} account - address of user
-   * @returns {object} - txHash
+   * @param {string} amount - The number of pinakion to buy.
+   * @param {string} contractAddress - The address of the KlerosPOC contract.
+   * @param {string} account - The address of the user.
+   * @returns {object} - The result transaction object.
    */
   buyPNK = async (
     amount,
     contractAddress, // address of KlerosPOC
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    this.contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
+
     try {
-      const txHashObj = await this.contractInstance.buyPinakion({
+      return this.contractInstance.buyPinakion({
         from: account,
         gas: ethConstants.TRANSACTION.GAS,
         value: this._Web3Wrapper.toWei(amount, 'ether')
       })
-      return txHashObj.tx
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_BUY_PNK)
     }
   }
 
   /**
    * Get PNK Balances.
-   * @param {string} contractAddress - address of KlerosPOC contract
-   * @param {string} account - address of user
-   * @returns {object} - balance information including total PNK balance and activated tokens
+   * @param {string} contractAddress - The address of the KlerosPOC contract.
+   * @param {string} account - The address of the user.
+   * @returns {object} - Balance information including total PNK balance and activated tokens.
    */
   getPNKBalance = async (
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
 
-    const juror = await contractInstance.jurors(account)
+    const juror = await this.contractInstance.jurors(account)
     if (!juror)
       throw new Error(
-        `${account} is not a juror for contract ${contractAddress}`
+        errorConstants.ACCOUNT_NOT_A_JUROR_FOR_CONTRACT(
+          account,
+          contractAddress
+        )
       )
 
-    // total tokens stored in contract
-    const contractBalance = this._Web3Wrapper.fromWei(juror[0], 'ether')
-    // tokens activated in court session
-    const currentSession = await contractInstance.session()
+    // Total tokens
+    const totalTokens = this._Web3Wrapper.fromWei(juror[0], 'ether')
+
+    // Activated Tokens
+    const currentSession = await this.contractInstance.session()
     let activatedTokens = 0
-    if (juror[2].toNumber() === currentSession.toNumber()) {
+    if (juror[2].toNumber() === currentSession.toNumber())
       activatedTokens = this._Web3Wrapper.fromWei(
         juror[4].toNumber() - juror[3].toNumber(),
         'ether'
       )
-    }
-    // tokens locked into disputes
+
+    // Locked Tokens
     const lockedTokens = this._Web3Wrapper.fromWei(juror[1], 'ether')
 
     return {
+      tokenBalance: totalTokens,
       activatedTokens,
-      lockedTokens,
-      tokenBalance: contractBalance
+      lockedTokens
     }
   }
 
@@ -154,7 +153,8 @@ class KlerosWrapper extends ContractWrapper {
     contractAddress, // klerosPOC contract address
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    this.contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
+
     try {
       await this.contractInstance.activateTokens(
         this._Web3Wrapper.toWei(amount, 'ether'),
@@ -164,7 +164,8 @@ class KlerosWrapper extends ContractWrapper {
         }
       )
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_ACTIVATE_PNK)
     }
 
     return this.getPNKBalance(contractAddress, account)
@@ -174,19 +175,20 @@ class KlerosWrapper extends ContractWrapper {
    * Fetch the cost of arbitration
    * @param {string} contractAddress - address of kleros POC contract.
    * @param {bytes} contractExtraData - extra data from arbitrable contract.
-   * @returns {number} - cost of arbitration.
+   * @returns {number} - The cost of arbitration.
    */
   getArbitrationCost = async (contractAddress, contractExtraData) => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
 
     try {
-      const arbitrationCost = await contractInstance.arbitrationCost(
+      const arbitrationCost = await this.contractInstance.arbitrationCost(
         contractExtraData
       )
 
       return this._Web3Wrapper.fromWei(arbitrationCost, 'ether')
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_FETCH_ARBITRATION_COST)
     }
   }
 
@@ -200,14 +202,16 @@ class KlerosWrapper extends ContractWrapper {
     contractAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
+
     try {
-      await contractInstance.passPeriod.original({
+      await this.contractInstance.passPeriod.original({
         from: account,
         gas: ethConstants.TRANSACTION.GAS
       })
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_PASS_PERIOD)
     }
 
     return this.getData(contractAddress)
@@ -220,7 +224,7 @@ class KlerosWrapper extends ContractWrapper {
    * @param {number} ruling - int representing the jurors decision.
    * @param {number[]} votes - int[] of drawn votes for dispute.
    * @param {string} account - address of user.
-   * @returns {string} - tx hash.
+   * @returns {object} - The result transaction object.
    */
   submitVotes = async (
     contractAddress,
@@ -229,22 +233,16 @@ class KlerosWrapper extends ContractWrapper {
     votes,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
 
     try {
-      const txHashObj = await contractInstance.voteRuling(
-        disputeId,
-        ruling,
-        votes,
-        {
-          from: account,
-          gas: ethConstants.TRANSACTION.GAS
-        }
-      )
-
-      return txHashObj.tx
+      return this.contractInstance.voteRuling(disputeId, ruling, votes, {
+        from: account,
+        gas: ethConstants.TRANSACTION.GAS
+      })
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_SUBMIT_VOTES)
     }
   }
 
@@ -254,7 +252,7 @@ class KlerosWrapper extends ContractWrapper {
    * @param {number} disputeId - Index of the dispute.
    * @param {string} extraData - Extra data.
    * @param {string} account - Address of user.
-   * @returns {string} - Tx hash.
+   * @returns {object} - The result transaction object.
    */
   appealRuling = async (
     contractAddress,
@@ -262,22 +260,17 @@ class KlerosWrapper extends ContractWrapper {
     extraData,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    const contractInstance = await this.load(contractAddress)
-    const appealFee = await contractInstance.appealCost(disputeId, extraData)
-    try {
-      const appealTxHash = await this.contractInstance.appeal(
-        disputeId,
-        extraData,
-        {
-          from: account,
-          value: appealFee,
-          gas: ethConstants.TRANSACTION.GAS
-        }
-      )
+    await this.load(contractAddress)
 
-      return appealTxHash.tx
+    try {
+      return this.contractInstance.appeal(disputeId, extraData, {
+        from: account,
+        value: await this.contractInstance.appealCost(disputeId, extraData),
+        gas: ethConstants.TRANSACTION.GAS
+      })
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_APPEAL)
     }
   }
 
@@ -286,27 +279,23 @@ class KlerosWrapper extends ContractWrapper {
    * @param {string} contractAddress - address of KlerosPOC contract.
    * @param {number} disputeId - index of the dispute.
    * @param {string} account - address of user.
-   * @returns {string} - tx hash.
+   * @returns {object} - The result transaction object.
    */
   repartitionJurorTokens = async (
     contractAddress,
     disputeId,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    const contractInstance = await this.load(contractAddress)
-    try {
-      // partition tokens
-      const repartitionTxHash = await contractInstance.oneShotTokenRepartition(
-        disputeId,
-        {
-          from: account,
-          gas: ethConstants.TRANSACTION.GAS
-        }
-      )
+    await this.load(contractAddress)
 
-      return repartitionTxHash.tx
+    try {
+      return this.contractInstance.oneShotTokenRepartition(disputeId, {
+        from: account,
+        gas: ethConstants.TRANSACTION.GAS
+      })
     } catch (err) {
-      throw err
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_REPARTITION_TOKENS)
     }
   }
 
@@ -315,27 +304,23 @@ class KlerosWrapper extends ContractWrapper {
    * @param {string} contractAddress - address of KlerosPOC contract.
    * @param {number} disputeId - index of the dispute.
    * @param {string} account - address of user.
-   * @returns {string} - tx hash.
+   * @returns {object} - The result transaction object.
    */
   executeRuling = async (
     contractAddress,
     disputeId,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    this.contractInstance = await this.load(contractAddress)
-    try {
-      // execute ruling
-      const executeTxHash = await this.contractInstance.executeRuling(
-        disputeId,
-        {
-          from: account,
-          gas: ethConstants.TRANSACTION.GAS
-        }
-      )
+    await this.load(contractAddress)
 
-      return executeTxHash.tx
+    try {
+      return this.contractInstance.executeRuling(disputeId, {
+        from: account,
+        gas: ethConstants.TRANSACTION.GAS
+      })
     } catch (err) {
-      throw err
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_EXECUTE_RULING)
     }
   }
 
@@ -343,32 +328,35 @@ class KlerosWrapper extends ContractWrapper {
    * Get time for a period.
    * @param {string} contractAddress - address of KlerosPOC contract.
    * @param {number} periodNumber - int representing period.
-   * @returns {number} - seconds in the period.
+   * @returns {number} - The seconds in the period.
    */
   getTimeForPeriod = async (contractAddress, periodNumber) => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
 
-    const timePerPeriod = await contractInstance.timePerPeriod(periodNumber)
-
-    if (timePerPeriod) {
-      return timePerPeriod.toNumber()
-    } else {
-      throw new Error(
-        `Period ${periodNumber} does not have a time associated with it. periodNumber out of range`
-      )
+    let timePerPeriod
+    try {
+      timePerPeriod = await this.contractInstance.timePerPeriod(periodNumber)
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_FETCH_TIME_PER_PERIOD)
     }
+
+    if (timePerPeriod) return timePerPeriod.toNumber()
+
+    throw new Error(errorConstants.PERIOD_OUT_OF_RANGE(periodNumber))
   }
 
   /**
    * Get dispute.
-   * @param {string} contractAddress - Address of KlerosPOC contract.
-   * @param {number} disputeId - Index of dispute.
-   * @returns {object} - dispute data from contract.
+   * @param {string} contractAddress - The address of the KlerosPOC contract.
+   * @param {number} disputeId - The index of the dispute.
+   * @returns {object} - The dispute data from the contract.
    */
   getDispute = async (contractAddress, disputeId) => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
+
     try {
-      const dispute = await contractInstance.disputes(disputeId)
+      const dispute = await this.contractInstance.disputes(disputeId)
       const numberOfAppeals = dispute[2].toNumber()
       const rulingChoices = dispute[3].toNumber()
 
@@ -378,7 +366,7 @@ class KlerosWrapper extends ContractWrapper {
         const voteCounts = []
         for (let choice = 0; choice <= rulingChoices; choice++)
           voteCounts.push(
-            contractInstance
+            this.contractInstance
               .getVoteCount(disputeId, appeal, choice)
               .then(v => v.toNumber())
           )
@@ -387,7 +375,7 @@ class KlerosWrapper extends ContractWrapper {
 
       ;[voteCounters, status] = await Promise.all([
         Promise.all(voteCounters.map(voteCounts => Promise.all(voteCounts))),
-        contractInstance.disputeStatus(disputeId)
+        this.contractInstance.disputeStatus(disputeId)
       ])
 
       return {
@@ -402,7 +390,8 @@ class KlerosWrapper extends ContractWrapper {
         status: status.toNumber()
       }
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_FETCH_DISPUTE)
     }
   }
 
@@ -413,15 +402,19 @@ class KlerosWrapper extends ContractWrapper {
    * @returns {number} - Number of jurors for a dispute.
    */
   getAmountOfJurorsForDispute = async (contractAddress, disputeId) => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
 
-    const amountOfJurors = await contractInstance.amountJurors(disputeId)
-
-    if (amountOfJurors) {
-      return amountOfJurors.toNumber()
-    } else {
-      throw new Error(`Dispute ${disputeId} does not exist`)
+    let amountOfJurors
+    try {
+      amountOfJurors = await this.contractInstance.amountJurors(disputeId)
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_FETCH_AMOUNT_OF_JURORS)
     }
+
+    if (amountOfJurors) return amountOfJurors.toNumber()
+
+    throw new Error(errorConstants.DISPUTE_DOES_NOT_EXIST)
   }
 
   /**
@@ -438,9 +431,9 @@ class KlerosWrapper extends ContractWrapper {
     contractAddress,
     jurorAddress = this._Web3Wrapper.getAccount(0)
   ) => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
 
-    const isDrawn = await contractInstance.isDrawn(
+    const isDrawn = await this.contractInstance.isDrawn(
       disputeId,
       jurorAddress,
       draw
@@ -458,14 +451,14 @@ class KlerosWrapper extends ContractWrapper {
    * @returns {bool} - Boolean indicating if juror can rule or not.
    */
   canRuleDispute = async (arbitratorAddress, disputeId, draws, account) => {
-    const contractInstance = await this.load(arbitratorAddress)
+    await this.load(arbitratorAddress)
 
-    const validDraws = await contractInstance.validDraws(
+    const validDraws = await this.contractInstance.validDraws(
       account,
       disputeId,
       draws
     )
-    const lastRuling = (await contractInstance.getLastSessionVote(
+    const lastRuling = (await this.contractInstance.getLastSessionVote(
       disputeId,
       account
     )).toNumber()
@@ -482,9 +475,12 @@ class KlerosWrapper extends ContractWrapper {
    * @returns {number} - Int indicating the ruling of the dispute.
    */
   currentRulingForDispute = async (contractAddress, disputeId, appeal) => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
 
-    const ruling = await contractInstance.getWinningChoice(disputeId, appeal)
+    const ruling = await this.contractInstance.getWinningChoice(
+      disputeId,
+      appeal
+    )
 
     return ruling.toNumber()
   }
@@ -495,9 +491,9 @@ class KlerosWrapper extends ContractWrapper {
    * @returns {number} - Int indicating the period.
    */
   getPeriod = async contractAddress => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
 
-    const currentPeriod = await contractInstance.period()
+    const currentPeriod = await this.contractInstance.period()
 
     return currentPeriod.toNumber()
   }
@@ -508,9 +504,9 @@ class KlerosWrapper extends ContractWrapper {
    * @returns {number} - Int indicating the session.
    */
   getSession = async contractAddress => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
 
-    const currentSession = await contractInstance.session()
+    const currentSession = await this.contractInstance.session()
 
     return currentSession.toNumber()
   }
@@ -523,7 +519,7 @@ class KlerosWrapper extends ContractWrapper {
    * @returns {object} - Data for kleros POC from contract.
    */
   getData = async contractAddress => {
-    const contractInstance = await this.load(contractAddress)
+    await this.load(contractAddress)
 
     const [
       pinakionContractAddress,
@@ -532,14 +528,12 @@ class KlerosWrapper extends ContractWrapper {
       session,
       lastPeriodChange
     ] = await Promise.all([
-      contractInstance.pinakion(),
-      contractInstance.rng(),
-      contractInstance.period(),
-      contractInstance.session(),
-      contractInstance.lastPeriodChange()
-    ]).catch(err => {
-      throw new Error(err)
-    })
+      this.contractInstance.pinakion(),
+      this.contractInstance.rng(),
+      this.contractInstance.period(),
+      this.contractInstance.session(),
+      this.contractInstance.lastPeriodChange()
+    ])
 
     return {
       pinakionContractAddress,

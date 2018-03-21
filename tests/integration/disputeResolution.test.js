@@ -153,7 +153,7 @@ describe('Dispute Resolution', () => {
       )
 
       // raise dispute party A
-      const txHashRaiseDisputeByPartyA = await KlerosInstance.disputes.raiseDisputePartyA(
+      const raiseDisputeByPartyATxObj = await KlerosInstance.disputes.raiseDisputePartyA(
         partyA,
         arbitrableContractAddress,
         arbitrationCost -
@@ -162,7 +162,7 @@ describe('Dispute Resolution', () => {
             'ether'
           )
       )
-      expect(txHashRaiseDisputeByPartyA).toEqual(
+      expect(raiseDisputeByPartyATxObj.tx).toEqual(
         expect.stringMatching(/^0x[a-f0-9]{64}$/)
       ) // tx hash
 
@@ -170,7 +170,7 @@ describe('Dispute Resolution', () => {
       // FIXME use arbitrableTransaction
       const partyBFeeContractInstance = await arbitrableContractInstance.partyBFee()
 
-      const txHashRaiseDisputeByPartyB = await KlerosInstance.disputes.raiseDisputePartyB(
+      const raiseDisputeByPartyBTxObj = await KlerosInstance.disputes.raiseDisputePartyB(
         partyB,
         arbitrableContractAddress,
         arbitrationCost -
@@ -179,7 +179,7 @@ describe('Dispute Resolution', () => {
             'ether'
           )
       )
-      expect(txHashRaiseDisputeByPartyB).toEqual(
+      expect(raiseDisputeByPartyBTxObj.tx).toEqual(
         expect.stringMatching(/^0x[a-f0-9]{64}$/)
       ) // tx hash
       const dispute = await KlerosInstance.klerosPOC.getDispute(
@@ -261,6 +261,7 @@ describe('Dispute Resolution', () => {
           klerosPOCAddress,
           other
         )
+        console.info(newState)
         expect(newState.period).toEqual(i)
       }
       let drawA = []
