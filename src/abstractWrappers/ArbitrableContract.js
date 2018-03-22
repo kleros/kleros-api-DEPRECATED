@@ -6,12 +6,11 @@ import AbstractWrapper from './AbstractWrapper'
 class ArbitrableContract extends AbstractWrapper {
   /**
    * ArbitrableContract Constructor.
-   * @param {object} storeProvider - Store provider object.
    * @param {object} arbitrableWrapper - Arbitrable contract wrapper object.
    * @param {object} eventListener - EventListener instance.
    */
-  constructor(storeProvider, arbitrableWrapper, eventListener) {
-    super(storeProvider, undefined, arbitrableWrapper, eventListener)
+  constructor(arbitrableWrapper, eventListener) {
+    super(undefined, arbitrableWrapper, eventListener)
   }
 
   /**
@@ -43,6 +42,7 @@ class ArbitrableContract extends AbstractWrapper {
     ...args
   ) => {
     this._checkArbitrableWrappersSet()
+    this._checkStoreProviderSet()
 
     const contractInstance = await this._ArbitrableContract.deploy(
       account,
@@ -90,6 +90,9 @@ class ArbitrableContract extends AbstractWrapper {
     description = '',
     url
   ) => {
+    this._checkArbitrableWrappersSet()
+    this._checkStoreProviderSet()
+
     const txHash = await this._ArbitrableContract.submitEvidence(
       account,
       contractAddress,
@@ -115,11 +118,27 @@ class ArbitrableContract extends AbstractWrapper {
    * @returns {string} - The arbitratror's address.
    */
   getArbitrator = async arbitrableContractAddress => {
+    this._checkArbitrableWrappersSet()
+
     const contractInstance = await this._loadArbitrableInstance(
       arbitrableContractAddress
     )
 
     return contractInstance.arbitrator()
+  }
+
+  /**
+   * Get all contracts TODO do we need to get contract data from blockchain?
+   * @param {string} account - Address of user.
+   * @returns {object[]} - Contract data from store.
+   */
+  getContractsForUser = async account => {
+    this._checkStoreProviderSet()
+
+    // fetch user profile
+    const userProfile = await this._StoreProvider.setUpUserProfile(account)
+
+    return userProfile.contracts
   }
 
   /**
@@ -129,10 +148,13 @@ class ArbitrableContract extends AbstractWrapper {
    * @returns {object} - Contract data.
    */
   getData = async (contractAddress, account) => {
+    this._checkArbitrableWrappersSet()
+    this._checkStoreProviderSet()
+
     const contractData = await this._ArbitrableContract.getData(contractAddress)
 
     let storeData = {}
-    if (account)
+    if (account && this._StoreProvider)
       storeData = await this._StoreProvider.getContractByAddress(
         account,
         contractAddress

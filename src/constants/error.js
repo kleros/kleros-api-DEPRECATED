@@ -54,6 +54,8 @@ export const NO_ARBITRATOR_WRAPPER_SPECIFIED =
   'No Arbitrator Contract Wrapper specified. Please call setArbitrator.'
 export const NO_ARBITRABLE_WRAPPER_SPECIFIED =
   'No Arbitrable Contract Wrapper specified. Please call setArbitrable.'
+export const NO_STORE_PROVIDER_SPECIFIED =
+  'No Store Provider Specified. Please call setStoreProvider'
 
 // Disputes
 export const NO_STORE_DATA_FOR_DISPUTE = account =>

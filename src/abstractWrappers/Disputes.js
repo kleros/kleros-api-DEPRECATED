@@ -1,6 +1,5 @@
 import _ from 'lodash'
 
-import * as ethConstants from '../constants/eth'
 import * as arbitratorConstants from '../constants/arbitrator'
 import * as disputeConstants from '../constants/dispute'
 import * as notificationConstants from '../constants/notification'
@@ -22,7 +21,7 @@ class Disputes extends AbstractWrapper {
    * @param {string} arbitratorAddress - The arbitrator contract's address.
    * @param {string} account - The account.
    */
-  addDisputeEventListener = async (arbitratorAddress, account) => {
+  addNewDisputeEventListener = async (arbitratorAddress, account) => {
     if (!this._eventListener) return
 
     const _disputeCreatedHandler = async (
@@ -126,7 +125,7 @@ class Disputes extends AbstractWrapper {
       if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
         this._checkArbitratorWrappersSet()
         const userProfile = await this._StoreProvider.getUserProfile(address)
-        const openDisputes = await this._getOpenDisputesForSession(
+        const openDisputes = await this._Arbitrator.getOpenDisputesForSession(
           arbitratorAddress
         )
 
@@ -209,7 +208,7 @@ class Disputes extends AbstractWrapper {
         this._checkArbitratorWrappersSet()
         const userProfile = await this._StoreProvider.getUserProfile(address)
         // contract data
-        const openDisputes = await this._getOpenDisputesForSession(
+        const openDisputes = await this._Arbitrator.getOpenDisputesForSession(
           arbitratorAddress
         )
 
@@ -252,85 +251,40 @@ class Disputes extends AbstractWrapper {
   // **************************** //
 
   /**
-   * Pay the arbitration fee to raise a dispute. To be called by the party A.
-   * @param {string} account - Ethereum account.
-   * @param {string} arbitrableContractAddress - Address address of arbitrable contract.
-   * @param {number} [arbitrationCost=DEFAULT_ARBITRATION_FEE] - Amount to pay the arbitrator.
-   * @returns {object} - The result transaction object.
-   */
-  raiseDisputePartyA = (
-    account,
-    arbitrableContractAddress,
-    arbitrationCost = arbitratorConstants.DEFAULT_ARBITRATION_FEE
-  ) => {
-    this._checkArbitrableWrappersSet()
-    return this._ArbitrableContract.payArbitrationFeeByPartyA(
-      account,
-      arbitrableContractAddress,
-      arbitrationCost
-    )
-  }
-
-  /**
-   * Pay the arbitration fee to raise a dispute. To be called by the party B.
-   * @param {string} account - Ethereum account.
-   * @param {string} arbitrableContractAddress - Address address of arbitrable contract.
-   * @param {number} [arbitrationCost=DEFAULT_ARBITRATION_FEE] - Amount to pay the arbitrator.
-   * @returns {object} - The result transaction object.
-   */
-  raiseDisputePartyB = (
-    account,
-    arbitrableContractAddress,
-    arbitrationCost = arbitratorConstants.DEFAULT_ARBITRATION_FEE
-  ) => {
-    this._checkArbitrableWrappersSet()
-    return this._ArbitrableContract.payArbitrationFeeByPartyB(
-      account,
-      arbitrableContractAddress,
-      arbitrationCost
-    )
-  }
-
-  /**
    * Get disputes for user with extra data from arbitrated transaction and store
    * @param {string} arbitratorAddress address of Kleros contract
    * @param {string} account address of user
    * @returns {object[]} dispute data objects for user
    */
   getDisputesForUser = async (arbitratorAddress, account) => {
-    // FIXME don't like having to call this every fnc
     this._checkArbitratorWrappersSet()
     this._checkArbitrableWrappersSet()
+    this._checkStoreProviderSet()
+
+    let newDisputeData = []
+
     // contract data
-    const arbitratorData = await this._Arbitrator.getData(
-      arbitratorAddress,
-      account
+    const [period, currentSession] = await Promise.all(
+      this._Arbitrator.getPeriod(arbitratorAddress),
+      this._Arbitrator.getSession(arbitratorAddress)
     )
 
     // fetch user profile
     let profile = await this._StoreProvider.setUpUserProfile(account)
-    // fetch current contract period
-    const period = arbitratorData.period
-    const currentSession = arbitratorData.session
-    // new jurors have not been chosen yet. don't update
 
-    const _getDisputesForUserFromStore = async account => {
-      let disputes = await this._StoreProvider.getDisputesForUser(account)
-      disputes = await Promise.all(
-        disputes.map(dispute =>
-          this.getDataForDispute(
-            dispute.arbitratorAddress,
-            dispute.disputeId,
-            account
-          )
+    const previousDisputeData = await Promise.all(
+      profile.disputes.map(dispute =>
+        this.getDataForDispute(
+          dispute.arbitratorAddress,
+          dispute.disputeId,
+          account
         )
       )
+    )
 
-      return disputes
-    }
-
+    // new jurors have not been chosen yet. don't update
     if (period !== arbitratorConstants.PERIOD.VOTE) {
-      return _getDisputesForUserFromStore(account)
+      return previousDisputeData
     }
 
     if (currentSession !== profile.session) {
@@ -340,7 +294,7 @@ class Disputes extends AbstractWrapper {
         account
       )
       // update store for each dispute
-      await Promise.all(
+      newDisputeData = await Promise.all(
         myDisputeIds.map(async disputeId => {
           // add dispute to db if it doesn't already exist
           await this._updateStoreForDispute(
@@ -348,6 +302,9 @@ class Disputes extends AbstractWrapper {
             disputeId,
             account
           )
+
+          // fetch data for dispute
+          return this.getDataForDispute(arbitratorAddress, disputeId, account)
         })
       )
 
@@ -356,111 +313,7 @@ class Disputes extends AbstractWrapper {
       })
     }
 
-    return _getDisputesForUserFromStore(account)
-  }
-
-  /**
-   * Get disputes from Kleros contract.
-   * @param {string} arbitratorAddress - Address of Kleros contract.
-   * @param {string} account - Address of user.
-   * @returns {int[]} - Array of dispute id's.
-   */
-  getDisputesForJuror = async (arbitratorAddress, account) => {
-    // FIXME don't like having to call this every fnc
-    this._checkArbitratorWrappersSet()
-    // contract data
-    const openDisputes = await this._getOpenDisputesForSession(
-      arbitratorAddress
-    )
-    const myDisputes = []
-
-    await Promise.all(
-      openDisputes.map(async disputeId => {
-        const draws = await this.getDrawsForJuror(
-          arbitratorAddress,
-          disputeId,
-          account
-        )
-        if (draws.length > 0) {
-          myDisputes.push(disputeId)
-        }
-      })
-    )
-
-    return myDisputes
-  }
-
-  /**
-   * Fetch the votes a juror has in a dispute.
-   * @param {string} arbitratorAddress - Address of the arbitrator contract.
-   * @param {number} disputeId - ID of the dispute.
-   * @param {string} account - Potential jurors address.
-   * @returns {number[]} - Array of integers indicating the draw.
-   */
-  getDrawsForJuror = async (arbitratorAddress, disputeId, account) => {
-    const numberOfJurors = await this._Arbitrator.getAmountOfJurorsForDispute(
-      arbitratorAddress,
-      disputeId
-    )
-    const draws = []
-    for (let draw = 1; draw <= numberOfJurors; draw++) {
-      const isJuror = await this._Arbitrator.isJurorDrawnForDispute(
-        disputeId,
-        draw,
-        arbitratorAddress,
-        account
-      )
-      if (isJuror) {
-        draws.push(draw)
-      }
-    }
-    return draws
-  }
-
-  /**
-   * Submit votes. Note can only be called during Voting period (Period 2).
-   * @param {string} arbitratorAddress - Address of KlerosPOC contract.
-   * @param {number} disputeId - Index of the dispute.
-   * @param {number} ruling - Int representing the jurors decision.
-   * @param {number[]} draws - Int[] of drawn votes for dispute.
-   * @param {string} account - Address of user.
-   * @returns {object} - The result transaction object.
-   */
-  submitVotesForDispute = (
-    arbitratorAddress,
-    disputeId,
-    ruling,
-    draws,
-    account
-  ) =>
-    this._Arbitrator.submitVotes(
-      arbitratorAddress,
-      disputeId,
-      ruling,
-      draws,
-      account
-    )
-
-  /**
-   * Gets the deadline for an arbitrator's period, which is also the deadline for all its disputes.
-   * @param {string} arbitratorAddress - The address of the arbitrator contract.
-   * @param {number} [period=PERIODS.VOTE] - The period to get the deadline for.
-   * @returns {number} - epoch timestamp
-   */
-  getDeadlineForOpenDispute = async (
-    arbitratorAddress,
-    period = arbitratorConstants.PERIOD.VOTE
-  ) => {
-    // Get arbitrator data
-    const arbitratorData = await this._Arbitrator.getData(arbitratorAddress)
-
-    // Last period change + current period duration = deadline
-    const result =
-      1000 *
-      (arbitratorData.lastPeriodChange +
-        (await this._Arbitrator.getTimeForPeriod(arbitratorAddress, period)))
-
-    return result
+    return newDisputeData.concat(previousDisputeData)
   }
 
   /**
@@ -481,6 +334,9 @@ class Disputes extends AbstractWrapper {
     ruledAt,
     deadline
   ) => {
+    this._checkStoreProviderSet()
+    this._checkArbitratorWrappersSet()
+
     const disputeData = await this.getDataForDispute(
       arbitratorAddress,
       disputeId,
@@ -521,7 +377,7 @@ class Disputes extends AbstractWrapper {
 
     const currentSession = await this._Arbitrator.getSession(arbitratorAddress)
     if (disputeData.lastSession === currentSession) {
-      const sessionDraws = await this.getDrawsForJuror(
+      const sessionDraws = await this._Arbitrator.getDrawsForJuror(
         arbitratorAddress,
         disputeId,
         account
@@ -552,6 +408,8 @@ class Disputes extends AbstractWrapper {
    * @returns {object} - Dispute data from store for user.
    */
   getUserDisputeFromStore = async (arbitratorAddress, disputeId, account) => {
+    this._checkStoreProviderSet()
+
     const userProfile = await this._StoreProvider.getUserProfile(account)
 
     const disputeArray = _.filter(
@@ -573,6 +431,7 @@ class Disputes extends AbstractWrapper {
    * @returns {object[]} - Array of evidence objects.
    */
   getEvidenceForArbitrableContract = async arbitrableContractAddress => {
+    this._checkStoreProviderSet()
     this._checkArbitrableWrappersSet()
 
     const arbitrableContractData = await this._ArbitrableContract.getData(
@@ -612,6 +471,9 @@ class Disputes extends AbstractWrapper {
    * @returns {object[]} - Array of ruling objects.
    */
   getRulingOptions = async (arbitratorAddress, disputeId) => {
+    this._checkArbitrableWrappersSet()
+    this._checkArbitratorWrappersSet()
+
     const arbitrableContractAddress = (await this._Arbitrator.getDispute(
       arbitratorAddress,
       disputeId
@@ -634,11 +496,13 @@ class Disputes extends AbstractWrapper {
   getDataForDispute = async (arbitratorAddress, disputeId, account) => {
     this._checkArbitratorWrappersSet()
     this._checkArbitrableWrappersSet()
+    this._checkStoreProviderSet()
 
     // Get dispute data from contract. Also get the current session and period.
-    const [dispute, arbitratorData] = await Promise.all([
+    const [dispute, period, session] = await Promise.all([
       this._Arbitrator.getDispute(arbitratorAddress, disputeId),
-      this._Arbitrator.getData(arbitratorAddress, account)
+      this._Arbitrator.getPeriod(arbitratorAddress),
+      this._Arbitrator.getSession(arbitratorAddress)
     ])
 
     // Get arbitrable contract data and evidence
@@ -707,10 +571,10 @@ class Disputes extends AbstractWrapper {
             )
           )
 
-        if (arbitratorData.session && arbitratorData.period)
+        if (session && period)
           canRepartition =
-            lastSession <= arbitratorData.session && // Not appealed to the next session
-            arbitratorData.period === arbitratorConstants.PERIOD.EXECUTE && // Executable period
+            lastSession <= session && // Not appealed to the next session
+            period === arbitratorConstants.PERIOD.EXECUTE && // Executable period
             dispute.state === disputeConstants.STATE.OPEN // Open dispute
         canExecute = dispute.state === disputeConstants.STATE.EXECUTABLE // Executable state
       }
@@ -765,46 +629,6 @@ class Disputes extends AbstractWrapper {
       appealDeadlines,
       appealRuledAt
     }
-  }
-
-  /** Listener to set dispute deadline when period passes to Vote
-   * @param {string} arbitratorAddress - address of arbitrator contract
-   * @returns {int[]} - array of active disputeId
-   */
-  _getOpenDisputesForSession = async arbitratorAddress => {
-    const currentSession = (await this._Arbitrator.getData(arbitratorAddress))
-      .session
-    const openDisputes = []
-
-    let disputeId = 0
-    let dispute
-    while (1) {
-      // Iterate over all the disputes
-      // TODO: Implement a more performant solution
-      try {
-        dispute = await this._Arbitrator.getDispute(
-          arbitratorAddress,
-          disputeId
-        )
-      } catch (err) {
-        // Dispute out of range, break
-        if (err.message === errorConstants.UNABLE_TO_FETCH_DISPUTE) break
-        console.error(err)
-        throw err
-      }
-
-      // Dispute has no arbitrable contract, break
-      if (dispute.arbitratedContract === ethConstants.NULL_ADDRESS) break
-
-      // If dispute is in the current session, add it to the result array
-      if (dispute.firstSession + dispute.numberOfAppeals === currentSession)
-        openDisputes.push(disputeId)
-
-      // Advance to the next dispute
-      disputeId++
-    }
-
-    return openDisputes
   }
 }
 

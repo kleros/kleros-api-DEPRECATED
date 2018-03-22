@@ -2,8 +2,7 @@ import Web3 from 'web3'
 
 import Kleros from '../../src/kleros'
 import * as ethConstants from '../../src/constants/eth'
-
-import { setUpContracts, resetUserProfile } from './helpers'
+import setUpContracts from '../helpers/setUpContracts'
 
 describe('Dispute Resolution', () => {
   let partyA
@@ -13,7 +12,6 @@ describe('Dispute Resolution', () => {
   let other
   let web3
   let KlerosInstance
-  let storeProvider
   let klerosPOCData
   let arbitrableContractData
   let klerosPOCAddress
@@ -28,6 +26,19 @@ describe('Dispute Resolution', () => {
     )
 
     KlerosInstance = await new Kleros(provider)
+    // FIXME make this better
+    // eslint-disable-next-line no-unused-vars
+    // KlerosInstance._storeWrapper._makeRequest = (verb, uri, body) =>
+    //   new Promise(resolve =>
+    //     resolve({
+    //       status: 200,
+    //       body: body || {
+    //         disputes: [],
+    //         contracts: [],
+    //         notifications: []
+    //       }
+    //     })
+    //   )
 
     web3 = await new Web3(provider)
 
@@ -36,8 +47,6 @@ describe('Dispute Resolution', () => {
     juror1 = web3.eth.accounts[7]
     juror2 = web3.eth.accounts[8]
     other = web3.eth.accounts[9]
-
-    storeProvider = await KlerosInstance.getStoreWrapper()
 
     klerosPOCData = {
       timesPerPeriod: [1, 1, 1, 1, 1],
@@ -61,15 +70,6 @@ describe('Dispute Resolution', () => {
     arbitrableContractAddress = undefined
     rngAddress = undefined
     pnkAddress = undefined
-  })
-
-  beforeEach(async () => {
-    // reset user profile in store
-    await resetUserProfile(storeProvider, partyA)
-    await resetUserProfile(storeProvider, partyB)
-    await resetUserProfile(storeProvider, juror1)
-    await resetUserProfile(storeProvider, juror2)
-    await resetUserProfile(storeProvider, other)
   })
 
   it(
@@ -218,18 +218,6 @@ describe('Dispute Resolution', () => {
         expect.stringMatching(/^0x[a-f0-9]{64}$/)
       ) // tx hash
 
-      let contracts = await KlerosInstance.arbitrator.getContractsForUser(
-        partyA
-      )
-      expect(contracts).toBeTruthy()
-
-      const contractStoreData = await KlerosInstance.arbitrableContract.getData(
-        arbitrableContractAddress,
-        partyA
-      )
-      expect(contractStoreData.evidences[0].url).toBe(testURL)
-      expect(contractStoreData.evidences[0].submittedAt).toBeTruthy()
-
       // check initial state of contract
       // FIXME var must be more explicit
       const initialState = await KlerosInstance.arbitrator.getData(
@@ -325,9 +313,6 @@ describe('Dispute Resolution', () => {
 
       const currentRuling = await klerosPOCInstance.currentRuling(0)
       expect(`${currentRuling}`).toEqual(`${winningRuling}`)
-
-      contracts = await KlerosInstance.arbitrator.getContractsForUser(partyA)
-      expect(contracts).toBeTruthy()
 
       await delaySecond()
       await KlerosInstance.arbitrator.passPeriod(klerosPOCAddress, other)

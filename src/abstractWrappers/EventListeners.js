@@ -5,12 +5,11 @@ import AbstractWrapper from './AbstractWrapper'
 class EventListeners extends AbstractWrapper {
   /**
    * Listen for events in contract and handles callbacks with registered event handlers
-   * @param {object} storeProvider - store provider object.
    * @param {object} arbitratorWrapper - arbitrator contract wrapper object.
    * @param {object} arbitrableWrapper - arbitrable contract wrapper object.
    */
-  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
-    super(storeProvider, arbitratorWrapper, arbitrableWrapper)
+  constructor(arbitratorWrapper, arbitrableWrapper) {
+    super(arbitratorWrapper, arbitrableWrapper)
     this._arbitratorEventMap = {} // key: event name, value: [event handlers, ...]
     this._arbitrableEventMap = {} // key: event name, value: [event handlers, ...]
     this._arbitratorEventsWatcher = null
