@@ -15,12 +15,6 @@ class Arbitrator extends AbstractWrapper {
     super(arbitratorWrapper, undefined, eventListener)
   }
 
-  // passthroughs
-  getPNKBalance = this._Arbitrator.getPNKBalance
-  activatePNK = this._Arbitrator.activatePNK
-  getData = this._Arbitrator.getData
-  passPeriod = this._Arbitrator.passPeriod
-
   /**
    * Buy PNK.
    * @param {number} amount - Number of pinakion to buy.
@@ -34,7 +28,7 @@ class Arbitrator extends AbstractWrapper {
     account
   ) => {
     await this._Arbitrator.buyPNK(amount, arbitratorAddress, account)
-    return this.getPNKBalance(arbitratorAddress, account)
+    return this._Arbitrator.getPNKBalance(arbitratorAddress, account)
   }
 }
 

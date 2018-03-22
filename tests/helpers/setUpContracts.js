@@ -28,17 +28,14 @@ const setUpContracts = async (
     klerosCourt.address
   )
 
-  const contractArbitrableTransaction = await KlerosInstance.arbitrableContract.deployContract(
+  const contractArbitrableTransaction = await KlerosInstance.arbitrableTransaction.deploy(
     arbitrableContractParams.partyA,
     arbitrableContractParams.value, // use default value (0)
     arbitrableContractParams.hash,
     klerosCourt.address,
     arbitrableContractParams.timeout,
     arbitrableContractParams.partyB,
-    arbitrableContractParams.extraData,
-    arbitrableContractParams.email,
-    arbitrableContractParams.title,
-    arbitrableContractParams.description
+    arbitrableContractParams.extraData
   )
 
   return [

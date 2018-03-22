@@ -197,7 +197,6 @@ class KlerosWrapper extends ContractWrapper {
    * Call contract to move on to the next period.
    * @param {string} arbitratorAddress - address of KlerosPOC contract.
    * @param {string} account - address of user.
-   * @returns {object} - data for kleros POC.
    */
   passPeriod = async (
     arbitratorAddress,
@@ -378,7 +377,9 @@ class KlerosWrapper extends ContractWrapper {
       ])
 
       return {
-        arbitratedContract: dispute[0],
+        arbitratorAddress,
+        disputeId,
+        arbitrableContractAddress: dispute[0],
         firstSession: dispute[1].toNumber(),
         numberOfAppeals,
         rulingChoices,
@@ -514,27 +515,29 @@ class KlerosWrapper extends ContractWrapper {
    * Get disputes from Kleros contract.
    * @param {string} arbitratorAddress - Address of Kleros contract.
    * @param {string} account - Address of user.
-   * @returns {int[]} - Array of dispute id's.
+   * @returns {object[]} - Array of disputes.
    */
   getDisputesForJuror = async (arbitratorAddress, account) => {
     // contract data
     const openDisputes = await this.getOpenDisputesForSession(arbitratorAddress)
-    const myDisputes = []
 
-    await Promise.all(
+    const disputes = await Promise.all(
       openDisputes.map(async disputeId => {
         const draws = await this.getDrawsForJuror(
           arbitratorAddress,
           disputeId,
           account
         )
-        if (draws.length > 0) {
-          myDisputes.push(disputeId)
-        }
+
+        const disputeData = await this.getDispute(arbitratorAddress, disputeId)
+        disputeData.appealDraws = []
+        disputeData.appealDraws[disputeData.numberOfAppeals] = draws
+
+        return disputeData
       })
     )
 
-    return myDisputes
+    return disputes
   }
 
   /**
@@ -587,7 +590,7 @@ class KlerosWrapper extends ContractWrapper {
       }
 
       // Dispute has no arbitrable contract, break
-      if (dispute.arbitratedContract === ethConstants.NULL_ADDRESS) break
+      if (dispute.arbitrableContractAddress === ethConstants.NULL_ADDRESS) break
 
       // If dispute is in the current session, add it to the result array
       if (dispute.firstSession + dispute.numberOfAppeals === currentSession)
@@ -621,6 +624,39 @@ class KlerosWrapper extends ContractWrapper {
         (await this.getTimeForPeriod(arbitratorAddress, period)))
 
     return result
+  }
+
+  /**
+   * Get data from Kleros contract.
+   * TODO split these into their own methods for more flexability and speed
+   * @param {string} contractAddress - Address of KlerosPOC contract.
+   * @param {string} account - Address of user.
+   * @returns {object} - Data for kleros POC from contract.
+   */
+  getData = async contractAddress => {
+    await this.load(contractAddress)
+
+    const [
+      pinakionContractAddress,
+      rngContractAddress,
+      period,
+      session,
+      lastPeriodChange
+    ] = await Promise.all([
+      this.contractInstance.pinakion(),
+      this.contractInstance.rng(),
+      this.contractInstance.period(),
+      this.contractInstance.session(),
+      this.contractInstance.lastPeriodChange()
+    ])
+
+    return {
+      pinakionContractAddress,
+      rngContractAddress,
+      period: period.toNumber(),
+      session: session.toNumber(),
+      lastPeriodChange: lastPeriodChange.toNumber()
+    }
   }
 }
 
