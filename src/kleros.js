@@ -63,7 +63,6 @@ class Kleros {
     if (storeProvider) this.setStoreProvider(storeProvider)
   }
 
-
   /**
    * Entry point to set up all event listerners and to start the events watcher
    * @param {string} arbitratorAddress Address of the arbitrator contract
@@ -75,7 +74,6 @@ class Kleros {
     account,
     callback // for notification callback
   ) => {
-    await this._storeWrapper.setUpUserProfile(account)
     this.eventListener.clearArbitratorHandlers()
     await this.disputes.addNewDisputeEventListener(arbitratorAddress, account)
     await this.disputes.addTokenShiftToJurorProfileEventListener(
@@ -102,9 +100,10 @@ class Kleros {
 
   /**
    * set store provider in all abstract wrappers
+   * @param {string} storeUri - The URI that the store provider will use
    */
-  setStoreProvider = storeProvider => {
-    this._storeWrapper = new StoreProviderWrapper(storeProvider)
+  setStoreProvider = storeUri => {
+    this._storeWrapper = new StoreProviderWrapper(storeUri)
 
     this.eventListener.setStoreProvider(this._storeWrapper)
     this.disputes.setStoreProvider(this._storeWrapper)
@@ -115,7 +114,6 @@ class Kleros {
 
   getWeb3Wrapper = () => this._web3Wrapper
   getStoreWrapper = () => this._storeWrapper
-
 }
 
 export default Kleros

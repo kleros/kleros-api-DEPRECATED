@@ -23,16 +23,8 @@ describe('Contracts', () => {
       ethConstants.LOCALHOST_ETH_PROVIDER
     )
 
+    // NOTE there is no store provider
     KlerosInstance = await new Kleros(provider)
-    // FIXME make this better
-    // eslint-disable-next-line no-unused-vars
-    KlerosInstance._storeWrapper._makeRequest = (verb, uri, body) =>
-      new Promise(resolve =>
-        resolve({
-          status: 200,
-          body: body || {}
-        })
-      )
 
     web3 = await new Web3(provider)
 
@@ -52,10 +44,7 @@ describe('Contracts', () => {
       value: 0,
       hash: 'test',
       timeout: 1,
-      extraData: '',
-      title: 'test title',
-      description: 'test description',
-      email: 'test@test.test'
+      extraData: ''
     }
 
     klerosPOCAddress = undefined
@@ -90,6 +79,7 @@ describe('Contracts', () => {
         expect(pinakionInstanceData.kleros).toEqual(klerosPOCAddress)
         expect(pinakionInstanceData.owner).toEqual(klerosPOCAddress)
         // KlerosPOC
+
         const klerosCourtData = await KlerosInstance.klerosPOC.getData(
           klerosPOCAddress
         )
@@ -98,7 +88,7 @@ describe('Contracts', () => {
         expect(klerosCourtData.period).toEqual(0)
         expect(klerosCourtData.session).toEqual(1)
         // arbitrable contract
-        const contractArbitrableTransactionData = await KlerosInstance.arbitrableContract.getData(
+        const contractArbitrableTransactionData = await KlerosInstance.arbitrableTransaction.getData(
           arbitrableContractAddress,
           partyA
         )
@@ -187,7 +177,7 @@ describe('Contracts', () => {
         )
 
         // raise dispute party A
-        const raiseDisputeByPartyATxObj = await KlerosInstance.disputes.raiseDisputePartyA(
+        const raiseDisputeByPartyATxObj = await KlerosInstance.arbitrableTransaction.payArbitrationFeeByPartyA(
           partyA,
           arbitrableContractAddress,
           arbitrationCost -

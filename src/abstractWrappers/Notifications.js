@@ -9,7 +9,7 @@ import * as errorConstants from '../constants/error'
 import AbstractWrapper from './AbstractWrapper'
 
 /**
- * Notifications API
+ * Notifications API.
  */
 class Notifications extends AbstractWrapper {
   // **************************** //
@@ -63,14 +63,18 @@ class Notifications extends AbstractWrapper {
     isJuror = true
   ) => {
     const notifications = []
-    const userProfile = await this._StoreProvider.getUserProfile(account)
+    const [contracts, disputes] = await Promise.all([
+      this._getContracts(account),
+      this._getDisputes(arbitratorAddress, account, isJuror)
+    ])
+
     const currentPeriod = await this._Arbitrator.getPeriod(arbitratorAddress)
     const currentSession = await this._Arbitrator.getSession(arbitratorAddress)
 
     if (isJuror) {
       /* Juror notifications:
       * - Activate tokens
-      * - Need to vote (get from store. client should call getDisputesForUser to populate) NOTE: or we could populate here and have disputes read from store?
+      * - Need to vote
       * - Ready to repartition (shared)
       * - Ready to execute (shared)
       */
@@ -93,11 +97,11 @@ class Notifications extends AbstractWrapper {
           )
         }
       } else if (currentPeriod === arbitratorConstants.PERIOD.VOTE) {
-        for (let dispute of userProfile.disputes) {
+        for (let dispute of disputes) {
           const draws = dispute.appealDraws[dispute.appealDraws.length - 1]
           if (draws) {
             const canVote = await this._Arbitrator.canRuleDispute(
-              dispute.arbitratorAddress,
+              arbitratorAddress,
               dispute.disputeId,
               draws,
               account
@@ -109,7 +113,7 @@ class Notifications extends AbstractWrapper {
                   'Need to vote on dispute',
                   {
                     disputeId: dispute.disputeId,
-                    arbitratorAddress: dispute.arbitratorAddress
+                    arbitratorAddress: arbitratorAddress
                   }
                 )
               )
@@ -124,7 +128,7 @@ class Notifications extends AbstractWrapper {
       * - Ready to execute (shared)
       */
       await Promise.all(
-        userProfile.contracts.map(async contract => {
+        contracts.map(async contract => {
           const contractData = await this._ArbitrableContract.getData(
             contract.address
           )
@@ -168,9 +172,9 @@ class Notifications extends AbstractWrapper {
     // Repartition and execute
     if (currentPeriod === arbitratorConstants.PERIOD.EXECUTE) {
       await Promise.all(
-        userProfile.disputes.map(async dispute => {
+        disputes.map(async dispute => {
           const disputeData = await this._Arbitrator.getDispute(
-            dispute.arbitratorAddress,
+            arbitratorAddress,
             dispute.disputeId
           )
           if (
@@ -184,7 +188,7 @@ class Notifications extends AbstractWrapper {
                   'Ready to repartition dispute',
                   {
                     disputeId: dispute.disputeId,
-                    arbitratorAddress: dispute.arbitratorAddress
+                    arbitratorAddress: arbitratorAddress
                   }
                 )
               )
@@ -197,7 +201,7 @@ class Notifications extends AbstractWrapper {
                   'Ready to execute dispute',
                   {
                     disputeId: dispute.disputeId,
-                    arbitratorAddress: dispute.arbitratorAddress
+                    arbitratorAddress: arbitratorAddress
                   }
                 )
               )
@@ -215,6 +219,8 @@ class Notifications extends AbstractWrapper {
    * @returns {object[]} - Array of notification objects.
    */
   getUnreadNotifications = async account => {
+    this._checkStoreProviderSet()
+
     const profile = await this._StoreProvider.getUserProfile(account)
     return _.filter(profile.notifications, notification => !notification.read)
   }
@@ -226,8 +232,16 @@ class Notifications extends AbstractWrapper {
    * @param {number} logIndex index of the log. used to differentiate logs if multiple logs per tx
    * @returns {promise} promise that can be waited on for syncronousity
    */
-  markNotificationAsRead = (account, txHash, logIndex) =>
-    this._StoreProvider.markNotificationAsRead(account, txHash, logIndex, true)
+  markNotificationAsRead = (account, txHash, logIndex) => {
+    this._checkStoreProviderSet()
+
+    return this._StoreProvider.markNotificationAsRead(
+      account,
+      txHash,
+      logIndex,
+      true
+    )
+  }
 
   /**
    * Fetch all user notifications.
@@ -235,8 +249,9 @@ class Notifications extends AbstractWrapper {
    * @returns {object[]} - Array of notification objects.
    */
   getNotifications = async account => {
-    const profile = await this._StoreProvider.getUserProfile(account)
-    return profile.notifications
+    this._checkStoreProviderSet()
+
+    return (await this._StoreProvider.getUserProfile(account)).notifications
   }
 
   // **************************** //
@@ -256,7 +271,7 @@ class Notifications extends AbstractWrapper {
     // send appeal possible notifications
     if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
       this._checkArbitratorWrappersSet()
-      const userProfile = await this._StoreProvider.getUserProfile(account)
+      const disputes = await this._getDisputes(arbitratorAddress, account)
       // contract data
       const arbitratorData = await this._Arbitrator.getData(
         arbitratorAddress,
@@ -277,7 +292,8 @@ class Notifications extends AbstractWrapper {
             arbitratorAddress,
             disputeId
           )
-          if (dispute.arbitratedContract === ethConstants.NULL_ADDRESS) break
+          if (dispute.arbitrableContractAddress === ethConstants.NULL_ADDRESS)
+            break
           // session + number of appeals
           const disputeSession = dispute.firstSession + dispute.numberOfAppeals
           // if dispute not in current session skip
@@ -295,7 +311,7 @@ class Notifications extends AbstractWrapper {
             disputeId
           )
 
-          if (_.findIndex(userProfile.disputes, findDisputeIndex) >= 0) {
+          if (_.findIndex(disputes, findDisputeIndex) >= 0) {
             const notification = await this._newNotification(
               account,
               event.transactionHash,
@@ -377,7 +393,7 @@ class Notifications extends AbstractWrapper {
     account,
     callback
   ) => {
-    const userProfile = await this._StoreProvider.getUserProfile(account)
+    const disputes = await this._getDisputes(arbitratorAddress, account)
     const disputeId = event.args._disputeID.toNumber()
     const ruling = await this._Arbitrator.currentRulingForDispute(
       arbitratorAddress,
@@ -386,7 +402,7 @@ class Notifications extends AbstractWrapper {
 
     if (
       _.findIndex(
-        userProfile.disputes,
+        disputes,
         dispute =>
           dispute.disputeId === disputeId &&
           dispute.arbitratorAddress === arbitratorAddress
@@ -423,12 +439,12 @@ class Notifications extends AbstractWrapper {
     account,
     callback
   ) => {
-    const userProfile = await this._StoreProvider.getUserProfile(account)
+    const disputes = await this._getDisputes(arbitratorAddress, account)
     const disputeId = event.args._disputeID.toNumber()
 
     if (
       _.findIndex(
-        userProfile.disputes,
+        disputes,
         dispute =>
           dispute.disputeId === disputeId &&
           dispute.arbitratorAddress === arbitratorAddress
@@ -516,7 +532,6 @@ class Notifications extends AbstractWrapper {
           amount
         }
       )
-      await this._StoreProvider.getUserProfile(account)
 
       if (notification) await this._sendPushNotification(callback, notification)
     }
@@ -559,45 +574,6 @@ class Notifications extends AbstractWrapper {
     message,
     data
   })
-
-  /**
-   * Creates a new notification object in the store.
-   * @param {string} account - The account.
-   * @param {string} txHash - The txHash.
-   * @param {number} logIndex - The logIndex.
-   * @param {number} notificationType - The notificationType.
-   * @param {string} message - The message.
-   * @param {object} data - The data.
-   * @param {bool} read - Wether the notification has been read or not.
-   * @returns {function} - The notification object.
-   */
-  _newNotification = async (
-    account,
-    txHash,
-    logIndex,
-    notificationType,
-    message = '',
-    data = {},
-    read = false
-  ) => {
-    const response = await this._StoreProvider.newNotification(
-      account,
-      txHash,
-      logIndex,
-      notificationType,
-      message,
-      data,
-      read
-    )
-
-    if (response.status === 201) {
-      const notification = response.body.notifications.filter(
-        notification =>
-          notification.txHash === txHash && notification.logIndex === logIndex
-      )
-      return notification[0]
-    }
-  }
 }
 
 export default Notifications

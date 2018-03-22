@@ -14,7 +14,6 @@ describe('Notifications and Event Listeners', () => {
   let other
   let web3
   let KlerosInstance
-  let storeProvider
   let notificationCallback
   let notifications = []
   let klerosPOCData
@@ -31,15 +30,6 @@ describe('Notifications and Event Listeners', () => {
     )
 
     KlerosInstance = await new Kleros(provider)
-    // FIXME make this better
-    // eslint-disable-next-line no-unused-vars
-    KlerosInstance._storeWrapper._makeRequest = (verb, uri, body) =>
-      new Promise(resolve =>
-        resolve({
-          status: 200,
-          body: body || {}
-        })
-      )
 
     web3 = await new Web3(provider)
 
@@ -107,19 +97,19 @@ describe('Notifications and Event Listeners', () => {
       )
 
       // buy 1 PNK juror1
-      await KlerosInstance.arbitrator.buyPNK(1, klerosPOCAddress, juror1)
+      await KlerosInstance.klerosPOC.buyPNK(1, klerosPOCAddress, juror1)
       // buy PNK for juror2
-      await KlerosInstance.arbitrator.buyPNK(1, klerosPOCAddress, juror2)
+      await KlerosInstance.klerosPOC.buyPNK(1, klerosPOCAddress, juror2)
 
       // activate PNK juror1
       const activatedTokenAmount = 0.5
-      KlerosInstance.arbitrator.activatePNK(
+      KlerosInstance.klerosPOC.activatePNK(
         activatedTokenAmount,
         klerosPOCAddress,
         juror1
       )
       // activate PNK juror2
-      await KlerosInstance.arbitrator.activatePNK(
+      await KlerosInstance.klerosPOC.activatePNK(
         activatedTokenAmount,
         klerosPOCAddress,
         juror2
@@ -150,7 +140,7 @@ describe('Notifications and Event Listeners', () => {
         extraDataContractInstance
       )
       // raise dispute party A
-      await KlerosInstance.disputes.raiseDisputePartyA(
+      await KlerosInstance.arbitrableTransaction.payArbitrationFeeByPartyA(
         partyA,
         arbitrableContractAddress,
         arbitrationCost -
@@ -160,26 +150,9 @@ describe('Notifications and Event Listeners', () => {
           )
       )
 
-      let partyBStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
-        klerosPOCAddress,
-        partyB,
-        false
-      )
-      expect(partyBStatefullNotifications.length).toEqual(1)
-      expect(partyBStatefullNotifications[0].notificationType).toEqual(
-        notificationConstants.TYPE.CAN_PAY_FEE
-      )
-      expect(
-        partyBStatefullNotifications[0].data.arbitrableContractAddress
-      ).toEqual(arbitrableContractAddress)
-      expect(partyBStatefullNotifications[0].data.feeToPay).toEqual(
-        arbitrationCost
-      )
-      // return a bigint
-      // FIXME use arbitrableTransaction
       const partyBFeeContractInstance = await arbitrableContractInstance.partyBFee()
 
-      await KlerosInstance.disputes.raiseDisputePartyB(
+      await KlerosInstance.arbitrableTransaction.payArbitrationFeeByPartyB(
         partyB,
         arbitrableContractAddress,
         arbitrationCost -
@@ -188,13 +161,6 @@ describe('Notifications and Event Listeners', () => {
             'ether'
           )
       )
-
-      partyBStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
-        klerosPOCAddress,
-        partyB,
-        false
-      )
-      expect(partyBStatefullNotifications.length).toEqual(0)
 
       const delaySecond = (seconds = 1) =>
         new Promise(resolve => {
@@ -234,7 +200,7 @@ describe('Notifications and Event Listeners', () => {
             data: '0x'
           })
         await delaySecond()
-        await KlerosInstance.arbitrator.passPeriod(klerosPOCAddress, other)
+        await KlerosInstance.klerosPOC.passPeriod(klerosPOCAddress, other)
       }
 
       let drawA = []
@@ -256,9 +222,6 @@ describe('Notifications and Event Listeners', () => {
 
       expect(drawA.length > 0 || drawB.length > 0).toBeTruthy()
 
-      await KlerosInstance.disputes.getDisputesForUser(klerosPOCAddress, juror1)
-      await KlerosInstance.disputes.getDisputesForUser(klerosPOCAddress, juror2)
-
       const jurorForNotifications =
         drawA.length > drawB.length ? juror1 : juror2
       // stateful notifications juror1
@@ -271,10 +234,9 @@ describe('Notifications and Event Listeners', () => {
       expect(jurorStatefullNotifications[0].notificationType).toEqual(
         notificationConstants.TYPE.CAN_VOTE
       )
-
       // submit rulings
       const rulingJuror1 = 1
-      await KlerosInstance.disputes.submitVotesForDispute(
+      await KlerosInstance.klerosPOC.submitVotes(
         klerosPOCAddress,
         0,
         rulingJuror1,
@@ -282,7 +244,7 @@ describe('Notifications and Event Listeners', () => {
         juror1
       )
       const rulingJuror2 = 2
-      await KlerosInstance.disputes.submitVotesForDispute(
+      await KlerosInstance.klerosPOC.submitVotes(
         klerosPOCAddress,
         0,
         rulingJuror2,
@@ -291,10 +253,10 @@ describe('Notifications and Event Listeners', () => {
       )
 
       await delaySecond()
-      await KlerosInstance.arbitrator.passPeriod(klerosPOCAddress, other)
+      await KlerosInstance.klerosPOC.passPeriod(klerosPOCAddress, other)
 
       await delaySecond()
-      await KlerosInstance.arbitrator.passPeriod(klerosPOCAddress, other)
+      await KlerosInstance.klerosPOC.passPeriod(klerosPOCAddress, other)
       // stateful notifications
       jurorStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
         klerosPOCAddress,
@@ -303,16 +265,6 @@ describe('Notifications and Event Listeners', () => {
       )
       expect(jurorStatefullNotifications.length).toEqual(1)
       expect(jurorStatefullNotifications[0].notificationType).toEqual(
-        notificationConstants.TYPE.CAN_REPARTITION
-      )
-
-      let partyAStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
-        klerosPOCAddress,
-        partyA,
-        false
-      )
-      expect(partyAStatefullNotifications.length).toEqual(1)
-      expect(partyAStatefullNotifications[0].notificationType).toEqual(
         notificationConstants.TYPE.CAN_REPARTITION
       )
 
@@ -334,23 +286,9 @@ describe('Notifications and Event Listeners', () => {
         notificationConstants.TYPE.CAN_EXECUTE
       )
 
-      partyAStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
-        klerosPOCAddress,
-        partyA,
-        false
-      )
-      expect(partyAStatefullNotifications.length).toEqual(1)
-      expect(partyAStatefullNotifications[0].notificationType).toEqual(
-        notificationConstants.TYPE.CAN_EXECUTE
-      )
-
       // execute ruling
       await KlerosInstance.klerosPOC.executeRuling(klerosPOCAddress, 0, other)
-      // balances after ruling
-      // partyA wins so they should recieve their arbitration fee as well as the value locked in contract
 
-      // NOTIFICATIONS
-      // stateful notifications
       juror1StatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
         klerosPOCAddress,
         juror1,
@@ -358,61 +296,23 @@ describe('Notifications and Event Listeners', () => {
       )
       expect(juror1StatefullNotifications.length).toEqual(0)
 
-      partyAStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
+      let partyAStatefullNotifications = await KlerosInstance.notifications.getStatefulNotifications(
         klerosPOCAddress,
         partyA,
         false
       )
       expect(partyAStatefullNotifications.length).toEqual(0)
 
-      // catch up on notifications
-      let {
-        promise: waitPromisePartyA2,
-        callback: waitCallbackPartyA2
-      } = waitNotifications(1, notificationCallback)
-      await KlerosInstance.watchForEvents(
-        klerosPOCAddress,
-        partyA,
-        waitCallbackPartyA2
-      )
-      await waitPromisePartyA2
-
-      KlerosInstance.eventListener.stopWatchingArbitratorEvents(
-        klerosPOCAddress
-      )
-
       expect(notifications.length).toBeTruthy()
-      // partyA got notifications
-      const allNotifications = await KlerosInstance.notifications.getNotifications(
-        partyA
-      )
-      expect(allNotifications.length).toBe(notifications.length)
 
       let notificationTypesExpected = [
-        notificationConstants.TYPE.DISPUTE_CREATED,
-        notificationConstants.TYPE.APPEAL_POSSIBLE
+        notificationConstants.TYPE.DISPUTE_CREATED
       ]
-      let notificationTypes = allNotifications.map(
+      let notificationTypes = notifications.map(
         notification => notification.notificationType
       )
       expect(notificationTypes.sort()).toEqual(notificationTypesExpected.sort())
 
-      let unreadNotification = await KlerosInstance.notifications.getUnreadNotifications(
-        partyA
-      )
-      expect(unreadNotification).toEqual(allNotifications)
-
-      await KlerosInstance.notifications.markNotificationAsRead(
-        partyA,
-        notifications[0].txHash,
-        notifications[0].logIndex
-      )
-
-      unreadNotification = await KlerosInstance.notifications.getUnreadNotifications(
-        partyA
-      )
-      expect(unreadNotification.length).toBe(notifications.length - 1)
-      // stop listening for partyA
       KlerosInstance.eventListener.stopWatchingArbitratorEvents(
         klerosPOCAddress
       )
@@ -433,20 +333,21 @@ describe('Notifications and Event Listeners', () => {
 
       await waitPromiseJuror
 
-      const juror1Notifications = await KlerosInstance.notifications.getNotifications(
-        juror1
-      )
       expect(notifications.length).toBeTruthy()
-      expect(juror1Notifications.length).toBe(notifications.length)
-      let totalRedistributedJuror1 = 0
-      for (let i = 0; i < juror1Notifications.length; i++) {
-        if (
-          juror1Notifications[i].notificationType ===
-          notificationConstants.TYPE.TOKEN_SHIFT
-        ) {
-          totalRedistributedJuror1 += juror1Notifications[i].data.amount
-        }
-      }
+
+      notificationTypesExpected = [
+        notificationConstants.TYPE.ARBITRATION_REWARD,
+        notificationConstants.TYPE.APPEAL_POSSIBLE
+      ]
+
+      drawA.forEach(() =>
+        notificationTypesExpected.push(notificationConstants.TYPE.TOKEN_SHIFT)
+      )
+
+      notificationTypes = notifications.map(
+        notification => notification.notificationType
+      )
+      expect(notificationTypes.sort()).toEqual(notificationTypesExpected.sort())
 
       KlerosInstance.eventListener.stopWatchingArbitratorEvents(
         klerosPOCAddress
