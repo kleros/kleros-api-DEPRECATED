@@ -265,13 +265,10 @@ class Disputes extends AbstractWrapper {
     this._checkStoreProviderSet()
 
     // contract data
-    const [period, currentSession] = await Promise.all(
+    const [period, currentSession] = await Promise.all([
       this._Arbitrator.getPeriod(arbitratorAddress),
       this._Arbitrator.getSession(arbitratorAddress)
-    )
-
-    // fetch user profile
-    let profile = await this._StoreProvider.setUpUserProfile(account)
+    ])
 
     const _getDisputesForUserFromStore = async account => {
       let disputes = await this._StoreProvider.getDisputesForUser(account)
@@ -292,9 +289,10 @@ class Disputes extends AbstractWrapper {
       return _getDisputesForUserFromStore(account)
     }
 
+    let profile = await this._StoreProvider.setUpUserProfile(account)
     if (currentSession !== profile.session) {
       // get disputes for juror
-      const myDisputes = await this.getDisputesForJuror(
+      const myDisputes = await this._Arbitrator.getDisputesForJuror(
         arbitratorAddress,
         account
       )
@@ -303,13 +301,6 @@ class Disputes extends AbstractWrapper {
         myDisputes.map(async dispute => {
           // add dispute to db if it doesn't already exist
           await this._updateStoreForDispute(
-            arbitratorAddress,
-            dispute.disputeId,
-            account
-          )
-
-          // fetch data for dispute
-          return this.getDataForDispute(
             arbitratorAddress,
             dispute.disputeId,
             account
