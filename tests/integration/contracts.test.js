@@ -2,18 +2,14 @@ import Web3 from 'web3'
 
 import Kleros from '../../src/kleros'
 import * as ethConstants from '../../src/constants/eth'
-
-import { setUpContracts, resetUserProfile } from './helpers'
+import setUpContracts from '../helpers/setUpContracts'
 
 describe('Contracts', () => {
   let partyA
   let partyB
-  let juror1
-  let juror2
   let other
   let web3
   let KlerosInstance
-  let storeProvider
   let klerosPOCData
   let arbitrableContractData
   let klerosPOCAddress
@@ -28,16 +24,21 @@ describe('Contracts', () => {
     )
 
     KlerosInstance = await new Kleros(provider)
+    // FIXME make this better
+    // eslint-disable-next-line no-unused-vars
+    KlerosInstance._storeWrapper._makeRequest = (verb, uri, body) =>
+      new Promise(resolve =>
+        resolve({
+          status: 200,
+          body: body || {}
+        })
+      )
 
     web3 = await new Web3(provider)
 
     partyA = web3.eth.accounts[0]
     partyB = web3.eth.accounts[1]
-    juror1 = web3.eth.accounts[2]
-    juror2 = web3.eth.accounts[3]
     other = web3.eth.accounts[4]
-
-    storeProvider = await KlerosInstance.getStoreWrapper()
 
     klerosPOCData = {
       timesPerPeriod: [1, 1, 1, 1, 1],
@@ -61,15 +62,6 @@ describe('Contracts', () => {
     arbitrableContractAddress = undefined
     rngAddress = undefined
     pnkAddress = undefined
-  })
-
-  beforeEach(async () => {
-    // reset user profile in store
-    await resetUserProfile(storeProvider, partyA)
-    await resetUserProfile(storeProvider, partyB)
-    await resetUserProfile(storeProvider, juror1)
-    await resetUserProfile(storeProvider, juror2)
-    await resetUserProfile(storeProvider, other)
   })
 
   describe('ArbitrableContract', async () => {
@@ -124,15 +116,6 @@ describe('Contracts', () => {
         )
         expect(contractArbitrableTransactionData.partyB).toEqual(
           arbitrableContractData.partyB
-        )
-        expect(contractArbitrableTransactionData.title).toEqual(
-          arbitrableContractData.title
-        )
-        expect(contractArbitrableTransactionData.description).toEqual(
-          arbitrableContractData.description
-        )
-        expect(contractArbitrableTransactionData.email).toEqual(
-          arbitrableContractData.email
         )
       },
       10000

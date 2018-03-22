@@ -3,8 +3,8 @@ import Web3 from 'web3'
 import Kleros from '../../src/kleros'
 import * as ethConstants from '../../src/constants/eth'
 import * as notificationConstants from '../../src/constants/notification'
-
-import { setUpContracts, waitNotifications, resetUserProfile } from './helpers'
+import setUpContracts from '../helpers/setUpContracts'
+import waitNotifications from '../helpers/waitNotifications'
 
 describe('Notifications and Event Listeners', () => {
   let partyA
@@ -31,6 +31,15 @@ describe('Notifications and Event Listeners', () => {
     )
 
     KlerosInstance = await new Kleros(provider)
+    // FIXME make this better
+    // eslint-disable-next-line no-unused-vars
+    KlerosInstance._storeWrapper._makeRequest = (verb, uri, body) =>
+      new Promise(resolve =>
+        resolve({
+          status: 200,
+          body: body || {}
+        })
+      )
 
     web3 = await new Web3(provider)
 
@@ -39,8 +48,6 @@ describe('Notifications and Event Listeners', () => {
     juror1 = web3.eth.accounts[12]
     juror2 = web3.eth.accounts[13]
     other = web3.eth.accounts[14]
-
-    storeProvider = await KlerosInstance.getStoreWrapper()
 
     klerosPOCData = {
       timesPerPeriod: [1, 1, 1, 1, 1],
@@ -68,15 +75,6 @@ describe('Notifications and Event Listeners', () => {
     notificationCallback = notification => {
       notifications.push(notification)
     }
-  })
-
-  beforeEach(async () => {
-    // reset user profile in store
-    await resetUserProfile(storeProvider, partyA)
-    await resetUserProfile(storeProvider, partyB)
-    await resetUserProfile(storeProvider, juror1)
-    await resetUserProfile(storeProvider, juror2)
-    await resetUserProfile(storeProvider, other)
   })
 
   it(
@@ -435,8 +433,6 @@ describe('Notifications and Event Listeners', () => {
 
       await waitPromiseJuror
 
-      const juror1Profile = await storeProvider.getUserProfile(juror1)
-      expect(juror1Profile.disputes.length).toEqual(1)
       const juror1Notifications = await KlerosInstance.notifications.getNotifications(
         juror1
       )
@@ -451,9 +447,6 @@ describe('Notifications and Event Listeners', () => {
           totalRedistributedJuror1 += juror1Notifications[i].data.amount
         }
       }
-      expect(
-        juror1Profile.disputes[0] ? juror1Profile.disputes[0].netPNK || 0 : 0
-      ).toEqual(totalRedistributedJuror1)
 
       KlerosInstance.eventListener.stopWatchingArbitratorEvents(
         klerosPOCAddress
