@@ -261,7 +261,6 @@ describe('Dispute Resolution', () => {
           klerosPOCAddress,
           other
         )
-        console.info(newState)
         expect(newState.period).toEqual(i)
       }
       let drawA = []
