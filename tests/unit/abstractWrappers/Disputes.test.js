@@ -12,7 +12,7 @@ describe('Disputes', () => {
     new Promise(resolve => {
       setTimeout(() => {
         resolve(response)
-      }, 1000)
+      }, 200)
     })
 
   beforeEach(async () => {
@@ -181,6 +181,171 @@ describe('Disputes', () => {
       expect(mockUpdateUserProfile.mock.calls[0][0]).toBe(account)
       expect(mockUpdateUserProfile.mock.calls[0][1]).toEqual({
         session: 2
+      })
+    })
+  })
+
+  describe('_updateStoreForDispute', async () => {
+    it('updates store with timestamps. Not in session', async () => {
+      const mockDispute = {
+        arbitrableContractAddress: 'mockAddress',
+        partyA: 'mockPartyA',
+        partyB: 'mockPartyA',
+        title: 'mockTitle',
+        status: 1,
+        appealCreatedAt: [],
+        appealRuledAt: [],
+        appealDeadlines: [],
+        lastSession: 1,
+        numberOfAppeals: 2
+      }
+      const mockGetDataForDispute = jest.fn()
+      disputesInstance.getDataForDispute = mockGetDataForDispute.mockReturnValue(
+        _asyncMockResponse(mockDispute)
+      )
+
+      const mockUpdateDispute = jest.fn()
+      const mockGetDisputeData = jest.fn()
+      const mockUpdateDisputeProfile = jest.fn()
+      const mockStore = {
+        updateDispute: mockUpdateDispute.mockReturnValue(
+          _asyncMockResponse(mockDispute)
+        ),
+        getDisputeData: mockGetDisputeData.mockReturnValue(
+          _asyncMockResponse({ appealDraws: [[3]] })
+        ),
+        updateDisputeProfile: mockUpdateDisputeProfile
+      }
+      disputesInstance.setStoreProvider(mockStore)
+
+      disputesInstance._Arbitrator.getSession = jest
+        .fn()
+        .mockReturnValue(_asyncMockResponse(2))
+
+      const mockGetDrawsForJuror = jest.fn()
+      disputesInstance._Arbitrator.getDrawsForJuror = mockGetDrawsForJuror
+
+      const params = [
+        arbitratorAddress,
+        0,
+        account,
+        11111111,
+        22222222,
+        3333333
+      ]
+
+      const dispute = await disputesInstance._updateStoreForDispute(...params)
+
+      expect(dispute).toBeTruthy()
+      expect(dispute).toEqual(mockDispute)
+      expect(mockGetDataForDispute.mock.calls.length).toBe(1)
+
+      expect(mockUpdateDispute.mock.calls.length).toBe(1)
+      expect(
+        mockUpdateDispute.mock.calls[0][2].appealCreatedAt[
+          mockDispute.numberOfAppeals
+        ]
+      ).toBe(params[3])
+      expect(
+        mockUpdateDispute.mock.calls[0][2].appealRuledAt[
+          mockDispute.numberOfAppeals
+        ]
+      ).toBe(params[4])
+      expect(
+        mockUpdateDispute.mock.calls[0][2].appealDeadlines[
+          mockDispute.numberOfAppeals
+        ]
+      ).toBe(params[5])
+
+      expect(mockGetDisputeData.mock.calls.length).toBe(1)
+
+      expect(mockGetDrawsForJuror.mock.calls.length).toBe(0)
+
+      expect(mockUpdateDisputeProfile.mock.calls.length).toBe(1)
+      expect(mockUpdateDisputeProfile.mock.calls[0][3]).toEqual({
+        appealDraws: [[3]]
+      })
+    })
+    it('updates store with timestamps. In session', async () => {
+      const mockDispute = {
+        arbitrableContractAddress: 'mockAddress',
+        partyA: 'mockPartyA',
+        partyB: 'mockPartyA',
+        title: 'mockTitle',
+        status: 1,
+        appealCreatedAt: [],
+        appealRuledAt: [],
+        appealDeadlines: [],
+        lastSession: 1,
+        numberOfAppeals: 0
+      }
+      const mockGetDataForDispute = jest.fn()
+      disputesInstance.getDataForDispute = mockGetDataForDispute.mockReturnValue(
+        _asyncMockResponse(mockDispute)
+      )
+
+      const mockUpdateDispute = jest.fn()
+      const mockGetDisputeData = jest.fn()
+      const mockUpdateDisputeProfile = jest.fn()
+      const mockStore = {
+        updateDispute: mockUpdateDispute.mockReturnValue(
+          _asyncMockResponse(mockDispute)
+        ),
+        getDisputeData: mockGetDisputeData.mockReturnValue(
+          _asyncMockResponse({})
+        ),
+        updateDisputeProfile: mockUpdateDisputeProfile
+      }
+      disputesInstance.setStoreProvider(mockStore)
+
+      disputesInstance._Arbitrator.getSession = jest
+        .fn()
+        .mockReturnValue(_asyncMockResponse(1))
+
+      const mockGetDrawsForJuror = jest.fn()
+      disputesInstance._Arbitrator.getDrawsForJuror = mockGetDrawsForJuror.mockReturnValue(
+        _asyncMockResponse([3])
+      )
+
+      const params = [
+        arbitratorAddress,
+        0,
+        account,
+        11111111,
+        22222222,
+        3333333
+      ]
+
+      const dispute = await disputesInstance._updateStoreForDispute(...params)
+
+      expect(dispute).toBeTruthy()
+      expect(dispute).toEqual(mockDispute)
+      expect(mockGetDataForDispute.mock.calls.length).toBe(1)
+
+      expect(mockUpdateDispute.mock.calls.length).toBe(1)
+      expect(
+        mockUpdateDispute.mock.calls[0][2].appealCreatedAt[
+          mockDispute.numberOfAppeals
+        ]
+      ).toBe(params[3])
+      expect(
+        mockUpdateDispute.mock.calls[0][2].appealRuledAt[
+          mockDispute.numberOfAppeals
+        ]
+      ).toBe(params[4])
+      expect(
+        mockUpdateDispute.mock.calls[0][2].appealDeadlines[
+          mockDispute.numberOfAppeals
+        ]
+      ).toBe(params[5])
+
+      expect(mockGetDisputeData.mock.calls.length).toBe(1)
+
+      expect(mockGetDrawsForJuror.mock.calls.length).toBe(1)
+
+      expect(mockUpdateDisputeProfile.mock.calls.length).toBe(1)
+      expect(mockUpdateDisputeProfile.mock.calls[0][3]).toEqual({
+        appealDraws: [[3]]
       })
     })
   })

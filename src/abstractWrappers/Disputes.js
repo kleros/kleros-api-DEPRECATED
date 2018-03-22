@@ -374,7 +374,6 @@ class Disputes extends AbstractWrapper {
       disputeId,
       account
     )
-
     const currentSession = await this._Arbitrator.getSession(arbitratorAddress)
     if (disputeData.lastSession === currentSession) {
       const sessionDraws = await this._Arbitrator.getDrawsForJuror(
