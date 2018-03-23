@@ -1,6 +1,5 @@
-import { expectThrow } from 'kleros-interaction/helpers/utils'
-
 import DisputesApi from '../../../src/abstractWrappers/Disputes'
+import * as errorConstants from '../../../src/constants/error'
 
 describe('Disputes', () => {
   let mockArbitratorWrapper = {}
@@ -394,12 +393,22 @@ describe('Disputes', () => {
 
       disputesInstance.setStoreProvider(mockStoreProvider)
 
-      expectThrow(
-        disputesInstance.getUserDisputeFromStore(
+      let didThrow = false
+      let error
+      try {
+        await disputesInstance.getUserDisputeFromStore(
           mockDispute.arbitratorAddress,
           mockDispute.disputeId + 1,
           account
         )
+      } catch (err) {
+        didThrow = true
+        error = err
+      }
+
+      expect(didThrow).toBeTruthy()
+      expect(error.message).toEqual(
+        errorConstants.NO_STORE_DATA_FOR_DISPUTE(account)
       )
     })
   })
