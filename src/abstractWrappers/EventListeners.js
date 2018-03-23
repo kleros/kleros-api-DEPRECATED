@@ -5,12 +5,11 @@ import AbstractWrapper from './AbstractWrapper'
 class EventListeners extends AbstractWrapper {
   /**
    * Listen for events in contract and handles callbacks with registered event handlers
-   * @param {object} storeProvider - store provider object.
    * @param {object} arbitratorWrapper - arbitrator contract wrapper object.
    * @param {object} arbitrableWrapper - arbitrable contract wrapper object.
    */
-  constructor(storeProvider, arbitratorWrapper, arbitrableWrapper) {
-    super(storeProvider, arbitratorWrapper, arbitrableWrapper)
+  constructor(arbitratorWrapper, arbitrableWrapper) {
+    super(arbitratorWrapper, arbitrableWrapper)
     this._arbitratorEventMap = {} // key: event name, value: [event handlers, ...]
     this._arbitrableEventMap = {} // key: event name, value: [event handlers, ...]
     this._arbitratorEventsWatcher = null
@@ -32,7 +31,11 @@ class EventListeners extends AbstractWrapper {
     if (arbitratorAddress) this.arbitratorAddress = arbitratorAddress
     if (account) this.account = account
 
-    const lastBlock = await this._StoreProvider.getLastBlock(this.account)
+    // Return all events if there is no Store Provider.
+    let lastBlock = 0
+    if (this._hasStoreProvider())
+      lastBlock = await this._StoreProvider.getLastBlock(this.account)
+
     const contractInstance = await this._loadArbitratorInstance(
       this.arbitratorAddress
     )
@@ -138,9 +141,10 @@ class EventListeners extends AbstractWrapper {
   _queueEvent = async (handler, event) => {
     const eventTask = async () => {
       await handler(event)
-      await this._StoreProvider.updateUserProfile(this.account, {
-        lastBlock: event.blockNumber
-      })
+      if (this._hasStoreProvider())
+        await this._StoreProvider.updateUserProfile(this.account, {
+          lastBlock: event.blockNumber
+        })
     }
 
     this.eventHandlerQueue.push(eventTask)

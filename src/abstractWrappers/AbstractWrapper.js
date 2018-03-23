@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 import * as errorConstants from '../constants/error'
 
 class AbstractWrapper {
@@ -5,18 +7,12 @@ class AbstractWrapper {
    * AbstractWrapper is the parent class for abstract classes that interact with the
    * store and the contract wrappers. The purpose of these classes are to separate the
    * metadata storage and retrieval logic from the on chain contracts.
-   * @param {object} storeProvider - Store provider object.
    * @param {object} arbitratorWrapper - Arbitrator contract wrapper object.
    * @param {object} arbitrableWrapper - Arbitrable contract wrapper object.
    * @param {object} eventListener - EventListener instance.
    */
-  constructor(
-    storeProvider,
-    arbitratorWrapper,
-    arbitrableWrapper,
-    eventListener
-  ) {
-    this._StoreProvider = storeProvider
+  constructor(arbitratorWrapper, arbitrableWrapper, eventListener) {
+    this._StoreProvider = null
     this._Arbitrator = arbitratorWrapper
     this._ArbitrableContract = arbitrableWrapper
     this._eventListener = eventListener
@@ -26,7 +22,7 @@ class AbstractWrapper {
    * set store wrapper
    * @param {object} storeWrapper wrapper for store
    */
-  setStore = storeWrapper => {
+  setStoreProvider = storeWrapper => {
     this._StoreProvider = storeWrapper
   }
 
@@ -55,8 +51,7 @@ class AbstractWrapper {
   }
 
   /**
-   * I can't wait for decorators
-   * throws an error if Arbitrator and Arbitable contract wrappers are not set yet
+   * throws an error if Arbitrator contract wrappers are not set yet
    */
   _checkArbitratorWrappersSet = () => {
     if (!this._Arbitrator)
@@ -64,13 +59,26 @@ class AbstractWrapper {
   }
 
   /**
-   * I can't wait for decorators
-   * throws an error if Arbitrator and Arbitable contract wrappers are not set yet
+   * throws an error if Arbitable contract wrappers are not set yet
    */
   _checkArbitrableWrappersSet = () => {
     if (!this._ArbitrableContract)
       throw new Error(errorConstants.NO_ARBITRABLE_WRAPPER_SPECIFIED)
   }
+
+  /**
+   * throws an error if Store Provider Wrapper is not set yet
+   */
+  _checkStoreProviderSet = () => {
+    if (_.isNull(this._StoreProvider))
+      throw new Error(errorConstants.NO_STORE_PROVIDER_SPECIFIED)
+  }
+
+  /**
+   * Returns boolean indicating if there is a StoreProvider
+   * @returns {boolean} is Store Provider set
+   */
+  _hasStoreProvider = () => !!this._StoreProvider
 
   /**
    * Load instance of arbitrator contract.
@@ -90,6 +98,100 @@ class AbstractWrapper {
   _loadArbitrableInstance = async arbitrableAddress => {
     this._checkArbitrableWrappersSet()
     return this._ArbitrableContract.load(arbitrableAddress)
+  }
+
+  /**
+   * Creates a new notification object in the store.
+   * @param {string} account - The account.
+   * @param {string} txHash - The txHash.
+   * @param {number} logIndex - The logIndex.
+   * @param {number} notificationType - The notificationType.
+   * @param {string} message - The message.
+   * @param {object} data - The data.
+   * @param {bool} read - Wether the notification has been read or not.
+   * @returns {function} - The notification object.
+   */
+  _newNotification = async (
+    account,
+    txHash,
+    logIndex,
+    notificationType,
+    message = '',
+    data = {},
+    read = false
+  ) => {
+    if (this._hasStoreProvider()) {
+      const response = await this._StoreProvider.newNotification(
+        account,
+        txHash,
+        logIndex,
+        notificationType,
+        message,
+        data,
+        read
+      )
+
+      if (response.status === 201) {
+        const notification = response.body.notifications.filter(
+          notification =>
+            notification.txHash === txHash && notification.logIndex === logIndex
+        )
+        return notification[0]
+      }
+    } else {
+      // If we have no store provider simply return object of params.
+      return {
+        txHash,
+        logIndex,
+        notificationType,
+        message,
+        data,
+        read
+      }
+    }
+  }
+
+  /**
+   * Get contracts from store if set or return empty array. Used for notifications
+   * @param {string} account - Filter notifications for account.
+   * @returns {object[]} - Array of dispute objects
+   */
+  _getContracts = async account => {
+    let contracts = []
+
+    // If we have store provider fetch contracts and disputes from the store.
+    if (this._hasStoreProvider()) {
+      const userProfile = await this._StoreProvider.getUserProfile(account)
+
+      contracts = userProfile.contracts
+    }
+
+    return contracts
+  }
+
+  /**
+   * Get disputes either from store or from arbitrator if Store Provider is not set. Used for notifications
+   * @param {string} arbitratorAddress - The arbitrator contract's address.
+   * @param {string} account - Filter notifications for account.
+   * @param {function} isJuror - If the account is a juror.
+   * @returns {object[]} - Array of dispute objects
+   */
+  _getDisputes = async (arbitratorAddress, account, isJuror = true) => {
+    let disputes = []
+
+    // If we have store provider fetch contracts and disputes from the store.
+    if (this._hasStoreProvider()) {
+      await this._StoreProvider.getDisputesForUser(account)
+    } else if (isJuror) {
+      // We have no way to get contracts. Get disputes from current session
+      // TODO make a function to get open disputes for parites
+      disputes = await this._Arbitrator.getDisputesForJuror(
+        arbitratorAddress,
+        account
+      )
+    }
+
+    return disputes
   }
 }
 
