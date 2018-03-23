@@ -1,3 +1,5 @@
+import { expectThrow } from 'kleros-interaction/helpers/utils'
+
 import DisputesApi from '../../../src/abstractWrappers/Disputes'
 
 describe('Disputes', () => {
@@ -347,6 +349,143 @@ describe('Disputes', () => {
       expect(mockUpdateDisputeProfile.mock.calls[0][3]).toEqual({
         appealDraws: [[3]]
       })
+    })
+  })
+
+  describe('getUserDisputeFromStore', async () => {
+    it('fetches dispute', async () => {
+      const mockGetUserProfile = jest.fn()
+      const mockDispute = {
+        arbitratorAddress,
+        disputeId: 0
+      }
+      const mockStoreProvider = {
+        getUserProfile: mockGetUserProfile.mockReturnValue(
+          _asyncMockResponse({
+            disputes: [mockDispute]
+          })
+        )
+      }
+
+      disputesInstance.setStoreProvider(mockStoreProvider)
+
+      const dispute = await disputesInstance.getUserDisputeFromStore(
+        mockDispute.arbitratorAddress,
+        mockDispute.disputeId,
+        account
+      )
+
+      expect(dispute).toBeTruthy()
+      expect(dispute).toEqual(mockDispute)
+    })
+    it('cannot fetch dispute', async () => {
+      const mockGetUserProfile = jest.fn()
+      const mockDispute = {
+        arbitratorAddress,
+        disputeId: 0
+      }
+      const mockStoreProvider = {
+        getUserProfile: mockGetUserProfile.mockReturnValue(
+          _asyncMockResponse({
+            disputes: [mockDispute]
+          })
+        )
+      }
+
+      disputesInstance.setStoreProvider(mockStoreProvider)
+
+      expectThrow(
+        disputesInstance.getUserDisputeFromStore(
+          mockDispute.arbitratorAddress,
+          mockDispute.disputeId + 1,
+          account
+        )
+      )
+    })
+  })
+
+  describe('getEvidenceForArbitrableContract', async () => {
+    it('combines evidence from both parties', async () => {
+      const partyA = '0x0'
+      const partyB = '0x1'
+      const arbitrableContractAddress = '0xfakeaddress'
+      const mockData = {
+        partyA,
+        partyB
+      }
+      const mockGetData = jest.fn()
+      disputesInstance._ArbitrableContract.getData = mockGetData.mockReturnValue(
+        _asyncMockResponse(mockData)
+      )
+
+      const mockGetContractByAddress = jest.fn()
+      // return partyA then partyB contract
+      mockGetContractByAddress.mockReturnValueOnce({
+        evidences: [
+          {
+            name: 'testPartyA'
+          }
+        ]
+      })
+      mockGetContractByAddress.mockReturnValueOnce({
+        evidences: [
+          {
+            name: 'testPartyB'
+          }
+        ]
+      })
+
+      const mockStore = {
+        getContractByAddress: mockGetContractByAddress
+      }
+
+      disputesInstance.setStoreProvider(mockStore)
+
+      const evidence = await disputesInstance.getEvidenceForArbitrableContract(
+        arbitrableContractAddress
+      )
+
+      expect(evidence).toBeTruthy()
+      expect(evidence.length).toBe(2)
+      expect(evidence[0].submitter).toEqual(partyA)
+    })
+    it('still fetches evidence when one party has none', async () => {
+      const partyA = '0x0'
+      const partyB = '0x1'
+      const arbitrableContractAddress = '0xfakeaddress'
+      const mockData = {
+        partyA,
+        partyB
+      }
+      const mockGetData = jest.fn()
+      disputesInstance._ArbitrableContract.getData = mockGetData.mockReturnValue(
+        _asyncMockResponse(mockData)
+      )
+
+      const mockGetContractByAddress = jest.fn()
+      // return partyA then partyB contract
+      mockGetContractByAddress.mockReturnValueOnce({
+        evidences: [
+          {
+            name: 'testPartyA'
+          }
+        ]
+      })
+      mockGetContractByAddress.mockReturnValueOnce(null)
+
+      const mockStore = {
+        getContractByAddress: mockGetContractByAddress
+      }
+
+      disputesInstance.setStoreProvider(mockStore)
+
+      const evidence = await disputesInstance.getEvidenceForArbitrableContract(
+        arbitrableContractAddress
+      )
+
+      expect(evidence).toBeTruthy()
+      expect(evidence.length).toBe(1)
+      expect(evidence[0].submitter).toEqual(partyA)
     })
   })
 })

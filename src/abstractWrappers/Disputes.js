@@ -464,27 +464,6 @@ class Disputes extends AbstractWrapper {
   }
 
   /**
-   * Get ruling options for dispute.
-   * @param {string} arbitratorAddress - Address of arbitrator contract.
-   * @param {string} disputeId - Dispute ID.
-   * @returns {object[]} - Array of ruling objects.
-   */
-  getRulingOptions = async (arbitratorAddress, disputeId) => {
-    this._checkArbitrableWrappersSet()
-    this._checkArbitratorWrappersSet()
-
-    const arbitrableContractAddress = (await this._Arbitrator.getDispute(
-      arbitratorAddress,
-      disputeId
-    )).arbitrableContractAddress
-    return this._ArbitrableContract.getRulingOptions(
-      arbitrableContractAddress,
-      arbitratorAddress,
-      disputeId
-    )
-  }
-
-  /**
    * Get data for a dispute.
    * @param {string} arbitratorAddress - The arbitrator contract's address.
    * @param {number} disputeId - The dispute's ID.

@@ -189,7 +189,8 @@ describe('Dispute Resolution', () => {
       )
 
       // check fetch resolution options
-      const resolutionOptions = await KlerosInstance.disputes.getRulingOptions(
+      const resolutionOptions = await KlerosInstance.arbitrableTransaction.getRulingOptions(
+        arbitrableContractAddress,
         klerosPOCAddress,
         0
       )
