@@ -1,13 +1,8 @@
 import PromiseQueue from '../../../src/utils/PromiseQueue'
+import delaySecond from '../../helpers/delaySecond'
 
 describe('PromiseQueue', () => {
   let promiseQueue
-  const delaySecond = (seconds = 1) =>
-    new Promise(resolve => {
-      setTimeout(() => {
-        resolve(true)
-      }, 1000 * seconds)
-    })
 
   beforeEach(() => {
     promiseQueue = new PromiseQueue()

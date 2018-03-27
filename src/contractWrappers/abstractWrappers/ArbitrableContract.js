@@ -1,16 +1,14 @@
+import delegateCalls from '../../utils/delegateCalls'
+
 import AbstractWrapper from './AbstractWrapper'
 
 /**
  * Arbitrable Contract API.
  */
 class ArbitrableContract extends AbstractWrapper {
-  /**
-   * ArbitrableContract Constructor.
-   * @param {object} arbitrableWrapper - Arbitrable contract wrapper object.
-   * @param {object} eventListener - EventListener instance.
-   */
-  constructor(arbitrableWrapper, eventListener) {
-    super(undefined, arbitrableWrapper, eventListener)
+  constructor(contractWrapperInstance, storeProviderWrapperInstance) {
+    super(contractWrapperInstance, storeProviderWrapperInstance)
+    delegateCalls(this, contractWrapperInstance)
   }
 
   /**
@@ -28,7 +26,7 @@ class ArbitrableContract extends AbstractWrapper {
    * @param {...any} args - Extra arguments for the contract.
    * @returns {object | Error} - The contract object or an error.
    */
-  deployContract = async (
+  deploy = async (
     account,
     value,
     hashContract,
@@ -41,10 +39,7 @@ class ArbitrableContract extends AbstractWrapper {
     description = '',
     ...args
   ) => {
-    this._checkArbitrableWrappersSet()
-    this._checkStoreProviderSet()
-
-    const contractInstance = await this._ArbitrableContract.deploy(
+    const contractInstance = await this._contractWrapper.deploy(
       account,
       value,
       hashContract,
@@ -55,20 +50,21 @@ class ArbitrableContract extends AbstractWrapper {
       ...args
     )
 
-    await this._StoreProvider.updateContract(
-      account,
-      contractInstance.address,
-      {
-        hashContract,
-        partyA: account,
-        partyB,
-        arbitrator: arbitratorAddress,
-        timeout,
-        email,
-        title,
-        description
-      }
-    )
+    if (this._hasStoreProvider())
+      await this._StoreProvider.updateContract(
+        account,
+        contractInstance.address,
+        {
+          hashContract,
+          partyA: account,
+          partyB,
+          arbitrator: arbitratorAddress,
+          timeout,
+          email,
+          title,
+          description
+        }
+      )
 
     // return contract data
     return this.getData(contractInstance.address, account)
@@ -90,10 +86,7 @@ class ArbitrableContract extends AbstractWrapper {
     description = '',
     url
   ) => {
-    this._checkArbitrableWrappersSet()
-    this._checkStoreProviderSet()
-
-    const txHash = await this._ArbitrableContract.submitEvidence(
+    const txHash = await this._contractWrapper.submitEvidence(
       account,
       contractAddress,
       name,
@@ -101,30 +94,16 @@ class ArbitrableContract extends AbstractWrapper {
       url
     )
 
-    await this._StoreProvider.addEvidenceContract(
-      contractAddress,
-      account,
-      name,
-      description,
-      url
-    )
+    if (this._hasStoreProvider())
+      await this._StoreProvider.addEvidenceContract(
+        contractAddress,
+        account,
+        name,
+        description,
+        url
+      )
 
     return txHash
-  }
-
-  /**
-   * Gets the arbitrator address of the contract.
-   * @param {string} arbitrableContractAddress - The address of the contract.
-   * @returns {string} - The arbitratror's address.
-   */
-  getArbitrator = async arbitrableContractAddress => {
-    this._checkArbitrableWrappersSet()
-
-    const contractInstance = await this._loadArbitrableInstance(
-      arbitrableContractAddress
-    )
-
-    return contractInstance.arbitrator()
   }
 
   /**
@@ -133,12 +112,49 @@ class ArbitrableContract extends AbstractWrapper {
    * @returns {object[]} - Contract data from store.
    */
   getContractsForUser = async account => {
-    this._checkStoreProviderSet()
-
+    if (!this._hasStoreProvider()) return []
     // fetch user profile
     const userProfile = await this._StoreProvider.setUpUserProfile(account)
 
     return userProfile.contracts
+  }
+
+  /**
+   * Get evidence for contract.
+   * @param {string} arbitrableContractAddress - Address of arbitrable contract.
+   * @returns {object[]} - Array of evidence objects.
+   */
+  getEvidenceForArbitrableContract = async arbitrableContractAddress => {
+    if (!this._hasStoreProvider()) return []
+
+    const arbitrableContractData = await this._contractWrapper.getData(
+      arbitrableContractAddress
+    )
+    const partyAContractData = await this._StoreProvider.getContractByAddress(
+      arbitrableContractData.partyA,
+      arbitrableContractAddress
+    )
+    const partyBContractData = await this._StoreProvider.getContractByAddress(
+      arbitrableContractData.partyB,
+      arbitrableContractAddress
+    )
+
+    const partyAEvidence = (partyAContractData
+      ? partyAContractData.evidences
+      : []
+    ).map(evidence => {
+      evidence.submitter = arbitrableContractData.partyA
+      return evidence
+    })
+    const partyBEvidence = (partyBContractData
+      ? partyBContractData.evidences
+      : []
+    ).map(evidence => {
+      evidence.submitter = arbitrableContractData.partyB
+      return evidence
+    })
+
+    return partyAEvidence.concat(partyBEvidence)
   }
 
   /**
@@ -148,13 +164,10 @@ class ArbitrableContract extends AbstractWrapper {
    * @returns {object} - Contract data.
    */
   getData = async (contractAddress, account) => {
-    this._checkArbitrableWrappersSet()
-    this._checkStoreProviderSet()
-
-    const contractData = await this._ArbitrableContract.getData(contractAddress)
+    const contractData = await this._contractWrapper.getData(contractAddress)
 
     let storeData = {}
-    if (account && this._StoreProvider)
+    if (account && this._hasStoreProvider())
       storeData = await this._StoreProvider.getContractByAddress(
         account,
         contractAddress

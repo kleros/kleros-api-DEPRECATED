@@ -9,14 +9,13 @@ const setUpContracts = async (
   const pinakionInstance = await KlerosInstance.pinakion.deploy()
 
   // initialize KlerosPOC
-  const klerosCourt = await KlerosInstance.klerosPOC.deploy(
+  const klerosCourt = await KlerosInstance.arbitrator.deploy(
     rngInstance.address,
     pinakionInstance.address,
     klerosPOCParams.timesPerPeriod,
     klerosPOCParams.account,
     klerosPOCParams.value
   )
-
   // transfer ownership and set kleros instance
   await KlerosInstance.pinakion.setKleros(
     pinakionInstance.address,
@@ -28,7 +27,7 @@ const setUpContracts = async (
     klerosCourt.address
   )
 
-  const contractArbitrableTransaction = await KlerosInstance.arbitrableTransaction.deploy(
+  const contractArbitrableTransaction = await KlerosInstance.arbitrableContract.deploy(
     arbitrableContractParams.partyA,
     arbitrableContractParams.value, // use default value (0)
     arbitrableContractParams.hash,

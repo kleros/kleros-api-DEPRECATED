@@ -3,15 +3,14 @@ import _ from 'lodash'
 import * as arbitratorConstants from '../constants/arbitrator'
 import * as disputeConstants from '../constants/dispute'
 import * as notificationConstants from '../constants/notification'
-import * as errorConstants from '../constants/error'
 
-import AbstractWrapper from './AbstractWrapper'
+import ResourceWrapper from './ResourceWrapper'
 
 /**
  * Disputes API.
  * Requires Store Provider to be set to call methods.
  */
-class Disputes extends AbstractWrapper {
+class Disputes extends ResourceWrapper {
   // **************************** //
   // *         Events           * //
   // **************************** //
@@ -22,32 +21,47 @@ class Disputes extends AbstractWrapper {
    * @param {string} arbitratorAddress - The arbitrator contract's address.
    * @param {string} account - The account.
    */
-  addNewDisputeEventListener = async (arbitratorAddress, account) => {
+  addNewDisputeEventListener = async arbitratorAddress => {
     if (!this._eventListener) return
 
     const _disputeCreatedHandler = async (
       event,
-      contractAddress = arbitratorAddress,
-      address = account
+      contractAddress = arbitratorAddress
     ) => {
+      // There is no need to handle this event if we are not using the store
+      if (!this._hasStoreProvider()) return
       const disputeId = event.args._disputeID.toNumber()
-      const disputeData = await this.getDataForDispute(
-        contractAddress,
-        disputeId,
-        account
-      )
-      // if listener is a party in dispute add to store
-      if (disputeData.partyA === address || disputeData.partyB === address) {
-        const blockNumber = event.blockNumber
-        const block = this._Arbitrator._Web3Wrapper.getBlock(blockNumber)
 
-        // add new dispute with timestamp
-        await this._updateStoreForDispute(
+      const existingDispute = (await this._StoreProvider.getDispute(
+        contractAddress,
+        disputeId
+      )).body
+
+      // Add dispute to store if not there
+      if (_.isNull(existingDispute)) {
+        // arbitrator data
+        const disputeData = await this._Arbitrator.getDispute(
           contractAddress,
-          disputeId,
-          address,
-          block.timestamp * 1000
+          disputeId
         )
+        // arbitrable contract data
+        const arbitrableContractData = await this._ArbitrableContract.getData(
+          disputeData.arbitrableContractAddress
+        )
+        // timestamp
+        const blockTimestamp = this._Arbitrator._Web3Wrapper.getBlock(
+          event.blockNumber
+        ).timestamp
+        const appealCreatedAt = disputeData.appealCreatedAt
+        appealCreatedAt[disputeData.numberOfAppeals] = blockTimestamp * 1000
+
+        await this._StoreProvider.updateDispute(arbitratorAddress, disputeId, {
+          contractAddress: disputeData.arbitrableContractAddress,
+          partyA: arbitrableContractData.partyA,
+          partyB: arbitrableContractData.partyB,
+          status: disputeData.status,
+          appealCreatedAt
+        })
       }
     }
 
@@ -125,7 +139,7 @@ class Disputes extends AbstractWrapper {
       // send appeal possible notifications
       if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
         this._checkArbitratorWrappersSet()
-        const disputes = await this._getDisputes(arbitratorAddress, account)
+        const disputes = await this._getDisputes(arbitratorAddress, address)
         const openDisputes = await this._Arbitrator.getOpenDisputesForSession(
           arbitratorAddress
         )
@@ -163,18 +177,30 @@ class Disputes extends AbstractWrapper {
                 }
               )
 
-              // get ruledAt from block timestamp
-              const blockNumber = event.blockNumber
-              const block = this._Arbitrator._Web3Wrapper.getBlock(blockNumber)
-              // add ruledAt to store
-              if (this._hasStoreProvider())
-                await this._updateStoreForDispute(
-                  contractAddress,
+              if (this._hasStoreProvider()) {
+                // get ruledAt from block timestamp
+                const blockNumber = event.blockNumber
+                const blockTimestamp = this._Arbitrator._Web3Wrapper.getBlock(
+                  blockNumber
+                ).timestamp
+
+                const disputeData = await this.getDataForDispute(
+                  arbitratorAddress,
                   disputeId,
-                  address,
-                  null,
-                  block.timestamp * 1000
+                  address
                 )
+                const appealRuledAt = disputeData.appealRuledAt
+                appealRuledAt[disputeData.numberOfAppeals] =
+                  blockTimestamp * 1000
+
+                this._StoreProvider.updateDispute(
+                  arbitratorAddress,
+                  disputeId,
+                  {
+                    appealRuledAt
+                  }
+                )
+              }
 
               if (notificationCallback && notification) {
                 notificationCallback(notification)
@@ -205,11 +231,13 @@ class Disputes extends AbstractWrapper {
       contractAddress = arbitratorAddress,
       address = account
     ) => {
+      if (!this._hasStoreProvider()) return
+
       const newPeriod = event.args._period.toNumber()
       // send appeal possible notifications
       if (newPeriod === arbitratorConstants.PERIOD.VOTE) {
         this._checkArbitratorWrappersSet()
-        const disputes = await this._getDisputes(arbitratorAddress, account)
+        const disputes = await this._getDisputes(arbitratorAddress, address)
         // contract data
         const openDisputes = await this._Arbitrator.getOpenDisputesForSession(
           arbitratorAddress
@@ -228,15 +256,17 @@ class Disputes extends AbstractWrapper {
               const deadline = await this.getDeadlineForOpenDispute(
                 arbitratorAddress
               )
-              // add ruledAt to store
-              await this._updateStoreForDispute(
-                contractAddress,
+              const disputeData = await this.getDataForDispute(
+                arbitratorAddress,
                 disputeId,
-                address,
-                null,
-                null,
-                deadline
+                address
               )
+              const appealDeadlines = disputeData.appealDeadlines
+              appealDeadlines[disputeData.numberOfAppeals] = deadline
+
+              this._StoreProvider.updateDispute(arbitratorAddress, disputeId, {
+                appealDeadlines
+              })
             }
           })
         )
@@ -252,217 +282,6 @@ class Disputes extends AbstractWrapper {
   // **************************** //
   // *          Public          * //
   // **************************** //
-
-  /**
-   * Get disputes for user with extra data from arbitrated transaction and store
-   * @param {string} arbitratorAddress address of Kleros contract
-   * @param {string} account address of user
-   * @returns {object[]} dispute data objects for user
-   */
-  getDisputesForUser = async (arbitratorAddress, account) => {
-    this._checkArbitratorWrappersSet()
-    this._checkArbitrableWrappersSet()
-    this._checkStoreProviderSet()
-
-    // contract data
-    const [period, currentSession] = await Promise.all([
-      this._Arbitrator.getPeriod(arbitratorAddress),
-      this._Arbitrator.getSession(arbitratorAddress)
-    ])
-
-    const _getDisputesForUserFromStore = async account => {
-      let disputes = await this._StoreProvider.getDisputesForUser(account)
-
-      return Promise.all(
-        disputes.map(dispute =>
-          this.getDataForDispute(
-            dispute.arbitratorAddress,
-            dispute.disputeId,
-            account
-          )
-        )
-      )
-    }
-
-    // new jurors have not been chosen yet. don't update
-    if (period !== arbitratorConstants.PERIOD.VOTE) {
-      return _getDisputesForUserFromStore(account)
-    }
-
-    let profile = await this._StoreProvider.setUpUserProfile(account)
-    if (currentSession !== profile.session) {
-      // get disputes for juror
-      const myDisputes = await this._Arbitrator.getDisputesForJuror(
-        arbitratorAddress,
-        account
-      )
-      // update store for each dispute
-      await Promise.all(
-        myDisputes.map(async dispute => {
-          // add dispute to db if it doesn't already exist
-          await this._updateStoreForDispute(
-            arbitratorAddress,
-            dispute.disputeId,
-            account
-          )
-        })
-      )
-
-      this._StoreProvider.updateUserProfile(account, {
-        session: currentSession
-      })
-    }
-
-    return _getDisputesForUserFromStore(account)
-  }
-
-  /**
-   * update store with new dispute data
-   * @param {string} arbitratorAddress Address address of arbitrator contract
-   * @param {int} disputeId index of dispute
-   * @param {string} account address of party to update dispute or
-   * @param {number} createdAt <optional> epoch timestamp of when dispute was created
-   * @param {number} ruledAt <optional> epoch timestamp of when dispute was ruled on
-   * @param {number} deadline <optional> epoch timestamp of dispute deadline
-   * @returns {object} updated dispute object
-   */
-  _updateStoreForDispute = async (
-    arbitratorAddress,
-    disputeId,
-    account,
-    createdAt,
-    ruledAt,
-    deadline
-  ) => {
-    this._checkStoreProviderSet()
-    this._checkArbitratorWrappersSet()
-
-    const disputeData = await this.getDataForDispute(
-      arbitratorAddress,
-      disputeId,
-      account
-    )
-
-    if (createdAt)
-      disputeData.appealCreatedAt[disputeData.numberOfAppeals] = createdAt
-    if (ruledAt)
-      disputeData.appealRuledAt[disputeData.numberOfAppeals] = ruledAt
-    if (deadline)
-      disputeData.appealDeadlines[disputeData.numberOfAppeals] = deadline
-
-    // update dispute
-    const dispute = await this._StoreProvider.updateDispute(
-      disputeData.arbitratorAddress,
-      disputeData.disputeId,
-      {
-        contractAddress: disputeData.arbitrableContractAddress,
-        partyA: disputeData.partyA,
-        partyB: disputeData.partyB,
-        title: disputeData.title,
-        status: disputeData.status,
-        information: disputeData.information,
-        justification: disputeData.justification,
-        resolutionOptions: disputeData.resolutionOptions,
-        appealCreatedAt: disputeData.appealCreatedAt,
-        appealRuledAt: disputeData.appealRuledAt,
-        appealDeadlines: disputeData.appealDeadlines
-      }
-    )
-
-    const storedDisputeData = await this._StoreProvider.getDisputeData(
-      arbitratorAddress,
-      disputeId,
-      account
-    )
-    const currentSession = await this._Arbitrator.getSession(arbitratorAddress)
-    if (disputeData.lastSession === currentSession) {
-      const sessionDraws = await this._Arbitrator.getDrawsForJuror(
-        arbitratorAddress,
-        disputeId,
-        account
-      )
-
-      if (!storedDisputeData.appealDraws) storedDisputeData.appealDraws = []
-      storedDisputeData.appealDraws[disputeData.numberOfAppeals] = sessionDraws
-    }
-
-    // update profile for account
-    await this._StoreProvider.updateDisputeProfile(
-      account,
-      disputeData.arbitratorAddress,
-      disputeData.disputeId,
-      {
-        appealDraws: storedDisputeData.appealDraws
-      }
-    )
-
-    return dispute
-  }
-
-  /**
-   * Get user data for a dispute from the store.
-   * @param {string} arbitratorAddress - Address for arbitrator contract.
-   * @param {int} disputeId - Index of dispute.
-   * @param {string} account - Jurors address.
-   * @returns {object} - Dispute data from store for user.
-   */
-  getUserDisputeFromStore = async (arbitratorAddress, disputeId, account) => {
-    this._checkStoreProviderSet()
-
-    const userProfile = await this._StoreProvider.getUserProfile(account)
-
-    const disputeArray = _.filter(
-      userProfile.disputes,
-      dispute =>
-        dispute.disputeId === disputeId &&
-        dispute.arbitratorAddress === arbitratorAddress
-    )
-
-    if (_.isEmpty(disputeArray))
-      throw new Error(errorConstants.NO_STORE_DATA_FOR_DISPUTE(account))
-
-    return disputeArray[0]
-  }
-
-  /**
-   * Get evidence for contract.
-   * @param {string} arbitrableContractAddress - Address of arbitrable contract.
-   * @returns {object[]} - Array of evidence objects.
-   */
-  getEvidenceForArbitrableContract = async arbitrableContractAddress => {
-    this._checkStoreProviderSet()
-    this._checkArbitrableWrappersSet()
-
-    const arbitrableContractData = await this._ArbitrableContract.getData(
-      arbitrableContractAddress
-    )
-    const partyAContractData = await this._StoreProvider.getContractByAddress(
-      arbitrableContractData.partyA,
-      arbitrableContractAddress
-    )
-    const partyBContractData = await this._StoreProvider.getContractByAddress(
-      arbitrableContractData.partyB,
-      arbitrableContractAddress
-    )
-
-    const partyAEvidence = (partyAContractData
-      ? partyAContractData.evidences
-      : []
-    ).map(evidence => {
-      evidence.submitter = arbitrableContractData.partyA
-      return evidence
-    })
-    const partyBEvidence = (partyBContractData
-      ? partyBContractData.evidences
-      : []
-    ).map(evidence => {
-      evidence.submitter = arbitrableContractData.partyB
-      return evidence
-    })
-
-    return partyAEvidence.concat(partyBEvidence)
-  }
-
   /**
    * Get data for a dispute.
    * @param {string} arbitratorAddress - The arbitrator contract's address.
@@ -487,7 +306,9 @@ class Disputes extends AbstractWrapper {
     const arbitrableContractAddress = dispute.arbitrableContractAddress
     const [arbitrableContractData, evidence] = await Promise.all([
       this._ArbitrableContract.getData(arbitrableContractAddress),
-      this.getEvidenceForArbitrableContract(arbitrableContractAddress)
+      this._ArbitrableContract.getEvidenceForArbitrableContract(
+        arbitrableContractAddress
+      )
     ])
     const contractStoreData = await this._StoreProvider.getContractByAddress(
       arbitrableContractData.partyA,

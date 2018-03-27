@@ -2,20 +2,27 @@ import _ from 'lodash'
 
 import * as errorConstants from '../constants/error'
 
-class AbstractWrapper {
+class ResourceWrapper {
   /**
    * AbstractWrapper is the parent class for abstract classes that interact with the
-   * store and the contract wrappers. The purpose of these classes are to separate the
-   * metadata storage and retrieval logic from the on chain contracts.
+   * store and instances of contracts. These are different from store wrappers in that
+   * they do not act as extensions of a contract wrapper but instead provide new functionality
+   * that utilize both the store and the blockchain
    * @param {object} arbitratorWrapper - Arbitrator contract wrapper object.
    * @param {object} arbitrableWrapper - Arbitrable contract wrapper object.
    * @param {object} eventListener - EventListener instance.
+   * @param {object} storeProviderWrapper - StoreProvider wrapper object.
    */
-  constructor(arbitratorWrapper, arbitrableWrapper, eventListener) {
-    this._StoreProvider = null
+  constructor(
+    arbitratorWrapper,
+    arbitrableWrapper,
+    eventListener,
+    storeProviderWrapper
+  ) {
     this._Arbitrator = arbitratorWrapper
     this._ArbitrableContract = arbitrableWrapper
     this._eventListener = eventListener
+    this._StoreProvider = storeProviderWrapper
   }
 
   /**
@@ -195,4 +202,4 @@ class AbstractWrapper {
   }
 }
 
-export default AbstractWrapper
+export default ResourceWrapper
