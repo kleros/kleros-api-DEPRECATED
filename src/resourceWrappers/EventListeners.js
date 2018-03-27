@@ -1,15 +1,16 @@
 import PromiseQueue from '../utils/PromiseQueue'
 
-import AbstractWrapper from './AbstractWrapper'
+import ResourceWrapper from './ResourceWrapper'
 
-class EventListeners extends AbstractWrapper {
+class EventListeners extends ResourceWrapper {
   /**
    * Listen for events in contract and handles callbacks with registered event handlers
-   * @param {object} arbitratorWrapper - arbitrator contract wrapper object.
-   * @param {object} arbitrableWrapper - arbitrable contract wrapper object.
+   * @param {object} arbitratorWrapper - Arbitrator contract instance.
+   * @param {object} arbitrableWrapper - Arbitrable contract instance.
+   * @param {object} storeProviderWrapper - StoreProvider instance.
    */
-  constructor(arbitratorWrapper, arbitrableWrapper) {
-    super(arbitratorWrapper, arbitrableWrapper)
+  constructor(arbitratorWrapper, arbitrableWrapper, storeProviderWrapper) {
+    super(arbitratorWrapper, arbitrableWrapper, storeProviderWrapper)
     this._arbitratorEventMap = {} // key: event name, value: [event handlers, ...]
     this._arbitrableEventMap = {} // key: event name, value: [event handlers, ...]
     this._arbitratorEventsWatcher = null

@@ -3,6 +3,7 @@ import Web3 from 'web3'
 import Kleros from '../../src/kleros'
 import * as ethConstants from '../../src/constants/eth'
 import setUpContracts from '../helpers/setUpContracts'
+import delaySecond from '../helpers/delaySecond'
 
 describe('Contracts', () => {
   let partyA
@@ -23,7 +24,6 @@ describe('Contracts', () => {
       ethConstants.LOCALHOST_ETH_PROVIDER
     )
 
-    // NOTE there is no store provider
     KlerosInstance = await new Kleros(provider)
 
     web3 = await new Web3(provider)
@@ -67,7 +67,6 @@ describe('Contracts', () => {
           klerosPOCData,
           arbitrableContractData
         )
-
         expect(klerosPOCAddress).toBeDefined()
         expect(arbitrableContractAddress).toBeDefined()
         expect(rngAddress).toBeDefined()
@@ -80,7 +79,7 @@ describe('Contracts', () => {
         expect(pinakionInstanceData.owner).toEqual(klerosPOCAddress)
         // KlerosPOC
 
-        const klerosCourtData = await KlerosInstance.klerosPOC.getData(
+        const klerosCourtData = await KlerosInstance.arbitrator.getData(
           klerosPOCAddress
         )
         expect(klerosCourtData.pinakionContractAddress).toEqual(pnkAddress)
@@ -88,7 +87,7 @@ describe('Contracts', () => {
         expect(klerosCourtData.period).toEqual(0)
         expect(klerosCourtData.session).toEqual(1)
         // arbitrable contract
-        const contractArbitrableTransactionData = await KlerosInstance.arbitrableTransaction.getData(
+        const contractArbitrableTransactionData = await KlerosInstance.arbitrableContract.getData(
           arbitrableContractAddress,
           partyA
         )
@@ -129,7 +128,7 @@ describe('Contracts', () => {
         expect(arbitrableContractAddress).toBeDefined()
 
         // FIXME use arbitrableTransaction
-        const arbitrableContractInstance = await KlerosInstance.arbitrableTransaction.load(
+        const arbitrableContractInstance = await KlerosInstance.arbitrableContract.load(
           arbitrableContractAddress
         )
         const partyApaysPartyB = await arbitrableContractInstance.pay({
@@ -161,7 +160,7 @@ describe('Contracts', () => {
 
         // return a bigint
         // FIXME use arbitrableTransaction
-        const arbitrableContractInstance = await KlerosInstance.arbitrableTransaction.load(
+        const arbitrableContractInstance = await KlerosInstance.arbitrableContract.load(
           arbitrableContractAddress
         )
         const partyAFeeContractInstance = await arbitrableContractInstance.partyAFee()
@@ -171,13 +170,13 @@ describe('Contracts', () => {
         let extraDataContractInstance = await arbitrableContractInstance.arbitratorExtraData()
 
         // return a bigint with the default value : 10000 wei fees in ether
-        const arbitrationCost = await KlerosInstance.klerosPOC.getArbitrationCost(
+        const arbitrationCost = await KlerosInstance.arbitrator.getArbitrationCost(
           klerosPOCAddress,
           extraDataContractInstance
         )
 
         // raise dispute party A
-        const raiseDisputeByPartyATxObj = await KlerosInstance.arbitrableTransaction.payArbitrationFeeByPartyA(
+        const raiseDisputeByPartyATxObj = await KlerosInstance.arbitrableContract.payArbitrationFeeByPartyA(
           partyA,
           arbitrableContractAddress,
           arbitrationCost -
@@ -189,13 +188,6 @@ describe('Contracts', () => {
         expect(raiseDisputeByPartyATxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
-
-        const delaySecond = () =>
-          new Promise(resolve => {
-            setTimeout(() => {
-              resolve(true)
-            }, 1000)
-          })
 
         await delaySecond()
 

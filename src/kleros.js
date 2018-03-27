@@ -4,11 +4,11 @@ import KlerosWrapper from './contractWrappers/KlerosWrapper'
 import ArbitrableTransactionWrapper from './contractWrappers/ArbitrableTransactionWrapper'
 import PinakionWrapper from './contractWrappers/PinakionWrapper'
 import BlockHashRNGWrapper from './contractWrappers/BlockHashRNGWrapper'
-import DisputesApi from './abstractWrappers/Disputes'
-import ArbitratorApi from './abstractWrappers/Arbitrator'
-import ArbitrableContractApi from './abstractWrappers/ArbitrableContract'
-import EventListeners from './abstractWrappers/EventListeners'
-import Notifications from './abstractWrappers/Notifications'
+import DisputesApi from './resourceWrappers/Disputes'
+import ArbitratorApi from './contractWrappers/abstractWrappers/Arbitrator'
+import ArbitrableContractApi from './contractWrappers/abstractWrappers/ArbitrableContract'
+import EventListeners from './resourceWrappers/EventListeners'
+import Notifications from './resourceWrappers/Notifications'
 
 class Kleros {
   _web3Wrapper = {}
@@ -28,34 +28,40 @@ class Kleros {
   constructor(ethereumProvider, storeProvider) {
     this._web3Wrapper = new Web3Wrapper(ethereumProvider)
 
-    // low level contract api
-    this.klerosPOC = new KlerosWrapper(this._web3Wrapper)
-    this.arbitrableTransaction = new ArbitrableTransactionWrapper(
+    // **************************** //
+    // *          Private         * //
+    // **************************** //
+    this._klerosPOC = new KlerosWrapper(this._web3Wrapper)
+    this._arbitrableTransaction = new ArbitrableTransactionWrapper(
       this._web3Wrapper
     )
+
+    // **************************** //
+    // *          Public          * //
+    // **************************** //
+    // CONTRACT ENDPOINTS
     this.pinakion = new PinakionWrapper(this._web3Wrapper)
     this.blockHashRng = new BlockHashRNGWrapper(this._web3Wrapper)
-
-    // FIXME allow user to pass which court and arbitrable contract they are using
-    // shared event listener for abstract wrappers
-    this.eventListener = new EventListeners(
-      this.klerosPOC,
-      this.arbitrableTransaction
-    )
-    // abstracted api
-    this.disputes = new DisputesApi(
-      this.klerosPOC,
-      this.arbitrableTransaction,
-      this.eventListener
-    )
-    this.arbitrator = new ArbitratorApi(this.klerosPOC, this.eventListener)
+    this.arbitrator = new ArbitratorApi(this._klerosPOC)
     this.arbitrableContract = new ArbitrableContractApi(
-      this.arbitrableTransaction,
+      this._arbitrableTransaction
+    )
+
+    // EVENT LISTENER
+    this.eventListener = new EventListeners(
+      this.arbitrator,
+      this.arbitrableContract
+    )
+    // DISPUTES
+    this.disputes = new DisputesApi(
+      this.arbitrator,
+      this.arbitrableContract,
       this.eventListener
     )
+    // NOTIFICATIONS
     this.notifications = new Notifications(
-      this.klerosPOC,
-      this.arbitrableTransaction,
+      this.arbitrator,
+      this.arbitrableContract,
       this.eventListener
     )
 

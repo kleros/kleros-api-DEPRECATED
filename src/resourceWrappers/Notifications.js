@@ -6,12 +6,12 @@ import * as notificationConstants from '../constants/notification'
 import * as disputeConstants from '../constants/dispute'
 import * as errorConstants from '../constants/error'
 
-import AbstractWrapper from './AbstractWrapper'
+import ResourceWrapper from './ResourceWrapper'
 
 /**
  * Notifications API.
  */
-class Notifications extends AbstractWrapper {
+class Notifications extends ResourceWrapper {
   // **************************** //
   // *         Public           * //
   // **************************** //
@@ -67,10 +67,8 @@ class Notifications extends AbstractWrapper {
       this._getContracts(account),
       this._getDisputes(arbitratorAddress, account, isJuror)
     ])
-
     const currentPeriod = await this._Arbitrator.getPeriod(arbitratorAddress)
     const currentSession = await this._Arbitrator.getSession(arbitratorAddress)
-
     if (isJuror) {
       /* Juror notifications:
       * - Activate tokens
@@ -86,7 +84,6 @@ class Notifications extends AbstractWrapper {
         const lastActivatedSession = (await contractInstance.jurors(
           account
         ))[2].toNumber()
-
         if (lastActivatedSession < currentSession) {
           notifications.push(
             this._createNotification(
@@ -258,7 +255,7 @@ class Notifications extends AbstractWrapper {
   // *        Handlers          * //
   // **************************** //
   /**
-   * TODO Send push notifications for period state events?
+   * FIXME use this._Arbitrator.getOpenDisputesForSession
    * We can get a list of subscribers by having jurors subscribe to an arbitrator. Raises new problems however
    * @param {object} event - The event.
    * @param {string} arbitratorAddress - The arbitratorAddress.
@@ -299,10 +296,6 @@ class Notifications extends AbstractWrapper {
           // if dispute not in current session skip
           if (disputeSession !== currentSession) {
             disputeId++
-            dispute = await this._Arbitrator.getDispute(
-              arbitratorAddress,
-              disputeId
-            )
             continue
           }
           // FIXME DRY this out with _appealPossibleHandler. Cant call directly because we don't have the actual event being called
