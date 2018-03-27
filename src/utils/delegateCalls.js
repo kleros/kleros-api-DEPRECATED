@@ -5,8 +5,8 @@ import _ from 'lodash'
  * @param {object} baseClass - The base object that has first priority to make calls
  * @param {object} providerClass - The class whose methods will be called by baseClass
  * @param {function} middlewareCall - <optional> Middleware function that can act as
- * intermediary between base and provider. Should take a single param which is the provider
- * classes method call.
+ * intermediary between base and provider. Should take a two params which is the provider
+ * classes method call and the params passed
  */
 const delegateCalls = (baseClass, providerClass, middlewareCall) => {
   // we don't want to delegate any calls that are part of the base class
@@ -32,8 +32,9 @@ const delegateCalls = (baseClass, providerClass, middlewareCall) => {
     let curriedCall
     if (middlewareCall)
       curriedCall = (...args) =>
-        middlewareCall(providerClass[methodName](...args))
+        middlewareCall(providerClass[methodName], ...args)
     else curriedCall = (...args) => providerClass[methodName](...args)
+    // set method in baseClass
     baseClass[methodName] = curriedCall
   })
 }
