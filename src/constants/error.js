@@ -11,6 +11,11 @@ export const CONTRACT_NOT_DEPLOYED =
 export const UNABLE_TO_LOAD_CONTRACT =
   'Unable to load contract. Are you sure the contract artifact is correct?'
 
+// Arbitrator
+export const UNABLE_TO_LOAD_ARBITRATOR =
+  'Unable to load arbitrator. Missing address or artifact'
+export const ARBITRATOR_NOT_SET = 'No arbitrator instance. Use setArbitrator'
+
 // PinakionWrapper
 export const UNABLE_TO_SET_KLEROS = 'Unable to set Kleros.'
 export const UNABLE_TO_TRANSFER_OWNERSHIP = 'Unable to transfer ownership.'

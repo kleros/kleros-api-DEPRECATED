@@ -1,6 +1,5 @@
-import PromiseQueue from '../utils/PromiseQueue'
-
-import ResourceWrapper from './ResourceWrapper'
+import PromiseQueue from '../../utils/PromiseQueue'
+import ResourceWrapper from '../ResourceWrapper'
 
 class EventListeners extends ResourceWrapper {
   /**

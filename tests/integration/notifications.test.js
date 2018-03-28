@@ -30,7 +30,7 @@ describe('Notifications and Event Listeners', () => {
       ethConstants.LOCALHOST_ETH_PROVIDER
     )
 
-    KlerosInstance = await new Kleros(provider)
+    KlerosInstance = await new Kleros(undefined, provider)
 
     web3 = await new Web3(provider)
 

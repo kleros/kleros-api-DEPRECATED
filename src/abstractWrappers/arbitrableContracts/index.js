@@ -1,6 +1,5 @@
 import delegateCalls from '../../utils/delegateCalls'
-
-import AbstractWrapper from './AbstractWrapper'
+import AbstractWrapper from '../AbstractWrapper'
 
 /**
  * Arbitrable Contract API.

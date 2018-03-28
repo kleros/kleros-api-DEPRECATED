@@ -4,30 +4,29 @@ const setUpContracts = async (
   arbitrableContractParams
 ) => {
   // initialize RNG and Pinakion contracts
-  const rngInstance = await KlerosInstance.blockHashRng.deploy(undefined)
-
-  const pinakionInstance = await KlerosInstance.pinakion.deploy()
-
+  const rngInstance = new KlerosInstance.contracts.RNG.BlockHashRNG(
+    KlerosInstance.getWeb3Wrapper()
+  )
+  const rng = await rngInstance.deploy()
+  const pinakionInstance = new KlerosInstance.contracts.PNK.PinakionPOC(
+    KlerosInstance.getWeb3Wrapper()
+  )
+  const pnk = await pinakionInstance.deploy()
   // initialize KlerosPOC
   const klerosCourt = await KlerosInstance.arbitrator.deploy(
-    rngInstance.address,
-    pinakionInstance.address,
+    rng.address,
+    pnk.address,
     klerosPOCParams.timesPerPeriod,
     klerosPOCParams.account,
     klerosPOCParams.value
   )
+
   // transfer ownership and set kleros instance
-  await KlerosInstance.pinakion.setKleros(
-    pinakionInstance.address,
-    klerosCourt.address
-  )
+  await pinakionInstance.setKleros(pnk.address, klerosCourt.address)
 
-  await KlerosInstance.pinakion.transferOwnership(
-    pinakionInstance.address,
-    klerosCourt.address
-  )
+  await pinakionInstance.transferOwnership(pnk.address, klerosCourt.address)
 
-  const contractArbitrableTransaction = await KlerosInstance.arbitrableContract.deploy(
+  const contractArbitrableTransaction = await KlerosInstance.arbitrableContracts.deploy(
     arbitrableContractParams.partyA,
     arbitrableContractParams.value, // use default value (0)
     arbitrableContractParams.hash,
@@ -40,8 +39,8 @@ const setUpContracts = async (
   return [
     klerosCourt.address,
     contractArbitrableTransaction.address,
-    rngInstance.address,
-    pinakionInstance.address
+    rng.address,
+    pnk.address
   ]
 }
 

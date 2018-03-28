@@ -1,14 +1,9 @@
 import Web3Wrapper from './utils/Web3Wrapper'
 import StoreProviderWrapper from './utils/StoreProviderWrapper'
-import KlerosWrapper from './contractWrappers/KlerosWrapper'
-import ArbitrableTransactionWrapper from './contractWrappers/ArbitrableTransactionWrapper'
-import PinakionWrapper from './contractWrappers/PinakionWrapper'
-import BlockHashRNGWrapper from './contractWrappers/BlockHashRNGWrapper'
-import DisputesApi from './resourceWrappers/Disputes'
-import ArbitratorApi from './contractWrappers/abstractWrappers/Arbitrator'
-import ArbitrableContractApi from './contractWrappers/abstractWrappers/ArbitrableContract'
-import EventListeners from './resourceWrappers/EventListeners'
-import Notifications from './resourceWrappers/Notifications'
+import contracts from './contractWrappers'
+import resources from './resourceWrappers'
+import Arbitrator from './abstractWrappers/arbitrator'
+import ArbitrableContracts from './abstractWrappers/arbitrableContracts'
 
 class Kleros {
   _web3Wrapper = {}
@@ -18,48 +13,54 @@ class Kleros {
   /**
    * Instantiates a new Kelros instance that provides the public interface
    * to Kleros contracts and library.
-   * @param {string} ethereumProvider The Web3.js Provider instance you would like the
+   * @param {string} arbitratorAddress - Address of the arbitrator contract we should
+   *                 use when initializing KlerosPOC
+   * @param {string} ethereumProvider - The Web3.js Provider instance you would like the
    *                 Kleros.js library to use for interacting with the
    *                 Ethereum network.
-   * @param {string} storeProvider <optional> The storage provider instance used by the contract to
+   * @param {string} storeProvider - <optional> The storage provider instance used by the contract to
    *                      get data from the cloud. e.g. Kleros-Store,
    *                      IPFS, Swarm etc.
    */
-  constructor(ethereumProvider, storeProvider) {
+  constructor(arbitratorAddress, ethereumProvider, storeProvider) {
     this._web3Wrapper = new Web3Wrapper(ethereumProvider)
+    // GIVE ACCESS TO ALL CONTRACT WRAPPERS
+    this.contracts = contracts
 
     // **************************** //
     // *          Private         * //
     // **************************** //
-    this._klerosPOC = new KlerosWrapper(this._web3Wrapper)
-    this._arbitrableTransaction = new ArbitrableTransactionWrapper(
+    // NOTE we default to KlerosPOC and ArbitrableTransaction
+    this._klerosPOC = new this.contracts.arbitrator.KlerosPOC(
+      this._web3Wrapper,
+      arbitratorAddress
+    )
+    this._arbitrableTransaction = new this.contracts.arbitrableTransaction.ArbitrableTransaction(
       this._web3Wrapper
     )
 
     // **************************** //
     // *          Public          * //
     // **************************** //
-    // CONTRACT ENDPOINTS
-    this.pinakion = new PinakionWrapper(this._web3Wrapper)
-    this.blockHashRng = new BlockHashRNGWrapper(this._web3Wrapper)
-    this.arbitrator = new ArbitratorApi(this._klerosPOC)
-    this.arbitrableContract = new ArbitrableContractApi(
+    // ABSTRACT ENDPOINTS
+    this.arbitrator = new Arbitrator(this._klerosPOC)
+    this.arbitrableContracts = new ArbitrableContracts(
       this._arbitrableTransaction
     )
 
     // EVENT LISTENER
-    this.eventListener = new EventListeners(
+    this.eventListener = new resources.EventListeners(
       this.arbitrator,
       this.arbitrableContract
     )
     // DISPUTES
-    this.disputes = new DisputesApi(
+    this.disputes = new resources.Disputes(
       this.arbitrator,
       this.arbitrableContract,
       this.eventListener
     )
     // NOTIFICATIONS
-    this.notifications = new Notifications(
+    this.notifications = new resources.Notifications(
       this.arbitrator,
       this.arbitrableContract,
       this.eventListener

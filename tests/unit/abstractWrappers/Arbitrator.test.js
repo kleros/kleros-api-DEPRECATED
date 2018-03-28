@@ -1,5 +1,5 @@
-import ArbitratorApi from '../../../src/contractWrappers/abstractWrappers/Arbitrator'
-import KlerosPOC from '../../../src/contractWrappers/KlerosWrapper'
+import ArbitratorApi from '../../../src/abstractWrappers/Arbitrator'
+import KlerosPOC from '../../../src/contractWrappers/Arbitrator/KlerosPOC'
 import _asyncMockResponse from '../../helpers/asyncMockResponse'
 
 describe('Arbitrator', () => {

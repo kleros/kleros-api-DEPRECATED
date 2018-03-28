@@ -1,10 +1,9 @@
 import PinakionPOC from 'kleros/build/contracts/PinakionPOC' // FIXME: mock
 import _ from 'lodash'
 
-import * as ethConstants from '../constants/eth'
-import * as errorConstants from '../constants/error'
-
-import ContractWrapper from './ContractWrapper'
+import * as ethConstants from '../../../constants/eth'
+import * as errorConstants from '../../../constants/error'
+import ContractWrapper from '../../ContractWrapper'
 
 /**
  * Kleros API
