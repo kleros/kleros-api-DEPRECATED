@@ -2,8 +2,7 @@ import _ from 'lodash'
 
 import delegateCalls from '../../utils/delegateCalls'
 import * as arbitratorConstants from '../../constants/arbitrator'
-
-import AbstractWrapper from './AbstractWrapper'
+import AbstractWrapper from '../AbstractWrapper'
 
 /**
  * Arbitrator API.

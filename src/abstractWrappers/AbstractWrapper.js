@@ -1,11 +1,11 @@
 import _ from 'lodash'
 
-import * as errorConstants from '../../constants/error'
+import * as errorConstants from '../constants/error'
 
 class AbstractWrapper {
   /**
    * AbstractWrapper is the parent class for wrappers that extend the contract wrappers in
-   * order to provide the underlying functionality of the contract wrapper in addition
+   * order to provide the underlying functionality of a contract wrapper in addition
    * to interacting with the store.
    * @param {object} contractWrapperInstance - Contract Wrapper object to extend
    * @param {object} storeProviderWrapperInstance - StoreProvider wrapper object.

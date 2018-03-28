@@ -1,12 +1,11 @@
 import _ from 'lodash'
 
-import * as ethConstants from '../constants/eth'
-import * as arbitratorConstants from '../constants/arbitrator'
-import * as notificationConstants from '../constants/notification'
-import * as disputeConstants from '../constants/dispute'
-import * as errorConstants from '../constants/error'
-
-import ResourceWrapper from './ResourceWrapper'
+import * as ethConstants from '../../constants/eth'
+import * as arbitratorConstants from '../../constants/arbitrator'
+import * as notificationConstants from '../../constants/notification'
+import * as disputeConstants from '../../constants/dispute'
+import * as errorConstants from '../../constants/error'
+import ResourceWrapper from '../ResourceWrapper'
 
 /**
  * Notifications API.

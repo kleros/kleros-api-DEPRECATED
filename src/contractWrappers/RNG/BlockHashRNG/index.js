@@ -1,9 +1,8 @@
 import RNG from 'kleros-interaction/build/contracts/BlockHashRNG'
 import _ from 'lodash'
 
-import * as ethConstants from '../constants/eth'
-
-import ContractWrapper from './ContractWrapper'
+import * as ethConstants from '../../../constants/eth'
+import ContractWrapper from '../../ContractWrapper'
 
 /**
  * Kleros API

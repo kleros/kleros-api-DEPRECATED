@@ -2,6 +2,7 @@ import Web3 from 'web3'
 
 import Kleros from '../../src/kleros'
 import * as ethConstants from '../../src/constants/eth'
+import * as errorConstants from '../../src/constants/error'
 import setUpContracts from '../helpers/setUpContracts'
 import delaySecond from '../helpers/delaySecond'
 
@@ -10,21 +11,15 @@ describe('Contracts', () => {
   let partyB
   let other
   let web3
-  let KlerosInstance
   let klerosPOCData
   let arbitrableContractData
-  let klerosPOCAddress
-  let arbitrableContractAddress
-  let rngAddress
-  let pnkAddress
+  let provider
 
   beforeAll(async () => {
     // use testRPC
-    const provider = await new Web3.providers.HttpProvider(
+    provider = await new Web3.providers.HttpProvider(
       ethConstants.LOCALHOST_ETH_PROVIDER
     )
-
-    KlerosInstance = await new Kleros(provider)
 
     web3 = await new Web3(provider)
 
@@ -46,18 +41,80 @@ describe('Contracts', () => {
       timeout: 1,
       extraData: ''
     }
+  })
 
-    klerosPOCAddress = undefined
-    arbitrableContractAddress = undefined
-    rngAddress = undefined
-    pnkAddress = undefined
+  describe('KlerosPOC', async () => {
+    it('deploys arbitrator with contractInstance', async () => {
+      const KlerosInstance = new Kleros(undefined, provider)
+      // deploy KlerosPOC with no PNK or RNG
+      const newKlerosPOC = await KlerosInstance.arbitrator.deploy(
+        '',
+        '',
+        klerosPOCData.timesPerPeriod,
+        klerosPOCData.account,
+        klerosPOCData.value
+      )
+
+      expect(newKlerosPOC.address).toBeTruthy()
+
+      // Check that we can bootstrap with address
+      const newKlerosInstance = await new Kleros(newKlerosPOC.address, provider)
+      // this should load contract. Called in all KlerosPOC methods
+      await newKlerosInstance.arbitrator._checkContractInstanceSet()
+      const contractInstance = newKlerosInstance.arbitrator.getContractInstance()
+      expect(contractInstance).toBeTruthy()
+      expect(contractInstance.address).toEqual(newKlerosPOC.address)
+    })
+    // it('load throws with bad address', async () => {
+    //   const KlerosInstance = new Kleros(undefined, provider)
+    //   // deploy KlerosPOC with no PNK or RNG
+    //   const newKlerosPOC = await KlerosInstance.arbitrator.deploy(
+    //     '',
+    //     '',
+    //     klerosPOCData.timesPerPeriod,
+    //     klerosPOCData.account,
+    //     klerosPOCData.value
+    //   )
+    //
+    //   expect(newKlerosPOC.address).toBeTruthy()
+    //
+    //   try {
+    //     await KlerosInstance.arbitrator.setArbitrator('badAddress')
+    //   } catch (err) {
+    //     expect(err.message).toEqual(errorConstants.UNABLE_TO_LOAD_ARBITRATOR)
+    //   }
+    // })
+    it('setArbitrator throws with undefined parameters', async () => {
+      const KlerosInstance = new Kleros(undefined, provider)
+      // deploy KlerosPOC with no PNK or RNG
+      const newKlerosPOC = await KlerosInstance.arbitrator.deploy(
+        '',
+        '',
+        klerosPOCData.timesPerPeriod,
+        klerosPOCData.account,
+        klerosPOCData.value
+      )
+
+      expect(newKlerosPOC.address).toBeTruthy()
+
+      // make new Kleros
+      const KlerosApi = KlerosInstance.contracts.arbitrator.KlerosPOC
+      const noAddressKlerosPOC = new KlerosApi(KlerosInstance.getWeb3Wrapper())
+
+      try {
+        await noAddressKlerosPOC.setArbitrator()
+      } catch (err) {
+        expect(err.message).toEqual(errorConstants.UNABLE_TO_LOAD_ARBITRATOR)
+      }
+    })
   })
 
   describe('ArbitrableContract', async () => {
     it(
       'deploy a arbitrableTransaction contract',
       async () => {
-        ;[
+        const KlerosInstance = new Kleros(undefined, provider)
+        const [
           klerosPOCAddress,
           arbitrableContractAddress,
           rngAddress,
@@ -71,23 +128,14 @@ describe('Contracts', () => {
         expect(arbitrableContractAddress).toBeDefined()
         expect(rngAddress).toBeDefined()
         expect(pnkAddress).toBeDefined()
-        // PNK
-        const pinakionInstanceData = await KlerosInstance.pinakion.getData(
-          pnkAddress
-        )
-        expect(pinakionInstanceData.kleros).toEqual(klerosPOCAddress)
-        expect(pinakionInstanceData.owner).toEqual(klerosPOCAddress)
         // KlerosPOC
-
-        const klerosCourtData = await KlerosInstance.arbitrator.getData(
-          klerosPOCAddress
-        )
+        const klerosCourtData = await KlerosInstance.arbitrator.getData()
         expect(klerosCourtData.pinakionContractAddress).toEqual(pnkAddress)
         expect(klerosCourtData.rngContractAddress).toEqual(rngAddress)
         expect(klerosCourtData.period).toEqual(0)
         expect(klerosCourtData.session).toEqual(1)
         // arbitrable contract
-        const contractArbitrableTransactionData = await KlerosInstance.arbitrableContract.getData(
+        const contractArbitrableTransactionData = await KlerosInstance.arbitrableContracts.getData(
           arbitrableContractAddress,
           partyA
         )
@@ -113,11 +161,10 @@ describe('Contracts', () => {
     it(
       'Arbitrable Contract where partyA pays partyB',
       async () => {
-        ;[
+        const KlerosInstance = new Kleros(undefined, provider)
+        const [
           klerosPOCAddress,
-          arbitrableContractAddress,
-          rngAddress,
-          pnkAddress
+          arbitrableContractAddress
         ] = await setUpContracts(
           KlerosInstance,
           klerosPOCData,
@@ -128,7 +175,7 @@ describe('Contracts', () => {
         expect(arbitrableContractAddress).toBeDefined()
 
         // FIXME use arbitrableTransaction
-        const arbitrableContractInstance = await KlerosInstance.arbitrableContract.load(
+        const arbitrableContractInstance = await KlerosInstance.arbitrableContracts.load(
           arbitrableContractAddress
         )
         const partyApaysPartyB = await arbitrableContractInstance.pay({
@@ -145,11 +192,10 @@ describe('Contracts', () => {
     it(
       'dispute with a timeout call by partyA',
       async () => {
-        ;[
+        const KlerosInstance = new Kleros(undefined, provider)
+        const [
           klerosPOCAddress,
-          arbitrableContractAddress,
-          rngAddress,
-          pnkAddress
+          arbitrableContractAddress
         ] = await setUpContracts(
           KlerosInstance,
           klerosPOCData,
@@ -160,7 +206,7 @@ describe('Contracts', () => {
 
         // return a bigint
         // FIXME use arbitrableTransaction
-        const arbitrableContractInstance = await KlerosInstance.arbitrableContract.load(
+        const arbitrableContractInstance = await KlerosInstance.arbitrableContracts.load(
           arbitrableContractAddress
         )
         const partyAFeeContractInstance = await arbitrableContractInstance.partyAFee()
@@ -171,12 +217,11 @@ describe('Contracts', () => {
 
         // return a bigint with the default value : 10000 wei fees in ether
         const arbitrationCost = await KlerosInstance.arbitrator.getArbitrationCost(
-          klerosPOCAddress,
           extraDataContractInstance
         )
 
         // raise dispute party A
-        const raiseDisputeByPartyATxObj = await KlerosInstance.arbitrableContract.payArbitrationFeeByPartyA(
+        const raiseDisputeByPartyATxObj = await KlerosInstance.arbitrableContracts.payArbitrationFeeByPartyA(
           partyA,
           arbitrableContractAddress,
           arbitrationCost -

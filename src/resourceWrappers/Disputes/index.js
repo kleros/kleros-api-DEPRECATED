@@ -1,10 +1,9 @@
 import _ from 'lodash'
 
-import * as arbitratorConstants from '../constants/arbitrator'
-import * as disputeConstants from '../constants/dispute'
-import * as notificationConstants from '../constants/notification'
-
-import ResourceWrapper from './ResourceWrapper'
+import * as arbitratorConstants from '../../constants/arbitrator'
+import * as disputeConstants from '../../constants/dispute'
+import * as notificationConstants from '../../constants/notification'
+import ResourceWrapper from '../ResourceWrapper'
 
 /**
  * Disputes API.

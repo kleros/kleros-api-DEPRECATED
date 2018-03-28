@@ -39,4 +39,14 @@ const delegateCalls = (baseClass, providerClass, middlewareCall) => {
   })
 }
 
+/**
+{ constant: true,
+  inputs: [],
+  name: 'lastPeriodChange',
+  outputs: [ [Object] ],
+  payable: false,
+  stateMutability: 'view',
+  type: 'function' },
+*/
+
 export default delegateCalls
