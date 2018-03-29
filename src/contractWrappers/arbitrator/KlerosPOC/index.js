@@ -4,12 +4,12 @@ import _ from 'lodash'
 import * as ethConstants from '../../../constants/eth'
 import * as errorConstants from '../../../constants/error'
 import * as arbitratorConstants from '../../../constants/arbitrator'
-import Arbitrator from '../Arbitrator'
+import StatefulContract from '../StatefulContractWrapper'
 
 /**
  * Kleros API
  */
-class KlerosWrapper extends Arbitrator {
+class KlerosWrapper extends StatefulContract {
   /**
    * Constructor Kleros.
    * @param {object} web3Provider - web3 instance.
@@ -44,7 +44,7 @@ class KlerosWrapper extends Arbitrator {
       timesPerPeriod
     )
     // load arbitrator based on new contract
-    await this.setArbitrator(contractDeployed.address)
+    await this.setContractInstance(contractDeployed.address)
 
     return contractDeployed
   }

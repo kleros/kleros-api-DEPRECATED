@@ -79,12 +79,12 @@ describe('Contracts', () => {
       expect(newKlerosPOC.address).toBeTruthy()
 
       try {
-        await KlerosInstance.arbitrator.setArbitrator('badAddress')
+        await KlerosInstance.arbitrator.setContractInstance('badAddress')
       } catch (err) {
-        expect(err.message).toEqual(errorConstants.UNABLE_TO_LOAD_ARBITRATOR)
+        expect(err.message).toEqual(errorConstants.UNABLE_TO_LOAD_CONTRACT)
       }
     })
-    it('setArbitrator throws with undefined parameters', async () => {
+    it('setContractInstance throws with undefined parameters', async () => {
       const KlerosInstance = new Kleros(undefined, provider)
       // deploy KlerosPOC with no PNK or RNG
       const newKlerosPOC = await KlerosInstance.arbitrator.deploy(
@@ -102,9 +102,9 @@ describe('Contracts', () => {
       const noAddressKlerosPOC = new KlerosApi(KlerosInstance.getWeb3Wrapper())
 
       try {
-        await noAddressKlerosPOC.setArbitrator()
+        await noAddressKlerosPOC.setContractInstance()
       } catch (err) {
-        expect(err.message).toEqual(errorConstants.UNABLE_TO_LOAD_ARBITRATOR)
+        expect(err.message).toEqual(errorConstants.UNABLE_TO_LOAD_CONTRACT)
       }
     })
   })

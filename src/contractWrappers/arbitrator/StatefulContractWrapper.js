@@ -1,7 +1,7 @@
 import ContractWrapper from '../ContractWrapper'
 import * as errorConstants from '../../constants/error'
 
-class ArbitratorContract extends ContractWrapper {
+class StatefulContract extends ContractWrapper {
   constructor(web3Wrapper, contractAddress, artifact) {
     super(web3Wrapper)
     this.contractAddress = contractAddress
@@ -10,7 +10,7 @@ class ArbitratorContract extends ContractWrapper {
   }
 
   /**
-   * Load an existing contract from the current arbitrator artifact and address
+   * Load an existing contract from the current artifact and address
    * @returns {object} - The contract instance.
    */
   _load = async () => {
@@ -23,7 +23,7 @@ class ArbitratorContract extends ContractWrapper {
       return this.contractInstance
     } catch (err) {
       console.error(err)
-      throw new Error(errorConstants.UNABLE_TO_LOAD_ARBITRATOR)
+      throw new Error(errorConstants.UNABLE_TO_LOAD_CONTRACT)
     }
   }
 
@@ -36,19 +36,22 @@ class ArbitratorContract extends ContractWrapper {
     if (!this.contractInstance) {
       if (this.contractAddress && this.artifact) return this._load()
 
-      throw new Error(errorConstants.ARBITRATOR_NOT_SET)
+      throw new Error(errorConstants.CONTRACT_INSTANCE_NOT_SET)
     }
   }
 
   /**
-   * Set a new arbitrator
+   * Set a new contract instance
    * @param {string} contractAddress - The address of the contract
    * @param {object} artifact - Contract artifact to use to load contract
    * @returns {object} contractInstance object
    */
-  setArbitrator = async (contractAddress, artifact) => {
-    this.contractAddress = contractAddress || this.contractAddress
-    this.artifact = artifact || this.artifact
+  setContractInstance = async (
+    contractAddress = this.contractAddress,
+    artifact = this.artifact
+  ) => {
+    this.contractAddress = contractAddress
+    this.artifact = artifact
     return this._load()
   }
 
@@ -57,4 +60,4 @@ class ArbitratorContract extends ContractWrapper {
   getContractAddress = () => this.contractAddress
 }
 
-export default ArbitratorContract
+export default StatefulContract
