@@ -51,18 +51,18 @@ class Kleros {
     // EVENT LISTENER
     this.eventListener = new resources.EventListeners(
       this.arbitrator,
-      this.arbitrableContract
+      this.arbitrableContracts
     )
     // DISPUTES
     this.disputes = new resources.Disputes(
       this.arbitrator,
-      this.arbitrableContract,
+      this.arbitrableContracts,
       this.eventListener
     )
     // NOTIFICATIONS
     this.notifications = new resources.Notifications(
       this.arbitrator,
-      this.arbitrableContract,
+      this.arbitrableContracts,
       this.eventListener
     )
 
@@ -72,37 +72,23 @@ class Kleros {
 
   /**
    * Entry point to set up all event listerners and to start the events watcher
-   * @param {string} arbitratorAddress Address of the arbitrator contract
    * @param {string} account Address of the user
    * @param {function} callback The function to be called once a notification
    */
   watchForEvents = async (
-    arbitratorAddress,
     account,
     callback // for notification callback
   ) => {
     this.eventListener.clearArbitratorHandlers()
-    await this.disputes.addNewDisputeEventListener(arbitratorAddress, account)
+    await this.disputes.addNewDisputeEventListener()
     await this.disputes.addTokenShiftToJurorProfileEventListener(
-      arbitratorAddress,
       account,
       callback
     )
-    await this.disputes.addDisputeDeadlineHandler(arbitratorAddress, account)
-    await this.disputes.addDisputeRulingHandler(
-      arbitratorAddress,
-      account,
-      callback
-    )
-    await this.notifications.registerNotificationListeners(
-      arbitratorAddress,
-      account,
-      callback
-    )
-    await this.eventListener.watchForArbitratorEvents(
-      arbitratorAddress,
-      account
-    )
+    await this.disputes.addDisputeDeadlineHandler(account)
+    await this.disputes.addDisputeRulingHandler(account, callback)
+    await this.notifications.registerNotificationListeners(account, callback)
+    await this.eventListener.watchForArbitratorEvents(account)
   }
 
   /**

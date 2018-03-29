@@ -53,6 +53,8 @@ class ArbitratorContract extends ContractWrapper {
   }
 
   getContractInstance = () => this.contractInstance
+
+  getContractAddress = () => this.contractAddress
 }
 
 export default ArbitratorContract

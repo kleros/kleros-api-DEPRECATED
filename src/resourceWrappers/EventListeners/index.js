@@ -15,7 +15,7 @@ class EventListeners extends ResourceWrapper {
     this._arbitratorEventsWatcher = null
     this._arbitrableEventsWatcher = null
     // store these here so we can switch accounts/contracts on the fly
-    this.arbitratorAddress = ''
+    this.arbitratorAddress = arbitratorWrapper.getContractAddress()
     this.account = ''
     // event handler queue
     this.eventHandlerQueue = new PromiseQueue()
@@ -23,12 +23,10 @@ class EventListeners extends ResourceWrapper {
 
   /**
    * Update store for events we missed and watch for events on arbitrator contract. FIXME DRY this out for arbitrable.
-   * @param {string} arbitratorAddress - Address of arbitrator contract.
    * @param {string} account - The account.
    */
-  watchForArbitratorEvents = async (arbitratorAddress, account) => {
+  watchForArbitratorEvents = async account => {
     this._checkArbitratorWrappersSet()
-    if (arbitratorAddress) this.arbitratorAddress = arbitratorAddress
     if (account) this.account = account
 
     // Return all events if there is no Store Provider.

@@ -16,15 +16,10 @@ class Notifications extends ResourceWrapper {
   // **************************** //
   /**
    * register event listeners for arbitrator.
-   * @param {string} arbitratorAddress - The arbitrator contract's address.
    * @param {string} account - Filter notifications for account.
    * @param {function} callback - If we want notifications to be "pushed" provide a callback function to call when a new notification is created.
    */
-  registerNotificationListeners = async (
-    arbitratorAddress,
-    account,
-    callback
-  ) => {
+  registerNotificationListeners = async (account, callback) => {
     const eventHandlerMap = {
       DisputeCreation: this._disputeCreationHandler,
       AppealPossible: this._appealPossibleHandler,
@@ -38,12 +33,7 @@ class Notifications extends ResourceWrapper {
       if (eventHandlerMap.hasOwnProperty(event)) {
         await this._eventListener.registerArbitratorEvent(
           event,
-          this._createHandler(
-            eventHandlerMap[event],
-            arbitratorAddress,
-            account,
-            callback
-          )
+          this._createHandler(eventHandlerMap[event], account, callback)
         )
       }
     }
@@ -51,23 +41,18 @@ class Notifications extends ResourceWrapper {
 
   /**
    * Get stateful notifications. Stateful notifications change based on the state of the arbitrator contract.
-   * @param {string} arbitratorAddress - The arbitrator contract's address.
    * @param {string} account - Filter notifications for account.
    * @param {function} isJuror - If the account is a juror.
    * @returns {object[]} - Array of stateful notification objects.
    */
-  getStatefulNotifications = async (
-    arbitratorAddress,
-    account,
-    isJuror = true
-  ) => {
+  getStatefulNotifications = async (account, isJuror = true) => {
     const notifications = []
     const [contracts, disputes] = await Promise.all([
       this._getContracts(account),
-      this._getDisputes(arbitratorAddress, account, isJuror)
+      this._getDisputes(account, isJuror)
     ])
-    const currentPeriod = await this._Arbitrator.getPeriod(arbitratorAddress)
-    const currentSession = await this._Arbitrator.getSession(arbitratorAddress)
+    const currentPeriod = await this._Arbitrator.getPeriod()
+    const currentSession = await this._Arbitrator.getSession()
     if (isJuror) {
       /* Juror notifications:
       * - Activate tokens
@@ -77,9 +62,7 @@ class Notifications extends ResourceWrapper {
       */
       if (currentPeriod === arbitratorConstants.PERIOD.ACTIVATION) {
         // FIXME use estimateGas
-        const contractInstance = await this._loadArbitratorInstance(
-          arbitratorAddress
-        )
+        const contractInstance = await this._loadArbitratorInstance()
         const lastActivatedSession = (await contractInstance.jurors(
           account
         ))[2].toNumber()
@@ -97,7 +80,6 @@ class Notifications extends ResourceWrapper {
           const draws = dispute.appealDraws[dispute.appealDraws.length - 1]
           if (draws) {
             const canVote = await this._Arbitrator.canRuleDispute(
-              arbitratorAddress,
               dispute.disputeId,
               draws,
               account
@@ -109,7 +91,7 @@ class Notifications extends ResourceWrapper {
                   'Need to vote on dispute',
                   {
                     disputeId: dispute.disputeId,
-                    arbitratorAddress: arbitratorAddress
+                    arbitratorAddress: dispute.arbitratorAddress
                   }
                 )
               )
@@ -129,7 +111,6 @@ class Notifications extends ResourceWrapper {
             contract.address
           )
           const arbitrationCost = await this._Arbitrator.getArbitrationCost(
-            arbitratorAddress,
             contractData.arbitratorExtraData
           )
           if (contractData.partyA === account) {
@@ -139,7 +120,7 @@ class Notifications extends ResourceWrapper {
                   notificationConstants.TYPE.CAN_PAY_FEE,
                   'Arbitration fee required',
                   {
-                    arbitratorAddress,
+                    arbitratorAddress: contractData.arbitrator,
                     arbitrableContractAddress: contract.address,
                     feeToPay: arbitrationCost - contractData.partyAFee
                   }
@@ -153,7 +134,7 @@ class Notifications extends ResourceWrapper {
                   notificationConstants.TYPE.CAN_PAY_FEE,
                   'Arbitration fee required',
                   {
-                    arbitratorAddress,
+                    arbitratorAddress: contractData.arbitrator,
                     arbitrableContractAddress: contract.address,
                     feeToPay: arbitrationCost - contractData.partyBFee
                   }
@@ -170,7 +151,6 @@ class Notifications extends ResourceWrapper {
       await Promise.all(
         disputes.map(async dispute => {
           const disputeData = await this._Arbitrator.getDispute(
-            arbitratorAddress,
             dispute.disputeId
           )
           if (
@@ -184,7 +164,7 @@ class Notifications extends ResourceWrapper {
                   'Ready to repartition dispute',
                   {
                     disputeId: dispute.disputeId,
-                    arbitratorAddress: arbitratorAddress
+                    arbitratorAddress: dispute.arbitratorAddress
                   }
                 )
               )
@@ -197,7 +177,7 @@ class Notifications extends ResourceWrapper {
                   'Ready to execute dispute',
                   {
                     disputeId: dispute.disputeId,
-                    arbitratorAddress: arbitratorAddress
+                    arbitratorAddress: dispute.arbitratorAddress
                   }
                 )
               )
@@ -257,23 +237,21 @@ class Notifications extends ResourceWrapper {
    * FIXME use this._Arbitrator.getOpenDisputesForSession
    * We can get a list of subscribers by having jurors subscribe to an arbitrator. Raises new problems however
    * @param {object} event - The event.
-   * @param {string} arbitratorAddress - The arbitratorAddress.
    * @param {string} account - The account.
    * @param {function} callback - The callback.
    */
-  _newPeriodHandler = async (event, arbitratorAddress, account, callback) => {
+  _newPeriodHandler = async (event, account, callback) => {
     const newPeriod = event.args._period.toNumber()
 
     // send appeal possible notifications
     if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
       this._checkArbitratorWrappersSet()
-      const disputes = await this._getDisputes(arbitratorAddress, account)
+      const disputes = await this._getDisputes(account)
       // contract data
-      const arbitratorData = await this._Arbitrator.getData(
-        arbitratorAddress,
-        account
-      )
+      const arbitratorData = await this._Arbitrator.getData(account)
+
       let disputeId = 0
+      let arbitratorAddress
       const currentSession = arbitratorData.session
 
       let dispute
@@ -284,10 +262,8 @@ class Notifications extends ResourceWrapper {
       while (1) {
         // iterate over all disputes (FIXME inefficient)
         try {
-          dispute = await this._Arbitrator.getDispute(
-            arbitratorAddress,
-            disputeId
-          )
+          dispute = await this._Arbitrator.getDispute(disputeId)
+          arbitratorAddress = dispute.arbitratorAddress
           if (dispute.arbitrableContractAddress === ethConstants.NULL_ADDRESS)
             break
           // session + number of appeals
@@ -299,7 +275,6 @@ class Notifications extends ResourceWrapper {
           }
           // FIXME DRY this out with _appealPossibleHandler. Cant call directly because we don't have the actual event being called
           const ruling = await this._Arbitrator.currentRulingForDispute(
-            arbitratorAddress,
             disputeId
           )
 
@@ -336,16 +311,10 @@ class Notifications extends ResourceWrapper {
    * Handler for DisputeCreation event
    * sends notification to partyA and partyB when dispute is created
    * @param {object} event - The event.
-   * @param {string} arbitratorAddress - The arbitratorAddress.
    * @param {string} account - The account.
    * @param {function} callback - The callback.
    */
-  _disputeCreationHandler = async (
-    event,
-    arbitratorAddress,
-    account,
-    callback
-  ) => {
+  _disputeCreationHandler = async (event, account, callback) => {
     const disputeId = event.args._disputeID.toNumber()
     const txHash = event.transactionHash
     const arbitrableData = await this._ArbitrableContract.getData(
@@ -356,6 +325,7 @@ class Notifications extends ResourceWrapper {
       arbitrableData.partyA === account ||
       arbitrableData.partyB === account
     ) {
+      const arbitratorAddress = this._Arbitrator.getContractAddress()
       const notification = await this._newNotification(
         account,
         txHash,
@@ -375,22 +345,14 @@ class Notifications extends ResourceWrapper {
    * handler for AppealPossible event
    * sends notification informing accounts that a ruling has been made and an appeal possible
    * @param {object} event - The event.
-   * @param {string} arbitratorAddress - The arbitratorAddress.
    * @param {string} account - The account.
    * @param {function} callback - The callback.
    */
-  _appealPossibleHandler = async (
-    event,
-    arbitratorAddress,
-    account,
-    callback
-  ) => {
-    const disputes = await this._getDisputes(arbitratorAddress, account)
+  _appealPossibleHandler = async (event, account, callback) => {
+    const disputes = await this._getDisputes(account)
     const disputeId = event.args._disputeID.toNumber()
-    const ruling = await this._Arbitrator.currentRulingForDispute(
-      arbitratorAddress,
-      disputeId
-    )
+    const ruling = await this._Arbitrator.currentRulingForDispute(disputeId)
+    const arbitratorAddress = this._Arbitrator.getContractAddress()
 
     if (
       _.findIndex(
@@ -421,18 +383,13 @@ class Notifications extends ResourceWrapper {
    * Handler for AppealDecision event
    * sends notification informing subscribers that a ruling has been appealed
    * @param {object} event - The event.
-   * @param {string} arbitratorAddress - The arbitratorAddress.
    * @param {string} account - The account.
    * @param {function} callback - The callback.
    */
-  _appealingDecisionHandler = async (
-    event,
-    arbitratorAddress,
-    account,
-    callback
-  ) => {
-    const disputes = await this._getDisputes(arbitratorAddress, account)
+  _appealingDecisionHandler = async (event, account, callback) => {
+    const disputes = await this._getDisputes(account)
     const disputeId = event.args._disputeID.toNumber()
+    const arbitratorAddress = this._Arbitrator.getContractAddress()
 
     if (
       _.findIndex(
@@ -463,17 +420,17 @@ class Notifications extends ResourceWrapper {
    * Sends notification informing
    * NOTE: you will get a notification for each vote. So a juror that has 3 votes will receive 3 notifications
    * @param {object} event - The event.
-   * @param {string} arbitratorAddress - The arbitratorAddress.
    * @param {string} account - The account.
    * @param {function} callback - The callback.
    */
-  _tokenShiftHandler = async (event, arbitratorAddress, account, callback) => {
+  _tokenShiftHandler = async (event, account, callback) => {
     // address indexed _account, uint _disputeID, int _amount
     const disputeId = event.args._disputeID.toNumber()
     const address = event.args._account
     const amount = event.args._amount.toNumber()
 
     if (account === address) {
+      const arbitratorAddress = this._Arbitrator.getContractAddress()
       const notification = await this._newNotification(
         account,
         event.transactionHash,
@@ -495,22 +452,17 @@ class Notifications extends ResourceWrapper {
   /**
    * Handler for arbitration reward event.
    * @param {object} event - The event.
-   * @param {string} arbitratorAddress - The arbitratorAddress.
    * @param {string} account - The account.
    * @param {function} callback - The callback.
    */
-  _arbitrationRewardHandler = async (
-    event,
-    arbitratorAddress,
-    account,
-    callback
-  ) => {
+  _arbitrationRewardHandler = async (event, account, callback) => {
     // address indexed _account, uint _disputeID, int _amount
     const disputeId = event.args._disputeID.toNumber()
     const address = event.args._account
     const amount = event.args._amount.toNumber()
 
     if (account === address) {
+      const arbitratorAddress = this._Arbitrator.getContractAddress()
       const notification = await this._newNotification(
         account,
         event.transactionHash,
@@ -535,13 +487,12 @@ class Notifications extends ResourceWrapper {
   /**
    * Helper method to create handler with correct params
    * @param {function} handler - The handler.
-   * @param {string} arbitratorAddress - The arbitratorAddress.
    * @param {string} account - The account.
    * @param {function} callback - The callback.
    * @returns {object} - The created handler.
    */
-  _createHandler = (handler, arbitratorAddress, account, callback) => args =>
-    handler(args, arbitratorAddress, account, callback)
+  _createHandler = (handler, account, callback) => args =>
+    handler(args, account, callback)
 
   /**
    * Sends a push notification.

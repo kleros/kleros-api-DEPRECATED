@@ -17,20 +17,16 @@ class Disputes extends ResourceWrapper {
   /**
    * If there is a dispute in contract update store.
    * FIXME contracts with multiple disputes will need a way to clarify that this is a new dispute
-   * @param {string} arbitratorAddress - The arbitrator contract's address.
-   * @param {string} account - The account.
    */
-  addNewDisputeEventListener = async arbitratorAddress => {
+  addNewDisputeEventListener = async () => {
     if (!this._eventListener) return
 
-    const _disputeCreatedHandler = async (
-      event,
-      contractAddress = arbitratorAddress
-    ) => {
+    const _disputeCreatedHandler = async event => {
       // There is no need to handle this event if we are not using the store
       if (!this._hasStoreProvider()) return
       const disputeId = event.args._disputeID.toNumber()
 
+      const contractAddress = this._Arbitrator.getContractAddress()
       const existingDispute = (await this._StoreProvider.getDispute(
         contractAddress,
         disputeId
@@ -39,10 +35,7 @@ class Disputes extends ResourceWrapper {
       // Add dispute to store if not there
       if (_.isNull(existingDispute)) {
         // arbitrator data
-        const disputeData = await this._Arbitrator.getDispute(
-          contractAddress,
-          disputeId
-        )
+        const disputeData = await this._Arbitrator.getDispute(disputeId)
         // arbitrable contract data
         const arbitrableContractData = await this._ArbitrableContract.getData(
           disputeData.arbitrableContractAddress
@@ -54,7 +47,7 @@ class Disputes extends ResourceWrapper {
         const appealCreatedAt = disputeData.appealCreatedAt
         appealCreatedAt[disputeData.numberOfAppeals] = blockTimestamp * 1000
 
-        await this._StoreProvider.updateDispute(arbitratorAddress, disputeId, {
+        await this._StoreProvider.updateDispute(contractAddress, disputeId, {
           contractAddress: disputeData.arbitrableContractAddress,
           partyA: arbitrableContractData.partyA,
           partyB: arbitrableContractData.partyB,
@@ -72,27 +65,20 @@ class Disputes extends ResourceWrapper {
 
   /**
    * Add TokenShift event handler to EventListener.
-   * @param {string} arbitratorAddress - The arbitrator contract's address.
    * @param {string} account - The account.
    */
-  addTokenShiftToJurorProfileEventListener = async (
-    arbitratorAddress,
-    account
-  ) => {
+  addTokenShiftToJurorProfileEventListener = async account => {
     if (!this._eventListener) return
 
     const defaultAccount = account
-    const _tokenShiftHandler = async (
-      event,
-      contractAddress = arbitratorAddress,
-      address = defaultAccount
-    ) => {
+    const _tokenShiftHandler = async (event, address = defaultAccount) => {
       const disputeId = event.args._disputeID.toNumber()
       const account = event.args._account
       const amountShift = event.args._amount.toNumber()
       // juror won/lost tokens
       if (account === address) {
         const userProfile = await this._StoreProvider.getUserProfile(address)
+        const contractAddress = this._Arbitrator.getContractAddress()
         const disputeIndex = _.findIndex(
           userProfile.disputes,
           dispute =>
@@ -122,15 +108,13 @@ class Disputes extends ResourceWrapper {
 
   /**
    * Event listener that sends notification when a dispute has been ruled on.
-   * @param {string} arbitratorAddress - The arbitrator contract's address.
    * @param {string} account - The users eth account.
    * @param {function} callback - <optional> function to be called when event is triggered.
    */
-  addDisputeRulingHandler = async (arbitratorAddress, account, callback) => {
+  addDisputeRulingHandler = async (account, callback) => {
     if (!this._eventListener) return
     const _disputeRulingHandler = async (
       event,
-      contractAddress = arbitratorAddress,
       address = account,
       notificationCallback = callback
     ) => {
@@ -138,19 +122,14 @@ class Disputes extends ResourceWrapper {
       // send appeal possible notifications
       if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
         this._checkArbitratorWrappersSet()
-        const disputes = await this._getDisputes(arbitratorAddress, address)
-        const openDisputes = await this._Arbitrator.getOpenDisputesForSession(
-          arbitratorAddress
-        )
+        const disputes = await this._getDisputes(address)
+        const openDisputes = await this._Arbitrator.getOpenDisputesForSession()
+        const contractAddress = this._Arbitrator.getContractAddress()
 
         await Promise.all(
           openDisputes.map(async disputeId => {
-            const dispute = await this._Arbitrator.getDispute(
-              arbitratorAddress,
-              disputeId
-            )
+            const dispute = await this._Arbitrator.getDispute(disputeId)
             const ruling = await this._Arbitrator.currentRulingForDispute(
-              contractAddress,
               disputeId,
               dispute.numberOfAppeals
             )
@@ -165,7 +144,7 @@ class Disputes extends ResourceWrapper {
             ) {
               const notification = await this._newNotification(
                 address,
-                arbitratorAddress, // use arbitratorAddress so that we know it is unique. not event based
+                contractAddress, // use arbitratorAddress so that we know it is unique. not event based
                 disputeId, // use disputeId instead of logIndex since it doens't have its own event
                 notificationConstants.TYPE.APPEAL_POSSIBLE,
                 'A ruling has been made. Appeal is possible',
@@ -184,7 +163,7 @@ class Disputes extends ResourceWrapper {
                 ).timestamp
 
                 const disputeData = await this.getDataForDispute(
-                  arbitratorAddress,
+                  contractAddress,
                   disputeId,
                   address
                 )
@@ -192,13 +171,9 @@ class Disputes extends ResourceWrapper {
                 appealRuledAt[disputeData.numberOfAppeals] =
                   blockTimestamp * 1000
 
-                this._StoreProvider.updateDispute(
-                  arbitratorAddress,
-                  disputeId,
-                  {
-                    appealRuledAt
-                  }
-                )
+                this._StoreProvider.updateDispute(contractAddress, disputeId, {
+                  appealRuledAt
+                })
               }
 
               if (notificationCallback && notification) {
@@ -218,30 +193,23 @@ class Disputes extends ResourceWrapper {
 
   /**
    * Event listener that sets the deadline for an appeal
-   * @param {string} arbitratorAddress - The arbitrator contract's address.
    * @param {string} account - The users eth account.
    * @param {function} callback - <optional> function to be called when event is triggered.
    */
-  addDisputeDeadlineHandler = async (arbitratorAddress, account) => {
+  addDisputeDeadlineHandler = async account => {
     if (!this._eventListener) return
 
-    const _disputeDeadlineHandler = async (
-      event,
-      contractAddress = arbitratorAddress,
-      address = account
-    ) => {
+    const _disputeDeadlineHandler = async (event, address = account) => {
       if (!this._hasStoreProvider()) return
 
       const newPeriod = event.args._period.toNumber()
       // send appeal possible notifications
       if (newPeriod === arbitratorConstants.PERIOD.VOTE) {
         this._checkArbitratorWrappersSet()
-        const disputes = await this._getDisputes(arbitratorAddress, address)
+        const disputes = await this._getDisputes(address)
         // contract data
-        const openDisputes = await this._Arbitrator.getOpenDisputesForSession(
-          arbitratorAddress
-        )
-
+        const openDisputes = await this._Arbitrator.getOpenDisputesForSession()
+        const contractAddress = this._Arbitrator.getContractAddress()
         await Promise.all(
           openDisputes.map(async disputeId => {
             if (
@@ -252,18 +220,16 @@ class Disputes extends ResourceWrapper {
                   dispute.arbitratorAddress === contractAddress
               ) >= 0
             ) {
-              const deadline = await this.getDeadlineForOpenDispute(
-                arbitratorAddress
-              )
+              const deadline = await this._Arbitrator.getDeadlineForOpenDispute()
               const disputeData = await this.getDataForDispute(
-                arbitratorAddress,
+                contractAddress,
                 disputeId,
                 address
               )
               const appealDeadlines = disputeData.appealDeadlines
               appealDeadlines[disputeData.numberOfAppeals] = deadline
 
-              this._StoreProvider.updateDispute(arbitratorAddress, disputeId, {
+              this._StoreProvider.updateDispute(contractAddress, disputeId, {
                 appealDeadlines
               })
             }
@@ -283,22 +249,22 @@ class Disputes extends ResourceWrapper {
   // **************************** //
   /**
    * Get data for a dispute.
-   * @param {string} arbitratorAddress - The arbitrator contract's address.
    * @param {number} disputeId - The dispute's ID.
    * @param {string} account - The juror's address.
    * @returns {object} - Data object for the dispute that uses data from the contract and the store.
    * TODO: Should we return what we have in the store even if dispute is not in the contract?
    */
-  getDataForDispute = async (arbitratorAddress, disputeId, account) => {
+  getDataForDispute = async (disputeId, account) => {
     this._checkArbitratorWrappersSet()
     this._checkArbitrableWrappersSet()
     this._checkStoreProviderSet()
 
+    const arbitratorAddress = this._Arbitrator.getContractAddress()
     // Get dispute data from contract. Also get the current session and period.
     const [dispute, period, session] = await Promise.all([
-      this._Arbitrator.getDispute(arbitratorAddress, disputeId),
-      this._Arbitrator.getPeriod(arbitratorAddress),
-      this._Arbitrator.getSession(arbitratorAddress)
+      this._Arbitrator.getDispute(disputeId),
+      this._Arbitrator.getPeriod(),
+      this._Arbitrator.getSession()
     ])
 
     // Get arbitrable contract data and evidence
@@ -350,23 +316,14 @@ class Disputes extends ResourceWrapper {
       let canExecute = false
       let ruling
       const rulingPromises = [
-        this._Arbitrator.currentRulingForDispute(
-          arbitratorAddress,
-          disputeId,
-          appeal
-        )
+        this._Arbitrator.currentRulingForDispute(disputeId, appeal)
       ]
 
       // Extra info for the last appeal
       if (isLastAppeal) {
         if (draws.length > 0)
           rulingPromises.push(
-            this._Arbitrator.canRuleDispute(
-              arbitratorAddress,
-              disputeId,
-              draws,
-              account
-            )
+            this._Arbitrator.canRuleDispute(disputeId, draws, account)
           )
 
         if (session && period)
