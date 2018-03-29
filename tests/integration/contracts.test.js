@@ -65,25 +65,25 @@ describe('Contracts', () => {
       expect(contractInstance).toBeTruthy()
       expect(contractInstance.address).toEqual(newKlerosPOC.address)
     })
-    // it('load throws with bad address', async () => {
-    //   const KlerosInstance = new Kleros(undefined, provider)
-    //   // deploy KlerosPOC with no PNK or RNG
-    //   const newKlerosPOC = await KlerosInstance.arbitrator.deploy(
-    //     '',
-    //     '',
-    //     klerosPOCData.timesPerPeriod,
-    //     klerosPOCData.account,
-    //     klerosPOCData.value
-    //   )
-    //
-    //   expect(newKlerosPOC.address).toBeTruthy()
-    //
-    //   try {
-    //     await KlerosInstance.arbitrator.setArbitrator('badAddress')
-    //   } catch (err) {
-    //     expect(err.message).toEqual(errorConstants.UNABLE_TO_LOAD_ARBITRATOR)
-    //   }
-    // })
+    it('load throws with bad address', async () => {
+      const KlerosInstance = new Kleros(undefined, provider)
+      // deploy KlerosPOC with no PNK or RNG
+      const newKlerosPOC = await KlerosInstance.arbitrator.deploy(
+        '',
+        '',
+        klerosPOCData.timesPerPeriod,
+        klerosPOCData.account,
+        klerosPOCData.value
+      )
+
+      expect(newKlerosPOC.address).toBeTruthy()
+
+      try {
+        await KlerosInstance.arbitrator.setArbitrator('badAddress')
+      } catch (err) {
+        expect(err.message).toEqual(errorConstants.UNABLE_TO_LOAD_ARBITRATOR)
+      }
+    })
     it('setArbitrator throws with undefined parameters', async () => {
       const KlerosInstance = new Kleros(undefined, provider)
       // deploy KlerosPOC with no PNK or RNG
