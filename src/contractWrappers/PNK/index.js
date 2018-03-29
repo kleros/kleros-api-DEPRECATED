@@ -1,5 +1,3 @@
-import PinakionPOC from './PinakionPOC'
+import _PinakionPOC from './PinakionPOC'
 
-export default {
-  PinakionPOC
-}
+export const PinakionPOC = _PinakionPOC

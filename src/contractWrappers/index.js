@@ -1,11 +1,9 @@
-import arbitrator from './arbitrator'
-import arbitrableTransaction from './arbitrableContracts'
-import PNK from './PNK'
-import RNG from './RNG'
+import * as _arbitrator from './arbitrator'
+import * as _arbitrableContracts from './arbitrableContracts'
+import * as _PNK from './PNK'
+import * as _RNG from './RNG'
 
-export default {
-  arbitrator,
-  arbitrableTransaction,
-  PNK,
-  RNG
-}
+export const arbitrator = _arbitrator
+export const arbitrableContracts = _arbitrableContracts
+export const PNK = _PNK
+export const RNG = _RNG

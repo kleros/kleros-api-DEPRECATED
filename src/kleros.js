@@ -1,7 +1,7 @@
 import Web3Wrapper from './utils/Web3Wrapper'
 import StoreProviderWrapper from './utils/StoreProviderWrapper'
-import contracts from './contractWrappers'
-import resources from './resourceWrappers'
+import * as contracts from './contractWrappers'
+import * as resources from './resourceWrappers'
 import Arbitrator from './abstractWrappers/arbitrator'
 import ArbitrableContracts from './abstractWrappers/arbitrableContracts'
 
@@ -35,7 +35,7 @@ class Kleros {
       this._web3Wrapper,
       arbitratorAddress
     )
-    this._arbitrableTransaction = new this.contracts.arbitrableTransaction.ArbitrableTransaction(
+    this._arbitrableTransaction = new this.contracts.arbitrableContracts.ArbitrableTransaction(
       this._web3Wrapper
     )
 
