@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.2.0"></a>
+
+# [0.2.0](https://github.com/kleros/kleros-api/compare/v0.0.70...v0.2.0) (2018-03-29)
+
+### Bug Fixes
+
+* **disputes unit test:** use custom try/catch for test of getUserDisputeFromStore ([cb386f1](https://github.com/kleros/kleros-api/commit/cb386f1))
+* improper capitalization on imports ([ecf14ae](https://github.com/kleros/kleros-api/commit/ecf14ae))
+
+### Features
+
+* throw semantic errors ([bf76f4a](https://github.com/kleros/kleros-api/commit/bf76f4a)), closes [#107](https://github.com/kleros/kleros-api/issues/107) [kleros/kleros-juror-front#10](https://github.com/kleros/kleros-juror-front/issues/10)
+
 <a name="0.1.0"></a>
 
 # [0.1.0](https://github.com/kleros/kleros-api/compare/v0.0.70...v0.1.0) (2018-03-27)
