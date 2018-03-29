@@ -92,9 +92,9 @@ class ResourceWrapper {
    * @param {string} arbitratorAddress - Address.
    * @returns {Promise<object>} - Instance of arbitrator contract wrapper.
    */
-  _loadArbitratorInstance = async arbitratorAddress => {
+  _loadArbitratorInstance = () => {
     this._checkArbitratorWrappersSet()
-    return this._Arbitrator.load(arbitratorAddress)
+    return this._Arbitrator.getContractInstance()
   }
 
   /**
@@ -178,12 +178,11 @@ class ResourceWrapper {
 
   /**
    * Get disputes either from store or from arbitrator if Store Provider is not set. Used for notifications
-   * @param {string} arbitratorAddress - The arbitrator contract's address.
    * @param {string} account - Filter notifications for account.
    * @param {function} isJuror - If the account is a juror.
    * @returns {object[]} - Array of dispute objects
    */
-  _getDisputes = async (arbitratorAddress, account, isJuror = true) => {
+  _getDisputes = async (account, isJuror = true) => {
     let disputes = []
 
     // If we have store provider fetch contracts and disputes from the store.
@@ -192,10 +191,7 @@ class ResourceWrapper {
     } else if (isJuror) {
       // We have no way to get contracts. Get disputes from current session
       // TODO make a function to get open disputes for parites
-      disputes = await this._Arbitrator.getDisputesForJuror(
-        arbitratorAddress,
-        account
-      )
+      disputes = await this._Arbitrator.getDisputesForJuror(account)
     }
 
     return disputes

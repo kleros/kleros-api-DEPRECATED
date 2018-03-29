@@ -81,42 +81,31 @@ describe('Dispute Resolution', () => {
 
       // juror1 should have no balance to start with
       const initialBalance = await KlerosInstance.arbitrator.getPNKBalance(
-        klerosPOCAddress,
         juror1
       )
       expect(initialBalance.tokenBalance).toEqual(0)
       // buy 1 PNK juror1
-      await KlerosInstance.arbitrator.buyPNK(1, klerosPOCAddress, juror1)
+      await KlerosInstance.arbitrator.buyPNK(1, juror1)
 
-      const newBalance = await KlerosInstance.arbitrator.getPNKBalance(
-        klerosPOCAddress,
-        juror1
-      )
+      const newBalance = await KlerosInstance.arbitrator.getPNKBalance(juror1)
 
       expect(newBalance.tokenBalance).toEqual(1)
       // buy PNK for juror2
-      await KlerosInstance.arbitrator.buyPNK(1, klerosPOCAddress, juror2)
+      await KlerosInstance.arbitrator.buyPNK(1, juror2)
 
       // activate PNK juror1
       const activatedTokenAmount = 0.5
       const balance = await KlerosInstance.arbitrator.activatePNK(
         activatedTokenAmount,
-        klerosPOCAddress,
         juror1
       )
       expect(balance.tokenBalance).toEqual(1)
       expect(balance.activatedTokens).toEqual(0.5)
       // activate PNK juror2
-      await KlerosInstance.arbitrator.activatePNK(
-        activatedTokenAmount,
-        klerosPOCAddress,
-        juror2
-      )
+      await KlerosInstance.arbitrator.activatePNK(activatedTokenAmount, juror2)
 
       // load klerosPOC
-      const klerosPOCInstance = await KlerosInstance.arbitrator.load(
-        klerosPOCAddress
-      )
+      const klerosPOCInstance = await KlerosInstance.arbitrator.getContractInstance()
 
       const juror1Data = await klerosPOCInstance.jurors(juror1)
       expect(juror1Data[2].toNumber()).toEqual(
@@ -127,7 +116,7 @@ describe('Dispute Resolution', () => {
       )
       // return a bigint
       // FIXME use arbitrableTransaction
-      const arbitrableContractInstance = await KlerosInstance.arbitrableContract.load(
+      const arbitrableContractInstance = await KlerosInstance.arbitrableContracts.load(
         arbitrableContractAddress
       )
       const partyAFeeContractInstance = await arbitrableContractInstance.partyAFee()
@@ -138,12 +127,11 @@ describe('Dispute Resolution', () => {
 
       // return a bigint with the default value : 10000 wei fees in ether
       const arbitrationCost = await KlerosInstance.arbitrator.getArbitrationCost(
-        klerosPOCAddress,
         extraDataContractInstance
       )
 
       // raise dispute party A
-      const raiseDisputeByPartyATxObj = await KlerosInstance.arbitrableContract.payArbitrationFeeByPartyA(
+      const raiseDisputeByPartyATxObj = await KlerosInstance.arbitrableContracts.payArbitrationFeeByPartyA(
         partyA,
         arbitrableContractAddress,
         arbitrationCost -
@@ -160,7 +148,7 @@ describe('Dispute Resolution', () => {
       // FIXME use arbitrableTransaction
       const partyBFeeContractInstance = await arbitrableContractInstance.partyBFee()
 
-      const raiseDisputeByPartyBTxObj = await KlerosInstance.arbitrableContract.payArbitrationFeeByPartyB(
+      const raiseDisputeByPartyBTxObj = await KlerosInstance.arbitrableContracts.payArbitrationFeeByPartyB(
         partyB,
         arbitrableContractAddress,
         arbitrationCost -
@@ -172,10 +160,7 @@ describe('Dispute Resolution', () => {
       expect(raiseDisputeByPartyBTxObj.tx).toEqual(
         expect.stringMatching(/^0x[a-f0-9]{64}$/)
       ) // tx hash
-      const dispute = await KlerosInstance.arbitrator.getDispute(
-        klerosPOCAddress,
-        0
-      )
+      const dispute = await KlerosInstance.arbitrator.getDispute(0)
       expect(dispute.arbitrableContractAddress).toEqual(
         arbitrableContractAddress
       )
@@ -190,7 +175,7 @@ describe('Dispute Resolution', () => {
       )
 
       // check fetch resolution options
-      const resolutionOptions = await KlerosInstance.arbitrableContract.getRulingOptions(
+      const resolutionOptions = await KlerosInstance.arbitrableContracts.getRulingOptions(
         arbitrableContractAddress,
         klerosPOCAddress,
         0
@@ -200,7 +185,7 @@ describe('Dispute Resolution', () => {
       const testName = 'test name'
       const testDesc = 'test description'
       const testURL = 'http://test.com'
-      const txHashAddEvidence = await KlerosInstance.arbitrableContract.submitEvidence(
+      const txHashAddEvidence = await KlerosInstance.arbitrableContracts.submitEvidence(
         partyA,
         arbitrableContractAddress,
         testName,
@@ -213,9 +198,7 @@ describe('Dispute Resolution', () => {
 
       // check initial state of contract
       // FIXME var must be more explicit
-      const initialState = await KlerosInstance.arbitrator.getData(
-        klerosPOCAddress
-      )
+      const initialState = await KlerosInstance.arbitrator.getData()
       expect(initialState.session).toEqual(1)
       expect(initialState.period).toEqual(0)
 
@@ -231,21 +214,16 @@ describe('Dispute Resolution', () => {
             data: '0x'
           })
         await delaySecond()
-        await KlerosInstance.arbitrator.passPeriod(klerosPOCAddress, other)
+        await KlerosInstance.arbitrator.passPeriod(other)
 
-        newPeriod = await KlerosInstance.arbitrator.getPeriod(klerosPOCAddress)
+        newPeriod = await KlerosInstance.arbitrator.getPeriod()
         expect(newPeriod).toEqual(i)
       }
       let drawA = []
       let drawB = []
       for (let i = 1; i <= 3; i++) {
         if (
-          await KlerosInstance.arbitrator.isJurorDrawnForDispute(
-            0,
-            i,
-            klerosPOCAddress,
-            juror1
-          )
+          await KlerosInstance.arbitrator.isJurorDrawnForDispute(0, i, juror1)
         ) {
           drawA.push(i)
         } else {
@@ -255,11 +233,9 @@ describe('Dispute Resolution', () => {
 
       expect(drawA.length + drawB.length).toEqual(3)
       const disputesForJuror1 = await KlerosInstance.arbitrator.getDisputesForJuror(
-        klerosPOCAddress,
         juror1
       )
       const disputesForJuror2 = await KlerosInstance.arbitrator.getDisputesForJuror(
-        klerosPOCAddress,
         juror2
       )
       expect(
@@ -276,7 +252,6 @@ describe('Dispute Resolution', () => {
       // submit rulings
       const rulingJuror1 = 1
       await KlerosInstance.arbitrator.submitVotes(
-        klerosPOCAddress,
         0,
         rulingJuror1,
         drawA,
@@ -284,7 +259,6 @@ describe('Dispute Resolution', () => {
       )
       const rulingJuror2 = 2
       await KlerosInstance.arbitrator.submitVotes(
-        klerosPOCAddress,
         0,
         rulingJuror2,
         drawB,
@@ -294,25 +268,21 @@ describe('Dispute Resolution', () => {
         drawA.length > drawB.length ? rulingJuror1 : rulingJuror2
 
       await delaySecond()
-      await KlerosInstance.arbitrator.passPeriod(klerosPOCAddress, other)
+      await KlerosInstance.arbitrator.passPeriod(other)
 
       const currentRuling = await klerosPOCInstance.currentRuling(0)
       expect(`${currentRuling}`).toEqual(`${winningRuling}`)
 
       await delaySecond()
-      await KlerosInstance.arbitrator.passPeriod(klerosPOCAddress, other)
+      await KlerosInstance.arbitrator.passPeriod(other)
 
       // balances before ruling is executed
       const partyABalance = web3.eth.getBalance(partyA).toNumber()
       const partyBBalance = web3.eth.getBalance(partyB).toNumber()
       // repartition tokens
-      await KlerosInstance.arbitrator.repartitionJurorTokens(
-        klerosPOCAddress,
-        0,
-        other
-      )
+      await KlerosInstance.arbitrator.repartitionJurorTokens(0, other)
       // execute ruling
-      await KlerosInstance.arbitrator.executeRuling(klerosPOCAddress, 0, other)
+      await KlerosInstance.arbitrator.executeRuling(0, other)
       // balances after ruling
       // partyA wins so they should recieve their arbitration fee as well as the value locked in contract
       if (winningRuling === rulingJuror1) {
@@ -331,7 +301,7 @@ describe('Dispute Resolution', () => {
         expect(web3.eth.getBalance(partyA).toNumber()).toEqual(partyABalance)
       }
 
-      const updatedContractData = await KlerosInstance.arbitrableContract.getData(
+      const updatedContractData = await KlerosInstance.arbitrableContracts.getData(
         arbitrableContractAddress
       )
       expect(parseInt(updatedContractData.status, 10)).toEqual(4)
