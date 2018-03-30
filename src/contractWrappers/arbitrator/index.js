@@ -1,3 +1,3 @@
-import _KlerosPOC from './KlerosPOC'
+import KlerosPOC from './KlerosPOC'
 
-export const KlerosPOC = _KlerosPOC
+export { KlerosPOC }
