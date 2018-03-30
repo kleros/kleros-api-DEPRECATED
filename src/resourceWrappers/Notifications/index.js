@@ -1,10 +1,8 @@
 import _ from 'lodash'
 
-import * as ethConstants from '../../constants/eth'
 import * as arbitratorConstants from '../../constants/arbitrator'
 import * as notificationConstants from '../../constants/notification'
 import * as disputeConstants from '../../constants/dispute'
-import * as errorConstants from '../../constants/error'
 import ResourceWrapper from '../ResourceWrapper'
 
 /**
@@ -234,7 +232,6 @@ class Notifications extends ResourceWrapper {
   // *        Handlers          * //
   // **************************** //
   /**
-   * FIXME use this._Arbitrator.getOpenDisputesForSession
    * We can get a list of subscribers by having jurors subscribe to an arbitrator. Raises new problems however
    * @param {object} event - The event.
    * @param {string} account - The account.
@@ -245,40 +242,26 @@ class Notifications extends ResourceWrapper {
 
     // send appeal possible notifications
     if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
-      this._checkArbitratorWrappersSet()
-      const disputes = await this._getDisputes(account)
-      // contract data
-      const arbitratorData = await this._Arbitrator.getData(account)
+      const disputes = await this._getDisputes(account) // get users disputes
+      const openDisputes = await this._Arbitrator.getOpenDisputesForSession() // get all disputes for session
+      const contractAddress = this._Arbitrator.getContractAddress()
 
-      let disputeId = 0
-      let arbitratorAddress
-      const currentSession = arbitratorData.session
+      await Promise.all(
+        openDisputes.map(async disputeId => {
+          if (
+            _.findIndex(
+              disputes,
+              dispute =>
+                dispute.disputeId === disputeId &&
+                dispute.arbitratorAddress === contractAddress
+            ) >= 0
+          ) {
+            const dispute = await this._Arbitrator.getDispute(disputeId)
+            const ruling = await this._Arbitrator.currentRulingForDispute(
+              disputeId,
+              dispute.numberOfAppeals
+            )
 
-      let dispute
-      const findDisputeIndex = dispute =>
-        dispute.disputeId === disputeId &&
-        dispute.arbitratorAddress === arbitratorAddress
-
-      while (1) {
-        // iterate over all disputes (FIXME inefficient)
-        try {
-          dispute = await this._Arbitrator.getDispute(disputeId)
-          arbitratorAddress = dispute.arbitratorAddress
-          if (dispute.arbitrableContractAddress === ethConstants.NULL_ADDRESS)
-            break
-          // session + number of appeals
-          const disputeSession = dispute.firstSession + dispute.numberOfAppeals
-          // if dispute not in current session skip
-          if (disputeSession !== currentSession) {
-            disputeId++
-            continue
-          }
-          // FIXME DRY this out with _appealPossibleHandler. Cant call directly because we don't have the actual event being called
-          const ruling = await this._Arbitrator.currentRulingForDispute(
-            disputeId
-          )
-
-          if (_.findIndex(disputes, findDisputeIndex) >= 0) {
             const notification = await this._newNotification(
               account,
               event.transactionHash,
@@ -287,23 +270,15 @@ class Notifications extends ResourceWrapper {
               'A ruling has been made. Appeal is possible',
               {
                 disputeId,
-                arbitratorAddress,
+                contractAddress,
                 ruling
               }
             )
 
             await this._sendPushNotification(callback, notification)
           }
-
-          // Check the next dispute
-          disputeId++
-        } catch (err) {
-          // Dispute out of range, break
-          if (err.message === errorConstants.UNABLE_TO_FETCH_DISPUTE) break
-          console.error(err)
-          throw err
-        }
-      }
+        })
+      )
     }
   }
 
@@ -517,6 +492,57 @@ class Notifications extends ResourceWrapper {
     message,
     data
   })
+
+  /**
+   * Creates a new notification object in the store.
+   * @param {string} account - The account.
+   * @param {string} txHash - The txHash.
+   * @param {number} logIndex - The logIndex.
+   * @param {number} notificationType - The notificationType.
+   * @param {string} message - The message.
+   * @param {object} data - The data.
+   * @param {bool} read - Wether the notification has been read or not.
+   * @returns {function} - The notification object.
+   */
+  _newNotification = async (
+    account,
+    txHash,
+    logIndex,
+    notificationType,
+    message = '',
+    data = {},
+    read = false
+  ) => {
+    if (this._hasStoreProvider()) {
+      const response = await this._StoreProvider.newNotification(
+        account,
+        txHash,
+        logIndex,
+        notificationType,
+        message,
+        data,
+        read
+      )
+
+      if (response.status === 201) {
+        const notification = response.body.notifications.filter(
+          notification =>
+            notification.txHash === txHash && notification.logIndex === logIndex
+        )
+        return notification[0]
+      }
+    } else {
+      // If we have no store provider simply return object of params.
+      return {
+        txHash,
+        logIndex,
+        notificationType,
+        message,
+        data,
+        read
+      }
+    }
+  }
 }
 
 export default Notifications

@@ -1,46 +1,58 @@
+import BlockHashRNG from '../../src/contractWrappers/RNG/BlockHashRNG'
+import PinakionPOC from '../../src/contractWrappers/PNK/PinakionPOC'
+import KlerosPOC from '../../src/contractWrappers/arbitrator/KlerosPOC'
+import ArbitrableTransaction from '../../src/contractWrappers/arbitrableContracts/ArbitrableTransaction'
+
 const setUpContracts = async (
-  KlerosInstance,
+  provider,
   klerosPOCParams,
   arbitrableContractParams
 ) => {
   // initialize RNG and Pinakion contracts
-  const rngInstance = new KlerosInstance.contracts.RNG.BlockHashRNG(
-    KlerosInstance.getWeb3Wrapper()
+  const rngInstance = await BlockHashRNG.deploy(
+    klerosPOCParams.account,
+    provider
   )
-  const rng = await rngInstance.deploy()
-  const pinakionInstance = new KlerosInstance.contracts.PNK.PinakionPOC(
-    KlerosInstance.getWeb3Wrapper()
+  const pinakionInstance = await PinakionPOC.deploy(
+    klerosPOCParams.account,
+    provider
   )
-  const pnk = await pinakionInstance.deploy()
   // initialize KlerosPOC
-  const klerosCourt = await KlerosInstance.arbitrator.deploy(
-    rng.address,
-    pnk.address,
+  const klerosCourt = await KlerosPOC.deploy(
+    rngInstance.address,
+    pinakionInstance.address,
     klerosPOCParams.timesPerPeriod,
     klerosPOCParams.account,
-    klerosPOCParams.value
+    klerosPOCParams.value,
+    provider
   )
-
+  const pnkWrapper = new PinakionPOC(provider, pinakionInstance.address)
   // transfer ownership and set kleros instance
-  await pinakionInstance.setKleros(pnk.address, klerosCourt.address)
-
-  await pinakionInstance.transferOwnership(pnk.address, klerosCourt.address)
-
-  const contractArbitrableTransaction = await KlerosInstance.arbitrableContracts.deploy(
+  await pnkWrapper.setKleros(
+    pinakionInstance.address,
+    klerosCourt.address,
+    klerosPOCParams.account
+  )
+  await pnkWrapper.transferOwnership(
+    pinakionInstance.address,
+    klerosCourt.address,
+    klerosPOCParams.account
+  )
+  const contractArbitrableTransaction = await ArbitrableTransaction.deploy(
     arbitrableContractParams.partyA,
     arbitrableContractParams.value, // use default value (0)
     arbitrableContractParams.hash,
     klerosCourt.address,
     arbitrableContractParams.timeout,
     arbitrableContractParams.partyB,
-    arbitrableContractParams.extraData
+    arbitrableContractParams.extraData,
+    provider
   )
-
   return [
     klerosCourt.address,
     contractArbitrableTransaction.address,
-    rng.address,
-    pnk.address
+    rngInstance.address,
+    pinakionInstance.address
   ]
 }
 

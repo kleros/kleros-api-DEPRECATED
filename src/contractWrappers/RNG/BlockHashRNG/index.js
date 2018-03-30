@@ -3,6 +3,7 @@ import _ from 'lodash'
 
 import * as ethConstants from '../../../constants/eth'
 import ContractWrapper from '../../ContractWrapper'
+import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
  * Kleros API
@@ -23,18 +24,17 @@ class BlockHashRNGWrapper extends ContractWrapper {
 
   /**
    * Kleros deploy.
-   * @param {string} account - (default: accounts[0])
-   * @param {number} value - (default: 10000)
+   * @param {string} account - users account
+   * @param {object} web3Provider - web3 provider object
    * @returns {object} - truffle-contract Object | err The contract object or error deploy
    */
-  deploy = async (account = this._Web3Wrapper.getAccount(0)) => {
-    const contractDeployed = await this._deployAsync(
+  static deploy = async (account, web3Provider) => {
+    const contractDeployed = await deployContractAsync(
       account,
       ethConstants.TRANSACTION.VALUE,
-      RNG
+      RNG,
+      web3Provider
     )
-
-    this.address = contractDeployed.address
 
     return contractDeployed
   }

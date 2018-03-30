@@ -1,6 +1,7 @@
 import _ from 'lodash'
 
 import * as errorConstants from '../constants/error'
+import isRequired from '../utils/isRequired'
 
 class AbstractWrapper {
   /**
@@ -10,7 +11,10 @@ class AbstractWrapper {
    * @param {object} contractWrapperInstance - Contract Wrapper object to extend
    * @param {object} storeProviderWrapperInstance - StoreProvider wrapper object.
    */
-  constructor(contractWrapperInstance, storeProviderWrapperInstance) {
+  constructor(
+    contractWrapperInstance = isRequired('contractWrapperInstance'),
+    storeProviderWrapperInstance = isRequired('storeProviderWrapperInstance')
+  ) {
     this._StoreProvider = storeProviderWrapperInstance
     // Should still use this._contractWrapper... over this... even after calls are delegating in case any calls were overwritten by child
     this._contractWrapper = contractWrapperInstance

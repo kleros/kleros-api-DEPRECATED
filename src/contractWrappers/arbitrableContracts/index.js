@@ -1,3 +1,3 @@
-import _ArbitrableTransaction from './ArbitrableTransaction'
+import ArbitrableTransaction from './ArbitrableTransaction'
 
-export const ArbitrableTransaction = _ArbitrableTransaction
+export { ArbitrableTransaction }

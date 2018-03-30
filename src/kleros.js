@@ -1,73 +1,78 @@
+import isRequired from './utils/isRequired'
 import Web3Wrapper from './utils/Web3Wrapper'
 import StoreProviderWrapper from './utils/StoreProviderWrapper'
 import * as contracts from './contractWrappers'
 import * as resources from './resourceWrappers'
-import Arbitrator from './abstractWrappers/arbitrator'
-import ArbitrableContracts from './abstractWrappers/arbitrableContracts'
+import * as abstractWrappers from './abstractWrappers'
 
 class Kleros {
-  _web3Wrapper = {}
+  web3Wrapper = {}
 
-  _storeWrapper = {}
+  storeWrapper = {}
 
   /**
    * Instantiates a new Kelros instance that provides the public interface
-   * to Kleros contracts and library.
+   * to Kleros contracts and library. All params are required. To use an individual
+   * portion of the API import a class and initialize it yourself.
    * @param {string} arbitratorAddress - Address of the arbitrator contract we should
    *                 use when initializing KlerosPOC
    * @param {string} ethereumProvider - The Web3.js Provider instance you would like the
    *                 Kleros.js library to use for interacting with the
    *                 Ethereum network.
-   * @param {string} storeProvider - <optional> The storage provider instance used by the contract to
-   *                      get data from the cloud. e.g. Kleros-Store,
+   * @param {string} storeUri - <optional> The storage provider uri used to
+   *                      get metadata from the cloud for the UI. e.g. Kleros-Store,
    *                      IPFS, Swarm etc.
    */
-  constructor(arbitratorAddress, ethereumProvider, storeProvider) {
-    this._web3Wrapper = new Web3Wrapper(ethereumProvider)
-    // GIVE ACCESS TO ALL CONTRACT WRAPPERS
-    this.contracts = contracts
-
-    // **************************** //
-    // *          Private         * //
-    // **************************** //
+  constructor(
+    arbitratorAddress = isRequired('arbitratorAddress'),
+    ethereumProvider = isRequired('ethereumProvider'),
+    storeUri = isRequired('storeUri')
+  ) {
     // NOTE we default to KlerosPOC and ArbitrableTransaction
-    this._klerosPOC = new this.contracts.arbitrator.KlerosPOC(
-      this._web3Wrapper,
+    const _klerosPOC = new contracts.arbitrator.KlerosPOC(
+      ethereumProvider,
       arbitratorAddress
     )
-    this._arbitrableTransaction = new this.contracts.arbitrableContracts.ArbitrableTransaction(
-      this._web3Wrapper
+    const _arbitrableTransaction = new contracts.arbitrableContracts.ArbitrableTransaction(
+      ethereumProvider
     )
 
     // **************************** //
-    // *          Public          * //
+    // *   INITIALIZED CLASSES    * //
     // **************************** //
-    // ABSTRACT ENDPOINTS
-    this.arbitrator = new Arbitrator(this._klerosPOC)
-    this.arbitrableContracts = new ArbitrableContracts(
-      this._arbitrableTransaction
+    // KLEROS WRAPPERS
+    this.web3Wrapper = new Web3Wrapper(ethereumProvider)
+    this.storeWrapper = new StoreProviderWrapper(storeUri)
+    // ARBITRATOR
+    this.arbitrator = new abstractWrappers.Arbitrator(
+      _klerosPOC,
+      this.storeWrapper
     )
-
+    // ARBITRABLE CONTRACTS
+    this.arbitrableContracts = new abstractWrappers.ArbitrableContracts(
+      _arbitrableTransaction,
+      this.storeWrapper
+    )
     // EVENT LISTENER
     this.eventListener = new resources.EventListeners(
       this.arbitrator,
-      this.arbitrableContracts
+      this.arbitrableContracts,
+      this.storeWrapper
     )
     // DISPUTES
     this.disputes = new resources.Disputes(
       this.arbitrator,
       this.arbitrableContracts,
-      this.eventListener
+      this.eventListener,
+      this.storeWrapper
     )
     // NOTIFICATIONS
     this.notifications = new resources.Notifications(
       this.arbitrator,
       this.arbitrableContracts,
-      this.eventListener
+      this.eventListener,
+      this.storeWrapper
     )
-
-    // set store provider in wrappers
-    if (storeProvider) this.setStoreProvider(storeProvider)
   }
 
   /**
@@ -92,21 +97,18 @@ class Kleros {
   }
 
   /**
-   * set store provider in all abstract wrappers
+   * set store provider in all high level wrappers
    * @param {string} storeUri - The URI that the store provider will use
    */
   setStoreProvider = storeUri => {
-    this._storeWrapper = new StoreProviderWrapper(storeUri)
+    this.storeWrapper = new StoreProviderWrapper(storeUri)
 
-    this.eventListener.setStoreProvider(this._storeWrapper)
-    this.disputes.setStoreProvider(this._storeWrapper)
-    this.arbitrableContract.setStoreProvider(this._storeWrapper)
-    this.arbitrator.setStoreProvider(this._storeWrapper)
-    this.notifications.setStoreProvider(this._storeWrapper)
+    this.eventListener.setStoreProvider(this.storeWrapper)
+    this.disputes.setStoreProvider(this.storeWrapper)
+    this.arbitrableContract.setStoreProvider(this.storeWrapper)
+    this.arbitrator.setStoreProvider(this.storeWrapper)
+    this.notifications.setStoreProvider(this.storeWrapper)
   }
-
-  getWeb3Wrapper = () => this._web3Wrapper
-  getStoreWrapper = () => this._storeWrapper
 }
 
 export default Kleros

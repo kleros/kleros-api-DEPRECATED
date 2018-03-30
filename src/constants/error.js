@@ -1,3 +1,6 @@
+// Kleros
+export const MISSING_PARAMETERS = name => `Missing required parameter: ${name}`
+
 // StoreProviderWrapper
 export const PROFILE_NOT_FOUND = user => `No profile found for user: ${user}.`
 export const NOTIFICATION_NOT_FOUND = txHash =>
