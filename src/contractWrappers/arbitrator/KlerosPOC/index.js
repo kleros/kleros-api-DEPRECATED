@@ -5,6 +5,7 @@ import * as ethConstants from '../../../constants/eth'
 import * as errorConstants from '../../../constants/error'
 import * as arbitratorConstants from '../../../constants/arbitrator'
 import StatefulContract from '../StatefulContractWrapper'
+import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
  * Kleros API
@@ -13,38 +14,39 @@ class KlerosWrapper extends StatefulContract {
   /**
    * Constructor Kleros.
    * @param {object} web3Provider - web3 instance.
-   * @param {string} address - Address of the KlerosPOC contract.
+   * @param {string} contractAddress - Address of the KlerosPOC contract.
    */
-  constructor(web3Provider, address) {
-    super(web3Provider, address, kleros)
+  constructor(web3Provider, contractAddress) {
+    super(web3Provider, contractAddress, kleros)
   }
 
   /**
-   * Kleros deploy.
+   * STATIC: Deploy a kleros instance
    * @param {string} rngAddress address of random number generator contract
    * @param {string} pnkAddress address of pinakion contract
    * @param {number[]} timesPerPeriod array of 5 ints indicating the time limit for each period of contract
    * @param {string} account address of user
-   * @param {number} value (default: 10000)
+   * @param {number} value amout of eth to send to contract
+   * @param {object} web3Provider web3 provider object NOTE: NOT Kleros Web3Wrapper
    * @returns {object} truffle-contract Object | err The contract object or error deploy
    */
-  deploy = async (
+  static deploy = async (
     rngAddress,
     pnkAddress,
     timesPerPeriod = [1, 1, 1, 1, 1],
-    account = this._Web3Wrapper.getAccount(0),
-    value = ethConstants.TRANSACTION.VALUE
+    account,
+    value = ethConstants.TRANSACTION.VALUE,
+    web3Provider
   ) => {
-    const contractDeployed = await this._deployAsync(
+    const contractDeployed = await deployContractAsync(
       account,
       value,
       kleros,
+      web3Provider,
       pnkAddress,
       rngAddress,
       timesPerPeriod
     )
-    // load arbitrator based on new contract
-    await this.setContractInstance(contractDeployed.address)
 
     return contractDeployed
   }
@@ -56,7 +58,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {object} - The result transaction object.
    */
   buyPNK = async (amount, account = this._Web3Wrapper.getAccount(0)) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     try {
       return this.contractInstance.buyPinakion({
@@ -76,7 +78,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {object} - Balance information including total PNK balance and activated tokens.
    */
   getPNKBalance = async (account = this._Web3Wrapper.getAccount(0)) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     const juror = await this.contractInstance.jurors(account)
     if (!juror)
@@ -120,7 +122,7 @@ class KlerosWrapper extends StatefulContract {
     amount, // amount in ether
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     try {
       await this.contractInstance.activateTokens(
@@ -144,7 +146,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {number} - The cost of arbitration.
    */
   getArbitrationCost = async contractExtraData => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     try {
       const arbitrationCost = await this.contractInstance.arbitrationCost(
@@ -163,7 +165,7 @@ class KlerosWrapper extends StatefulContract {
    * @param {string} account - address of user.
    */
   passPeriod = async (account = this._Web3Wrapper.getAccount(0)) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     try {
       await this.contractInstance.passPeriod.original({
@@ -190,7 +192,7 @@ class KlerosWrapper extends StatefulContract {
     votes,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     try {
       return this.contractInstance.voteRuling(disputeId, ruling, votes, {
@@ -215,7 +217,7 @@ class KlerosWrapper extends StatefulContract {
     extraData,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     try {
       return this.contractInstance.appeal(disputeId, extraData, {
@@ -239,7 +241,7 @@ class KlerosWrapper extends StatefulContract {
     disputeId,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     try {
       return this.contractInstance.oneShotTokenRepartition(disputeId, {
@@ -262,7 +264,7 @@ class KlerosWrapper extends StatefulContract {
     disputeId,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     try {
       return this.contractInstance.executeRuling(disputeId, {
@@ -281,7 +283,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {number} - The seconds in the period.
    */
   getTimeForPeriod = async periodNumber => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     let timePerPeriod
 
@@ -303,7 +305,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {object} - The dispute data from the contract.
    */
   getDispute = async disputeId => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     try {
       const dispute = await this.contractInstance.disputes(disputeId)
@@ -354,7 +356,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {number} - Number of jurors for a dispute.
    */
   getAmountOfJurorsForDispute = async disputeId => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     let amountOfJurors
 
@@ -382,7 +384,7 @@ class KlerosWrapper extends StatefulContract {
     draw,
     jurorAddress = this._Web3Wrapper.getAccount(0)
   ) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     const isDrawn = await this.contractInstance.isDrawn(
       disputeId,
@@ -401,7 +403,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {bool} - Boolean indicating if juror can rule or not.
    */
   canRuleDispute = async (disputeId, draws, account) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     const validDraws = await this.contractInstance.validDraws(
       account,
@@ -424,7 +426,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {number} - Int indicating the ruling of the dispute.
    */
   currentRulingForDispute = async (disputeId, appeal) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     const ruling = await this.contractInstance.getWinningChoice(
       disputeId,
@@ -439,7 +441,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {number} - Int indicating the period.
    */
   getPeriod = async () => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     const currentPeriod = await this.contractInstance.period()
 
@@ -451,7 +453,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {number} - Int indicating the session.
    */
   getSession = async () => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     const currentSession = await this.contractInstance.session()
 
@@ -464,7 +466,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {object[]} - Array of disputes.
    */
   getDisputesForJuror = async account => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     // contract data
     const openDisputes = await this.getOpenDisputesForSession()
@@ -491,7 +493,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {number[]} - Array of integers indicating the draw.
    */
   getDrawsForJuror = async (disputeId, account) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     const numberOfJurors = await this.getAmountOfJurorsForDispute(disputeId)
     const draws = []
@@ -512,7 +514,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {int[]} - array of active disputeId
    */
   getOpenDisputesForSession = async () => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     const currentSession = await this.getSession()
     const openDisputes = []
@@ -553,7 +555,7 @@ class KlerosWrapper extends StatefulContract {
   getDeadlineForOpenDispute = async (
     period = arbitratorConstants.PERIOD.VOTE
   ) => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     // Get arbitrator data
     const lastPeriodChange = (await this.contractInstance.lastPeriodChange()).toNumber()
@@ -571,7 +573,7 @@ class KlerosWrapper extends StatefulContract {
    * @returns {object} - Data for kleros POC from contract.
    */
   getData = async () => {
-    await this._checkContractInstanceSet()
+    await this.loadContract()
 
     const [
       pinakionContractAddress,

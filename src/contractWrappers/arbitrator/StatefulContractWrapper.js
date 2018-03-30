@@ -1,44 +1,58 @@
 import ContractWrapper from '../ContractWrapper'
-import * as errorConstants from '../../constants/error'
+import isRequired from '../../utils/isRequired'
 
 class StatefulContract extends ContractWrapper {
-  constructor(web3Wrapper, contractAddress, artifact) {
-    super(web3Wrapper)
+  constructor(
+    web3Provider,
+    contractAddress = isRequired('contractAddress'),
+    artifact = isRequired('artifact')
+  ) {
+    super(web3Provider)
     this.contractAddress = contractAddress
     this.artifact = artifact
     this.contractInstance = null
+    // loading params
+    // NOTE it does not load on init because catching async errors is super messy
+    this._contractLoadedResolver = null
+    this._contractLoadedRejecter = null
+    this._loadingContractInstance = null
+    this.isLoading = false
+  }
+
+  loadContract = async () => {
+    if (this.isLoading) return this._loadingContractInstance
+    if (this.contractInstance) return this.contractInstance
+
+    const newLoadingPromise = this._newLoadingPromise()
+    this._loadingContractInstance = newLoadingPromise
+    this._load()
+    return newLoadingPromise
   }
 
   /**
    * Load an existing contract from the current artifact and address
-   * @returns {object} - The contract instance.
    */
   _load = async () => {
+    this.isLoading = true
     try {
       this.contractInstance = await this._instantiateContractIfExistsAsync(
         this.artifact,
         this.contractAddress
       )
 
-      return this.contractInstance
+      this.isLoading = false
+      this._contractLoadedResolver(this.contractInstance)
     } catch (err) {
-      console.error(err)
-      throw new Error(errorConstants.UNABLE_TO_LOAD_CONTRACT)
+      this.isLoading = false
+      this._contractLoadedRejecter(err)
     }
   }
 
-  /**
-   * Checks if contractInstace is set. If it can it will load contract instance.
-   * If not throw an error.
-   * @returns {object} contractInstance object
-   */
-  _checkContractInstanceSet = async () => {
-    if (!this.contractInstance) {
-      if (this.contractAddress && this.artifact) return this._load()
-
-      throw new Error(errorConstants.CONTRACT_INSTANCE_NOT_SET)
-    }
-  }
+  _newLoadingPromise = () =>
+    new Promise((resolve, reject) => {
+      this._contractLoadedResolver = resolve
+      this._contractLoadedRejecter = reject
+    })
 
   /**
    * Set a new contract instance
@@ -52,10 +66,9 @@ class StatefulContract extends ContractWrapper {
   ) => {
     this.contractAddress = contractAddress
     this.artifact = artifact
-    return this._load()
+    this.contractInstance = null
+    return this.loadContract()
   }
-
-  getContractInstance = () => this.contractInstance
 
   getContractAddress = () => this.contractAddress
 }

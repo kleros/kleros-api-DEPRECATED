@@ -9,7 +9,7 @@ class EventListeners extends ResourceWrapper {
    * @param {object} storeProviderWrapper - StoreProvider instance.
    */
   constructor(arbitratorWrapper, arbitrableWrapper, storeProviderWrapper) {
-    super(arbitratorWrapper, arbitrableWrapper, storeProviderWrapper)
+    super(arbitratorWrapper, arbitrableWrapper, undefined, storeProviderWrapper)
     this._arbitratorEventMap = {} // key: event name, value: [event handlers, ...]
     this._arbitrableEventMap = {} // key: event name, value: [event handlers, ...]
     this._arbitratorEventsWatcher = null

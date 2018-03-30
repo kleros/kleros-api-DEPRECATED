@@ -1,5 +1,4 @@
 import ArbitratorApi from '../../../src/abstractWrappers/arbitrator'
-import KlerosPOC from '../../../src/contractWrappers/arbitrator/KlerosPOC'
 import _asyncMockResponse from '../../helpers/asyncMockResponse'
 
 describe('Arbitrator', () => {
@@ -8,8 +7,7 @@ describe('Arbitrator', () => {
   let arbitratorInstance
 
   beforeEach(async () => {
-    const _klerosPOC = new KlerosPOC()
-    arbitratorInstance = new ArbitratorApi(_klerosPOC)
+    arbitratorInstance = new ArbitratorApi({}, {})
   })
 
   describe('getDisputesForUser', async () => {

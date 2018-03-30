@@ -12,7 +12,9 @@ describe('Disputes', () => {
   beforeEach(async () => {
     disputesInstance = new DisputesApi(
       mockArbitratorWrapper,
-      mockArbitrableContractWrapper
+      mockArbitrableContractWrapper,
+      {},
+      {}
     )
 
     mockArbitratorWrapper = {

@@ -5,6 +5,7 @@ import * as ethConstants from '../../../constants/eth'
 import * as contractConstants from '../../../constants/contract'
 import * as errorConstants from '../../../constants/error'
 import ContractWrapper from '../../ContractWrapper'
+import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
  * ArbitrableTransaction API
@@ -32,30 +33,30 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @param {number} timeout Time after which a party automatically loose a dispute. (default 3600)
    * @param {string} partyB The recipient of the transaction. (default account[1])
    * @param {bytes} arbitratorExtraData Extra data for the arbitrator. (default empty string)
+   * @param {object} web3Provider web3 provider object
    * @returns {object} truffle-contract Object | err The deployed contract or an error
    */
-  deploy = async (
+  static deploy = async (
     account,
     value = ethConstants.TRANSACTION.VALUE,
     hashContract,
     arbitratorAddress,
     timeout,
     partyB,
-    arbitratorExtraData = ''
+    arbitratorExtraData = '',
+    web3Provider
   ) => {
-    const contractDeployed = await this._deployAsync(
+    const contractDeployed = await deployContractAsync(
       account,
       value,
       arbitrableTransaction,
+      web3Provider,
       arbitratorAddress,
       hashContract,
       timeout,
       partyB,
       arbitratorExtraData
     )
-
-    this.address = contractDeployed.address
-    this.contractInstance = contractDeployed
 
     return contractDeployed
   }

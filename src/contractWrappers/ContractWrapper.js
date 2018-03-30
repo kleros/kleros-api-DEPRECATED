@@ -1,8 +1,10 @@
 import contract from 'truffle-contract'
 import _ from 'lodash'
 
-import * as ethConstants from '../constants/eth'
 import * as errorConstants from '../constants/error'
+import isRequired from '../utils/isRequired'
+import deployContractAsync from '../utils/deployContractAsync'
+import Web3Wrapper from '../utils/Web3Wrapper'
 
 /**
  * Contract wrapper
@@ -10,10 +12,10 @@ import * as errorConstants from '../constants/error'
 class ContractWrapper {
   /**
    * Constructor contract wrapper
-   * @param {object} web3Wrapper instance
+   * @param {object} web3Provider web3 provider object
    */
-  constructor(web3Wrapper) {
-    this._Web3Wrapper = web3Wrapper
+  constructor(web3Provider = isRequired('web3Provider')) {
+    this._Web3Wrapper = new Web3Wrapper(web3Provider)
   }
 
   /**
@@ -73,24 +75,13 @@ class ContractWrapper {
   _deployAsync = async (account, value, artifact, ...args) => {
     if (_.isEmpty(account)) account = this._Web3Wrapper.getAccount(0)
 
-    try {
-      const MyContract = contract({
-        abi: artifact.abi,
-        unlinked_binary: artifact.bytecode
-          ? artifact.bytecode
-          : artifact.unlinked_binary
-      })
-      MyContract.setProvider(await this._Web3Wrapper.getProvider())
-
-      return MyContract.new(...args, {
-        from: account,
-        value: value,
-        gas: ethConstants.TRANSACTION.GAS
-      })
-    } catch (err) {
-      console.error(err)
-      throw new Error(errorConstants.UNABLE_TO_DEPLOY_CONTRACT)
-    }
+    return deployContractAsync(
+      account,
+      value,
+      artifact,
+      this._Web3Wrapper.getProvider(),
+      ...args
+    )
   }
 
   /**

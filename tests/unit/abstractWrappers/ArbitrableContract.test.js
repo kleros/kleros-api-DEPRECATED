@@ -6,9 +6,10 @@ describe('ArbitrableContract', async () => {
   let arbitrableContractInstance
 
   beforeEach(async () => {
-    const _arbitrableTransaction = new ArbitrableTransaction()
+    const _arbitrableTransaction = new ArbitrableTransaction({})
     arbitrableContractInstance = new ArbitrableContractApi(
-      _arbitrableTransaction
+      _arbitrableTransaction,
+      {}
     )
   })
 

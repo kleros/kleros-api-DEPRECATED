@@ -94,7 +94,7 @@ class ResourceWrapper {
    */
   _loadArbitratorInstance = () => {
     this._checkArbitratorWrappersSet()
-    return this._Arbitrator.getContractInstance()
+    return this._Arbitrator.loadContract()
   }
 
   /**
@@ -105,57 +105,6 @@ class ResourceWrapper {
   _loadArbitrableInstance = async arbitrableAddress => {
     this._checkArbitrableWrappersSet()
     return this._ArbitrableContract.load(arbitrableAddress)
-  }
-
-  /**
-   * Creates a new notification object in the store.
-   * @param {string} account - The account.
-   * @param {string} txHash - The txHash.
-   * @param {number} logIndex - The logIndex.
-   * @param {number} notificationType - The notificationType.
-   * @param {string} message - The message.
-   * @param {object} data - The data.
-   * @param {bool} read - Wether the notification has been read or not.
-   * @returns {function} - The notification object.
-   */
-  _newNotification = async (
-    account,
-    txHash,
-    logIndex,
-    notificationType,
-    message = '',
-    data = {},
-    read = false
-  ) => {
-    if (this._hasStoreProvider()) {
-      const response = await this._StoreProvider.newNotification(
-        account,
-        txHash,
-        logIndex,
-        notificationType,
-        message,
-        data,
-        read
-      )
-
-      if (response.status === 201) {
-        const notification = response.body.notifications.filter(
-          notification =>
-            notification.txHash === txHash && notification.logIndex === logIndex
-        )
-        return notification[0]
-      }
-    } else {
-      // If we have no store provider simply return object of params.
-      return {
-        txHash,
-        logIndex,
-        notificationType,
-        message,
-        data,
-        read
-      }
-    }
   }
 
   /**
