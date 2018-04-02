@@ -1,23 +1,23 @@
-import kleros from 'kleros/build/contracts/KlerosPOC'
+import klerosArtifact from 'kleros/build/contracts/KlerosPOC'
 import _ from 'lodash'
 
 import * as ethConstants from '../../../constants/eth'
 import * as errorConstants from '../../../constants/error'
 import * as arbitratorConstants from '../../../constants/arbitrator'
-import StatefulContract from '../StatefulContractWrapper'
+import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
  * Kleros API
  */
-class KlerosWrapper extends StatefulContract {
+class KlerosPOC extends ContractImplementation {
   /**
    * Constructor Kleros.
    * @param {object} web3Provider - web3 instance.
    * @param {string} contractAddress - Address of the KlerosPOC contract.
    */
   constructor(web3Provider, contractAddress) {
-    super(web3Provider, contractAddress, kleros)
+    super(web3Provider, contractAddress, klerosArtifact)
   }
 
   /**
@@ -41,7 +41,7 @@ class KlerosWrapper extends StatefulContract {
     const contractDeployed = await deployContractAsync(
       account,
       value,
-      kleros,
+      klerosArtifact,
       web3Provider,
       pnkAddress,
       rngAddress,
@@ -599,4 +599,4 @@ class KlerosWrapper extends StatefulContract {
   }
 }
 
-export default KlerosWrapper
+export default KlerosPOC

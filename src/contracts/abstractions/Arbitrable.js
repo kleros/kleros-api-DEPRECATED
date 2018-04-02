@@ -1,15 +1,9 @@
-import delegateCalls from '../../utils/delegateCalls'
-import AbstractWrapper from '../AbstractWrapper'
+import AbstractContract from '../AbstractContract'
 
 /**
  * Arbitrable Contract API.
  */
-class ArbitrableContract extends AbstractWrapper {
-  constructor(contractWrapperInstance, storeProviderWrapperInstance) {
-    super(contractWrapperInstance, storeProviderWrapperInstance)
-    delegateCalls(this, contractWrapperInstance)
-  }
-
+class ArbitrableContract extends AbstractContract {
   /**
    * Deploy a contract and add to the Store.
    * @param {string} account - Ethereum address.
@@ -49,21 +43,20 @@ class ArbitrableContract extends AbstractWrapper {
       ...args
     )
 
-    if (this._hasStoreProvider())
-      await this._StoreProvider.updateContract(
-        account,
-        contractInstance.address,
-        {
-          hashContract,
-          partyA: account,
-          partyB,
-          arbitrator: arbitratorAddress,
-          timeout,
-          email,
-          title,
-          description
-        }
-      )
+    await this._StoreProvider.updateContract(
+      account,
+      contractInstance.address,
+      {
+        hashContract,
+        partyA: account,
+        partyB,
+        arbitrator: arbitratorAddress,
+        timeout,
+        email,
+        title,
+        description
+      }
+    )
 
     // return contract data
     return this.getData(contractInstance.address, account)

@@ -1,19 +1,12 @@
 import _ from 'lodash'
 
-import delegateCalls from '../../utils/delegateCalls'
 import * as arbitratorConstants from '../../constants/arbitrator'
-import AbstractWrapper from '../AbstractWrapper'
+import AbstractContract from '../AbstractContract'
 
 /**
  * Arbitrator API.
  */
-class Arbitrator extends AbstractWrapper {
-  constructor(contractWrapperInstance, storeProviderWrapperInstance) {
-    super(contractWrapperInstance, storeProviderWrapperInstance)
-    // delegate calls to contractWrapperInstance
-    delegateCalls(this, contractWrapperInstance)
-  }
-
+class Arbitrator extends AbstractContract {
   /**
    * Get disputes for user with extra data from arbitrated transaction and store
    * @param {string} arbitratorAddress address of Kleros contract
