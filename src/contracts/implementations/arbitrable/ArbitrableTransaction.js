@@ -1,27 +1,23 @@
-import arbitrableTransaction from 'kleros-interaction/build/contracts/ArbitrableTransaction'
+import arbitrableTransactionArtifact from 'kleros-interaction/build/contracts/ArbitrableTransaction'
 import _ from 'lodash'
 
 import * as ethConstants from '../../../constants/eth'
 import * as contractConstants from '../../../constants/contract'
 import * as errorConstants from '../../../constants/error'
-import ContractWrapper from '../../ContractWrapper'
+import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
  * ArbitrableTransaction API
  */
-class ArbitrableTransactionWrapper extends ContractWrapper {
+class ArbitrableTransaction extends ContractImplementation {
   /**
    * Constructor ArbitrableTransaction.
    * @param {object} web3Provider instance
-   * @param {string} address of the contract (optional)
+   * @param {string} contractAddress of the contract
    */
-  constructor(web3Provider, address) {
-    super(web3Provider)
-    if (!_.isUndefined(address)) {
-      this.address = address
-    }
-    this.contractInstance = null
+  constructor(web3Provider, contractAddress) {
+    super(web3Provider, contractAddress, arbitrableTransactionArtifact)
   }
 
   /**
@@ -49,7 +45,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
     const contractDeployed = await deployContractAsync(
       account,
       value,
-      arbitrableTransaction,
+      arbitrableTransactionArtifact,
       web3Provider,
       arbitratorAddress,
       hashContract,
@@ -62,35 +58,13 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   }
 
   /**
-   * Load an existing ArbitrableTransaction contract
-   * @param {string} address Contract address
-   * @returns {object} - The contract instance.
-   */
-  load = async address => {
-    // Return contract instance if already loaded
-    if (this.contractInstance && this.contractInstance.address === address)
-      return this.contractInstance
-
-    this.contractInstance = await this._instantiateContractIfExistsAsync(
-      arbitrableTransaction,
-      address
-    )
-    this.address = address
-
-    return this.contractInstance
-  }
-
-  /**
    * Pay the party B. To be called when the good is delivered or the service rendered.
    * @param {string} account - Ethereum account (default account[0]).
    * @param {string} contractAddress - The address of the arbitrator contract.
    * @returns {object} - The result transaction object.
    */
-  pay = async (
-    account = this._Web3Wrapper.getAccount(0),
-    contractAddress // ethereum address of the contract
-  ) => {
-    await this.load(contractAddress)
+  pay = async (account = this._Web3Wrapper.getAccount(0)) => {
+    await this.loadContract()
 
     try {
       return this.contractInstance.pay({
@@ -107,16 +81,14 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the party A.
    * @param {string} account - Ethereum account (default account[0]).
-   * @param {string} contractAddress - The address of the arbitrator contract.
    * @param {number} arbitrationCost - Amount to pay the arbitrator. (default 10000 wei).
    * @returns {object} - The result transaction object.
    */
   payArbitrationFeeByPartyA = async (
     account = this._Web3Wrapper.getAccount(0),
-    contractAddress, // ethereum address of the contract
     arbitrationCost = 0.15
   ) => {
-    await this.load(contractAddress)
+    await this.loadContract()
 
     try {
       return this.contractInstance.payArbitrationFeeByPartyA({
@@ -133,16 +105,14 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the party B.
    * @param {string} account Ethereum account (default account[1]).
-   * @param {string} contractAddress - The address of the arbitrator contract.
    * @param {number} arbitrationCost Amount to pay the arbitrator. (default 10000 wei).
    * @returns {object} - The result transaction object.
    */
   payArbitrationFeeByPartyB = async (
     account = this._Web3Wrapper.getAccount(1),
-    contractAddress, // ethereum address of the contract
     arbitrationCost = 0.15
   ) => {
-    await this.load(contractAddress)
+    await this.loadContract()
 
     try {
       return this.contractInstance.payArbitrationFeeByPartyB({
@@ -159,7 +129,6 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   /**
    * Submit evidence.
    * @param {string} account ETH address of user.
-   * @param {string} contractAddress ETH address of contract.
    * @param {string} name name of evidence.
    * @param {string} description description of evidence.
    * @param {string} url A link to an evidence using its URI.
@@ -167,12 +136,11 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    */
   submitEvidence = async (
     account = this._Web3Wrapper.getAccount(0),
-    contractAddress,
     name,
     description = '',
     url
   ) => {
-    await this.load(contractAddress)
+    await this.loadContract()
 
     const txHashObj = await this.contractInstance.submitEvidence(
       JSON.stringify(name, description, url),
@@ -189,14 +157,10 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   /**
    * Call by partyA if partyB is timeout
    * @param {string} account ETH address of user
-   * @param {string} contractAddress ETH address of contract
    * @returns {object} The result transaction object.
    */
-  callTimeOutPartyA = async (
-    account = this._Web3Wrapper.getAccount(0),
-    contractAddress
-  ) => {
-    await this.load(contractAddress)
+  callTimeOutPartyA = async (account = this._Web3Wrapper.getAccount(0)) => {
+    await this.loadContract()
 
     const status = (await this.contractInstance.status()).toNumber()
     const timeout = (await this.contractInstance.timeout()).toNumber()
@@ -226,11 +190,8 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @param {string} contractAddress - ETH address of contract.
    * @returns {object} The result transaction object.
    */
-  callTimeOutPartyB = async (
-    account = this._Web3Wrapper.getAccount(1),
-    contractAddress
-  ) => {
-    await this.load(contractAddress)
+  callTimeOutPartyB = async (account = this._Web3Wrapper.getAccount(1)) => {
+    await this.loadContract()
 
     const status = await this.contractInstance.status()
     const timeout = await this.contractInstance.timeout()
@@ -257,17 +218,12 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   /**
    * Get ruling options from dispute via event
    * FIXME this can be an abstract method as it is in the standard
-   * @param {string} arbitrableContractAddress address of the arbitrable contract
    * @param {string} arbitratorAddress address of arbitrator contract
    * @param {number} disputeId index of dispute
    * @returns {object[]} an array of objects that specify the name and value of the resolution option
    */
-  getRulingOptions = async (
-    arbitrableContractAddress,
-    arbitratorAddress,
-    disputeId
-  ) => {
-    await this.load(arbitrableContractAddress)
+  getRulingOptions = async (arbitratorAddress, disputeId) => {
+    await this.loadContract()
 
     // fetch dispute resolution options
     const statusNumber = (await this.contractInstance.status()).toNumber()
@@ -316,7 +272,7 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
    * @returns {object} Object Data of the contract.
    */
   getData = async address => {
-    await this.load(address)
+    await this.loadContract()
 
     const [
       arbitrator,
@@ -365,4 +321,4 @@ class ArbitrableTransactionWrapper extends ContractWrapper {
   }
 }
 
-export default ArbitrableTransactionWrapper
+export default ArbitrableTransaction

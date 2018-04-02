@@ -1,26 +1,22 @@
-import PinakionPOC from 'kleros/build/contracts/PinakionPOC' // FIXME: mock
+import PinakionPOCArtifact from 'kleros/build/contracts/PinakionPOC' // FIXME: mock
 import _ from 'lodash'
 
 import * as ethConstants from '../../../constants/eth'
 import * as errorConstants from '../../../constants/error'
-import ContractWrapper from '../../ContractWrapper'
+import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
  * Kleros API
  */
-class PinakionWrapper extends ContractWrapper {
+class PinakionPOC extends ContractImplementation {
   /**
    * Constructor Kleros.
    * @param {object} web3Provider - web3 instance.
-   * @param {string} address - of the contract (optionnal).
+   * @param {string} contractAddress - of the contract (optionnal).
    */
-  constructor(web3Provider, address) {
-    super(web3Provider)
-    if (!_.isUndefined(address)) {
-      this.address = address
-    }
-    this.contractInstance = null
+  constructor(web3Provider, contractAddress) {
+    super(web3Provider, contractAddress, PinakionPOCArtifact)
   }
 
   /**
@@ -33,7 +29,7 @@ class PinakionWrapper extends ContractWrapper {
     const contractDeployed = await deployContractAsync(
       account,
       ethConstants.TRANSACTION.VALUE,
-      PinakionPOC,
+      PinakionPOCArtifact,
       web3Provider
     )
 
@@ -41,32 +37,16 @@ class PinakionWrapper extends ContractWrapper {
   }
 
   /**
-   * Load an existing contract.
-   * @param {string} address - Contract address.
-   * @returns {object} - Contract Instance | Error.
-   */
-  load = async address => {
-    this.contractInstance = await this._instantiateContractIfExistsAsync(
-      PinakionPOC,
-      address
-    )
-    this.address = address
-    return this.contractInstance
-  }
-
-  /**
    * change the kleros contract in the PNK contract.
-   * @param {string} contractAddress - Address of PNK contract.
    * @param {string} klerosAddress - Address of Kleros POC contract.
    * @param {string} account - Address of user.
    * @returns {object} - The result transaction object.
    */
   setKleros = async (
-    contractAddress,
     klerosAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    await this.load(contractAddress)
+    await this.loadContract()
 
     try {
       return this.contractInstance.setKleros(klerosAddress, {
@@ -81,17 +61,15 @@ class PinakionWrapper extends ContractWrapper {
 
   /**
    * transfer ownership of the PNK contract to the kleros POC contract.
-   * @param {string} contractAddress - Address of PNK contract.
    * @param {string} klerosAddress - Address of Kleros POC contract.
    * @param {string} account - Address of user.
    * @returns {object} - The result transaction object.
    */
   transferOwnership = async (
-    contractAddress,
     klerosAddress,
     account = this._Web3Wrapper.getAccount(0)
   ) => {
-    await this.load(contractAddress)
+    await this.loadContract()
 
     try {
       return this.contractInstance.transferOwnership(klerosAddress, {
@@ -106,13 +84,10 @@ class PinakionWrapper extends ContractWrapper {
 
   /**
    * Get data from PNK contract.
-   * @param {string} contractAddress - Address of PNK contract.
-   * @param {string} account - Address for user.
    * @returns {object} - Data from PNK contract.
    */
-  getData = async contractAddress => {
-    await this.load(contractAddress)
-
+  getData = async () => {
+    await this.loadContract()
     const [owner, kleros] = await Promise.all([
       this.contractInstance.owner(),
       this.contractInstance.kleros()
@@ -125,4 +100,4 @@ class PinakionWrapper extends ContractWrapper {
   }
 }
 
-export default PinakionWrapper
+export default PinakionPOC
