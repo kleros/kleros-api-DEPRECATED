@@ -32,11 +32,11 @@ class Kleros {
     arbitrableContractAddress
   ) {
     // NOTE we default to KlerosPOC and ArbitrableTransaction
-    const _klerosPOC = new contracts.arbitrator.KlerosPOC(
+    const _klerosPOC = new contracts.implementations.arbitrator.KlerosPOC(
       ethereumProvider,
       arbitratorAddress
     )
-    const _arbitrableTransaction = new contracts.arbitrableContracts.ArbitrableTransaction(
+    const _arbitrableTransaction = new contracts.implementations.arbitrable.ArbitrableTransaction(
       ethereumProvider,
       arbitrableContractAddress
     )
@@ -48,9 +48,12 @@ class Kleros {
     this.web3Wrapper = new Web3Wrapper(ethereumProvider)
     this.storeWrapper = new StoreProviderWrapper(storeUri)
     // ARBITRATOR
-    this.arbitrator = new contracts.Arbitrator(_klerosPOC, this.storeWrapper)
+    this.arbitrator = new contracts.abstractions.Arbitrator(
+      _klerosPOC,
+      this.storeWrapper
+    )
     // ARBITRABLE CONTRACTS
-    this.arbitrableContracts = new contracts.ArbitrableContracts(
+    this.arbitrableContracts = new contracts.abstractions.ArbitrableContracts(
       _arbitrableTransaction,
       this.storeWrapper
     )
