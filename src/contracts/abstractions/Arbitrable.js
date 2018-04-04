@@ -32,7 +32,7 @@ class ArbitrableContract extends AbstractContract {
     description = '',
     ...args
   ) => {
-    const contractInstance = await this._contractWrapper.deploy(
+    const contractInstance = await this._contractImplementation.deploy(
       account,
       value,
       hashContract,
@@ -65,29 +65,21 @@ class ArbitrableContract extends AbstractContract {
   /**
    * Submit evidence.
    * @param {string} account - ETH address of user.
-   * @param {string} contractAddress - ETH address of contract.
    * @param {string} name - Name of evidence.
    * @param {string} description - Description of evidence.
    * @param {string} url - A link to an evidence using its URI.
    * @returns {string} - txHash Hash transaction.
    */
-  submitEvidence = async (
-    account,
-    contractAddress,
-    name,
-    description = '',
-    url
-  ) => {
-    const txHash = await this._contractWrapper.submitEvidence(
+  submitEvidence = async (account, name, description = '', url) => {
+    const txHash = await this._contractImplementation.submitEvidence(
       account,
-      contractAddress,
       name,
       description,
       url
     )
 
     await this._StoreProvider.addEvidenceContract(
-      contractAddress,
+      this._contractImplementation.contractAddress,
       account,
       name,
       description,
@@ -111,20 +103,18 @@ class ArbitrableContract extends AbstractContract {
 
   /**
    * Get evidence for contract.
-   * @param {string} arbitrableContractAddress - Address of arbitrable contract.
+   * @param {string} contractAddress - Address of arbitrable contract.
    * @returns {object[]} - Array of evidence objects.
    */
-  getEvidenceForArbitrableContract = async arbitrableContractAddress => {
-    const arbitrableContractData = await this._contractWrapper.getData(
-      arbitrableContractAddress
-    )
+  getEvidenceForArbitrableContract = async () => {
+    const arbitrableContractData = await this._contractImplementation.getData()
     const partyAContractData = await this._StoreProvider.getContractByAddress(
       arbitrableContractData.partyA,
-      arbitrableContractAddress
+      this._contractImplementation.contractAddress
     )
     const partyBContractData = await this._StoreProvider.getContractByAddress(
       arbitrableContractData.partyB,
-      arbitrableContractAddress
+      this._contractImplementation.contractAddress
     )
 
     const partyAEvidence = (partyAContractData
@@ -147,16 +137,15 @@ class ArbitrableContract extends AbstractContract {
 
   /**
    * Get data from the store and contract for Arbitrable Contract.
-   * @param {string} contractAddress - Address of Arbitrable Contract.
    * @param {string} account - ETH address of user.
    * @returns {object} - Contract data.
    */
-  getData = async (contractAddress, account) => {
-    const contractData = await this._contractWrapper.getData(contractAddress)
+  getData = async account => {
+    const contractData = await this._contractImplementation.getData()
 
     const storeData = await this._StoreProvider.getContractByAddress(
       account,
-      contractAddress
+      this._contractImplementation.contractAddress
     )
 
     return Object.assign({}, storeData, contractData)

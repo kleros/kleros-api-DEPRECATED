@@ -31,7 +31,7 @@ class ContractImplementation {
     if (this.contractInstance) return this.contractInstance
 
     if (!this.contractAddress || !this.artifact)
-      throw new Error(errorConstants.MISSING_CONTRACT_PARAMETERS)
+      throw new Error(errorConstants.CONTRACT_INSTANCE_NOT_SET)
 
     const newLoadingPromise = this._newLoadingPromise()
     this._loadingContractInstance = newLoadingPromise

@@ -9,21 +9,20 @@ import AbstractContract from '../AbstractContract'
 class Arbitrator extends AbstractContract {
   /**
    * Get disputes for user with extra data from arbitrated transaction and store
-   * @param {string} arbitratorAddress address of Kleros contract
    * @param {string} account address of user
    * @returns {object[]} dispute data objects for user
    */
-  getDisputesForUser = async (arbitratorAddress, account) => {
+  getDisputesForUser = async account => {
     // contract data
     const [period, currentSession] = await Promise.all([
-      this._contractWrapper.getPeriod(arbitratorAddress),
-      this._contractWrapper.getSession(arbitratorAddress)
+      this._contractImplementation.getPeriod(),
+      this._contractImplementation.getSession()
     ])
 
     const _getDisputesForUserFromStore = async account =>
       Promise.all(
         (await this._StoreProvider.getDisputesForUser(account)).map(dispute =>
-          this._contractWrapper.getDispute(
+          this._contractImplementation.getDispute(
             dispute.arbitratorAddress,
             dispute.disputeId,
             account
@@ -39,8 +38,7 @@ class Arbitrator extends AbstractContract {
     let profile = await this._StoreProvider.setUpUserProfile(account)
     if (currentSession !== profile.session) {
       // get disputes for juror
-      const myDisputes = await this._contractWrapper.getDisputesForJuror(
-        arbitratorAddress,
+      const myDisputes = await this._contractImplementation.getDisputesForJuror(
         account
       )
       // update user profile for each dispute
@@ -69,17 +67,12 @@ class Arbitrator extends AbstractContract {
   /**
    * Buy PNK.
    * @param {number} amount - Number of pinakion to buy.
-   * @param {string} arbitratorAddress - Arbitrator contract's address.
    * @param {string} account - Address of user.
    * @returns {object[]} - Balance of user.
    */
-  buyPNK = async (
-    amount,
-    arbitratorAddress, // address of KlerosPOC
-    account
-  ) => {
-    await this._contractWrapper.buyPNK(amount, arbitratorAddress, account)
-    return this._contractWrapper.getPNKBalance(arbitratorAddress, account)
+  buyPNK = async (amount, account) => {
+    await this._contractImplementation.buyPNK(amount, account)
+    return this._contractImplementation.getPNKBalance(account)
   }
 }
 
