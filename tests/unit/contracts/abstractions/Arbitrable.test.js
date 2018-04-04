@@ -17,13 +17,12 @@ describe('ArbitrableContract', async () => {
     it('combines evidence from both parties', async () => {
       const partyA = '0x0'
       const partyB = '0x1'
-      const arbitrableContractAddress = '0xfakeaddress'
       const mockData = {
         partyA,
         partyB
       }
       const mockGetData = jest.fn()
-      arbitrableContractInstance._contractWrapper.getData = mockGetData.mockReturnValue(
+      arbitrableContractInstance._contractImplementation.getData = mockGetData.mockReturnValue(
         _asyncMockResponse(mockData)
       )
 
@@ -50,9 +49,7 @@ describe('ArbitrableContract', async () => {
 
       arbitrableContractInstance.setStoreProvider(mockStore)
 
-      const evidence = await arbitrableContractInstance.getEvidenceForArbitrableContract(
-        arbitrableContractAddress
-      )
+      const evidence = await arbitrableContractInstance.getEvidenceForArbitrableContract()
 
       expect(evidence).toBeTruthy()
       expect(evidence.length).toBe(2)
@@ -61,13 +58,12 @@ describe('ArbitrableContract', async () => {
     it('still fetches evidence when one party has none', async () => {
       const partyA = '0x0'
       const partyB = '0x1'
-      const arbitrableContractAddress = '0xfakeaddress'
       const mockData = {
         partyA,
         partyB
       }
       const mockGetData = jest.fn()
-      arbitrableContractInstance._contractWrapper.getData = mockGetData.mockReturnValue(
+      arbitrableContractInstance._contractImplementation.getData = mockGetData.mockReturnValue(
         _asyncMockResponse(mockData)
       )
 
@@ -88,9 +84,7 @@ describe('ArbitrableContract', async () => {
 
       arbitrableContractInstance.setStoreProvider(mockStore)
 
-      const evidence = await arbitrableContractInstance.getEvidenceForArbitrableContract(
-        arbitrableContractAddress
-      )
+      const evidence = await arbitrableContractInstance.getEvidenceForArbitrableContract()
 
       expect(evidence).toBeTruthy()
       expect(evidence.length).toBe(1)

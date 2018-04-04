@@ -62,7 +62,7 @@ class ResourceWrapper {
    */
   _checkArbitratorWrappersSet = () => {
     if (!this._Arbitrator)
-      throw new Error(errorConstants.NO_ARBITRATOR_WRAPPER_SPECIFIED)
+      throw new Error(errorConstants.NO_ARBITRATOR_IMPLEMENTATION_SPECIFIED)
   }
 
   /**
@@ -70,7 +70,7 @@ class ResourceWrapper {
    */
   _checkArbitrableWrappersSet = () => {
     if (!this._ArbitrableContract)
-      throw new Error(errorConstants.NO_ARBITRABLE_WRAPPER_SPECIFIED)
+      throw new Error(errorConstants.NO_ARBITRABLE_IMPLEMENTATION_SPECIFIED)
   }
 
   /**

@@ -26,10 +26,10 @@ const setUpContracts = async (
     klerosPOCParams.value,
     provider
   )
-  const pnkWrapper = new PinakionPOC(provider, pinakionInstance.address)
+  const pinakionPOC = new PinakionPOC(provider, pinakionInstance.address)
   // transfer ownership and set kleros instance
-  await pnkWrapper.setKleros(klerosCourt.address, klerosPOCParams.account)
-  await pnkWrapper.transferOwnership(
+  await pinakionPOC.setKleros(klerosCourt.address, klerosPOCParams.account)
+  await pinakionPOC.transferOwnership(
     klerosCourt.address,
     klerosPOCParams.account
   )

@@ -6,7 +6,7 @@ export const PROFILE_NOT_FOUND = user => `No profile found for user: ${user}.`
 export const NOTIFICATION_NOT_FOUND = txHash =>
   `No notification with txHash ${txHash} exists.`
 
-// ContractWrapper
+// Contracts
 export const UNABLE_TO_DEPLOY_CONTRACT =
   'Unable to deploy contract, are you sure the contract artifact is correct?'
 export const CONTRACT_NOT_DEPLOYED =
@@ -14,15 +14,15 @@ export const CONTRACT_NOT_DEPLOYED =
 export const UNABLE_TO_LOAD_CONTRACT =
   'Unable to load contract. Are you sure the contract artifact is correct?'
 
-// StatefulContractWrapper
+// Implementation
 export const CONTRACT_INSTANCE_NOT_SET =
   'No contract instance. Use setContractInstance'
 
-// PinakionWrapper
+// PinakionPOC
 export const UNABLE_TO_SET_KLEROS = 'Unable to set Kleros.'
 export const UNABLE_TO_TRANSFER_OWNERSHIP = 'Unable to transfer ownership.'
 
-// KlerosWrapper
+// KlerosPOC
 export const UNABLE_TO_BUY_PNK =
   'Unable to buy PNK, are you sure you have enough ETH?'
 export const UNABLE_TO_ACTIVATE_PNK =
@@ -45,7 +45,7 @@ export const PERIOD_OUT_OF_RANGE = periodNumber =>
 export const DISPUTE_DOES_NOT_EXIST = disputeId =>
   `Dispute ${disputeId} does not exist`
 
-// ArbitrableTransactionWrapper
+// ArbitrableTransaction
 export const UNABLE_TO_PAY_ARBITRATION_FEE =
   'Unable to pay fee, are you sure you have enough PNK?'
 export const UNABLE_TO_PAY_SELLER =
@@ -56,18 +56,14 @@ export const CONTRACT_IS_NOT_WAITING_ON_OTHER_PARTY =
 export const TIMEOUT_NOT_REACHED =
   'Unable to call timeout, because it has not been reached yet.'
 
-// AbstractWrapper
-export const NO_ARBITRATOR_WRAPPER_SPECIFIED =
-  'No Arbitrator Contract Wrapper specified. Please call setArbitrator.'
-export const NO_ARBITRABLE_WRAPPER_SPECIFIED =
-  'No Arbitrable Contract Wrapper specified. Please call setArbitrable.'
+// AbstractContract
+export const NO_ARBITRATOR_IMPLEMENTATION_SPECIFIED =
+  'No Arbitrator Contract Implementation specified. Please call setArbitrator.'
+export const NO_ARBITRABLE_IMPLEMENTATION_SPECIFIED =
+  'No Arbitrable Contract Implementation specified. Please call setArbitrable.'
 export const NO_STORE_PROVIDER_SPECIFIED =
   'No Store Provider Specified. Please call setStoreProvider'
 
 // Disputes
 export const NO_STORE_DATA_FOR_DISPUTE = account =>
   `Account ${account} does not have store data for dispute`
-
-// implementations
-export const MISSING_CONTRACT_PARAMETERS =
-  'Missing contractAddress or Artifact. Cannot load contract. Please call setContractInstance'

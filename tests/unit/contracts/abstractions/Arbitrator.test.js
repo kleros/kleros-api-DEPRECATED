@@ -32,12 +32,9 @@ describe('Arbitrator', () => {
         getSession: jest.fn().mockReturnValue(_asyncMockResponse(1)),
         getDispute: jest.fn().mockReturnValue(_asyncMockResponse(mockDispute))
       }
-      arbitratorInstance._contractWrapper = mockArbitrator
+      arbitratorInstance._contractImplementation = mockArbitrator
 
-      const disputes = await arbitratorInstance.getDisputesForUser(
-        arbitratorAddress,
-        account
-      )
+      const disputes = await arbitratorInstance.getDisputesForUser(account)
 
       expect(disputes.length).toBe(1)
       expect(disputes[0]).toEqual(mockDispute)
@@ -71,12 +68,9 @@ describe('Arbitrator', () => {
         getSession: jest.fn().mockReturnValue(_asyncMockResponse(1)),
         getDispute: jest.fn().mockReturnValue(_asyncMockResponse(mockDispute))
       }
-      arbitratorInstance._contractWrapper = mockArbitrator
+      arbitratorInstance._contractImplementation = mockArbitrator
 
-      const disputes = await arbitratorInstance.getDisputesForUser(
-        arbitratorAddress,
-        account
-      )
+      const disputes = await arbitratorInstance.getDisputesForUser(account)
 
       expect(disputes.length).toBe(1)
       expect(disputes[0]).toEqual(mockDispute)
@@ -119,14 +113,11 @@ describe('Arbitrator', () => {
           _asyncMockResponse([mockDispute])
         )
       }
-      arbitratorInstance._contractWrapper = mockArbitrator
+      arbitratorInstance._contractImplementation = mockArbitrator
 
       arbitratorInstance.updateUserProfile = mockUpdateUserProfile
 
-      const disputes = await arbitratorInstance.getDisputesForUser(
-        arbitratorAddress,
-        account
-      )
+      const disputes = await arbitratorInstance.getDisputesForUser(account)
 
       expect(disputes.length).toBe(1)
       expect(disputes[0]).toEqual(mockDispute)
@@ -136,8 +127,7 @@ describe('Arbitrator', () => {
       expect(mockSetUpUserProfile.mock.calls[0][0]).toBe(account)
 
       expect(mockGetDisputesForJuror.mock.calls.length).toBe(1)
-      expect(mockGetDisputesForJuror.mock.calls[0][0]).toBe(arbitratorAddress)
-      expect(mockGetDisputesForJuror.mock.calls[0][1]).toBe(account)
+      expect(mockGetDisputesForJuror.mock.calls[0][0]).toBe(account)
 
       expect(mockUpdateDisputeProfile.mock.calls.length).toBe(1)
       expect(mockUpdateDisputeProfile.mock.calls[0][0]).toBe(account)

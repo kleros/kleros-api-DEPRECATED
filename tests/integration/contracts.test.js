@@ -105,7 +105,7 @@ describe('Contracts', () => {
     })
   })
 
-  describe('ArbitrableContract', async () => {
+  describe('ArbitrableTransaction', async () => {
     it(
       'deploy a arbitrableTransaction contract',
       async () => {
@@ -132,12 +132,12 @@ describe('Contracts', () => {
         expect(klerosCourtData.period).toEqual(0)
         expect(klerosCourtData.session).toEqual(1)
         // // arbitrable contract
-        const ArbitrableContractInstance = new ArbitrableTransaction(
+        const ArbitrableTransactionInstanceInstance = new ArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
 
-        const contractArbitrableTransactionData = await ArbitrableContractInstance.getData(
+        const contractArbitrableTransactionData = await ArbitrableTransactionInstanceInstance.getData(
           arbitrableContractAddress,
           partyA
         )
@@ -175,11 +175,11 @@ describe('Contracts', () => {
         expect(arbitrableContractAddress).toBeDefined()
 
         // FIXME use arbitrableTransaction
-        const ArbitrableContract = new ArbitrableTransaction(
+        const ArbitrableTransactionInstance = new ArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
-        const arbitrableContractInstance = await ArbitrableContract.loadContract()
+        const arbitrableContractInstance = await ArbitrableTransactionInstance.loadContract()
         const partyApaysPartyB = await arbitrableContractInstance.pay({
           from: partyA
         })
@@ -206,11 +206,11 @@ describe('Contracts', () => {
 
         // return a bigint
         // FIXME use arbitrableTransaction
-        const ArbitrableContract = new ArbitrableTransaction(
+        const ArbitrableTransactionInstance = new ArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
-        const arbitrableContractInstance = await ArbitrableContract.loadContract()
+        const arbitrableContractInstance = await ArbitrableTransactionInstance.loadContract()
         const partyAFeeContractInstance = await arbitrableContractInstance.partyAFee()
 
         // return bytes
@@ -224,7 +224,7 @@ describe('Contracts', () => {
         )
 
         // raise dispute party A
-        const raiseDisputeByPartyATxObj = await ArbitrableContract.payArbitrationFeeByPartyA(
+        const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyA(
           partyA,
           arbitrationCost -
             web3.fromWei(partyAFeeContractInstance, 'ether').toNumber()
