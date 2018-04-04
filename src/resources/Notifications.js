@@ -1,23 +1,61 @@
 import _ from 'lodash'
 
-import * as arbitratorConstants from '../../constants/arbitrator'
-import * as notificationConstants from '../../constants/notification'
-import * as disputeConstants from '../../constants/dispute'
-import ResourceWrapper from '../ResourceWrapper'
+import * as arbitratorConstants from '../constants/arbitrator'
+import * as notificationConstants from '../constants/notification'
+import * as disputeConstants from '../constants/dispute'
+import { MISSING_STORE_PROVIDER } from '../constants/error'
+import isRequired from '../utils/isRequired'
 
 /**
  * Notifications API.
  */
-class Notifications extends ResourceWrapper {
+class Notifications {
+  constructor(
+    arbitratorInstance = isRequired('arbitratorInstance'),
+    arbitrableInstance = isRequired('arbitrableInstance'),
+    storeProviderInstance
+  ) {
+    this._ArbitratorInstance = arbitratorInstance
+    this._ArbitrableInstance = arbitrableInstance
+    this._StoreProviderInstance = storeProviderInstance
+  }
+  /**
+   * Set arbitrator instance.
+   * @param {object} arbitratorInstance - instance of an arbitrator contract.
+   */
+  setArbitratorInstance = arbitratorInstance => {
+    this._ArbitratorInstance = arbitratorInstance
+  }
+  /**
+   * Set arbitrable instance.
+   * @param {object} arbitrableInstance - instance of an arbitrable contract.
+   */
+  setArbitrableInstance = arbitrableInstance => {
+    this._ArbitrableInstance = arbitrableInstance
+  }
+  /**
+   * Set store provider instance.
+   * @param {object} storeProviderInstance - instance of store provider wrapper.
+   */
+  setStoreProviderInstance = storeProviderInstance => {
+    this._StoreProviderInstance = storeProviderInstance
+  }
+
   // **************************** //
   // *         Public           * //
   // **************************** //
+
   /**
-   * register event listeners for arbitrator.
+   * register event handlers for the arbitrator instance.
    * @param {string} account - Filter notifications for account.
+   * @param {object} eventListener - Event Listener that will fetch logs and call callbacks
    * @param {function} callback - If we want notifications to be "pushed" provide a callback function to call when a new notification is created.
    */
-  registerNotificationListeners = async (account, callback) => {
+  registerArbitratorNotifications = async (
+    account = isRequired('account'),
+    eventListener = isRequired('eventListener'),
+    callback
+  ) => {
     const eventHandlerMap = {
       DisputeCreation: this._disputeCreationHandler,
       AppealPossible: this._appealPossibleHandler,
@@ -29,7 +67,8 @@ class Notifications extends ResourceWrapper {
 
     for (let event in eventHandlerMap) {
       if (eventHandlerMap.hasOwnProperty(event)) {
-        await this._eventListener.registerArbitratorEvent(
+        eventListener.addEventHandler(
+          this._ArbitratorInstance.getContractAddress(),
           event,
           this._createHandler(eventHandlerMap[event], account, callback)
         )
@@ -49,8 +88,8 @@ class Notifications extends ResourceWrapper {
       this._getContracts(account),
       this._getDisputes(account, isJuror)
     ])
-    const currentPeriod = await this._Arbitrator.getPeriod()
-    const currentSession = await this._Arbitrator.getSession()
+    const currentPeriod = await this._ArbitratorInstance.getPeriod()
+    const currentSession = await this._ArbitratorInstance.getSession()
     if (isJuror) {
       /* Juror notifications:
       * - Activate tokens
@@ -60,7 +99,7 @@ class Notifications extends ResourceWrapper {
       */
       if (currentPeriod === arbitratorConstants.PERIOD.ACTIVATION) {
         // FIXME use estimateGas
-        const contractInstance = await this._loadArbitratorInstance()
+        const contractInstance = this._ArbitratorInstance.getContractInstance()
         const lastActivatedSession = (await contractInstance.jurors(
           account
         ))[2].toNumber()
@@ -77,7 +116,7 @@ class Notifications extends ResourceWrapper {
         for (let dispute of disputes) {
           const draws = dispute.appealDraws[dispute.appealDraws.length - 1]
           if (draws) {
-            const canVote = await this._Arbitrator.canRuleDispute(
+            const canVote = await this._ArbitratorInstance.canRuleDispute(
               dispute.disputeId,
               draws,
               account
@@ -105,10 +144,10 @@ class Notifications extends ResourceWrapper {
       */
       await Promise.all(
         contracts.map(async contract => {
-          const contractData = await this._ArbitrableContract.getData(
-            contract.address
-          )
-          const arbitrationCost = await this._Arbitrator.getArbitrationCost(
+          // load arbitrable contract
+          await this._ArbitrableInstance.setContractInstance(contract.address)
+          const contractData = await this._ArbitrableInstance.getData()
+          const arbitrationCost = await this._ArbitratorInstance.getArbitrationCost(
             contractData.arbitratorExtraData
           )
           if (contractData.partyA === account) {
@@ -148,7 +187,7 @@ class Notifications extends ResourceWrapper {
     if (currentPeriod === arbitratorConstants.PERIOD.EXECUTE) {
       await Promise.all(
         disputes.map(async dispute => {
-          const disputeData = await this._Arbitrator.getDispute(
+          const disputeData = await this._ArbitratorInstance.getDispute(
             dispute.disputeId
           )
           if (
@@ -188,28 +227,28 @@ class Notifications extends ResourceWrapper {
   }
 
   /**
-   * Fetch all unread notifications.
+   * Fetch all unread notifications from store.
    * @param {string} account - Address of user.
    * @returns {object[]} - Array of notification objects.
    */
-  getUnreadNotifications = async account => {
-    this._checkStoreProviderSet()
+  getUnreadStoredNotifications = async account => {
+    this._requireStoreProvider()
 
-    const profile = await this._StoreProvider.getUserProfile(account)
+    const profile = await this._StoreProviderInstance.getUserProfile(account)
     return _.filter(profile.notifications, notification => !notification.read)
   }
 
   /**
-   * Fetch all unread notifications
+   * Mark stored notification as read.
    * @param {string} account address of user
    * @param {string} txHash hash of transaction that produced event
    * @param {number} logIndex index of the log. used to differentiate logs if multiple logs per tx
    * @returns {promise} promise that can be waited on for syncronousity
    */
-  markNotificationAsRead = (account, txHash, logIndex) => {
-    this._checkStoreProviderSet()
+  markStoredNotificationAsRead = (account, txHash, logIndex) => {
+    this._requireStoreProvider()
 
-    return this._StoreProvider.markNotificationAsRead(
+    return this._StoreProviderInstance.markNotificationAsRead(
       account,
       txHash,
       logIndex,
@@ -218,23 +257,25 @@ class Notifications extends ResourceWrapper {
   }
 
   /**
-   * Fetch all user notifications.
+   * Fetch all user notifications from store.
    * @param {string} account - Address of user.
    * @returns {object[]} - Array of notification objects.
    */
-  getNotifications = async account => {
-    this._checkStoreProviderSet()
+  getStoredNotifications = async account => {
+    this._requireStoreProvider()
 
-    return (await this._StoreProvider.getUserProfile(account)).notifications
+    return (await this._StoreProviderInstance.getUserProfile(account))
+      .notifications
   }
 
   // **************************** //
   // *        Handlers          * //
   // **************************** //
+
   /**
-   * We can get a list of subscribers by having jurors subscribe to an arbitrator. Raises new problems however
-   * @param {object} event - The event.
-   * @param {string} account - The account.
+   * Checks for appeal possible notifications during APPEAL period.
+   * @param {object} event - The event log.
+   * @param {string} account - The user account.
    * @param {function} callback - The callback.
    */
   _newPeriodHandler = async (event, account, callback) => {
@@ -243,8 +284,8 @@ class Notifications extends ResourceWrapper {
     // send appeal possible notifications
     if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
       const disputes = await this._getDisputes(account) // get users disputes
-      const openDisputes = await this._Arbitrator.getOpenDisputesForSession() // get all disputes for session
-      const contractAddress = this._Arbitrator.getContractAddress()
+      const openDisputes = await this._ArbitratorInstance.getOpenDisputesForSession() // get all disputes for session
+      const contractAddress = this._ArbitratorInstance.getContractAddress()
 
       await Promise.all(
         openDisputes.map(async disputeId => {
@@ -256,8 +297,8 @@ class Notifications extends ResourceWrapper {
                 dispute.arbitratorAddress === contractAddress
             ) >= 0
           ) {
-            const dispute = await this._Arbitrator.getDispute(disputeId)
-            const ruling = await this._Arbitrator.currentRulingForDispute(
+            const dispute = await this._ArbitratorInstance.getDispute(disputeId)
+            const ruling = await this._ArbitratorInstance.currentRulingForDispute(
               disputeId,
               dispute.numberOfAppeals
             )
@@ -285,22 +326,23 @@ class Notifications extends ResourceWrapper {
   /**
    * Handler for DisputeCreation event
    * sends notification to partyA and partyB when dispute is created
-   * @param {object} event - The event.
-   * @param {string} account - The account.
+   * @param {object} event - The event log.
+   * @param {string} account - The user account.
    * @param {function} callback - The callback.
    */
   _disputeCreationHandler = async (event, account, callback) => {
     const disputeId = event.args._disputeID.toNumber()
     const txHash = event.transactionHash
-    const arbitrableData = await this._ArbitrableContract.getData(
-      event.args._arbitrable
-    )
+    // load arbitrable contract
+    await this._ArbitrableInstance.setContractInstance(event.args._arbitrable)
+
+    const arbitrableData = this._ArbitrableInstance.getData()
 
     if (
       arbitrableData.partyA === account ||
       arbitrableData.partyB === account
     ) {
-      const arbitratorAddress = this._Arbitrator.getContractAddress()
+      const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
       const notification = await this._newNotification(
         account,
         txHash,
@@ -319,15 +361,17 @@ class Notifications extends ResourceWrapper {
   /**
    * handler for AppealPossible event
    * sends notification informing accounts that a ruling has been made and an appeal possible
-   * @param {object} event - The event.
-   * @param {string} account - The account.
+   * @param {object} event - The event log.
+   * @param {string} account - The user account.
    * @param {function} callback - The callback.
    */
   _appealPossibleHandler = async (event, account, callback) => {
     const disputes = await this._getDisputes(account)
     const disputeId = event.args._disputeID.toNumber()
-    const ruling = await this._Arbitrator.currentRulingForDispute(disputeId)
-    const arbitratorAddress = this._Arbitrator.getContractAddress()
+    const ruling = await this._ArbitratorInstance.currentRulingForDispute(
+      disputeId
+    )
+    const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
 
     if (
       _.findIndex(
@@ -357,14 +401,14 @@ class Notifications extends ResourceWrapper {
   /**
    * Handler for AppealDecision event
    * sends notification informing subscribers that a ruling has been appealed
-   * @param {object} event - The event.
-   * @param {string} account - The account.
+   * @param {object} event - The event log.
+   * @param {string} account - The user account.
    * @param {function} callback - The callback.
    */
   _appealingDecisionHandler = async (event, account, callback) => {
     const disputes = await this._getDisputes(account)
     const disputeId = event.args._disputeID.toNumber()
-    const arbitratorAddress = this._Arbitrator.getContractAddress()
+    const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
 
     if (
       _.findIndex(
@@ -394,8 +438,8 @@ class Notifications extends ResourceWrapper {
    * Handler for TokenShift event
    * Sends notification informing
    * NOTE: you will get a notification for each vote. So a juror that has 3 votes will receive 3 notifications
-   * @param {object} event - The event.
-   * @param {string} account - The account.
+   * @param {object} event - The event log.
+   * @param {string} account - The user account.
    * @param {function} callback - The callback.
    */
   _tokenShiftHandler = async (event, account, callback) => {
@@ -405,7 +449,7 @@ class Notifications extends ResourceWrapper {
     const amount = event.args._amount.toNumber()
 
     if (account === address) {
-      const arbitratorAddress = this._Arbitrator.getContractAddress()
+      const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
       const notification = await this._newNotification(
         account,
         event.transactionHash,
@@ -426,8 +470,8 @@ class Notifications extends ResourceWrapper {
 
   /**
    * Handler for arbitration reward event.
-   * @param {object} event - The event.
-   * @param {string} account - The account.
+   * @param {object} event - The event log.
+   * @param {string} account - The user account.
    * @param {function} callback - The callback.
    */
   _arbitrationRewardHandler = async (event, account, callback) => {
@@ -437,7 +481,7 @@ class Notifications extends ResourceWrapper {
     const amount = event.args._amount.toNumber()
 
     if (account === address) {
-      const arbitratorAddress = this._Arbitrator.getContractAddress()
+      const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
       const notification = await this._newNotification(
         account,
         event.transactionHash,
@@ -513,8 +557,8 @@ class Notifications extends ResourceWrapper {
     data = {},
     read = false
   ) => {
-    if (this._hasStoreProvider()) {
-      const response = await this._StoreProvider.newNotification(
+    if (this._StoreProviderInstance) {
+      const response = await this._StoreProviderInstance.newNotification(
         account,
         txHash,
         logIndex,
@@ -532,7 +576,7 @@ class Notifications extends ResourceWrapper {
         return notification[0]
       }
     } else {
-      // If we have no store provider simply return object of params.
+      // If we have no store provider simply return object of params for a push notification
       return {
         txHash,
         logIndex,
@@ -542,6 +586,51 @@ class Notifications extends ResourceWrapper {
         read
       }
     }
+  }
+
+  /**
+   * Get contracts from store if set or return empty array. Used for notifications
+   * @param {string} account - Filter notifications for account.
+   * @returns {object[]} - Array of dispute objects
+   */
+  _getContracts = async account => {
+    let contracts = []
+
+    // If we have store provider fetch contracts and disputes from the store.
+    if (this._StoreProviderInstance) {
+      const userProfile = await this._StoreProviderInstance.getUserProfile(
+        account
+      )
+
+      contracts = userProfile.contracts
+    }
+
+    return contracts
+  }
+
+  /**
+   * Get disputes either from store or from arbitrator if Store Provider is not set. Used for notifications
+   * @param {string} account - Filter notifications for account.
+   * @param {function} isJuror - If the account is a juror.
+   * @returns {object[]} - Array of dispute objects
+   */
+  _getDisputes = async (account, isJuror = true) => {
+    let disputes = []
+
+    // If we have store provider fetch contracts and disputes from the store.
+    if (this._StoreProviderInstance) {
+      await this._StoreProviderInstance.getDisputesForUser(account)
+    } else if (isJuror) {
+      // We have no way to get contracts. Get disputes from current session
+      // TODO make a function to get open disputes for parites
+      disputes = await this._ArbitratorInstance.getDisputesForJuror(account)
+    }
+
+    return disputes
+  }
+
+  _requireStoreProvider = () => {
+    if (!this._StoreProviderInstance) throw new Error(MISSING_STORE_PROVIDER)
   }
 }
 

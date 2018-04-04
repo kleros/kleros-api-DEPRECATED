@@ -13,6 +13,8 @@ export const CONTRACT_NOT_DEPLOYED =
   'Unable to load contract. Are you sure the contract is deployed and you are on the right network?'
 export const UNABLE_TO_LOAD_CONTRACT =
   'Unable to load contract. Are you sure the contract artifact is correct?'
+export const MISSING_CONTRACT_PARAMETERS =
+  'Unable to load contract. Missing contractAddress or Artifact. Please call setContractInstance'
 
 // Implementation
 export const CONTRACT_INSTANCE_NOT_SET =
@@ -67,3 +69,12 @@ export const NO_STORE_PROVIDER_SPECIFIED =
 // Disputes
 export const NO_STORE_DATA_FOR_DISPUTE = account =>
   `Account ${account} does not have store data for dispute`
+
+// Notifications
+export const MISSING_STORE_PROVIDER =
+  'This method requires the use of an off chain store. Please call setStoreProviderInstance.'
+
+// Event Listener
+export const MISSING_CONTRACT_INSTANCE = contractAddress =>
+  `No contract instance stored for ${contractAddress}. Please call addContractInstance.`
+export const ERROR_FETCHING_EVENTS = error => `Unable to fetch events: ${error}`

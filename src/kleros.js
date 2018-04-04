@@ -2,8 +2,8 @@ import isRequired from './utils/isRequired'
 import Web3Wrapper from './utils/Web3Wrapper'
 import StoreProviderWrapper from './utils/StoreProviderWrapper'
 import * as contracts from './contracts'
-import * as resources from './resourceWrappers'
-// import EventListener from './eventListener'
+import * as resources from './resources'
+import EventListener from './utils/EventListener'
 
 class Kleros {
   web3Wrapper = {}
@@ -53,16 +53,15 @@ class Kleros {
       this.storeWrapper
     )
     // ARBITRABLE CONTRACTS
-    this.arbitrableContracts = new contracts.abstractions.ArbitrableContracts(
+    this.arbitrable = new contracts.abstractions.Arbitrable(
       _arbitrableTransaction,
       this.storeWrapper
     )
     // EVENT LISTENER
-    this.eventListener = new resources.EventListeners(
-      this.arbitrator,
-      this.arbitrableContracts,
-      this.storeWrapper
-    )
+    this.eventListener = new EventListener([
+      this.arbitrator._contractImplementation.contractInstance,
+      this.arbitrable._contractImplementation.contractInstance
+    ])
     // DISPUTES
     this.disputes = new resources.Disputes(
       this.arbitrator,

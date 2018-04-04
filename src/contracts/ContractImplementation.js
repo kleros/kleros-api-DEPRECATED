@@ -126,6 +126,8 @@ class ContractImplementation {
       this._contractLoadedRejecter = reject
     })
 
+  // we have getters so that abstract classes can provide public access to implementations variables
+  getContractInstance = () => this.contractInstance
   getContractAddress = () => this.contractAddress
 }
 
