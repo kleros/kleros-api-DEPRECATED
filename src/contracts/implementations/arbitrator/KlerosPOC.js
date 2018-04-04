@@ -17,7 +17,7 @@ class KlerosPOC extends ContractImplementation {
    * @param {string} contractAddress - Address of the KlerosPOC contract.
    */
   constructor(web3Provider, contractAddress) {
-    super(web3Provider, contractAddress, klerosArtifact)
+    super(web3Provider, klerosArtifact, contractAddress)
   }
 
   /**

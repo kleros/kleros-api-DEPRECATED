@@ -8,15 +8,14 @@ import Web3Wrapper from '../utils/Web3Wrapper'
 class ContractImplementation {
   constructor(
     web3Provider = isRequired('web3Provider'),
-    contractAddress = isRequired('contractAddress'),
-    artifact = isRequired('artifact')
+    artifact = isRequired('artifact'),
+    contractAddress
   ) {
     this.contractAddress = contractAddress
     this.artifact = artifact
     this.contractInstance = null
     this._Web3Wrapper = new Web3Wrapper(web3Provider)
     // loading params
-    // NOTE it does not load on init because catching async errors is super messy
     this._contractLoadedResolver = null
     this._contractLoadedRejecter = null
     this._loadingContractInstance = null
@@ -30,6 +29,9 @@ class ContractImplementation {
   loadContract = async () => {
     if (this.isLoading) return this._loadingContractInstance
     if (this.contractInstance) return this.contractInstance
+
+    if (!this.contractAddress || !this.artifact)
+      throw new Error(errorConstants.MISSING_CONTRACT_PARAMETERS)
 
     const newLoadingPromise = this._newLoadingPromise()
     this._loadingContractInstance = newLoadingPromise

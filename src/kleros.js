@@ -1,9 +1,9 @@
 import isRequired from './utils/isRequired'
 import Web3Wrapper from './utils/Web3Wrapper'
 import StoreProviderWrapper from './utils/StoreProviderWrapper'
-import * as contracts from './contractWrappers'
-import * as resources from './resourceWrappers'
-import * as abstractWrappers from './abstractWrappers'
+import * as contracts from './contracts'
+import * as resources from './resources'
+// import EventListener from './eventListener'
 
 class Kleros {
   web3Wrapper = {}
@@ -14,19 +14,22 @@ class Kleros {
    * Instantiates a new Kelros instance that provides the public interface
    * to Kleros contracts and library. All params are required. To use an individual
    * portion of the API import a class and initialize it yourself.
-   * @param {string} arbitratorAddress - Address of the arbitrator contract we should
-   *                 use when initializing KlerosPOC
    * @param {string} ethereumProvider - The Web3.js Provider instance you would like the
    *                 Kleros.js library to use for interacting with the
    *                 Ethereum network.
    * @param {string} storeUri - <optional> The storage provider uri used to
    *                      get metadata from the cloud for the UI. e.g. Kleros-Store,
    *                      IPFS, Swarm etc.
+   * @param {string} arbitratorAddress - Address of the arbitrator contract we should
+   *                 use when initializing KlerosPOC
+   * @param {string} arbitrableContractAddress - Address of the arbitrator contract we should
+   *                 use when initializing KlerosPOC
    */
   constructor(
-    arbitratorAddress = isRequired('arbitratorAddress'),
     ethereumProvider = isRequired('ethereumProvider'),
-    storeUri = isRequired('storeUri')
+    storeUri = isRequired('storeUri'),
+    arbitratorAddress,
+    arbitrableContractAddress
   ) {
     // NOTE we default to KlerosPOC and ArbitrableTransaction
     const _klerosPOC = new contracts.arbitrator.KlerosPOC(
@@ -34,7 +37,8 @@ class Kleros {
       arbitratorAddress
     )
     const _arbitrableTransaction = new contracts.arbitrableContracts.ArbitrableTransaction(
-      ethereumProvider
+      ethereumProvider,
+      arbitrableContractAddress
     )
 
     // **************************** //
@@ -44,36 +48,36 @@ class Kleros {
     this.web3Wrapper = new Web3Wrapper(ethereumProvider)
     this.storeWrapper = new StoreProviderWrapper(storeUri)
     // ARBITRATOR
-    this.arbitrator = new abstractWrappers.Arbitrator(
-      _klerosPOC,
-      this.storeWrapper
-    )
+    this.arbitrator = new contracts.Arbitrator(_klerosPOC, this.storeWrapper)
     // ARBITRABLE CONTRACTS
-    this.arbitrableContracts = new abstractWrappers.ArbitrableContracts(
+    this.arbitrableContracts = new contracts.ArbitrableContracts(
       _arbitrableTransaction,
       this.storeWrapper
     )
     // EVENT LISTENER
-    this.eventListener = new resources.EventListeners(
-      this.arbitrator,
-      this.arbitrableContracts,
-      this.storeWrapper
-    )
+    // this.eventListener = new resources.EventListeners(
+    //   this.arbitrator,
+    //   this.arbitrableContracts,
+    //   this.storeWrapper
+    // )
     // DISPUTES
-    this.disputes = new resources.Disputes(
-      this.arbitrator,
-      this.arbitrableContracts,
-      this.eventListener,
-      this.storeWrapper
-    )
+    // this.disputes = new resources.Disputes(
+    //   this.arbitrator,
+    //   this.arbitrableContracts,
+    //   this.eventListener,
+    //   this.storeWrapper
+    // )
     // NOTIFICATIONS
-    this.notifications = new resources.Notifications(
-      this.arbitrator,
-      this.arbitrableContracts,
-      this.eventListener,
-      this.storeWrapper
-    )
+    // this.notifications = new resources.Notifications(
+    //   this.arbitrator,
+    //   this.arbitrableContracts,
+    //   this.eventListener,
+    //   this.storeWrapper
+    // )
   }
+
+  setArbitrableContractAddress = contractAddress =>
+    this.arbitrableContracts.setContractInstance(contractAddress)
 
   /**
    * Entry point to set up all event listerners and to start the events watcher
