@@ -47,7 +47,7 @@ describe('ArbitrableContract', async () => {
         getContractByAddress: mockGetContractByAddress
       }
 
-      arbitrableContractInstance.setStoreProvider(mockStore)
+      arbitrableContractInstance.setStoreProviderInstance(mockStore)
 
       const evidence = await arbitrableContractInstance.getEvidenceForArbitrableContract()
 
@@ -82,7 +82,7 @@ describe('ArbitrableContract', async () => {
         getContractByAddress: mockGetContractByAddress
       }
 
-      arbitrableContractInstance.setStoreProvider(mockStore)
+      arbitrableContractInstance.setStoreProviderInstance(mockStore)
 
       const evidence = await arbitrableContractInstance.getEvidenceForArbitrableContract()
 

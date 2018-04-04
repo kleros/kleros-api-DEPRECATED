@@ -51,7 +51,7 @@ class Notifications {
    * @param {object} eventListener - Event Listener that will fetch logs and call callbacks
    * @param {function} callback - If we want notifications to be "pushed" provide a callback function to call when a new notification is created.
    */
-  registerArbitratorNotifications = async (
+  registerArbitratorNotifications = (
     account = isRequired('account'),
     eventListener = isRequired('eventListener'),
     callback

@@ -2,7 +2,9 @@ import Web3 from 'web3'
 
 import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
 import ArbitrableTransaction from '../../src/contracts/implementations/arbitrable/ArbitrableTransaction'
+import Notifications from '../../src/resources/Notifications'
 import * as ethConstants from '../../src/constants/eth'
+import * as notificationConstants from '../../src/constants/notification'
 import setUpContracts from '../helpers/setUpContracts'
 import delaySecond from '../helpers/delaySecond'
 
@@ -69,6 +71,20 @@ describe('Dispute Resolution', () => {
         provider,
         arbitrableContractAddress
       )
+      // Notifications instance for testing stateful notifications
+      const NotificationsInstance = new Notifications(
+        KlerosPOCInstance,
+        ArbitrableTransactionInstance
+      )
+      // stateful notifications juror1
+      let juror1StatefullNotifications = await NotificationsInstance.getStatefulNotifications(
+        juror1,
+        true
+      )
+      expect(juror1StatefullNotifications.length).toEqual(1)
+      expect(juror1StatefullNotifications[0].notificationType).toEqual(
+        notificationConstants.TYPE.CAN_ACTIVATE
+      )
       // juror1 should have no balance to start with
       const initialBalance = await KlerosPOCInstance.getPNKBalance(juror1)
       expect(initialBalance.tokenBalance).toEqual(0)
@@ -89,6 +105,13 @@ describe('Dispute Resolution', () => {
       )
       expect(balance.tokenBalance).toEqual(1)
       expect(balance.activatedTokens).toEqual(0.5)
+
+      // stateful notifications juror1
+      juror1StatefullNotifications = await NotificationsInstance.getStatefulNotifications(
+        juror1,
+        true
+      )
+      expect(juror1StatefullNotifications.length).toEqual(0)
       // activate PNK juror2
       await KlerosPOCInstance.activatePNK(activatedTokenAmount, juror2)
 
@@ -221,6 +244,17 @@ describe('Dispute Resolution', () => {
         arbitrableContractAddress
       )
 
+      const jurorForNotifications =
+        drawA.length > drawB.length ? juror1 : juror2
+      // stateful notifications juror1
+      let jurorStatefullNotifications = await NotificationsInstance.getStatefulNotifications(
+        jurorForNotifications,
+        true
+      )
+      expect(jurorStatefullNotifications.length).toEqual(1)
+      expect(jurorStatefullNotifications[0].notificationType).toEqual(
+        notificationConstants.TYPE.CAN_VOTE
+      )
       // submit rulings
       const rulingJuror1 = 1
       await KlerosPOCInstance.submitVotes(0, rulingJuror1, drawA, juror1)
@@ -238,13 +272,45 @@ describe('Dispute Resolution', () => {
       await delaySecond()
       await KlerosPOCInstance.passPeriod(other)
 
+      // stateful notifications
+      jurorStatefullNotifications = await NotificationsInstance.getStatefulNotifications(
+        jurorForNotifications,
+        true
+      )
+      expect(jurorStatefullNotifications.length).toEqual(1)
+      expect(jurorStatefullNotifications[0].notificationType).toEqual(
+        notificationConstants.TYPE.CAN_REPARTITION
+      )
+
       // balances before ruling is executed
       const partyABalance = web3.eth.getBalance(partyA).toNumber()
       const partyBBalance = web3.eth.getBalance(partyB).toNumber()
       // repartition tokens
       await KlerosPOCInstance.repartitionJurorTokens(0, other)
+
+      // stateful notifications
+      jurorStatefullNotifications = await NotificationsInstance.getStatefulNotifications(
+        jurorForNotifications,
+        true
+      )
+      expect(jurorStatefullNotifications.length).toEqual(1)
+      expect(jurorStatefullNotifications[0].notificationType).toEqual(
+        notificationConstants.TYPE.CAN_EXECUTE
+      )
+
       // execute ruling
       await KlerosPOCInstance.executeRuling(0, other)
+
+      juror1StatefullNotifications = await NotificationsInstance.getStatefulNotifications(
+        juror1,
+        true
+      )
+      expect(juror1StatefullNotifications.length).toEqual(0)
+      let partyAStatefullNotifications = await NotificationsInstance.getStatefulNotifications(
+        partyA,
+        false
+      )
+      expect(partyAStatefullNotifications.length).toEqual(0)
       // balances after ruling
       // partyA wins so they should recieve their arbitration fee as well as the value locked in contract
 

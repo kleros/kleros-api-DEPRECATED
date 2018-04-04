@@ -10,6 +10,8 @@ class Kleros {
 
   storeWrapper = {}
 
+  eventListener = null
+
   /**
    * Instantiates a new Kelros instance that provides the public interface
    * to Kleros contracts and library. All params are required. To use an individual
@@ -57,23 +59,16 @@ class Kleros {
       _arbitrableTransaction,
       this.storeWrapper
     )
-    // EVENT LISTENER
-    this.eventListener = new EventListener([
-      this.arbitrator._contractImplementation.contractInstance,
-      this.arbitrable._contractImplementation.contractInstance
-    ])
     // DISPUTES
     this.disputes = new resources.Disputes(
       this.arbitrator,
       this.arbitrableContracts,
-      this.eventListener,
       this.storeWrapper
     )
     // NOTIFICATIONS
     this.notifications = new resources.Notifications(
       this.arbitrator,
       this.arbitrableContracts,
-      this.eventListener,
       this.storeWrapper
     )
   }
@@ -90,16 +85,26 @@ class Kleros {
     account,
     callback // for notification callback
   ) => {
-    this.eventListener.clearArbitratorHandlers()
-    await this.disputes.addNewDisputeEventListener()
-    await this.disputes.addTokenShiftToJurorProfileEventListener(
+    // stop current event listeners
+    if (this.eventListener) {
+      this.eventListener.stopWatchingForEvents()
+    }
+    // reinitialize with current arbitrator contract instance
+    this.eventListener = new EventListener([
+      this.arbitrator.getContractInstance()
+    ])
+    // add handlers for notifications
+    this.notifications.registerArbitratorNotifications(
       account,
+      this.eventListener,
       callback
     )
-    await this.disputes.addDisputeDeadlineHandler(account)
-    await this.disputes.addDisputeRulingHandler(account, callback)
-    await this.notifications.registerNotificationListeners(account, callback)
-    await this.eventListener.watchForArbitratorEvents(account)
+    // add handlers for event driven store updates
+    this.disputes.registerStoreUpdateEventListeners(account, this.eventListener)
+    // fetch last block for user
+    const fromBlock = await this.storeWrapper.getLastBlock(account)
+    // start event listener
+    this.eventListener.watchForEvents(fromBlock)
   }
 
   /**
@@ -109,11 +114,10 @@ class Kleros {
   setStoreProvider = storeUri => {
     this.storeWrapper = new StoreProviderWrapper(storeUri)
 
-    this.eventListener.setStoreProvider(this.storeWrapper)
-    this.disputes.setStoreProvider(this.storeWrapper)
-    this.arbitrableContract.setStoreProvider(this.storeWrapper)
-    this.arbitrator.setStoreProvider(this.storeWrapper)
-    this.notifications.setStoreProvider(this.storeWrapper)
+    this.disputes.setStoreProviderInstance(this.storeWrapper)
+    this.arbitrableContract.setStoreProviderInstance(this.storeWrapper)
+    this.arbitrator.setStoreProviderInstance(this.storeWrapper)
+    this.notifications.setStoreProviderInstance(this.storeWrapper)
   }
 }
 
