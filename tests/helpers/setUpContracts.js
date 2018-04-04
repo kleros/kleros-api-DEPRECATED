@@ -1,7 +1,7 @@
-import BlockHashRNG from '../../src/contractWrappers/RNG/BlockHashRNG'
-import PinakionPOC from '../../src/contractWrappers/PNK/PinakionPOC'
-import KlerosPOC from '../../src/contractWrappers/arbitrator/KlerosPOC'
-import ArbitrableTransaction from '../../src/contractWrappers/arbitrableContracts/ArbitrableTransaction'
+import BlockHashRNG from '../../src/contracts/implementations/RNG/BlockHashRNG'
+import PinakionPOC from '../../src/contracts/implementations/PNK/PinakionPOC'
+import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
+import ArbitrableTransaction from '../../src/contracts/implementations/arbitrable/ArbitrableTransaction'
 
 const setUpContracts = async (
   provider,
@@ -28,13 +28,8 @@ const setUpContracts = async (
   )
   const pnkWrapper = new PinakionPOC(provider, pinakionInstance.address)
   // transfer ownership and set kleros instance
-  await pnkWrapper.setKleros(
-    pinakionInstance.address,
-    klerosCourt.address,
-    klerosPOCParams.account
-  )
+  await pnkWrapper.setKleros(klerosCourt.address, klerosPOCParams.account)
   await pnkWrapper.transferOwnership(
-    pinakionInstance.address,
     klerosCourt.address,
     klerosPOCParams.account
   )

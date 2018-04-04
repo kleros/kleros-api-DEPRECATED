@@ -1,5 +1,5 @@
 import ArbitrableContractApi from '../../../src/abstractWrappers/arbitrableContracts'
-import ArbitrableTransaction from '../../../src/contractWrappers/arbitrableContracts/ArbitrableTransaction'
+import ArbitrableTransaction from '../../../src/contracts/implementations/arbitrable/ArbitrableTransaction'
 import _asyncMockResponse from '../../helpers/asyncMockResponse'
 
 describe('ArbitrableContract', async () => {

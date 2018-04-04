@@ -1,7 +1,7 @@
 import Web3 from 'web3'
 
-import KlerosPOC from '../../src/contractWrappers/arbitrator/KlerosPOC'
-import ArbitrableTransaction from '../../src/contractWrappers/arbitrableContracts/ArbitrableTransaction'
+import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
+import ArbitrableTransaction from '../../src/contracts/implementations/arbitrable/ArbitrableTransaction'
 import Notifications from '../../src/resourceWrappers/Notifications'
 import EventListeners from '../../src/resourceWrappers/EventListeners'
 import * as ethConstants from '../../src/constants/eth'
@@ -77,7 +77,10 @@ describe('Notifications and Event Listeners', () => {
 
       // EVENT LISTENER
       const KlerosPOCInstance = new KlerosPOC(provider, klerosPOCAddress)
-      const ArbitrableTransactionInstance = new ArbitrableTransaction(provider)
+      const ArbitrableTransactionInstance = new ArbitrableTransaction(
+        provider,
+        arbitrableContractAddress
+      )
       const EventListenerInstance = new EventListeners(
         KlerosPOCInstance,
         ArbitrableTransactionInstance
@@ -116,9 +119,7 @@ describe('Notifications and Event Listeners', () => {
       expect(juror1StatefullNotifications.length).toEqual(0)
       // return a bigint
       // FIXME use arbitrableTransaction
-      const arbitrableContractInstance = await ArbitrableTransactionInstance.load(
-        arbitrableContractAddress
-      )
+      const arbitrableContractInstance = await ArbitrableTransactionInstance.loadContract()
       const partyAFeeContractInstance = await arbitrableContractInstance.partyAFee()
 
       // return bytes
@@ -132,7 +133,6 @@ describe('Notifications and Event Listeners', () => {
       // raise dispute party A
       await ArbitrableTransactionInstance.payArbitrationFeeByPartyA(
         partyA,
-        arbitrableContractAddress,
         arbitrationCost -
           KlerosPOCInstance._Web3Wrapper.fromWei(
             partyAFeeContractInstance,
@@ -144,7 +144,6 @@ describe('Notifications and Event Listeners', () => {
 
       await ArbitrableTransactionInstance.payArbitrationFeeByPartyB(
         partyB,
-        arbitrableContractAddress,
         arbitrationCost -
           KlerosPOCInstance._Web3Wrapper.fromWei(
             partyBFeeContractInstance,

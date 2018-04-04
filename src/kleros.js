@@ -2,7 +2,7 @@ import isRequired from './utils/isRequired'
 import Web3Wrapper from './utils/Web3Wrapper'
 import StoreProviderWrapper from './utils/StoreProviderWrapper'
 import * as contracts from './contracts'
-import * as resources from './resources'
+import * as resources from './resourceWrappers'
 // import EventListener from './eventListener'
 
 class Kleros {
@@ -55,25 +55,25 @@ class Kleros {
       this.storeWrapper
     )
     // EVENT LISTENER
-    // this.eventListener = new resources.EventListeners(
-    //   this.arbitrator,
-    //   this.arbitrableContracts,
-    //   this.storeWrapper
-    // )
+    this.eventListener = new resources.EventListeners(
+      this.arbitrator,
+      this.arbitrableContracts,
+      this.storeWrapper
+    )
     // DISPUTES
-    // this.disputes = new resources.Disputes(
-    //   this.arbitrator,
-    //   this.arbitrableContracts,
-    //   this.eventListener,
-    //   this.storeWrapper
-    // )
+    this.disputes = new resources.Disputes(
+      this.arbitrator,
+      this.arbitrableContracts,
+      this.eventListener,
+      this.storeWrapper
+    )
     // NOTIFICATIONS
-    // this.notifications = new resources.Notifications(
-    //   this.arbitrator,
-    //   this.arbitrableContracts,
-    //   this.eventListener,
-    //   this.storeWrapper
-    // )
+    this.notifications = new resources.Notifications(
+      this.arbitrator,
+      this.arbitrableContracts,
+      this.eventListener,
+      this.storeWrapper
+    )
   }
 
   setArbitrableContractAddress = contractAddress =>
