@@ -25,7 +25,7 @@ describe('Arbitrator', () => {
         setUpUserProfile: mockShouldNotCall
       }
 
-      arbitratorInstance.setStoreProvider(mockStoreProvider)
+      arbitratorInstance.setStoreProviderInstance(mockStoreProvider)
 
       const mockArbitrator = {
         getPeriod: jest.fn().mockReturnValue(_asyncMockResponse(0)),
@@ -61,7 +61,7 @@ describe('Arbitrator', () => {
         )
       }
 
-      arbitratorInstance.setStoreProvider(mockStoreProvider)
+      arbitratorInstance.setStoreProviderInstance(mockStoreProvider)
 
       const mockArbitrator = {
         getPeriod: jest.fn().mockReturnValue(_asyncMockResponse(2)),
@@ -103,7 +103,7 @@ describe('Arbitrator', () => {
         updateDisputeProfile: mockUpdateDisputeProfile
       }
 
-      arbitratorInstance.setStoreProvider(mockStoreProvider)
+      arbitratorInstance.setStoreProviderInstance(mockStoreProvider)
 
       const mockArbitrator = {
         getPeriod: jest.fn().mockReturnValue(_asyncMockResponse(2)),

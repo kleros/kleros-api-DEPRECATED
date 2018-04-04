@@ -18,6 +18,27 @@ class Disputes {
     this._ArbitrableInstance = arbitrableInstance
     this._StoreProviderInstance = storeProviderInstance
   }
+  /**
+   * Set arbitrator instance.
+   * @param {object} arbitratorInstance - instance of an arbitrator contract.
+   */
+  setArbitratorInstance = arbitratorInstance => {
+    this._ArbitratorInstance = arbitratorInstance
+  }
+  /**
+   * Set arbitrable instance.
+   * @param {object} arbitrableInstance - instance of an arbitrable contract.
+   */
+  setArbitrableInstance = arbitrableInstance => {
+    this._ArbitrableInstance = arbitrableInstance
+  }
+  /**
+   * Set store provider instance.
+   * @param {object} storeProviderInstance - instance of store provider wrapper.
+   */
+  setStoreProviderInstance = storeProviderInstance => {
+    this._StoreProviderInstance = storeProviderInstance
+  }
 
   // **************************** //
   // *         Events           * //

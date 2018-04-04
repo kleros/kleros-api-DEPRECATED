@@ -9,23 +9,23 @@ class AbstractContract {
    * services such as an off chain store, as well as the functionality of the underlying
    * implementation.
    * @param {object} implementationInstance - Contract Implementation object to extend
-   * @param {object} storeProviderWrapperInstance - StoreProvider wrapper object.
+   * @param {object} storeProviderInstance - StoreProvider wrapper object.
    */
   constructor(
     implementationInstance = isRequired('implementationInstance'),
-    storeProviderWrapperInstance = isRequired('storeProviderWrapperInstance')
+    storeProviderInstance = isRequired('storeProviderInstance')
   ) {
-    this._StoreProvider = storeProviderWrapperInstance
+    this._StoreProvider = storeProviderInstance
     this._contractImplementation = implementationInstance
     delegateCalls(this, implementationInstance)
   }
 
   /**
-   * Set the store wrapper
-   * @param {object} storeProviderWrapperInstance wrapper for store
+   * Set store provider instance.
+   * @param {object} storeProviderInstance - instance of store provider wrapper.
    */
-  setStoreProvider = storeProviderWrapperInstance => {
-    this._StoreProvider = storeProviderWrapperInstance
+  setStoreProviderInstance = storeProviderInstance => {
+    this._StoreProvider = storeProviderInstance
   }
 }
 

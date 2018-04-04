@@ -1,4 +1,4 @@
 import Arbitrator from './Arbitrator'
-import ArbitrableContracts from './Arbitrable'
+import Arbitrable from './Arbitrable'
 
-export { Arbitrator, ArbitrableContracts }
+export { Arbitrator, Arbitrable }

@@ -1,4 +1,4 @@
-import DisputesApi from '../../../src/resourceWrappers/Disputes'
+import DisputesApi from '../../../src/resources/Disputes'
 import _asyncMockResponse from '../../helpers/asyncMockResponse'
 
 describe('Disputes', () => {
@@ -66,7 +66,7 @@ describe('Disputes', () => {
         canRuleDispute: jest.fn().mockReturnValue(false),
         getContractAddress: jest.fn().mockReturnValue(arbitratorAddress)
       }
-      disputesInstance._Arbitrator = mockArbitrator
+      disputesInstance._ArbitratorInstance = mockArbitrator
 
       const mockArbitrableContractData = {
         partyA,
@@ -75,9 +75,10 @@ describe('Disputes', () => {
       }
       const mockArbitrableContract = {
         getData: jest.fn().mockReturnValue(mockArbitrableContractData),
-        getEvidenceForArbitrableContract: jest.fn().mockReturnValue([])
+        getEvidenceForArbitrableContract: jest.fn().mockReturnValue([]),
+        setContractInstance: jest.fn()
       }
-      disputesInstance._ArbitrableContract = mockArbitrableContract
+      disputesInstance._ArbitrableInstance = mockArbitrableContract
 
       const mockContract = {
         description: 'testdesc',
@@ -86,7 +87,7 @@ describe('Disputes', () => {
       const mockStoreProvider = {
         getContractByAddress: jest.fn().mockReturnValue(mockContract)
       }
-      disputesInstance.setStoreProvider(mockStoreProvider)
+      disputesInstance.setStoreProviderInstance(mockStoreProvider)
 
       const disputeData = await disputesInstance.getDataForDispute(
         disputeId,
@@ -150,7 +151,7 @@ describe('Disputes', () => {
         canRuleDispute: jest.fn().mockReturnValue(true),
         getContractAddress: jest.fn().mockReturnValue(arbitratorAddress)
       }
-      disputesInstance._Arbitrator = mockArbitrator
+      disputesInstance._ArbitratorInstance = mockArbitrator
 
       const mockArbitrableContractData = {
         partyA,
@@ -159,9 +160,10 @@ describe('Disputes', () => {
       }
       const mockArbitrableContract = {
         getData: jest.fn().mockReturnValue(mockArbitrableContractData),
-        getEvidenceForArbitrableContract: jest.fn().mockReturnValue([])
+        getEvidenceForArbitrableContract: jest.fn().mockReturnValue([]),
+        setContractInstance: jest.fn()
       }
-      disputesInstance._ArbitrableContract = mockArbitrableContract
+      disputesInstance._ArbitrableInstance = mockArbitrableContract
 
       const mockContract = {
         description: 'testdesc',
@@ -178,7 +180,7 @@ describe('Disputes', () => {
         getContractByAddress: jest.fn().mockReturnValue(mockContract),
         getDisputeData: jest.fn().mockReturnValue(mockUserData)
       }
-      disputesInstance.setStoreProvider(mockStoreProvider)
+      disputesInstance.setStoreProviderInstance(mockStoreProvider)
 
       const disputeData = await disputesInstance.getDataForDispute(
         disputeId,
@@ -264,7 +266,7 @@ describe('Disputes', () => {
         canRuleDispute: jest.fn().mockReturnValue(false),
         getContractAddress: jest.fn().mockReturnValue(arbitratorAddress)
       }
-      disputesInstance._Arbitrator = mockArbitrator
+      disputesInstance._ArbitratorInstance = mockArbitrator
 
       const mockArbitrableContractData = {
         partyA,
@@ -273,9 +275,10 @@ describe('Disputes', () => {
       }
       const mockArbitrableContract = {
         getData: jest.fn().mockReturnValue(mockArbitrableContractData),
-        getEvidenceForArbitrableContract: jest.fn().mockReturnValue([])
+        getEvidenceForArbitrableContract: jest.fn().mockReturnValue([]),
+        setContractInstance: jest.fn()
       }
-      disputesInstance._ArbitrableContract = mockArbitrableContract
+      disputesInstance._ArbitrableInstance = mockArbitrableContract
 
       const mockContract = {
         description: 'testdesc',
@@ -292,7 +295,7 @@ describe('Disputes', () => {
         getContractByAddress: jest.fn().mockReturnValue(mockContract),
         getDisputeData: jest.fn().mockReturnValue(mockUserData)
       }
-      disputesInstance.setStoreProvider(mockStoreProvider)
+      disputesInstance.setStoreProviderInstance(mockStoreProvider)
 
       const disputeData = await disputesInstance.getDataForDispute(
         disputeId,
@@ -380,7 +383,7 @@ describe('Disputes', () => {
         canRuleDispute: jest.fn().mockReturnValue(false),
         getContractAddress: jest.fn().mockReturnValue(arbitratorAddress)
       }
-      disputesInstance._Arbitrator = mockArbitrator
+      disputesInstance._ArbitratorInstance = mockArbitrator
 
       const mockArbitrableContractData = {
         partyA,
@@ -389,9 +392,10 @@ describe('Disputes', () => {
       }
       const mockArbitrableContract = {
         getData: jest.fn().mockReturnValue(mockArbitrableContractData),
-        getEvidenceForArbitrableContract: jest.fn().mockReturnValue([])
+        getEvidenceForArbitrableContract: jest.fn().mockReturnValue([]),
+        setContractInstance: jest.fn()
       }
-      disputesInstance._ArbitrableContract = mockArbitrableContract
+      disputesInstance._ArbitrableInstance = mockArbitrableContract
 
       const mockContract = {
         description: 'testdesc',
@@ -408,7 +412,7 @@ describe('Disputes', () => {
         getContractByAddress: jest.fn().mockReturnValue(mockContract),
         getDisputeData: jest.fn().mockReturnValue(mockUserData)
       }
-      disputesInstance.setStoreProvider(mockStoreProvider)
+      disputesInstance.setStoreProviderInstance(mockStoreProvider)
 
       const disputeData = await disputesInstance.getDataForDispute(
         disputeId,

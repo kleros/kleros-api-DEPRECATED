@@ -7,13 +7,20 @@ import * as errorConstants from '../constants/error'
 class EventListener {
   /**
    * Listen for events in contract and handles callbacks with registered event handlers.
-   * @param {object[]} contractInstances - truffle-contract instances to fetch event logs for.
+   * @param {object[]} _contractInstances - truffle-contract instances to fetch event logs for.
    */
-  constructor(contractInstances = []) {
-    this.contractInstances = contractInstances
+  constructor(_contractInstances = []) {
+    this.contractInstances = []
+    // map address -> { event: [handlers], ... }
     this.contractEventHandlerMap = {}
+    // map address -> watcher instance
+    this.watcherInstances = {}
     // event handler queue
     this.eventHandlerQueue = new PromiseQueue()
+    // initialize class variables for new contract instances
+    _contractInstances.forEach(instance => {
+      this.addContractInstance(instance)
+    })
   }
 
   /**
@@ -86,13 +93,15 @@ class EventListener {
     // remove instance from this.contractInstances
     const removedInstance = _.remove(
       this.contractInstances,
-      instance => instance.contractAddress === contractAddress
+      instance => instance.address === contractAddress
     )
     // if we didn't remove anything throw error
     if (removedInstance.length === 0)
       throw new Error(errorConstants.MISSING_CONTRACT_INSTANCE(contractAddress))
     // stop watching on these instances
-    removedInstance.forEach(instance => instance.stopWatching())
+    removedInstance.forEach(instance =>
+      this.stopWatchingForEvents(instance.address)
+    )
     // remove handlers for contract instance
     delete this.contractEventHandlerMap[contractAddress]
   }
@@ -118,34 +127,43 @@ class EventListener {
    * @param {number} fromBlock - A block number can be passed to catch up on missed logs
    */
   watchForEvents = (fromBlock = 'latest') => {
-    Promise.all(
-      this.contractInstances.forEach(instance => {
-        instance
-          .allEvents({
-            fromBlock: fromBlock,
-            lastBlock: 'latest'
-          })
-          .watch((error, result) => {
-            if (!error) {
-              const handlers = this.contractEventHandlerMap[instance.address][
-                result.event
-              ]
-              if (handlers) {
-                handlers.forEach(handler => {
-                  this._queueEvent(handler, result)
-                })
-              }
-            }
-          })
+    this.contractInstances.forEach(instance => {
+      const newWatcherInstance = instance.allEvents({
+        fromBlock: fromBlock,
+        lastBlock: 'latest'
       })
-    )
+
+      // NOTE: should we allow more than one listener per contract instance?
+      if (this.watcherInstances[instance.address])
+        this.watcherInstances[instance.address].stopWatching()
+
+      this.watcherInstances[instance.address] = newWatcherInstance
+
+      newWatcherInstance.watch((error, result) => {
+        if (!error) {
+          const handlers = this.contractEventHandlerMap[instance.address][
+            result.event
+          ]
+          if (handlers) {
+            handlers.forEach(handler => {
+              this._queueEvent(handler, result)
+            })
+          }
+        }
+      })
+    })
   }
 
   /**
-   * Stop listening on contract.
+   * Stop listening on contract. If no contractAddress supplied it stops all listeners
+   * @param {string} contractAddress - Address of the contract to stop watching
    */
-  stopWatchingForEvents = () => {
-    this.contractInstances.forEach(instance => instance.stopWatching())
+  stopWatchingForEvents = contractAddress => {
+    if (contractAddress) this.watcherInstances[contractAddress].stopWatching()
+    else
+      this.contractInstances.forEach(instance => {
+        this.watcherInstances[instance.address].stopWatching()
+      })
   }
 
   /**
