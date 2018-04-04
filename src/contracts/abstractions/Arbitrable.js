@@ -86,14 +86,13 @@ class ArbitrableContract extends AbstractContract {
       url
     )
 
-    if (this._hasStoreProvider())
-      await this._StoreProvider.addEvidenceContract(
-        contractAddress,
-        account,
-        name,
-        description,
-        url
-      )
+    await this._StoreProvider.addEvidenceContract(
+      contractAddress,
+      account,
+      name,
+      description,
+      url
+    )
 
     return txHash
   }
@@ -104,7 +103,6 @@ class ArbitrableContract extends AbstractContract {
    * @returns {object[]} - Contract data from store.
    */
   getContractsForUser = async account => {
-    if (!this._hasStoreProvider()) return []
     // fetch user profile
     const userProfile = await this._StoreProvider.setUpUserProfile(account)
 
@@ -117,8 +115,6 @@ class ArbitrableContract extends AbstractContract {
    * @returns {object[]} - Array of evidence objects.
    */
   getEvidenceForArbitrableContract = async arbitrableContractAddress => {
-    if (!this._hasStoreProvider()) return []
-
     const arbitrableContractData = await this._contractWrapper.getData(
       arbitrableContractAddress
     )
@@ -158,12 +154,10 @@ class ArbitrableContract extends AbstractContract {
   getData = async (contractAddress, account) => {
     const contractData = await this._contractWrapper.getData(contractAddress)
 
-    let storeData = {}
-    if (account && this._hasStoreProvider())
-      storeData = await this._StoreProvider.getContractByAddress(
-        account,
-        contractAddress
-      )
+    const storeData = await this._StoreProvider.getContractByAddress(
+      account,
+      contractAddress
+    )
 
     return Object.assign({}, storeData, contractData)
   }
