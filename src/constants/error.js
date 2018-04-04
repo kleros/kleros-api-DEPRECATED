@@ -67,3 +67,7 @@ export const NO_STORE_PROVIDER_SPECIFIED =
 // Disputes
 export const NO_STORE_DATA_FOR_DISPUTE = account =>
   `Account ${account} does not have store data for dispute`
+
+// implementations
+export const MISSING_CONTRACT_PARAMETERS =
+  'Missing contractAddress or Artifact. Cannot load contract. Please call setContractInstance'

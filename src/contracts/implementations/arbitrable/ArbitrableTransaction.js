@@ -17,7 +17,7 @@ class ArbitrableTransaction extends ContractImplementation {
    * @param {string} contractAddress of the contract
    */
   constructor(web3Provider, contractAddress) {
-    super(web3Provider, contractAddress, arbitrableTransactionArtifact)
+    super(web3Provider, arbitrableTransactionArtifact, contractAddress)
   }
 
   /**
