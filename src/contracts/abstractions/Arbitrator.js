@@ -14,7 +14,6 @@ class Arbitrator extends AbstractContract {
    * @returns {object[]} dispute data objects for user
    */
   getDisputesForUser = async (arbitratorAddress, account) => {
-    this._checkStoreProviderSet()
     // contract data
     const [period, currentSession] = await Promise.all([
       this._contractWrapper.getPeriod(arbitratorAddress),

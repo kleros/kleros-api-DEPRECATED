@@ -1,5 +1,5 @@
-import ArbitratorApi from '../../../src/abstractWrappers/arbitrator'
-import _asyncMockResponse from '../../helpers/asyncMockResponse'
+import ArbitratorApi from '../../../../src/contracts/abstractions/Arbitrator'
+import _asyncMockResponse from '../../../helpers/asyncMockResponse'
 
 describe('Arbitrator', () => {
   let arbitratorAddress = '0xDcB2db3E3fA7a6cba5dFE964408099d860246D7Z'
