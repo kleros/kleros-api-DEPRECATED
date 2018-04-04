@@ -1,7 +1,7 @@
 import Web3 from 'web3'
 
-import KlerosPOC from '../../src/contractWrappers/arbitrator/KlerosPOC'
-import ArbitrableTransaction from '../../src/contractWrappers/arbitrableContracts/ArbitrableTransaction'
+import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
+import ArbitrableTransaction from '../../src/contracts/implementations/arbitrable/ArbitrableTransaction'
 import * as ethConstants from '../../src/constants/eth'
 import * as errorConstants from '../../src/constants/error'
 import setUpContracts from '../helpers/setUpContracts'
@@ -136,6 +136,7 @@ describe('Contracts', () => {
           provider,
           arbitrableContractAddress
         )
+
         const contractArbitrableTransactionData = await ArbitrableContractInstance.getData(
           arbitrableContractAddress,
           partyA
@@ -178,9 +179,7 @@ describe('Contracts', () => {
           provider,
           arbitrableContractAddress
         )
-        const arbitrableContractInstance = await ArbitrableContract.load(
-          arbitrableContractAddress
-        )
+        const arbitrableContractInstance = await ArbitrableContract.loadContract()
         const partyApaysPartyB = await arbitrableContractInstance.pay({
           from: partyA
         })
@@ -211,9 +210,7 @@ describe('Contracts', () => {
           provider,
           arbitrableContractAddress
         )
-        const arbitrableContractInstance = await ArbitrableContract.load(
-          arbitrableContractAddress
-        )
+        const arbitrableContractInstance = await ArbitrableContract.loadContract()
         const partyAFeeContractInstance = await arbitrableContractInstance.partyAFee()
 
         // return bytes
@@ -229,7 +226,6 @@ describe('Contracts', () => {
         // raise dispute party A
         const raiseDisputeByPartyATxObj = await ArbitrableContract.payArbitrationFeeByPartyA(
           partyA,
-          arbitrableContractAddress,
           arbitrationCost -
             web3.fromWei(partyAFeeContractInstance, 'ether').toNumber()
         )
@@ -238,7 +234,6 @@ describe('Contracts', () => {
         ) // tx hash
 
         await delaySecond()
-
         // call timeout by partyA
         // TODO should test the api not directly the truffle contract
         const txHashTimeOutByPartyA = await arbitrableContractInstance.timeOutByPartyA(

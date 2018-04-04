@@ -1,7 +1,7 @@
 import Web3 from 'web3'
 
-import KlerosPOC from '../../src/contractWrappers/arbitrator/KlerosPOC'
-import ArbitrableTransaction from '../../src/contractWrappers/arbitrableContracts/ArbitrableTransaction'
+import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
+import ArbitrableTransaction from '../../src/contracts/implementations/arbitrable/ArbitrableTransaction'
 import * as ethConstants from '../../src/constants/eth'
 import setUpContracts from '../helpers/setUpContracts'
 import delaySecond from '../helpers/delaySecond'
@@ -59,14 +59,16 @@ describe('Dispute Resolution', () => {
         rngAddress,
         pnkAddress
       ] = await setUpContracts(provider, klerosPOCData, arbitrableContractData)
-
       expect(klerosPOCAddress).toBeDefined()
       expect(arbitrableContractAddress).toBeDefined()
       expect(rngAddress).toBeDefined()
       expect(pnkAddress).toBeDefined()
 
       const KlerosPOCInstance = new KlerosPOC(provider, klerosPOCAddress)
-      const ArbitrableTransactionInstance = new ArbitrableTransaction(provider)
+      const ArbitrableTransactionInstance = new ArbitrableTransaction(
+        provider,
+        arbitrableContractAddress
+      )
       // juror1 should have no balance to start with
       const initialBalance = await KlerosPOCInstance.getPNKBalance(juror1)
       expect(initialBalance.tokenBalance).toEqual(0)
@@ -102,11 +104,8 @@ describe('Dispute Resolution', () => {
       )
       // return a bigint
       // FIXME use arbitrableTransaction
-      const arbitrableContractInstance = await ArbitrableTransactionInstance.load(
-        arbitrableContractAddress
-      )
+      const arbitrableContractInstance = await ArbitrableTransactionInstance.loadContract()
       const partyAFeeContractInstance = await arbitrableContractInstance.partyAFee()
-
       // return bytes
       // FIXME use arbitrableTransaction
       let extraDataContractInstance = await arbitrableContractInstance.arbitratorExtraData()
@@ -119,7 +118,6 @@ describe('Dispute Resolution', () => {
       // raise dispute party A
       const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyA(
         partyA,
-        arbitrableContractAddress,
         arbitrationCost -
           web3.fromWei(partyAFeeContractInstance, 'ether').toNumber()
       )
@@ -133,7 +131,6 @@ describe('Dispute Resolution', () => {
 
       const raiseDisputeByPartyBTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyB(
         partyB,
-        arbitrableContractAddress,
         arbitrationCost -
           web3.fromWei(partyBFeeContractInstance, 'ether').toNumber()
       )
@@ -153,10 +150,8 @@ describe('Dispute Resolution', () => {
           new Array(dispute.rulingChoices + 1).fill(0)
         )
       )
-
       // check fetch resolution options
       const resolutionOptions = await ArbitrableTransactionInstance.getRulingOptions(
-        arbitrableContractAddress,
         klerosPOCAddress,
         0
       )
@@ -167,7 +162,6 @@ describe('Dispute Resolution', () => {
       const testURL = 'http://test.com'
       const txHashAddEvidence = await ArbitrableTransactionInstance.submitEvidence(
         partyA,
-        arbitrableContractAddress,
         testName,
         testDesc,
         testURL
@@ -270,9 +264,7 @@ describe('Dispute Resolution', () => {
         expect(web3.eth.getBalance(partyA).toNumber()).toEqual(partyABalance)
       }
 
-      const updatedContractData = await ArbitrableTransactionInstance.getData(
-        arbitrableContractAddress
-      )
+      const updatedContractData = await ArbitrableTransactionInstance.getData()
       expect(parseInt(updatedContractData.status, 10)).toEqual(4)
     },
     100000

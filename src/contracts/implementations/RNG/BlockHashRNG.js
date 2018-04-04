@@ -15,7 +15,7 @@ class BlockHashRNG extends ContractImplementation {
    * @param {string} contractAddress - of the contract (optionnal)
    */
   constructor(web3Provider, contractAddress) {
-    super(web3Provider, contractAddress, BlockHashRNGArtifact)
+    super(web3Provider, BlockHashRNGArtifact, contractAddress)
   }
 
   /**

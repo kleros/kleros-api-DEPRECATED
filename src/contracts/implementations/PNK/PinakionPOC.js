@@ -16,7 +16,7 @@ class PinakionPOC extends ContractImplementation {
    * @param {string} contractAddress - of the contract (optionnal).
    */
   constructor(web3Provider, contractAddress) {
-    super(web3Provider, contractAddress, PinakionPOCArtifact)
+    super(web3Provider, PinakionPOCArtifact, contractAddress)
   }
 
   /**
