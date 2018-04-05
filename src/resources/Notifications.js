@@ -68,7 +68,7 @@ class Notifications {
     for (let event in eventHandlerMap) {
       if (eventHandlerMap.hasOwnProperty(event)) {
         eventListener.addEventHandler(
-          this._ArbitratorInstance.getContractAddress(),
+          this._ArbitratorInstance,
           event,
           this._createHandler(eventHandlerMap[event], account, callback)
         )

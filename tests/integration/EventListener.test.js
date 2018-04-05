@@ -69,12 +69,8 @@ describe('Event Listener', () => {
       expect(pnkAddress).toBeDefined()
 
       const KlerosPOCInstance = new KlerosPOC(provider, klerosPOCAddress)
-      // load contract
-      await KlerosPOCInstance.loadContract()
 
-      const EventListenerInstance = new EventListener([
-        KlerosPOCInstance.getContractInstance()
-      ])
+      const EventListenerInstance = new EventListener([KlerosPOCInstance])
       // set up callback
       let { promise: waitPromise, callback: waitCallback } = waitNotifications(
         1,
@@ -83,11 +79,11 @@ describe('Event Listener', () => {
       // add event handler
       const eventName = 'NewPeriod'
       EventListenerInstance.addEventHandler(
-        KlerosPOCInstance.getContractAddress(),
+        KlerosPOCInstance,
         eventName,
         waitCallback
       )
-      EventListenerInstance.watchForEvents()
+      await EventListenerInstance.watchForEvents()
 
       await delaySecond()
       KlerosPOCInstance.passPeriod()
@@ -95,9 +91,7 @@ describe('Event Listener', () => {
       let throwError = true
       setTimeout(() => {
         if (throwError) {
-          EventListenerInstance.stopWatchingForEvents(
-            KlerosPOCInstance.getContractAddress()
-          )
+          EventListenerInstance.stopWatchingForEvents(KlerosPOCInstance)
           throw new Error('Callback Promise did not resolve')
         }
       }, 1000 * 2)
@@ -109,9 +103,7 @@ describe('Event Listener', () => {
       const log = eventLogs[0]
       expect(log.event).toEqual(eventName)
 
-      EventListenerInstance.stopWatchingForEvents(
-        KlerosPOCInstance.getContractAddress()
-      )
+      EventListenerInstance.stopWatchingForEvents(KlerosPOCInstance)
     },
     50000
   )
@@ -129,30 +121,22 @@ describe('Event Listener', () => {
     expect(pnkAddress).toBeDefined()
 
     const KlerosPOCInstance = new KlerosPOC(provider, klerosPOCAddress)
-    // load contract
-    await KlerosPOCInstance.loadContract()
 
     // add conract instance with event handler
-    const EventListenerInstance = new EventListener([
-      KlerosPOCInstance.getContractInstance()
-    ])
+    const EventListenerInstance = new EventListener([KlerosPOCInstance])
     EventListenerInstance.addEventHandler(
-      KlerosPOCInstance.getContractAddress(),
+      KlerosPOCInstance,
       'FakeEvent',
       () => {}
     )
 
-    EventListenerInstance.watchForEvents()
+    await EventListenerInstance.watchForEvents()
 
-    EventListenerInstance.removeContractInstance(
-      KlerosPOCInstance.getContractAddress()
-    )
+    EventListenerInstance.removeContractInstance(KlerosPOCInstance)
 
     expect(EventListenerInstance.contractInstances.length).toEqual(0)
     expect(
-      EventListenerInstance.contractEventHandlerMap[
-        KlerosPOCInstance.getContractAddress()
-      ]
+      EventListenerInstance.contractEventHandlerMap[KlerosPOCInstance]
     ).toBeUndefined()
   })
 })

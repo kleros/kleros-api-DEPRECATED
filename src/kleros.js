@@ -90,9 +90,7 @@ class Kleros {
       this.eventListener.stopWatchingForEvents()
     }
     // reinitialize with current arbitrator contract instance
-    this.eventListener = new EventListener([
-      this.arbitrator.getContractInstance()
-    ])
+    this.eventListener = new EventListener([this.arbitrator])
     // add handlers for notifications
     this.notifications.registerArbitratorNotifications(
       account,
