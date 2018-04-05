@@ -57,10 +57,8 @@ class Disputes {
     for (let event in eventHandlerMap) {
       if (eventHandlerMap.hasOwnProperty(event)) {
         eventHandlerMap[event].forEach(handler => {
-          eventListener.addEventHandler(
-            this._ArbitratorInstance.getContractAddress(),
-            event,
-            args => handler(args, account)
+          eventListener.addEventHandler(this._ArbitratorInstance, event, args =>
+            handler(args, account)
           )
         })
       }
