@@ -1,6 +1,4 @@
-<p align="center">
-  <b style="font-size: 32px;">Kleros API</b>
-</p>
+# Kleros API
 
 <p align="center">
   <a href="https://badge.fury.io/js/kleros-api"><img src="https://badge.fury.io/js/kleros-api.svg" alt="NPM Version"></a>
@@ -15,9 +13,67 @@
   <a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg" alt="Commitizen Friendly"></a>
 </p>
 
-> This repository contains a Javascript library that makes it easy to build Relayers and other DApps that use the Kleros protocol.
+> This repository contains a Javascript library that provides methods to interact with Kleros arbitrator
+  and Arbitrable contracts. It can be used to develop Relayers or DApps that use Kleros smart contracts.
 
 ## Installation
+```
+yarn add kleros-api
+```
+
+## Basic Usage
+
+See the full API docs here.
+
+The base Kleros object initializes all of the different kleros api's with the contract
+addresses you pass. This object is useful if your application interacts with both arbitrators,
+arbitrable contracts and uses an off chain store to provide metadata on the different disputes
+for the UI.
+
+```
+// pay arbitration fee.
+import Kleros from 'kleros-api'
+
+const KlerosInstance = new Kleros(
+  ETH_PROVIDER, // ethereum provider object
+  KLEROS_STORE_URI, // uri of off chain storage e.g. https://kleros.in
+  ARITRATOR_CONTRACT_ADDRESS, // address of a deployed Kleros arbitrator contract
+  ARBITRABLE_CONTRACT_ADDRESS // address of a deployed arbitrable transaction contract
+)
+
+KlerosInstance.arbitrable.payArbitrationFeeByPartyA() // pay arbitration fee for an arbitrable contract
+```
+
+You can also use the specific api that best suits your needs.
+
+```
+// deploy a new contract and pay the arbitration fee.
+import ArbitrableTransaction from 'kleros-api/contracts/implementations/arbitrable/ArbitrableTransaction'
+
+// deploy methods are static
+const contractInstance = ArbitrableTransaction.deploy(
+    "0x67a3f2BB8B4B2060875Bd6543156401B817bEd22", // users address
+    0.15, // amount of ETH to escrow
+    "0x0", // hash of the off chain contract
+    "0x3af76ef44932695a33ba2af52018cd24a74c904f", // arbitrator address
+    3600, // number of seconds until there is a timeout
+    "0x0474b723bd4986808366E0DcC2E301515Aa742B4", // the other party in the contract
+    "0x0", // extra data in bytes. This can be used to interact with the arbitrator contract
+    ETH_PROVIDER, // provider object to be used to interact with the network
+  )
+
+const address = contractInstance.address // get the address of your newly created contract
+
+const ArbitrableTransactionInstance = new ArbitrableTransaction(address) // instantiate instance of the api
+
+ArbitrableTransactionInstance.payArbitrationFeeByPartyA() // pay arbitration fee
+```
+
+## Development
+
+If you want to contribute to our api or modify it for your usage
+
+## Setup
 
 We assume that you have node and yarn installed.
 
@@ -32,38 +88,8 @@ yarn run ganache-cli
 yarn test
 ```
 
-## Develop
-
-```sh
-yarn start
-```
-
 ## Build
 
 ```sh
 yarn run build
-```
-
-## Event Listeners
-
-For notifications and event based updates, the api uses event listeners. In order to register and start listening to events, use these methods:
-
-##### Quick Start
-
-To register all events and start the listener, call:
-
-```sh
-KlerosInstance.watchForEvents(arbitratorAddress, account, callback)
-```
-
-params:
-
-* arbitratorAddress: Address of arbitrator contract. Needed to update the store for disputes.
-* account: <optional> Address used for notification callbacks. If an address is provided, push notifications will only be sent for notifications that involve the address. If it is omitted and a callback is included, all notifications will be pushed.
-* callback: <optional> Function to be called for push notifications.
-
-##### Stop Listener
-
-```sh
-KlerosInstance.eventListener.stopWatchingArbitratorEvents(arbitratorAddress)
 ```
