@@ -1,3 +1,3 @@
-import _BlockHashRNG from './BlockHashRNG'
+import BlockHashRNG from './BlockHashRNG'
 
-export const BlockHashRNG = _BlockHashRNG
+export { BlockHashRNG }

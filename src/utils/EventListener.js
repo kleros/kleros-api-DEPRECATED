@@ -2,8 +2,13 @@ import _ from 'lodash'
 
 import PromiseQueue from '../utils/PromiseQueue'
 import isRequired from '../utils/isRequired'
-import * as errorConstants from '../constants/error'
+import * as errorConstants from '../../constants/error'
 
+/**
+ * EventListener is used to watch events on the blockchain for a set of contracts.
+ * Handlers for specific events can be added. When an event log is found EventListener
+ * will fire all handlers registered for the contract.
+ */
 class EventListener {
   /**
    * Listen for events in contract and handles callbacks with registered event handlers.
@@ -24,7 +29,7 @@ class EventListener {
   }
 
   /**
-   * Fetch all logs from contractInstance in range.
+   * Fetch all logs from contractInstance in a block range.
    * @param {object} contractImplementationInstance - Contract Implementation instance.
    * @param {number} firstBlock - Lower bound of search range.
    * @param {number} lastBlock - Upper bound of search range.
@@ -52,7 +57,7 @@ class EventListener {
     )
 
   /**
-   * Fetch all logs from contractInstance for event in range.
+   * Fetch logs from contractInstance for a specific event in a block range.
    * @param {object} contractImplementationInstance - contract Implementation instance.
    * @param {string} eventName - Name of the event.
    * @param {number} firstBlock - Lower bound of search range.
@@ -82,7 +87,7 @@ class EventListener {
     )
 
   /**
-   * Add contract instance to poll for events.
+   * Add a contract instance to watch for new event logs.
    * @param {object} contractImplementationInstance - Contract Implementation instance
    */
   addContractImplementation = contractImplementationInstance => {
@@ -93,7 +98,7 @@ class EventListener {
   }
 
   /**
-   * Remove contract instance. Will also remove all handlers.
+   * Remove contract instance being watched. Will also remove all handlers.
    * @param {string} contractImplementationInstance - contract implementation instance
    */
   removeContractInstance = (
@@ -118,7 +123,7 @@ class EventListener {
   }
 
   /**
-   * Add event handler that will be called when event is broadcasted.
+   * Add event handler that will be called when event log is found.
    * @param {string} contractImplementationInstance - Contract implementation instance
    * @param {string} eventName - Name of event.
    * @param {function} handler - Function to be called when event is consumed.
@@ -135,7 +140,7 @@ class EventListener {
   }
 
   /**
-   * Watch for events on each contract instance. Call registered handlers on logs
+   * Watch for events on all contract instances. Call registered handlers when logs are found.
    * @param {number} fromBlock - A block number can be passed to catch up on missed logs
    * @returns {Promise} - Promise resolves when all watchers have been started
    */
@@ -169,7 +174,7 @@ class EventListener {
     )
 
   /**
-   * Stop listening on contract. If no contractAddress supplied it stops all listeners
+   * Stop listening on contract. If no contractAddress supplied it stops all listeners.
    * @param {string} contractImplementationInstance - Address of the contract to stop watching
    */
   stopWatchingForEvents = contractImplementationInstance => {

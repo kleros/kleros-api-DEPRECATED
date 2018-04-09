@@ -1,18 +1,18 @@
 import klerosArtifact from 'kleros/build/contracts/KlerosPOC'
 import _ from 'lodash'
 
-import * as ethConstants from '../../../constants/eth'
-import * as errorConstants from '../../../constants/error'
-import * as arbitratorConstants from '../../../constants/arbitrator'
+import * as ethConstants from '../../../../constants/eth'
+import * as errorConstants from '../../../../constants/error'
+import * as arbitratorConstants from '../../../../constants/arbitrator'
 import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
- * Kleros API
+ * Provides interaction with a KlerosPOC contract on the blockchain.
  */
 class KlerosPOC extends ContractImplementation {
   /**
-   * Constructor Kleros.
+   * Create new KlerosPOC Implementation.
    * @param {object} web3Provider - web3 instance.
    * @param {string} contractAddress - Address of the KlerosPOC contract.
    */
@@ -21,7 +21,7 @@ class KlerosPOC extends ContractImplementation {
   }
 
   /**
-   * STATIC: Deploy a kleros instance
+   * STATIC: Deploy a KlerosPOC contract on the blockchain.
    * @param {string} rngAddress address of random number generator contract
    * @param {string} pnkAddress address of pinakion contract
    * @param {number[]} timesPerPeriod array of 5 ints indicating the time limit for each period of contract
@@ -52,7 +52,7 @@ class KlerosPOC extends ContractImplementation {
   }
 
   /**
-   * Use Arbitrator.buyPNK
+   * Purchase PNK.
    * @param {string} amount - The number of pinakion to buy.
    * @param {string} account - The address of the user.
    * @returns {object} - The result transaction object.
@@ -113,7 +113,6 @@ class KlerosPOC extends ContractImplementation {
 
   /**
    * Activate Pinakion tokens to be eligible to be a juror.
-   * FIXME use estimateGas
    * @param {string} amount - number of tokens to activate.
    * @param {string} account - address of user.
    * @returns {object} - PNK balance.
@@ -141,7 +140,7 @@ class KlerosPOC extends ContractImplementation {
   }
 
   /**
-   * Fetch the cost of arbitration
+   * Fetch the cost of arbitration.
    * @param {bytes} contractExtraData - extra data from arbitrable contract.
    * @returns {number} - The cost of arbitration.
    */

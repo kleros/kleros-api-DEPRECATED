@@ -1,16 +1,16 @@
 import BlockHashRNGArtifact from 'kleros-interaction/build/contracts/BlockHashRNG'
 import _ from 'lodash'
 
-import * as ethConstants from '../../../constants/eth'
+import * as ethConstants from '../../../../constants/eth'
 import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
- * Kleros API
+ * Provides interaction with an instance of BlockHashRNG.
  */
 class BlockHashRNG extends ContractImplementation {
   /**
-   * Constructor Kleros.
+   * Constructor BlockHashRNG.
    * @param {object} web3Provider - instance
    * @param {string} contractAddress - of the contract (optionnal)
    */
@@ -19,7 +19,7 @@ class BlockHashRNG extends ContractImplementation {
   }
 
   /**
-   * Kleros deploy.
+   * BlockHashRNG deploy.
    * @param {string} account - users account
    * @param {object} web3Provider - web3 provider object
    * @returns {object} - truffle-contract Object | err The contract object or error deploy

@@ -5,6 +5,13 @@ import * as contracts from './contracts'
 import * as resources from './resources'
 import EventListener from './utils/EventListener'
 
+/**
+ * The Kleros Api provides access to the full suite of functionality. It will initialize
+ * contract instances for you when possible and creates an object that you can use to
+ * call all of the other api modules. If you are only going to be interacting with
+ * specific apis, or you don't want certain functionality such as the off chain store,
+ * you might find it easier to initialze a specific instance of the api you want.
+ */
 class Kleros {
   web3Wrapper = {}
 
@@ -19,7 +26,7 @@ class Kleros {
    * @param {string} ethereumProvider - The Web3.js Provider instance you would like the
    *                 Kleros.js library to use for interacting with the
    *                 Ethereum network.
-   * @param {string} storeUri - <optional> The storage provider uri used to
+   * @param {string} storeUri - The storage provider uri used to
    *                      get metadata from the cloud for the UI. e.g. Kleros-Store,
    *                      IPFS, Swarm etc.
    * @param {string} arbitratorAddress - Address of the arbitrator contract we should
@@ -73,11 +80,18 @@ class Kleros {
     )
   }
 
-  setArbitrableContractAddress = contractAddress =>
+  /**
+   * Set a new arbitrable contract for Kleros instance of arbitrableContracts
+   * @param {string} contractAddress - Address of arbitrable contract
+   */
+  setArbitrableContractAddress = contractAddress => {
     this.arbitrableContracts.setContractInstance(contractAddress)
+  }
 
   /**
-   * Entry point to set up all event listerners and to start the events watcher
+   * Bootstraps an EventListener and adds all Kleros handlers for event logs. Use
+   * this if you want to watch the chain for notifications, or are using the off chain
+   * store for metadata.
    * @param {string} account Address of the user
    * @param {function} callback The function to be called once a notification
    */
@@ -106,7 +120,14 @@ class Kleros {
   }
 
   /**
-   * set store provider in all high level wrappers
+   * Stop watching for events on the Arbitrator initialized in the Kleros Instance.
+   */
+  stopWatchingForEvents = () => {
+    this.eventListener.stopWatchingForEvents(this.arbitrator)
+  }
+
+  /**
+   * Sets the store provider uri for all higher level apis in the Kleros Instance.
    * @param {string} storeUri - The URI that the store provider will use
    */
   setStoreProvider = storeUri => {

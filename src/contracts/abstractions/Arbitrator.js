@@ -1,10 +1,13 @@
 import _ from 'lodash'
 
-import * as arbitratorConstants from '../../constants/arbitrator'
+import * as arbitratorConstants from '../../../constants/arbitrator'
 import AbstractContract from '../AbstractContract'
 
 /**
- * Arbitrator API.
+ * Arbitrator Abstract Contarct API. This wraps an arbitrator contract. It provides
+ * interaction with both the off chain store as well as the arbitrator instance. All
+ * arbitrator methods from the supplied contract implementation can be called from this
+ * object.
  */
 class Arbitrator extends AbstractContract {
   /**
