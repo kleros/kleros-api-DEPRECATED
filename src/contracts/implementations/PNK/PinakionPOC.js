@@ -1,17 +1,17 @@
 import PinakionPOCArtifact from 'kleros/build/contracts/PinakionPOC' // FIXME: mock
 import _ from 'lodash'
 
-import * as ethConstants from '../../../constants/eth'
-import * as errorConstants from '../../../constants/error'
+import * as ethConstants from '../../../../constants/eth'
+import * as errorConstants from '../../../../constants/error'
 import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
- * Kleros API
+ * Provides interaction with a PinakionPOC contract deployed on the blockchain.
  */
 class PinakionPOC extends ContractImplementation {
   /**
-   * Constructor Kleros.
+   * Constructor PinakionPOC.
    * @param {object} web3Provider - web3 instance.
    * @param {string} contractAddress - of the contract (optionnal).
    */
@@ -20,7 +20,7 @@ class PinakionPOC extends ContractImplementation {
   }
 
   /**
-   * Kleros deploy.
+   * Deploy a new instance of PinakionPOC.
    * @param {string} account - account of user
    * @param {object} web3Provider - web3 provider object
    * @returns {object} - 'truffle-contract' Object | err The contract object or error deploy.
@@ -37,7 +37,7 @@ class PinakionPOC extends ContractImplementation {
   }
 
   /**
-   * change the kleros contract in the PNK contract.
+   * Change the kleros contract variable in instance of PinakionPOC.
    * @param {string} klerosAddress - Address of Kleros POC contract.
    * @param {string} account - Address of user.
    * @returns {object} - The result transaction object.
@@ -60,7 +60,7 @@ class PinakionPOC extends ContractImplementation {
   }
 
   /**
-   * transfer ownership of the PNK contract to the kleros POC contract.
+   * Transfer ownership of the PNK contract to the kleros POC contract.
    * @param {string} klerosAddress - Address of Kleros POC contract.
    * @param {string} account - Address of user.
    * @returns {object} - The result transaction object.

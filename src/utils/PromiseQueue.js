@@ -1,3 +1,7 @@
+/**
+ * Chain promises so that they are evaluated in order.
+ * @returns {object} - The promise queue object.
+ */
 const PromiseQueue = () => {
   let promise = Promise.resolve()
 

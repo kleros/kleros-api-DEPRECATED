@@ -2,9 +2,13 @@ import contract from 'truffle-contract'
 import _ from 'lodash'
 
 import isRequired from '../utils/isRequired'
-import * as errorConstants from '../constants/error'
+import * as errorConstants from '../../constants/error'
 import Web3Wrapper from '../utils/Web3Wrapper'
 
+/**
+ * ContractImplementation is a parent class for on chain contracts. It loads the contract from the
+ * blockchain and exposes the contract instance for use by the child.
+ */
 class ContractImplementation {
   constructor(
     web3Provider = isRequired('web3Provider'),
@@ -120,6 +124,10 @@ class ContractImplementation {
     }
   }
 
+  /**
+   * Create a new Promise to be used in loading the contract.
+   * @returns {Promise} - Resolves to contract instance.
+   */
   _newLoadingPromise = () =>
     new Promise((resolve, reject) => {
       this._contractLoadedResolver = resolve
@@ -127,7 +135,10 @@ class ContractImplementation {
     })
 
   // we have getters so that abstract classes can provide public access to implementations variables
-  getContractInstance = () => this.contractInstance
+  /**
+   * Get the contract address for the currently instantiated contract.
+   * @returns {string} - The address of the contract.
+   */
   getContractAddress = () => this.contractAddress
 }
 

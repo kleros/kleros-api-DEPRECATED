@@ -1,13 +1,14 @@
 import _ from 'lodash'
 
-import * as arbitratorConstants from '../constants/arbitrator'
-import * as notificationConstants from '../constants/notification'
-import * as disputeConstants from '../constants/dispute'
-import { MISSING_STORE_PROVIDER } from '../constants/error'
+import * as arbitratorConstants from '../../constants/arbitrator'
+import * as notificationConstants from '../../constants/notification'
+import * as disputeConstants from '../../constants/dispute'
+import { MISSING_STORE_PROVIDER } from '../../constants/error'
 import isRequired from '../utils/isRequired'
 
 /**
- * Notifications API.
+ * Notifications API. Use this object to fetch notifications from the store, register
+ * event log handlers to update store and send push notifications.
  */
 class Notifications {
   constructor(
@@ -46,7 +47,7 @@ class Notifications {
   // **************************** //
 
   /**
-   * register event handlers for the arbitrator instance.
+   * Register event handlers for the arbitrator instance.
    * @param {string} account - Filter notifications for account.
    * @param {object} eventListener - Event Listener that will fetch logs and call callbacks
    * @param {function} callback - If we want notifications to be "pushed" provide a callback function to call when a new notification is created.
@@ -99,7 +100,7 @@ class Notifications {
       */
       if (currentPeriod === arbitratorConstants.PERIOD.ACTIVATION) {
         // FIXME use estimateGas
-        const contractInstance = this._ArbitratorInstance.getContractInstance()
+        const contractInstance = await this._ArbitratorInstance.loadContract()
         const lastActivatedSession = (await contractInstance.jurors(
           account
         ))[2].toNumber()
@@ -435,8 +436,7 @@ class Notifications {
   }
 
   /**
-   * Handler for TokenShift event
-   * Sends notification informing
+   * Handler for TokenShift event.
    * NOTE: you will get a notification for each vote. So a juror that has 3 votes will receive 3 notifications
    * @param {object} event - The event log.
    * @param {string} account - The user account.

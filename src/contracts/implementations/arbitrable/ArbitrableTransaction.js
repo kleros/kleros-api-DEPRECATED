@@ -1,14 +1,14 @@
 import arbitrableTransactionArtifact from 'kleros-interaction/build/contracts/ArbitrableTransaction'
 import _ from 'lodash'
 
-import * as ethConstants from '../../../constants/eth'
-import * as contractConstants from '../../../constants/contract'
-import * as errorConstants from '../../../constants/error'
+import * as ethConstants from '../../../../constants/eth'
+import * as contractConstants from '../../../../constants/contract'
+import * as errorConstants from '../../../../constants/error'
 import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
- * ArbitrableTransaction API
+ * Provides interaction with an Arbitrable Transaction contract deployed on the blockchain.
  */
 class ArbitrableTransaction extends ContractImplementation {
   /**
@@ -217,7 +217,6 @@ class ArbitrableTransaction extends ContractImplementation {
 
   /**
    * Get ruling options from dispute via event
-   * FIXME this can be an abstract method as it is in the standard
    * @param {string} arbitratorAddress address of arbitrator contract
    * @param {number} disputeId index of dispute
    * @returns {object[]} an array of objects that specify the name and value of the resolution option

@@ -2,7 +2,7 @@ import Web3 from 'web3'
 
 import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
 import EventListener from '../../src/utils/EventListener'
-import * as ethConstants from '../../src/constants/eth'
+import * as ethConstants from '../../constants/eth'
 import setUpContracts from '../helpers/setUpContracts'
 import waitNotifications from '../helpers/waitNotifications'
 import delaySecond from '../helpers/delaySecond'

@@ -3,6 +3,11 @@ import _ from 'lodash'
 import isRequired from '../utils/isRequired'
 import delegateCalls from '../utils/delegateCalls'
 
+/**
+ * Abstract Contract holds a contract implementation to make calls to the blockchain but
+ * also includes methods that interact with the off chain store. NOTE all methods that
+ * the underlying contract implementation expose can be called directly from an Abstract contract.
+ */
 class AbstractContract {
   /**
    * AbstractContract wraps an implementation instance to provide access to higher level

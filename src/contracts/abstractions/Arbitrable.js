@@ -1,7 +1,10 @@
 import AbstractContract from '../AbstractContract'
 
 /**
- * Arbitrable Contract API.
+ * Arbitrable Abstract Contarct API. This wraps an arbitrable contract. It provides
+ * interaction with both the off chain store as well as the arbitrable instance. All
+ * arbitrable methods from the supplied contract implementation can be called from this
+ * object.
  */
 class ArbitrableContract extends AbstractContract {
   /**
@@ -81,9 +84,11 @@ class ArbitrableContract extends AbstractContract {
     await this._StoreProvider.addEvidenceContract(
       this._contractImplementation.contractAddress,
       account,
-      name,
-      description,
-      url
+      {
+        name,
+        description,
+        url
+      }
     )
 
     return txHash

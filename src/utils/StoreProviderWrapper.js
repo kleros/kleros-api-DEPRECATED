@@ -1,15 +1,29 @@
 import _ from 'lodash'
 
-import * as errorConstants from '../constants/error'
+import * as errorConstants from '../../constants/error'
 
 import PromiseQueue from './PromiseQueue'
 
+/**
+ * A wrapper for interacting with Kleros Store.
+ */
 class StoreProviderWrapper {
+  /**
+   * Create a new instance of StoreProviderWrapper.
+   * @param {string} storeProviderUri - The uri of kleros store.
+   */
   constructor(storeProviderUri) {
     this._storeUri = storeProviderUri
     this._storeQueue = new PromiseQueue()
   }
 
+  /**
+   * Helper method for sending an http request to kleros store.
+   * @param {string} verb - HTTP verb to be used in request. E.g. GET, POST, PUT.
+   * @param {string} uri - The uri to send the request to.
+   * @param {string} body - json string of the body.
+   * @returns {Promise} request promise that resolves to the HTTP response.
+   */
   _makeRequest = (verb, uri, body = null) => {
     const httpRequest = new XMLHttpRequest()
     return new Promise((resolve, reject) => {
@@ -56,7 +70,7 @@ class StoreProviderWrapper {
   /**
    * If we know we are waiting on some other write before we want to read we can add a read request to the end of the queue.
    * @param {string} uri uri to hit
-   * @returns {promise} promise of the result function
+   * @returns {Promise} promise of the result function
    */
   queueReadRequest = uri =>
     this._storeQueue.fetch(() => this._makeRequest('GET', uri))
@@ -65,6 +79,11 @@ class StoreProviderWrapper {
   // *          Read            * //
   // **************************** //
 
+  /**
+   * Fetch stored user profile.
+   * @param {string} userAddress - Address of user.
+   * @returns {object} - a response object.
+   */
   getUserProfile = async userAddress => {
     const httpResponse = await this._makeRequest(
       'GET',
@@ -74,6 +93,14 @@ class StoreProviderWrapper {
     return httpResponse.body
   }
 
+  /**
+   * Get all stored data from a dispute. This includes data from the user profile as well
+   * as the user agnostic dispute data stored separately.
+   * @param {string} arbitratorAddress - Address of arbitrator contract.
+   * @param {number} disputeId - Index of the dispute.
+   * @param {string} userAddress - Address of user.
+   * @returns {object} - a response object.
+   */
   getDisputeData = async (arbitratorAddress, disputeId, userAddress) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile)
@@ -92,17 +119,12 @@ class StoreProviderWrapper {
     return Object.assign({}, httpResponse.body, disputeData[0])
   }
 
-  getContractByHash = async (userAddress, hash) => {
-    const userProfile = await this.getUserProfile(userAddress)
-    if (!userProfile)
-      throw new Error(errorConstants.PROFILE_NOT_FOUND(userAddress))
-
-    let contractData = _.filter(userProfile.contracts, o => o.hash === hash)
-
-    if (contractData.length === 0) return null
-    return contractData[0]
-  }
-
+  /**
+   * Fetch stored data on a contract for a user.
+   * @param {string} userAddress - Address of the user.
+   * @param {string} addressContract - The address of the contract.
+   * @returns {object} - Contact data.
+   */
   getContractByAddress = async (userAddress, addressContract) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile)
@@ -116,8 +138,13 @@ class StoreProviderWrapper {
     return contract[0]
   }
 
-  getDisputesForUser = async address => {
-    const userProfile = await this.getUserProfile(address)
+  /**
+   * Fetch stored disputes for a user.
+   * @param {string} userAddress - Address of user.
+   * @returns {object} - a response object.
+   */
+  getDisputesForUser = async userAddress => {
+    const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile) return []
 
     const disputes = []
@@ -139,12 +166,23 @@ class StoreProviderWrapper {
     return disputes
   }
 
-  getLastBlock = async account => {
-    const userProfile = await this.getUserProfile(account)
+  /**
+   * Fetch the last block seen for a user. This is commonly used with EventListerer.
+   * @param {string} userAddress - Address of user.
+   * @returns {number} The last block number.
+   */
+  getLastBlock = async userAddress => {
+    const userProfile = await this.getUserProfile(userAddress)
 
     return userProfile.lastBlock || 0
   }
 
+  /**
+   * Fetch user agnostic data stored on a dispute
+   * @param {string} arbitratorAddress - The address of the arbitrator contract.
+   * @param {number} disputeId - The index of the dispute.
+   * @returns {object} - a response object.
+   */
   getDispute = async (arbitratorAddress, disputeId) => {
     const httpResponse = await this._makeRequest(
       'GET',
@@ -158,36 +196,20 @@ class StoreProviderWrapper {
   // *          Write           * //
   // **************************** //
 
-  resetUserProfile = async account => {
-    const getBodyFn = () =>
-      new Promise(resolve =>
-        resolve(
-          JSON.stringify({
-            account
-          })
-        )
-      )
-
-    return this.queueWriteRequest(
-      getBodyFn,
-      'POST',
-      `${this._storeUri}/${account}`
-    )
-  }
-
   /**
-   * Update user profile. NOTE: This should only be used for session and lastBlock. It is dangerous to overwrite arrays
-   * @param {string} account users account
-   * @param {object} params object containing kwargs to update
-   * @returns {promise} resulting profile
+   * Update user profile. WARNING: This should only be used for session and lastBlock.
+   * Overwriting arrays of unstructured data can lead to data loss.
+   * @param {string} userAddress - users userAddress
+   * @param {object} params - object containing kwargs to update
+   * @returns {promise} - resulting profile
    */
-  updateUserProfile = (account, params = {}) => {
+  updateUserProfile = (userAddress, params = {}) => {
     const getBodyFn = async () => {
-      const currentProfile = (await this.getUserProfile(account)) || {}
+      const currentProfile = (await this.getUserProfile(userAddress)) || {}
       delete currentProfile._id
       delete currentProfile.created_at
 
-      params.address = account
+      params.address = userAddress
 
       return JSON.stringify({ ...currentProfile, ...params })
     }
@@ -195,35 +217,44 @@ class StoreProviderWrapper {
     return this.queueWriteRequest(
       getBodyFn,
       'POST',
-      `${this._storeUri}/${account}`
+      `${this._storeUri}/${userAddress}`
     )
   }
 
   /**
-   * Set up a new user profile if one does not exist
-   * @param {string} account user's address
-   * @returns {object} users existing or created profile
+   * Set up a new user profile if one does not exist.
+   * @param {string} userAddress - user's address
+   * @returns {object} - users existing or created profile
    */
-  setUpUserProfile = async account => {
-    let userProfile = await this.getUserProfile(account)
+  setUpUserProfile = async userAddress => {
+    let userProfile = await this.getUserProfile(userAddress)
     if (_.isNull(userProfile)) {
-      this.updateUserProfile(account, {})
-      userProfile = await this.queueReadRequest(`${this._storeUri}/${account}`)
+      this.updateUserProfile(userAddress, {})
+      userProfile = await this.queueReadRequest(
+        `${this._storeUri}/${userAddress}`
+      )
     }
 
     return userProfile
   }
 
-  updateContract = (account, address, params) => {
+  /**
+   * Update the stored data on a contract for a user.
+   * @param {string} userAddress - The user's address.
+   * @param {string} contractAddress - The address of the contract.
+   * @param {object} params - Params we want to update.
+   * @returns {Promise} - The resulting contract data.
+   */
+  updateContract = (userAddress, contractAddress, params) => {
     const getBodyFn = async () => {
       let currentContractData = await this.getContractByAddress(
-        account,
-        address
+        userAddress,
+        contractAddress
       )
       if (!currentContractData) currentContractData = {}
       delete currentContractData._id
 
-      params.address = address
+      params.address = contractAddress
 
       return JSON.stringify({ ...currentContractData, ...params })
     }
@@ -231,11 +262,19 @@ class StoreProviderWrapper {
     return this.queueWriteRequest(
       getBodyFn,
       'POST',
-      `${this._storeUri}/${account}/contracts/${address}`
+      `${this._storeUri}/${userAddress}/contracts/${contractAddress}`
     )
   }
 
-  addEvidenceContract = (address, account, name, description, url) => {
+  /**
+   * Adds new evidence to the store for a users contract. NOTE this will only update the
+   * stored evidence for the specified user, not all parties of the dispute.
+   * @param {string} contractAddress - Address of the contract
+   * @param {string} userAddress - Address of the user.
+   * @param {object} params - Specifics of the evidence. Should include name, description and url.
+   * @returns {Promise} - The resulting evidence data.
+   */
+  addEvidenceContract = (contractAddress, userAddress, params) => {
     // get timestamp for submission
     const submittedAt = new Date().getTime()
 
@@ -243,9 +282,7 @@ class StoreProviderWrapper {
       new Promise(resolve =>
         resolve(
           JSON.stringify({
-            name,
-            description,
-            url,
+            ...params,
             submittedAt
           })
         )
@@ -254,13 +291,26 @@ class StoreProviderWrapper {
     return this.queueWriteRequest(
       getBodyFn,
       'POST',
-      `${this._storeUri}/${account}/contracts/${address}/evidence`
+      `${this._storeUri}/${userAddress}/contracts/${contractAddress}/evidence`
     )
   }
 
-  updateDisputeProfile = (account, arbitratorAddress, disputeId, params) => {
+  /**
+   * Update stored dispute data for a user.
+   * @param {string} userAddress - The address of the user.
+   * @param {string} arbitratorAddress - The address of the arbitrator contract.
+   * @param {number} disputeId - The index of the dispute.
+   * @param {object} params - The dispute data we are updating.
+   * @returns {Promise} The resulting dispute data.
+   */
+  updateDisputeProfile = (
+    userAddress,
+    arbitratorAddress,
+    disputeId,
+    params
+  ) => {
     const getBodyFn = async () => {
-      const userProfile = await this.getUserProfile(account)
+      const userProfile = await this.getUserProfile(userAddress)
 
       const disputeIndex = _.filter(
         userProfile.disputes,
@@ -283,10 +333,17 @@ class StoreProviderWrapper {
       'POST',
       `${
         this._storeUri
-      }/${account}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
+      }/${userAddress}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
     )
   }
 
+  /**
+   * Update the user agnostic data on a dispute.
+   * @param {string} arbitratorAddress - The address of the arbitrator contract.
+   * @param {number} disputeId - The index of the dispute.
+   * @param {object} params - The data we are updating.
+   * @returns {Promise} The resulting dispute data.
+   */
   updateDispute = async (arbitratorAddress, disputeId, params) => {
     const getBodyFn = async () => {
       const currentDispute =
@@ -307,8 +364,19 @@ class StoreProviderWrapper {
     )
   }
 
+  /**
+   * Create a new notification in the store.
+   * @param {string} userAddress - The address of the user.
+   * @param {string} txHash - The transaction hash which produced this event log. Used as an identifier.
+   * @param {number} logIndex - The index of the log in the transaction. Used as an identifier.
+   * @param {number} notificationType - The type of the notification. See constants/notification.
+   * @param {string} message - The message to be stored with the notification.
+   * @param {object} data - Any extra data stored with the notification.
+   * @param {boolean} read - If the notification has been read or not.
+   * @returns {Promise} - The resulting notification.
+   */
   newNotification = async (
-    account,
+    userAddress,
     txHash,
     logIndex,
     notificationType,
@@ -332,13 +400,26 @@ class StoreProviderWrapper {
     return this.queueWriteRequest(
       getBodyFn,
       'POST',
-      `${this._storeUri}/${account}/notifications/${txHash}`
+      `${this._storeUri}/${userAddress}/notifications/${txHash}`
     )
   }
 
-  markNotificationAsRead = async (account, txHash, logIndex, isRead = true) => {
+  /**
+   * Create a new notification in the store.
+   * @param {string} userAddress - The address of the user.
+   * @param {string} txHash - The transaction hash which produced this event log. Used as an identifier.
+   * @param {number} logIndex - The index of the log in the transaction. Used as an identifier.
+   * @param {boolean} isRead - If the notification has been read or not.
+   * @returns {Promise} - The resulting notification.
+   */
+  markNotificationAsRead = async (
+    userAddress,
+    txHash,
+    logIndex,
+    isRead = true
+  ) => {
     const getBodyFn = async () => {
-      const userProfile = await this.getUserProfile(account)
+      const userProfile = await this.getUserProfile(userAddress)
 
       const notificationIndex = await _.findIndex(
         userProfile.notifications,
@@ -358,7 +439,7 @@ class StoreProviderWrapper {
     return this.queueWriteRequest(
       getBodyFn,
       'POST',
-      `${this._storeUri}/${account}`
+      `${this._storeUri}/${userAddress}`
     )
   }
 }

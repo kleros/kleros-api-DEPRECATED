@@ -1,12 +1,12 @@
 import _ from 'lodash'
 
-import * as arbitratorConstants from '../constants/arbitrator'
-import * as disputeConstants from '../constants/dispute'
+import * as arbitratorConstants from '../../constants/arbitrator'
+import * as disputeConstants from '../../constants/dispute'
 import isRequired from '../utils/isRequired'
 
 /**
- * Disputes API.
- * Requires Store Provider to be set to call methods.
+ * Disputes API. Provides cross arbitrator and arbitrable contracts functionality.
+ * Requires Store Provider to be set.
  */
 class Disputes {
   constructor(
@@ -44,6 +44,11 @@ class Disputes {
   // *         Events           * //
   // **************************** //
 
+  /**
+   * Method to register all dispute handlers to an EventListener.
+   * @param {object} eventListener - The EventListener instance. See utils/EventListener.js.
+   * @param {string} account - The address of the user.
+   */
   registerStoreUpdateEventListeners = (
     eventListener = isRequired('eventListener'),
     account = isRequired('account')
@@ -66,7 +71,7 @@ class Disputes {
   }
 
   /**
-   * Store dispute in store upon creation
+   * Event listener handler that stores dispute in store upon creation
    * @param {string} event - The event log.
    */
   _storeNewDisputeHandler = async event => {
@@ -110,7 +115,7 @@ class Disputes {
   }
 
   /**
-   * Add or substract the stored Net PNK won/lost for a juror.
+   * Event listener handler that add or substract the stored Net PNK won/lost for a juror.
    * @param {string} event - The event log.
    * @param {string} account - The account.
    */
@@ -146,7 +151,7 @@ class Disputes {
   }
 
   /**
-   * Event listener that updates ruled at timestamp
+   * Event listener handler that updates ruled at timestamp
    * @param {object} event - The event log.
    * @param {string} account - The users eth account.
    */
@@ -198,7 +203,7 @@ class Disputes {
   }
 
   /**
-   * Event listener that sets the deadline for an appeal
+   * Event listener handler that sets the deadline for an appeal
    * @param {object} event - The event log.
    * @param {string} account - The users eth account.
    */
@@ -249,11 +254,11 @@ class Disputes {
   // *          Public          * //
   // **************************** //
   /**
-   * Get data for a dispute.
+   * Get data for a dispute. This method provides data from the store as well as both
+   * arbitrator and arbitrable contracts. Used to get all relevant data on a dispute.
    * @param {number} disputeId - The dispute's ID.
    * @param {string} account - The juror's address.
    * @returns {object} - Data object for the dispute that uses data from the contract and the store.
-   * TODO: Should we return what we have in the store even if dispute is not in the contract?
    */
   getDataForDispute = async (disputeId, account) => {
     const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
