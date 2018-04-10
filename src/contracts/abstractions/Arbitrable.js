@@ -84,11 +84,9 @@ class ArbitrableContract extends AbstractContract {
     await this._StoreProvider.addEvidenceContract(
       this._contractImplementation.contractAddress,
       account,
-      {
-        name,
-        description,
-        url
-      }
+      name,
+      description,
+      url
     )
 
     return txHash
