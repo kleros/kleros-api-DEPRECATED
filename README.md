@@ -23,7 +23,7 @@ yarn add kleros-api
 
 ## Basic Usage
 
-See the full API docs here.
+See the full API docs [here](https://kleros.io/kleros-api/).
 
 The base Kleros object initializes all of the different kleros api's with the contract
 addresses you pass. This object is useful if your application interacts with both arbitrators,
