@@ -271,10 +271,18 @@ class StoreProviderWrapper {
    * stored evidence for the specified user, not all parties of the dispute.
    * @param {string} contractAddress - Address of the contract
    * @param {string} userAddress - Address of the user.
-   * @param {object} params - Specifics of the evidence. Should include name, description and url.
+   * @param {string} name - Name of evidence.
+   * @param {string} description - Description of evidence.
+   * @param {string} url - A link to the evidence.
    * @returns {Promise} - The resulting evidence data.
    */
-  addEvidenceContract = (contractAddress, userAddress, params) => {
+  addEvidenceContract = (
+    contractAddress,
+    userAddress,
+    name,
+    description,
+    url
+  ) => {
     // get timestamp for submission
     const submittedAt = new Date().getTime()
 
@@ -282,7 +290,9 @@ class StoreProviderWrapper {
       new Promise(resolve =>
         resolve(
           JSON.stringify({
-            ...params,
+            name,
+            description,
+            url,
             submittedAt
           })
         )
