@@ -19,6 +19,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
+    "docs": "esdoc",
     "prettify": "kleros-scripts prettify",
     "lint": "kleros-scripts lint:js --config ./.eslintrc.js",
     "ganache": "ganache-cli -a 15",
