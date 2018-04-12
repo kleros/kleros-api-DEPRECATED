@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.2.1"></a>
+## [0.2.1](https://github.com/kleros/kleros-api/compare/v0.0.70...v0.2.1) (2018-04-12)
+
+
+### Bug Fixes
+
+* **disputes unit test:** use custom try/catch for test of getUserDisputeFromStore ([cb386f1](https://github.com/kleros/kleros-api/commit/cb386f1))
+* imports and lints for new contract structure ([19c0461](https://github.com/kleros/kleros-api/commit/19c0461))
+* improper capitalization on imports ([2ff95b8](https://github.com/kleros/kleros-api/commit/2ff95b8))
+* **StoreProviderWrapper:** revert to passing named params for addEvidenceContract ([fc61444](https://github.com/kleros/kleros-api/commit/fc61444))
+
+
+### Features
+
+* throw semantic errors ([bf76f4a](https://github.com/kleros/kleros-api/commit/bf76f4a)), closes [#107](https://github.com/kleros/kleros-api/issues/107) [kleros/kleros-juror-front#10](https://github.com/kleros/kleros-juror-front/issues/10)
+* **all:** require params in wrappers. fix how StateFullContract wrapper loads ([1478e3e](https://github.com/kleros/kleros-api/commit/1478e3e))
+* **EventListener:** all methods take contract implementation object ([4a89382](https://github.com/kleros/kleros-api/commit/4a89382))
+* update doc strings ([f5baccc](https://github.com/kleros/kleros-api/commit/f5baccc))
+
+
+
 <a name="0.2.0"></a>
 
 # [0.2.0](https://github.com/kleros/kleros-api/compare/v0.0.70...v0.2.0) (2018-03-29)
