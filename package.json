@@ -1,6 +1,6 @@
 {
   "name": "kleros-api",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol.",
   "keywords": [
     "Blockchain",
