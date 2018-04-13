@@ -1,9 +1,9 @@
 import klerosArtifact from 'kleros/build/contracts/KlerosPOC'
 import _ from 'lodash'
 
-import * as ethConstants from '../../../../constants/eth'
-import * as errorConstants from '../../../../constants/error'
-import * as arbitratorConstants from '../../../../constants/arbitrator'
+import * as ethConstants from '../../../constants/eth'
+import * as errorConstants from '../../../constants/error'
+import * as arbitratorConstants from '../../../constants/arbitrator'
 import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
 

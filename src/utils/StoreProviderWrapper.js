@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import * as errorConstants from '../../constants/error'
+import * as errorConstants from '../constants/error'
 
 import PromiseQueue from './PromiseQueue'
 

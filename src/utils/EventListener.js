@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 import PromiseQueue from '../utils/PromiseQueue'
 import isRequired from '../utils/isRequired'
-import * as errorConstants from '../../constants/error'
+import * as errorConstants from '../constants/error'
 
 /**
  * EventListener is used to watch events on the blockchain for a set of contracts.

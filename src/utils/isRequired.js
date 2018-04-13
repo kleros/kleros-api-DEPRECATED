@@ -1,4 +1,4 @@
-import { MISSING_PARAMETERS } from '../../constants/error'
+import { MISSING_PARAMETERS } from '../constants/error'
 
 /**
  * Used as the default parameter for an arguemnt that is considered required. It will

@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import * as arbitratorConstants from '../../../constants/arbitrator'
+import * as arbitratorConstants from '../../constants/arbitrator'
 import AbstractContract from '../AbstractContract'
 
 /**

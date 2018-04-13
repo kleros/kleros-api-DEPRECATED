@@ -1,9 +1,9 @@
 import _ from 'lodash'
 
-import * as arbitratorConstants from '../../constants/arbitrator'
-import * as notificationConstants from '../../constants/notification'
-import * as disputeConstants from '../../constants/dispute'
-import { MISSING_STORE_PROVIDER } from '../../constants/error'
+import * as arbitratorConstants from '../constants/arbitrator'
+import * as notificationConstants from '../constants/notification'
+import * as disputeConstants from '../constants/dispute'
+import { MISSING_STORE_PROVIDER } from '../constants/error'
 import isRequired from '../utils/isRequired'
 
 /**
