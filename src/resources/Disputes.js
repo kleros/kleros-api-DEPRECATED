@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
-import * as arbitratorConstants from '../../constants/arbitrator'
-import * as disputeConstants from '../../constants/dispute'
+import * as arbitratorConstants from '../constants/arbitrator'
+import * as disputeConstants from '../constants/dispute'
 import isRequired from '../utils/isRequired'
 
 /**

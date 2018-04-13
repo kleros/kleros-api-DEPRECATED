@@ -2,8 +2,8 @@ import Web3 from 'web3'
 
 import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
 import ArbitrableTransaction from '../../src/contracts/implementations/arbitrable/ArbitrableTransaction'
-import * as ethConstants from '../../constants/eth'
-import * as errorConstants from '../../constants/error'
+import * as ethConstants from '../../src/constants/eth'
+import * as errorConstants from '../../src/constants/error'
 import setUpContracts from '../helpers/setUpContracts'
 import delaySecond from '../helpers/delaySecond'
 

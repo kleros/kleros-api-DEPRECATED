@@ -1,9 +1,9 @@
 import arbitrableTransactionArtifact from 'kleros-interaction/build/contracts/ArbitrableTransaction'
 import _ from 'lodash'
 
-import * as ethConstants from '../../../../constants/eth'
-import * as contractConstants from '../../../../constants/contract'
-import * as errorConstants from '../../../../constants/error'
+import * as ethConstants from '../../../constants/eth'
+import * as contractConstants from '../../../constants/contract'
+import * as errorConstants from '../../../constants/error'
 import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
 

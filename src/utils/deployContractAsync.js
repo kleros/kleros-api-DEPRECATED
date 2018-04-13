@@ -1,7 +1,7 @@
 import contract from 'truffle-contract'
 
-import * as ethConstants from '../../constants/eth'
-import { UNABLE_TO_DEPLOY_CONTRACT } from '../../constants/error'
+import * as ethConstants from '../constants/eth'
+import { UNABLE_TO_DEPLOY_CONTRACT } from '../constants/error'
 
 import isRequired from './isRequired'
 

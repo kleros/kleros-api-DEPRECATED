@@ -1,8 +1,8 @@
 import PinakionPOCArtifact from 'kleros/build/contracts/PinakionPOC' // FIXME: mock
 import _ from 'lodash'
 
-import * as ethConstants from '../../../../constants/eth'
-import * as errorConstants from '../../../../constants/error'
+import * as ethConstants from '../../../constants/eth'
+import * as errorConstants from '../../../constants/error'
 import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
 

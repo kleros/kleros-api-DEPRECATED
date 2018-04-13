@@ -2,7 +2,7 @@ import contract from 'truffle-contract'
 import _ from 'lodash'
 
 import isRequired from '../utils/isRequired'
-import * as errorConstants from '../../constants/error'
+import * as errorConstants from '../constants/error'
 import Web3Wrapper from '../utils/Web3Wrapper'
 
 /**
