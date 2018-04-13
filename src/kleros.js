@@ -69,13 +69,13 @@ class Kleros {
     // DISPUTES
     this.disputes = new resources.Disputes(
       this.arbitrator,
-      this.arbitrableContracts,
+      this.arbitrable,
       this.storeWrapper
     )
     // NOTIFICATIONS
     this.notifications = new resources.Notifications(
       this.arbitrator,
-      this.arbitrableContracts,
+      this.arbitrable,
       this.storeWrapper
     )
   }
@@ -85,7 +85,7 @@ class Kleros {
    * @param {string} contractAddress - Address of arbitrable contract
    */
   setArbitrableContractAddress = contractAddress => {
-    this.arbitrableContracts.setContractInstance(contractAddress)
+    this.arbitrable.setContractInstance(contractAddress)
   }
 
   /**
@@ -134,7 +134,7 @@ class Kleros {
     this.storeWrapper = new StoreProviderWrapper(storeUri)
 
     this.disputes.setStoreProviderInstance(this.storeWrapper)
-    this.arbitrableContract.setStoreProviderInstance(this.storeWrapper)
+    this.arbitrable.setStoreProviderInstance(this.storeWrapper)
     this.arbitrator.setStoreProviderInstance(this.storeWrapper)
     this.notifications.setStoreProviderInstance(this.storeWrapper)
   }
