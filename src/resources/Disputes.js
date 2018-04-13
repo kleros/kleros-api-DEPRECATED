@@ -46,12 +46,12 @@ class Disputes {
 
   /**
    * Method to register all dispute handlers to an EventListener.
-   * @param {object} eventListener - The EventListener instance. See utils/EventListener.js.
    * @param {string} account - The address of the user.
+   * @param {object} eventListener - The EventListener instance. See utils/EventListener.js.
    */
   registerStoreUpdateEventListeners = (
-    eventListener = isRequired('eventListener'),
-    account = isRequired('account')
+    account = isRequired('account'),
+    eventListener = isRequired('eventListener')
   ) => {
     const eventHandlerMap = {
       DisputeCreation: [this._storeNewDisputeHandler],
