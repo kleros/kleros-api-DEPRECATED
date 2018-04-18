@@ -44,6 +44,19 @@ class ContractImplementation {
   }
 
   /**
+   * Get the web3 provider object from the initialized web3 instance
+   * @returns {object} web3 provider object
+   */
+  getWeb3Provider = () => this._Web3Wrapper.getProvider()
+
+  /**
+   * MetaMask safe get block data by blockNumber
+   * @param {Int} blockNumber - Block number
+   * @returns {Promise} block object
+   */
+  getBlock = async blockNumber => this._Web3Wrapper.getBlock(blockNumber)
+
+  /**
    * Set a new contract instance
    * @param {string} contractAddress - The address of the contract
    * @param {object} artifact - Contract artifact to use to load contract
