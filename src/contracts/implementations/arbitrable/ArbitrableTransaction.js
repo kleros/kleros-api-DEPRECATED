@@ -267,10 +267,9 @@ class ArbitrableTransaction extends ContractImplementation {
 
   /**
    * Data of the contract
-   * @param {string} address Address of the ArbitrableTransaction contract.
    * @returns {object} Object Data of the contract.
    */
-  getData = async address => {
+  getData = async () => {
     await this.loadContract()
 
     const [
@@ -303,7 +302,7 @@ class ArbitrableTransaction extends ContractImplementation {
     ])
 
     return {
-      address,
+      address: this.getContractAddress(),
       arbitrator,
       extraData,
       timeout: timeout.toNumber(),

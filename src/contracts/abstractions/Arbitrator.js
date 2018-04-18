@@ -25,11 +25,7 @@ class Arbitrator extends AbstractContract {
     const _getDisputesForUserFromStore = async account =>
       Promise.all(
         (await this._StoreProvider.getDisputesForUser(account)).map(dispute =>
-          this._contractImplementation.getDispute(
-            dispute.arbitratorAddress,
-            dispute.disputeId,
-            account
-          )
+          this._contractImplementation.getDispute(dispute.disputeId, account)
         )
       )
 
@@ -44,6 +40,7 @@ class Arbitrator extends AbstractContract {
       const myDisputes = await this._contractImplementation.getDisputesForJuror(
         account
       )
+
       // update user profile for each dispute
       await Promise.all(
         myDisputes.map(async dispute => {

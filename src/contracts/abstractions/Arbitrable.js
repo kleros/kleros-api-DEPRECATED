@@ -35,7 +35,7 @@ class ArbitrableContract extends AbstractContract {
     description = '',
     ...args
   ) => {
-    const contractInstance = await this._contractImplementation.deploy(
+    const contractInstance = await this._contractImplementation.constructor.deploy(
       account,
       value,
       hashContract,
@@ -43,6 +43,7 @@ class ArbitrableContract extends AbstractContract {
       timeout,
       partyB,
       arbitratorExtraData,
+      this._contractImplementation.getWeb3Provider(),
       ...args
     )
 

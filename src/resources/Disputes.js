@@ -73,30 +73,32 @@ class Disputes {
   /**
    * Event listener handler that stores dispute in store upon creation
    * @param {string} event - The event log.
+   * @param {string} account - Account of user to update store data for
    */
-  _storeNewDisputeHandler = async event => {
+  _storeNewDisputeHandler = async (event, account) => {
     // There is no need to handle this event if we are not using the store
     const disputeId = event.args._disputeID.toNumber()
 
     const contractAddress = this._ArbitratorInstance.getContractAddress()
-    const existingDispute = (await this._StoreProviderInstance.getDispute(
+    const existingDispute = await this._StoreProviderInstance.getDispute(
       contractAddress,
       disputeId
-    )).body
+    )
 
     // Add dispute to store if not there
     if (_.isNull(existingDispute)) {
       // arbitrator data
-      const disputeData = await this._ArbitratorInstance.getDispute(disputeId)
+      const disputeData = await this.getDataForDispute(disputeId, account)
       // arbitrable contract data
       await this._ArbitrableInstance.setContractInstance(
         disputeData.arbitrableContractAddress
       )
       const arbitrableContractData = await this._ArbitrableInstance.getData()
       // timestamp
-      const blockTimestamp = this._ArbitratorInstance._Web3Wrapper.getBlock(
+      const blockTimestamp = (await this._ArbitratorInstance.getBlock(
         event.blockNumber
-      ).timestamp
+      )).timestamp
+
       const appealCreatedAt = disputeData.appealCreatedAt
       appealCreatedAt[disputeData.numberOfAppeals] = blockTimestamp * 1000
 
@@ -177,15 +179,11 @@ class Disputes {
           ) {
             // get ruledAt from block timestamp
             const blockNumber = event.blockNumber
-            const blockTimestamp = this._ArbitratorInstance._Web3Wrapper.getBlock(
+            const blockTimestamp = (await this._ArbitratorInstance.getBlock(
               blockNumber
-            ).timestamp
+            )).timestamp
 
-            const disputeData = await this.getDataForDispute(
-              contractAddress,
-              disputeId,
-              account
-            )
+            const disputeData = await this.getDataForDispute(disputeId, account)
             const appealRuledAt = disputeData.appealRuledAt
             appealRuledAt[disputeData.numberOfAppeals] = blockTimestamp * 1000
 
@@ -211,7 +209,6 @@ class Disputes {
     const newPeriod = event.args._period.toNumber()
     // send appeal possible notifications
     if (newPeriod === arbitratorConstants.PERIOD.VOTE) {
-      this._checkArbitratorWrappersSet()
       const disputes = await this._StoreProviderInstance.getDisputesForUser(
         account
       )
@@ -229,11 +226,7 @@ class Disputes {
             ) >= 0
           ) {
             const deadline = await this._ArbitratorInstance.getDeadlineForOpenDispute()
-            const disputeData = await this.getDataForDispute(
-              contractAddress,
-              disputeId,
-              account
-            )
+            const disputeData = await this.getDataForDispute(disputeId, account)
             const appealDeadlines = disputeData.appealDeadlines
             appealDeadlines[disputeData.numberOfAppeals] = deadline
 
