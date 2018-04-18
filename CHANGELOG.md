@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/kleros/kleros-api/compare/v0.2.5...v0.3.0) (2018-04-18)
+
+
+### Features
+
+* add getDataFromStore to abstractions/Arbitrable ([54e65ba](https://github.com/kleros/kleros-api/commit/54e65ba))
+
+
+
 <a name="0.2.5"></a>
 ## [0.2.5](https://github.com/kleros/kleros-api/compare/v0.2.4...v0.2.5) (2018-04-18)
 
