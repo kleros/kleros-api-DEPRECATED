@@ -140,6 +140,20 @@ class ArbitrableContract extends AbstractContract {
   }
 
   /**
+   * Fetch all data from the store on the current contract.
+   * @returns {object} - Store data for contract.
+   */
+  getDataFromStore = async () => {
+    const contractInstance = await this._contractImplementation.loadContract()
+    const partyA = await contractInstance.partyA()
+
+    return this._StoreProvider.getContractByAddress(
+      partyA,
+      this._contractImplementation.contractAddress
+    )
+  }
+
+  /**
    * Get data from the store and contract for Arbitrable Contract.
    * @param {string} account - ETH address of user.
    * @returns {object} - Contract data.
