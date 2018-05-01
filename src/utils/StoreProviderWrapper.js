@@ -11,9 +11,11 @@ class StoreProviderWrapper {
   /**
    * Create a new instance of StoreProviderWrapper.
    * @param {string} storeProviderUri - The uri of kleros store.
+   * @param {string} authToken - Signed token cooresponding to user profile address.
    */
-  constructor(storeProviderUri) {
+  constructor(storeProviderUri, authToken) {
     this._storeUri = storeProviderUri
+    this._token = authToken
     this._storeQueue = new PromiseQueue()
   }
 
@@ -25,6 +27,12 @@ class StoreProviderWrapper {
    * @returns {Promise} request promise that resolves to the HTTP response.
    */
   _makeRequest = (verb, uri, body = null) => {
+    if (verb !== 'GET' && !this._token) {
+      throw new Error(
+        'No auth token set. Cannot make writes to store. Please call setAuthToken or validateNewAuthToken.'
+      )
+    }
+
     const httpRequest = new XMLHttpRequest()
     return new Promise((resolve, reject) => {
       try {
@@ -34,6 +42,7 @@ class StoreProviderWrapper {
             'Content-Type',
             'application/json;charset=UTF-8'
           )
+          httpRequest.setRequestHeader('Authorization', this._token)
         }
         httpRequest.onreadystatechange = () => {
           if (httpRequest.readyState === 4) {
@@ -75,6 +84,31 @@ class StoreProviderWrapper {
   queueReadRequest = uri =>
     this._storeQueue.fetch(() => this._makeRequest('GET', uri))
 
+  // **************************** //
+  // *          Auth            * //
+  // **************************** //
+
+  /**
+   * Set the auth token for write requests.
+   * @param {string} token - Hex string of the signed data token.
+   */
+  setAuthToken = token => {
+    this._token = token
+  }
+
+  /**
+   * Generate a new unsigned auth token.
+   * @param {string} userAddress - Address of the user profile.
+   * @returns {string} Hex encoded unsigned token.
+   */
+  newAuthToken = async userAddress => {
+    const newTokenResponse = await this._makeRequest(
+      'GET',
+      `${this._storeUri}/${userAddress}`
+    )
+
+    return newTokenResponse.body
+  }
   // **************************** //
   // *          Read            * //
   // **************************** //

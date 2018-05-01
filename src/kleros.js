@@ -33,12 +33,14 @@ class Kleros {
    *                 use when initializing KlerosPOC
    * @param {string} arbitrableContractAddress - Address of the arbitrator contract we should
    *                 use when initializing KlerosPOC
+   * @param {string} authToken - Signed token cooresponding to the user profile address.
    */
   constructor(
     ethereumProvider = isRequired('ethereumProvider'),
     storeUri = isRequired('storeUri'),
     arbitratorAddress,
-    arbitrableContractAddress
+    arbitrableContractAddress,
+    authToken
   ) {
     // NOTE we default to KlerosPOC and ArbitrableTransaction
     const _klerosPOC = new contracts.implementations.arbitrator.KlerosPOC(
@@ -55,7 +57,7 @@ class Kleros {
     // **************************** //
     // KLEROS WRAPPERS
     this.web3Wrapper = new Web3Wrapper(ethereumProvider)
-    this.storeWrapper = new StoreProviderWrapper(storeUri)
+    this.storeWrapper = new StoreProviderWrapper(storeUri, authToken)
     // ARBITRATOR
     this.arbitrator = new contracts.abstractions.Arbitrator(
       _klerosPOC,
@@ -78,6 +80,8 @@ class Kleros {
       this.arbitrable,
       this.storeWrapper
     )
+    // AUTH
+    this.auth = new resources.Auth(this.web3Wrapper, this.storeWrapper)
   }
 
   /**
@@ -137,6 +141,7 @@ class Kleros {
     this.arbitrable.setStoreProviderInstance(this.storeWrapper)
     this.arbitrator.setStoreProviderInstance(this.storeWrapper)
     this.notifications.setStoreProviderInstance(this.storeWrapper)
+    this.auth.setStoreProviderInstance(this.storeWrapper)
   }
 }
 
