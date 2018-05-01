@@ -9,11 +9,7 @@
   ],
   "main": "lib/index.js",
   "module": "es/index.js",
-  "files": [
-    "es",
-    "lib",
-    "umd"
-  ],
+  "files": ["es", "lib", "umd"],
   "homepage": "https://kleros.io",
   "repository": "github:kleros/kleros-api",
   "bugs": "https://github.com/kleros/kleros-api/issues",
@@ -36,12 +32,11 @@
     "commitmsg": "kleros-scripts commitmsg",
     "cz": "kleros-scripts cz",
     "start": "babel src --out-dir ./es --watch --source-maps",
-    "build": "rimraf ./umd ./es ./lib && webpack --env.NODE_ENV=production -p && babel src --out-dir ./es --source-maps && cross-env BABEL_ENV=commonjs babel src --out-dir ./lib --source-maps"
+    "build":
+      "rimraf ./umd ./es ./lib && webpack --env.NODE_ENV=production -p && babel src --out-dir ./es --source-maps && cross-env BABEL_ENV=commonjs babel src --out-dir ./lib --source-maps"
   },
   "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
+    "extends": ["@commitlint/config-conventional"]
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -67,6 +62,7 @@
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
+    "eth-sig-util": "^1.4.2",
     "kleros": "^0.0.5",
     "kleros-interaction": "^0.0.8",
     "lodash": "^4.17.4",
