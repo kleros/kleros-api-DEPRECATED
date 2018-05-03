@@ -147,7 +147,9 @@ class Notifications {
         contracts.map(async contract => {
           // load arbitrable contract
           await this._ArbitrableInstance.setContractInstance(contract.address)
-          const contractData = await this._ArbitrableInstance.getData()
+          const contractData = await this._ArbitrableInstance.getData(
+            contract.partyA
+          )
           const arbitrationCost = await this._ArbitratorInstance.getArbitrationCost(
             contractData.arbitratorExtraData
           )

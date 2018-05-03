@@ -1,3 +1,5 @@
+import Personal from 'web3-eth-personal'
+
 import isRequired from '../utils/isRequired'
 
 class Auth {
@@ -43,12 +45,21 @@ class Auth {
   }
 
   /**
-   * Sign a message with your private key.
+   * Sign a message with your private key. Uses web3 1.0 personal sign
    * @param {string} userAddress - The address with which we want to sign the message
    * @param {string} data - Hex encoded data to sign
    * @returns {string} signed data
    */
-  signMessage = (userAddress, data) => this._Web3Wrapper.sign(userAddress, data)
+  signMessage = (userAddress, data) => {
+    const ethPersonal = new Personal(this._Web3Wrapper.getProvider())
+    return new Promise((resolve, reject) => {
+      ethPersonal.sign(data, userAddress, (error, result) => {
+        if (error) reject(error)
+
+        resolve(result)
+      })
+    })
+  }
 }
 
 export default Auth
