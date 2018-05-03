@@ -5,13 +5,14 @@ import Kleros from '../../src/kleros'
 import * as ethConstants from '../../src/constants/eth'
 
 describe('Auth', () => {
+  let web3
   let loggedInUserAddress
 
   beforeAll(async () => {
     const provider = await new Web3.providers.HttpProvider(
       ethConstants.LOCALHOST_ETH_PROVIDER
     )
-    const web3 = await new Web3(provider)
+    web3 = await new Web3(provider)
 
     loggedInUserAddress = web3.eth.accounts[0]
   })
@@ -39,6 +40,16 @@ describe('Auth', () => {
     }
     // set new store provider
     klerosInstance.auth.setStoreProviderInstance(mockStoreProvider)
+
+    // FIXME testrpc/ganache clients don't support personal_sign yet. Remove this mock once they do.
+    klerosInstance.auth.signMessage = (userAddress, data) =>
+      new Promise((resolve, reject) => {
+        web3.eth.sign(userAddress, data, (error, result) => {
+          if (error) reject(error)
+
+          resolve(result)
+        })
+      })
 
     const signedToken = await klerosInstance.auth.validateNewAuthToken(
       loggedInUserAddress
