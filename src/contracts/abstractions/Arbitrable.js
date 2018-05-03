@@ -160,10 +160,12 @@ class ArbitrableContract extends AbstractContract {
   getData = async account => {
     const contractData = await this._contractImplementation.getData()
 
-    const storeData = await this._StoreProvider.getContractByAddress(
-      account,
-      this._contractImplementation.contractAddress
-    )
+    let storeData = {}
+    if (account)
+      storeData = await this._StoreProvider.getContractByAddress(
+        account,
+        this._contractImplementation.contractAddress
+      )
 
     return Object.assign({}, storeData, contractData)
   }

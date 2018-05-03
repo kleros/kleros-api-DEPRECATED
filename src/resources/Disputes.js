@@ -93,7 +93,9 @@ class Disputes {
       await this._ArbitrableInstance.setContractInstance(
         disputeData.arbitrableContractAddress
       )
-      const arbitrableContractData = await this._ArbitrableInstance.getData()
+      const arbitrableContractData = await this._ArbitrableInstance.getData(
+        account
+      )
       // timestamp
       const blockTimestamp = (await this._ArbitratorInstance.getBlock(
         event.blockNumber
@@ -281,7 +283,7 @@ class Disputes {
       arbitrableContractAddress
     )
     const [arbitrableContractData, evidence] = await Promise.all([
-      this._ArbitrableInstance.getData(),
+      this._ArbitrableInstance.getData(account),
       this._ArbitrableInstance.getEvidenceForArbitrableContract(
         arbitrableContractAddress
       )
