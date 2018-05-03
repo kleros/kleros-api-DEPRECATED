@@ -32,7 +32,14 @@ class Web3Wrapper {
 
   blockNumber = () => this._web3.eth.blockNumber
 
-  sign = (userAddress, data) => this._web3.eth.sign(userAddress, data)
+  sign = (userAddress, data) =>
+    new Promise((resolve, reject) => {
+      this._web3.eth.sign(userAddress, data, (error, result) => {
+        if (error) reject(error)
+
+        resolve(result)
+      })
+    })
 
   getBlock = blockNumber =>
     new Promise((resolve, reject) => {

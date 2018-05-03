@@ -104,7 +104,7 @@ class StoreProviderWrapper {
   newAuthToken = async userAddress => {
     const newTokenResponse = await this._makeRequest(
       'GET',
-      `${this._storeUri}/${userAddress}`
+      `${this._storeUri}/${userAddress}/authToken`
     )
 
     return newTokenResponse.body
