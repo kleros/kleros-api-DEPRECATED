@@ -33,11 +33,11 @@ class Auth {
    * @returns {string} Signed token for future use.
    */
   validateNewAuthToken = async userAddress => {
-    const unsignedToken = await this._StoreProviderInstance.newAuthToken(
+    const unsignedToken = (await this._StoreProviderInstance.newAuthToken(
       userAddress
-    )
+    )).unsignedToken
 
-    const signedToken = this.signMessage(userAddress, unsignedToken)
+    const signedToken = await this.signMessage(userAddress, unsignedToken)
     this.setAuthToken(signedToken)
     return signedToken
   }

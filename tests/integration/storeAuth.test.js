@@ -34,7 +34,7 @@ describe('Auth', () => {
     const mockToken =
       '0x7b2276657273696f6e223a312c2265787069726174696f6e223a313532353830303831313932307d'
     const mockStoreProvider = {
-      newAuthToken: () => mockToken,
+      newAuthToken: () => ({ unsignedToken: mockToken }),
       setAuthToken: () => true
     }
     // set new store provider
