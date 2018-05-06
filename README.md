@@ -14,9 +14,10 @@
 </p>
 
 > This repository contains a Javascript library that provides methods to interact with Kleros arbitrator
-  and Arbitrable contracts. It can be used to develop Relayers or DApps that use Kleros smart contracts.
+> and Arbitrable contracts. It can be used to develop Relayers or DApps that use Kleros smart contracts.
 
 ## Installation
+
 ```
 yarn add kleros-api
 ```
@@ -84,7 +85,7 @@ yarn install
 ## Test
 
 ```sh
-yarn run ganache-cli
+yarn ganache
 yarn test
 ```
 
