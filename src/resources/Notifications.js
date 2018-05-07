@@ -297,29 +297,28 @@ class Notifications {
       const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
 
       await Promise.all(
-        openDisputes.map(async disputeId => {
+        openDisputes.map(async openDispute => {
           if (
             _.findIndex(
               disputes,
               dispute =>
-                dispute.disputeId === disputeId &&
+                dispute.disputeId === openDispute.disputeId &&
                 dispute.arbitratorAddress === arbitratorAddress
             ) >= 0
           ) {
-            const dispute = await this._ArbitratorInstance.getDispute(disputeId)
             const ruling = await this._ArbitratorInstance.currentRulingForDispute(
-              disputeId,
-              dispute.numberOfAppeals
+              openDispute.disputeId,
+              openDispute.numberOfAppeals
             )
 
             const notification = await this._newNotification(
               account,
               event.transactionHash,
-              disputeId, // use disputeId instead of logIndex since it doens't have its own event
+              openDispute.disputeId, // use disputeId instead of logIndex since it doens't have its own event
               notificationConstants.TYPE.APPEAL_POSSIBLE,
               'A ruling has been made. Appeal is possible',
               {
-                disputeId: disputeId,
+                disputeId: openDispute.disputeId,
                 arbitratorAddress,
                 ruling
               }
@@ -627,7 +626,7 @@ class Notifications {
 
     // If we have store provider fetch contracts and disputes from the store.
     if (this._StoreProviderInstance) {
-      disputes = await this._StoreProviderInstance.getDisputesForUser(account)
+      disputes = await this._StoreProviderInstance.getDisputes(account)
     } else if (isJuror) {
       // We have no way to get contracts. Get disputes from current session
       // TODO make a function to get open disputes for parites

@@ -473,11 +473,12 @@ class KlerosPOC extends ContractImplementation {
     const openDisputes = await this.getOpenDisputesForSession()
 
     const disputes = await Promise.all(
-      openDisputes.map(async disputeId => {
-        const draws = await this.getDrawsForJuror(disputeId, account)
-
-        const disputeData = await this.getDispute(disputeId)
-        disputeData.appealDraws = []
+      openDisputes.map(async disputeData => {
+        const draws = await this.getDrawsForJuror(
+          disputeData.disputeId,
+          account
+        )
+        disputeData.appealDraws = disputeData.appealDraws || []
         disputeData.appealDraws[disputeData.numberOfAppeals] = draws
 
         return disputeData
@@ -539,7 +540,7 @@ class KlerosPOC extends ContractImplementation {
 
       // If dispute is in the current session, add it to the result array
       if (dispute.firstSession + dispute.numberOfAppeals === currentSession)
-        openDisputes.push(disputeId)
+        openDisputes.push(dispute)
 
       // Advance to the next dispute
       disputeId++
