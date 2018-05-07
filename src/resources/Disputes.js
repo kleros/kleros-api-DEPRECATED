@@ -79,39 +79,43 @@ class Disputes {
     // There is no need to handle this event if we are not using the store
     const disputeId = event.args._disputeID.toNumber()
 
-    const contractAddress = this._ArbitratorInstance.getContractAddress()
-    const existingDispute = await this._StoreProviderInstance.getDispute(
-      contractAddress,
-      disputeId
+    const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+    // arbitrator data
+    const disputeData = await this._ArbitratorInstance.getDispute(disputeId)
+    // arbitrable contract data
+    await this._ArbitrableInstance.setContractInstance(
+      disputeData.arbitrableContractAddress
     )
 
-    // Add dispute to store if not there
-    if (_.isNull(existingDispute)) {
-      // arbitrator data
-      const disputeData = await this.getDataForDispute(disputeId, account)
-      // arbitrable contract data
-      await this._ArbitrableInstance.setContractInstance(
-        disputeData.arbitrableContractAddress
-      )
-      const arbitrableContractData = await this._ArbitrableInstance.getData(
-        account
-      )
+    const arbitrableContractData = await this._ArbitrableInstance.getData(
+      account
+    )
+    if (
+      account === arbitrableContractData.partyA ||
+      account === arbitrableContractData.partyB
+    ) {
       // timestamp
       const blockTimestamp = (await this._ArbitratorInstance.getBlock(
         event.blockNumber
       )).timestamp
 
-      const appealCreatedAt = disputeData.appealCreatedAt
+      // Check if dispute has already been stored. This can happen if there was an appeal
+      const storedDispute = this._StoreProviderInstance.getDisputeDataForUser(
+        arbitrableContractData.partyA,
+        arbitratorAddress,
+        disputeId
+      )
+      const appealCreatedAt = storedDispute.appealCreatedAt || []
       appealCreatedAt[disputeData.numberOfAppeals] = blockTimestamp * 1000
 
-      await this._StoreProviderInstance.updateDispute(
-        contractAddress,
+      await this._StoreProviderInstance.updateDisputeProfile(
+        account,
+        arbitratorAddress,
         disputeId,
         {
           contractAddress: disputeData.arbitrableContractAddress,
           partyA: arbitrableContractData.partyA,
           partyB: arbitrableContractData.partyB,
-          status: disputeData.status,
           appealCreatedAt
         }
       )
@@ -164,35 +168,32 @@ class Disputes {
     const newPeriod = await this._ArbitratorInstance.getPeriod()
     // send appeal possible notifications
     if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
-      const disputes = await this._StoreProviderInstance.getDisputesForUser(
-        account
-      )
+      const disputes = await this._StoreProviderInstance.getDisputes(account)
       const openDisputes = await this._ArbitratorInstance.getOpenDisputesForSession()
       const contractAddress = this._ArbitratorInstance.getContractAddress()
 
       await Promise.all(
-        openDisputes.map(async disputeId => {
-          if (
-            _.findIndex(
-              disputes,
-              dispute =>
-                dispute.disputeId === disputeId &&
-                dispute.arbitratorAddress === contractAddress
-            ) >= 0
-          ) {
+        openDisputes.map(async openDispute => {
+          const disputeIndex = _.findIndex(
+            disputes,
+            dispute =>
+              dispute.disputeId === openDispute.disputeId &&
+              dispute.arbitratorAddress === contractAddress
+          )
+          if (disputeIndex >= 0) {
             // get ruledAt from block timestamp
             const blockNumber = event.blockNumber
             const blockTimestamp = (await this._ArbitratorInstance.getBlock(
               blockNumber
             )).timestamp
 
-            const disputeData = await this.getDataForDispute(disputeId, account)
-            const appealRuledAt = disputeData.appealRuledAt
-            appealRuledAt[disputeData.numberOfAppeals] = blockTimestamp * 1000
+            const appealRuledAt = disputes[disputeIndex].appealRuledAt || []
+            appealRuledAt[openDispute.numberOfAppeals] = blockTimestamp * 1000
 
-            this._StoreProviderInstance.updateDispute(
+            this._StoreProviderInstance.updateDisputeProfile(
+              account,
               contractAddress,
-              disputeId,
+              openDispute.disputeId,
               {
                 appealRuledAt
               }
@@ -213,30 +214,27 @@ class Disputes {
     const newPeriod = await this._ArbitratorInstance.getPeriod()
     // send appeal possible notifications
     if (newPeriod === arbitratorConstants.PERIOD.VOTE) {
-      const disputes = await this._StoreProviderInstance.getDisputesForUser(
-        account
-      )
+      const disputes = await this._StoreProviderInstance.getDisputes(account)
       // contract data
       const openDisputes = await this._ArbitratorInstance.getOpenDisputesForSession()
       const contractAddress = this._ArbitratorInstance.getContractAddress()
       await Promise.all(
-        openDisputes.map(async disputeId => {
-          if (
-            _.findIndex(
-              disputes,
-              dispute =>
-                dispute.disputeId === disputeId &&
-                dispute.arbitratorAddress === contractAddress
-            ) >= 0
-          ) {
+        openDisputes.map(async openDispute => {
+          const disputeIndex = _.findIndex(
+            disputes,
+            dispute =>
+              dispute.disputeId === openDispute.disputeId &&
+              dispute.arbitratorAddress === contractAddress
+          )
+          if (disputeIndex >= 0) {
             const deadline = await this._ArbitratorInstance.getDeadlineForOpenDispute()
-            const disputeData = await this.getDataForDispute(disputeId, account)
-            const appealDeadlines = disputeData.appealDeadlines
-            appealDeadlines[disputeData.numberOfAppeals] = deadline
+            const appealDeadlines = disputes[disputeIndex].appealDeadlines || []
+            appealDeadlines[openDispute.numberOfAppeals] = deadline
 
-            this._StoreProviderInstance.updateDispute(
+            this._StoreProviderInstance.updateDisputeProfile(
+              account,
               contractAddress,
-              disputeId,
+              openDispute.disputeId,
               {
                 appealDeadlines
               }
@@ -300,15 +298,17 @@ class Disputes {
     let appealRuledAt = []
     let netPNK = 0
     try {
-      const userData = await this._StoreProviderInstance.getDisputeData(
+      const userData = await this._StoreProviderInstance.getDisputeDataForUser(
+        account,
         arbitratorAddress,
-        disputeId,
-        account
+        disputeId
       )
-      if (userData.appealDraws) appealDraws = userData.appealDraws
-      if (userData.appealCreatedAt) appealCreatedAt = userData.appealCreatedAt
-      if (userData.appealDeadlines) appealDeadlines = userData.appealDeadlines
-      if (userData.appealRuledAt) appealRuledAt = userData.appealRuledAt
+      if (userData.appealDraws) appealDraws = userData.appealDraws || []
+      if (userData.appealCreatedAt)
+        appealCreatedAt = userData.appealCreatedAt || []
+      if (userData.appealDeadlines)
+        appealDeadlines = userData.appealDeadlines || []
+      if (userData.appealRuledAt) appealRuledAt = userData.appealRuledAt || []
       if (userData.netPNK) netPNK = userData.netPNK
       // eslint-disable-next-line no-unused-vars
     } catch (err) {

@@ -129,32 +129,6 @@ class StoreProviderWrapper {
   }
 
   /**
-   * Get all stored data from a dispute. This includes data from the user profile as well
-   * as the user agnostic dispute data stored separately.
-   * @param {string} arbitratorAddress - Address of arbitrator contract.
-   * @param {number} disputeId - Index of the dispute.
-   * @param {string} userAddress - Address of user.
-   * @returns {object} - a response object.
-   */
-  getDisputeData = async (arbitratorAddress, disputeId, userAddress) => {
-    const userProfile = await this.getUserProfile(userAddress)
-    if (!userProfile)
-      throw new Error(errorConstants.PROFILE_NOT_FOUND(userAddress))
-
-    let disputeData = _.filter(
-      userProfile.disputes,
-      o =>
-        o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeId
-    )
-
-    const httpResponse = await this._makeRequest(
-      'GET',
-      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
-    )
-    return Object.assign({}, httpResponse.body, disputeData[0])
-  }
-
-  /**
    * Fetch stored data on a contract for a user.
    * @param {string} userAddress - Address of the user.
    * @param {string} addressContract - The address of the contract.
@@ -174,31 +148,34 @@ class StoreProviderWrapper {
   }
 
   /**
+   * Get all stored data for a dispute. Must exist in User Profile.
+   * @param {string} userAddress - Address of user.
+   * @param {string} arbitratorAddress - Address of arbitrator contract.
+   * @param {number} disputeId - Index of the dispute.
+   * @returns {object} - a response object.
+   */
+  getDisputeDataForUser = async (userAddress, arbitratorAddress, disputeId) => {
+    const userProfile = await this.getUserProfile(userAddress)
+    if (!userProfile)
+      throw new Error(errorConstants.PROFILE_NOT_FOUND(userAddress))
+
+    return _.filter(
+      userProfile.disputes,
+      o =>
+        o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeId
+    )[0]
+  }
+
+  /**
    * Fetch stored disputes for a user.
    * @param {string} userAddress - Address of user.
    * @returns {object} - a response object.
    */
-  getDisputesForUser = async userAddress => {
+  getDisputes = async userAddress => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile) return []
 
-    const disputes = []
-    for (let i = 0; i < userProfile.disputes.length; i++) {
-      const dispute = userProfile.disputes[i]
-      if (!dispute.arbitratorAddress || _.isNil(dispute.disputeId)) continue
-      // fetch dispute data
-      const httpResponse = await this._makeRequest(
-        'GET',
-        `${this._storeUri}/arbitrators/${dispute.arbitratorAddress}/disputes/${
-          dispute.disputeId
-        }`
-      )
-      if (httpResponse.status === 200) {
-        disputes.push(Object.assign({}, httpResponse.body, dispute))
-      }
-    }
-
-    return disputes
+    return userProfile.disputes
   }
 
   /**
@@ -210,21 +187,6 @@ class StoreProviderWrapper {
     const userProfile = await this.setUpUserProfile(userAddress)
 
     return userProfile.lastBlock || 0
-  }
-
-  /**
-   * Fetch user agnostic data stored on a dispute
-   * @param {string} arbitratorAddress - The address of the arbitrator contract.
-   * @param {number} disputeId - The index of the dispute.
-   * @returns {object} - a response object.
-   */
-  getDispute = async (arbitratorAddress, disputeId) => {
-    const httpResponse = await this._makeRequest(
-      'GET',
-      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
-    )
-
-    return httpResponse.body
   }
 
   // **************************** //
@@ -388,33 +350,6 @@ class StoreProviderWrapper {
       `${
         this._storeUri
       }/${userAddress}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
-    )
-  }
-
-  /**
-   * Update the user agnostic data on a dispute.
-   * @param {string} arbitratorAddress - The address of the arbitrator contract.
-   * @param {number} disputeId - The index of the dispute.
-   * @param {object} params - The data we are updating.
-   * @returns {Promise} The resulting dispute data.
-   */
-  updateDispute = async (arbitratorAddress, disputeId, params) => {
-    const getBodyFn = async () => {
-      const currentDispute =
-        (await this.getDispute(arbitratorAddress, disputeId)) || {}
-      delete currentDispute._id
-      delete currentDispute.updated_at
-
-      params.arbitratorAddress = arbitratorAddress
-      params.disputeId = disputeId
-
-      return JSON.stringify({ ...currentDispute, ...params })
-    }
-
-    return this.queueWriteRequest(
-      getBodyFn,
-      'POST',
-      `${this._storeUri}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
     )
   }
 
