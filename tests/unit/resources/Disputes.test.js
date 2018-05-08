@@ -178,7 +178,7 @@ describe('Disputes', () => {
       }
       const mockStoreProvider = {
         getContractByAddress: jest.fn().mockReturnValue(mockContract),
-        getDisputeData: jest.fn().mockReturnValue(mockUserData)
+        getDisputeDataForUser: jest.fn().mockReturnValue(mockUserData)
       }
       disputesInstance.setStoreProviderInstance(mockStoreProvider)
 
@@ -293,7 +293,7 @@ describe('Disputes', () => {
       }
       const mockStoreProvider = {
         getContractByAddress: jest.fn().mockReturnValue(mockContract),
-        getDisputeData: jest.fn().mockReturnValue(mockUserData)
+        getDisputeDataForUser: jest.fn().mockReturnValue(mockUserData)
       }
       disputesInstance.setStoreProviderInstance(mockStoreProvider)
 
@@ -410,7 +410,7 @@ describe('Disputes', () => {
       }
       const mockStoreProvider = {
         getContractByAddress: jest.fn().mockReturnValue(mockContract),
-        getDisputeData: jest.fn().mockReturnValue(mockUserData)
+        getDisputeDataForUser: jest.fn().mockReturnValue(mockUserData)
       }
       disputesInstance.setStoreProviderInstance(mockStoreProvider)
 
