@@ -262,7 +262,7 @@ class StoreProviderWrapper {
       `${this._storeUri}/${userAddress}/contracts/${contractAddress}`
     )
 
-    if (httpResponse.status !== 200) {
+    if (httpResponse.status !== 201) {
       throw new Error(errorConstants.REQUEST_FAILED(httpResponse.error))
     }
 
