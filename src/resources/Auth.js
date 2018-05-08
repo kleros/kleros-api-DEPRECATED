@@ -1,6 +1,7 @@
 import Personal from 'web3-eth-personal'
 
 import isRequired from '../utils/isRequired'
+import { UNABLE_TO_SIGN_TOKEN } from '../constants/error'
 
 class Auth {
   constructor(
@@ -34,13 +35,16 @@ class Auth {
    * @param {string} userAddress - Address of the user profile
    * @returns {string} Signed token for future use.
    */
-  validateNewAuthToken = async userAddress => {
+  getNewAuthToken = async userAddress => {
     const unsignedToken = (await this._StoreProviderInstance.newAuthToken(
       userAddress
     )).unsignedToken
 
     const signedToken = await this.signMessage(userAddress, unsignedToken)
-    this.setAuthToken(signedToken)
+    // make sure token is valid
+    if (!await this.validateAuthToken(userAddress, signedToken))
+      throw new Error(UNABLE_TO_SIGN_TOKEN)
+
     return signedToken
   }
 
@@ -60,6 +64,15 @@ class Auth {
       })
     })
   }
+
+  /**
+   * Validate an auth token.
+   * @param {string} userAddress - The address of the user.
+   * @param {string} authToken - Token to check.
+   * @returns {Promise} resolves to True if token is valid.
+   */
+  validateAuthToken = (userAddress, authToken) =>
+    this._StoreProviderInstance.isTokenValid(userAddress, authToken)
 }
 
 export default Auth

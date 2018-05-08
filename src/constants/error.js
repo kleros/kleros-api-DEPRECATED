@@ -80,3 +80,8 @@ export const MISSING_STORE_PROVIDER =
 export const MISSING_CONTRACT_INSTANCE = contractAddress =>
   `No contract instance stored for ${contractAddress}. Please call addContractInstance.`
 export const ERROR_FETCHING_EVENTS = error => `Unable to fetch events: ${error}`
+
+// Auth
+export const UNABLE_TO_SIGN_TOKEN = `There was an error signing the auth token. Please try again`
+export const INVALID_AUTH_TOKEN = msg =>
+  `Authorization Token is invalid: ${msg}`

@@ -36,7 +36,8 @@ describe('Auth', () => {
       '0x7b2276657273696f6e223a312c2265787069726174696f6e223a313532353830303831313932307d'
     const mockStoreProvider = {
       newAuthToken: () => ({ unsignedToken: mockToken }),
-      setAuthToken: () => true
+      setAuthToken: () => true,
+      isTokenValid: () => true
     }
     // set new store provider
     klerosInstance.auth.setStoreProviderInstance(mockStoreProvider)
@@ -51,7 +52,7 @@ describe('Auth', () => {
         })
       })
 
-    const signedToken = await klerosInstance.auth.validateNewAuthToken(
+    const signedToken = await klerosInstance.auth.getNewAuthToken(
       loggedInUserAddress
     )
 

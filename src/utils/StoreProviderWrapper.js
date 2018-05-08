@@ -51,6 +51,10 @@ class StoreProviderWrapper {
               body = JSON.parse(httpRequest.responseText)
               // eslint-disable-next-line no-unused-vars
             } catch (err) {}
+            // auth token error
+            if (httpRequest.status === 401)
+              reject(errorConstants.INVALID_AUTH_TOKEN(body.error))
+
             resolve({
               body: body,
               status: httpRequest.status
@@ -59,7 +63,7 @@ class StoreProviderWrapper {
         }
         httpRequest.send(body)
       } catch (err) {
-        reject(err)
+        reject(errorConstants.REQUEST_FAILED(err))
       }
     })
   }
@@ -108,6 +112,29 @@ class StoreProviderWrapper {
     )
 
     return newTokenResponse.body
+  }
+
+  /**
+   * Validate auth token
+   * @param {string} userAddress - Address of user profile.
+   * @param {string} token - <optional> token to use. Sets token.
+   * @returns {bool} - True if token is valid.
+   */
+  isTokenValid = async (userAddress, token) => {
+    if (token) this.setAuthToken(token)
+
+    try {
+      const response = await this._makeRequest(
+        'POST',
+        `${this._storeUri}/${userAddress}/authToken/verify`,
+        JSON.stringify({})
+      )
+
+      return response.status === 201
+      // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      return false
+    }
   }
 
   // **************************** //

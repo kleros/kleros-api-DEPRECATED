@@ -19,7 +19,7 @@ describe('Arbitrator', () => {
         disputeId: '1'
       }
       const mockStoreProvider = {
-        getDisputesForUser: mockGetDisputesForUser.mockReturnValue(
+        getDisputes: mockGetDisputesForUser.mockReturnValue(
           _asyncMockResponse([mockDispute])
         ),
         setUpUserProfile: mockShouldNotCall
@@ -51,7 +51,7 @@ describe('Arbitrator', () => {
         disputeId: '1'
       }
       const mockStoreProvider = {
-        getDisputesForUser: mockGetDisputesForUser.mockReturnValue(
+        getDisputes: mockGetDisputesForUser.mockReturnValue(
           _asyncMockResponse([mockDispute])
         ),
         setUpUserProfile: mockSetUpUserProfile.mockReturnValue(
@@ -91,7 +91,7 @@ describe('Arbitrator', () => {
         appealDraws: [1]
       }
       const mockStoreProvider = {
-        getDisputesForUser: mockGetDisputesForUser.mockReturnValue(
+        getDisputes: mockGetDisputesForUser.mockReturnValue(
           _asyncMockResponse([mockDispute])
         ),
         setUpUserProfile: mockSetUpUserProfile.mockReturnValue(
