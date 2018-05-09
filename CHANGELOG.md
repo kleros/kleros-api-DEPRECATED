@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.4.0"></a>
+# [0.4.0](https://github.com/kleros/kleros-api/compare/v0.3.0...v0.4.0) (2018-05-09)
+
+
+### Bug Fixes
+
+* **doc:** change ganache set up to have more accounts ([baf5e24](https://github.com/kleros/kleros-api/commit/baf5e24))
+* **test:** err msg ([f2e838d](https://github.com/kleros/kleros-api/commit/f2e838d))
+
+
+### Features
+
+* **all:** cleanup for the demo ([0dc14e1](https://github.com/kleros/kleros-api/commit/0dc14e1))
+
+
+
 <a name="0.3.0"></a>
 # [0.3.0](https://github.com/kleros/kleros-api/compare/v0.2.5...v0.3.0) (2018-04-18)
 
