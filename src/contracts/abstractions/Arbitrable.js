@@ -47,7 +47,7 @@ class ArbitrableContract extends AbstractContract {
       ...args
     )
 
-    await this._StoreProvider.updateContract(
+    const newContract = await this._StoreProvider.updateContract(
       account,
       contractInstance.address,
       {
@@ -62,8 +62,7 @@ class ArbitrableContract extends AbstractContract {
       }
     )
 
-    // return contract data
-    return this.getData(contractInstance.address, account)
+    return newContract
   }
 
   /**

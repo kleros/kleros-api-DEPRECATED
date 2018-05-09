@@ -158,7 +158,8 @@ class Disputes {
    * @param {string} account - The users eth account.
    */
   _storeDisputeRuledAtTimestamp = async (event, account) => {
-    const newPeriod = event.args._period.toNumber()
+    // we fetch the current period in case we are consuming old events from previous sessions
+    const newPeriod = await this._ArbitratorInstance.getPeriod()
     // send appeal possible notifications
     if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
       const disputes = await this._StoreProviderInstance.getDisputesForUser(
@@ -202,11 +203,12 @@ class Disputes {
 
   /**
    * Event listener handler that sets the deadline for an appeal
-   * @param {object} event - The event log.
+   * @param {object} _ - The event log. Unused in function.
    * @param {string} account - The users eth account.
    */
-  _storeAppealDeadline = async (event, account) => {
-    const newPeriod = event.args._period.toNumber()
+  _storeAppealDeadline = async (_, account) => {
+    // we fetch the current period in case we are consuming old events from previous sessions
+    const newPeriod = await this._ArbitratorInstance.getPeriod()
     // send appeal possible notifications
     if (newPeriod === arbitratorConstants.PERIOD.VOTE) {
       const disputes = await this._StoreProviderInstance.getDisputesForUser(
@@ -246,6 +248,17 @@ class Disputes {
   // **************************** //
   // *          Public          * //
   // **************************** //
+  /**
+   * Fetch the shared dispute data from the store.
+   * @param {string} disputeId - The index of the dispute.
+   * @returns {Promise} The dispute data in the store.
+   */
+  getDisputeFromStore = disputeId => {
+    const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+
+    return this._StoreProviderInstance.getDispute(arbitratorAddress, disputeId)
+  }
+
   /**
    * Get data for a dispute. This method provides data from the store as well as both
    * arbitrator and arbitrable contracts. Used to get all relevant data on a dispute.

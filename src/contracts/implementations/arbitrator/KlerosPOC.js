@@ -162,6 +162,7 @@ class KlerosPOC extends ContractImplementation {
   /**
    * Call contract to move on to the next period.
    * @param {string} account - address of user.
+   * @returns {Promise} - resulting object.
    */
   passPeriod = async (account = this._Web3Wrapper.getAccount(0)) => {
     await this.loadContract()
@@ -171,6 +172,7 @@ class KlerosPOC extends ContractImplementation {
         from: account,
         gas: ethConstants.TRANSACTION.GAS
       })
+      return this.getData()
     } catch (err) {
       console.error(err)
       throw new Error(errorConstants.UNABLE_TO_PASS_PERIOD)

@@ -5,6 +5,8 @@ export const MISSING_PARAMETERS = name => `Missing required parameter: ${name}`
 export const PROFILE_NOT_FOUND = user => `No profile found for user: ${user}.`
 export const NOTIFICATION_NOT_FOUND = txHash =>
   `No notification with txHash ${txHash} exists.`
+export const REQUEST_FAILED = error =>
+  `Request returned an error response: ${error}`
 
 // Contracts
 export const UNABLE_TO_DEPLOY_CONTRACT =

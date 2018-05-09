@@ -245,7 +245,7 @@ class StoreProviderWrapper {
    * @param {object} params - Params we want to update.
    * @returns {Promise} - The resulting contract data.
    */
-  updateContract = (userAddress, contractAddress, params) => {
+  updateContract = async (userAddress, contractAddress, params) => {
     const getBodyFn = async () => {
       let currentContractData = await this.getContractByAddress(
         userAddress,
@@ -259,11 +259,20 @@ class StoreProviderWrapper {
       return JSON.stringify({ ...currentContractData, ...params })
     }
 
-    return this.queueWriteRequest(
+    const httpResponse = await this.queueWriteRequest(
       getBodyFn,
       'POST',
       `${this._storeUri}/${userAddress}/contracts/${contractAddress}`
     )
+
+    if (httpResponse.status !== 200) {
+      throw new Error(errorConstants.REQUEST_FAILED(httpResponse.error))
+    }
+
+    return _.filter(
+      httpResponse.body[0].contracts,
+      contract => contract.address === contractAddress
+    )[0]
   }
 
   /**
@@ -322,14 +331,14 @@ class StoreProviderWrapper {
     const getBodyFn = async () => {
       const userProfile = await this.getUserProfile(userAddress)
 
-      const disputeIndex = _.filter(
-        userProfile.disputes,
-        dispute =>
-          dispute.arbitratorAddress === arbitratorAddress &&
-          dispute.disputeId === disputeId
-      )
+      const currentDisputeProfile =
+        _.filter(
+          userProfile.disputes,
+          dispute =>
+            dispute.arbitratorAddress === arbitratorAddress &&
+            dispute.disputeId === disputeId
+        )[0] || {}
 
-      const currentDisputeProfile = userProfile.disputes[disputeIndex] || {}
       delete currentDisputeProfile._id
       // set these so if it is a new dispute they are included
       params.disputeId = disputeId
@@ -446,11 +455,13 @@ class StoreProviderWrapper {
       return JSON.stringify(userProfile)
     }
 
-    return this.queueWriteRequest(
+    const result = await this.queueWriteRequest(
       getBodyFn,
       'POST',
       `${this._storeUri}/${userAddress}`
     )
+
+    return result.body.notifications
   }
 }
 

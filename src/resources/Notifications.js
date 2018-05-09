@@ -236,7 +236,14 @@ class Notifications {
     this._requireStoreProvider()
 
     const profile = await this._StoreProviderInstance.getUserProfile(account)
-    return _.filter(profile.notifications, notification => !notification.read)
+    const currentArbitrator = this._ArbitratorInstance.getContractAddress()
+    // return notifications that are for current arbitrator and are unread
+    return _.filter(
+      profile.notifications,
+      notification =>
+        notification.data.arbitratorAddress === currentArbitrator &&
+        !notification.read
+    )
   }
 
   /**
@@ -246,15 +253,15 @@ class Notifications {
    * @param {number} logIndex index of the log. used to differentiate logs if multiple logs per tx
    * @returns {promise} promise that can be waited on for syncronousity
    */
-  markStoredNotificationAsRead = (account, txHash, logIndex) => {
+  markStoredNotificationAsRead = async (account, txHash, logIndex) => {
     this._requireStoreProvider()
-
-    return this._StoreProviderInstance.markNotificationAsRead(
+    const result = await this._StoreProviderInstance.markNotificationAsRead(
       account,
       txHash,
       logIndex,
       true
     )
+    return result
   }
 
   /**
@@ -286,7 +293,7 @@ class Notifications {
     if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
       const disputes = await this._getDisputes(account) // get users disputes
       const openDisputes = await this._ArbitratorInstance.getOpenDisputesForSession() // get all disputes for session
-      const contractAddress = this._ArbitratorInstance.getContractAddress()
+      const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
 
       await Promise.all(
         openDisputes.map(async disputeId => {
@@ -295,7 +302,7 @@ class Notifications {
               disputes,
               dispute =>
                 dispute.disputeId === disputeId &&
-                dispute.arbitratorAddress === contractAddress
+                dispute.arbitratorAddress === arbitratorAddress
             ) >= 0
           ) {
             const dispute = await this._ArbitratorInstance.getDispute(disputeId)
@@ -311,8 +318,8 @@ class Notifications {
               notificationConstants.TYPE.APPEAL_POSSIBLE,
               'A ruling has been made. Appeal is possible',
               {
-                disputeId,
-                contractAddress,
+                disputeId: disputeId,
+                arbitratorAddress,
                 ruling
               }
             )
@@ -619,7 +626,7 @@ class Notifications {
 
     // If we have store provider fetch contracts and disputes from the store.
     if (this._StoreProviderInstance) {
-      await this._StoreProviderInstance.getDisputesForUser(account)
+      disputes = await this._StoreProviderInstance.getDisputesForUser(account)
     } else if (isJuror) {
       // We have no way to get contracts. Get disputes from current session
       // TODO make a function to get open disputes for parites
