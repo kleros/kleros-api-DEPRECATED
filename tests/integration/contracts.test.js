@@ -29,7 +29,7 @@ describe('Contracts', () => {
     other = web3.eth.accounts[2]
 
     klerosPOCData = {
-      timesPerPeriod: [1, 1, 1, 1, 1],
+      timesPerPeriod: [1, 1, 1, 1, 1], // activation, draw, vote, appeal, execution (seconds)
       account: other,
       value: 0
     }
@@ -47,8 +47,8 @@ describe('Contracts', () => {
   describe('KlerosPOC', async () => {
     it('deploys arbitrator with contractInstance', async () => {
       const newKlerosPOC = await KlerosPOC.deploy(
-        '',
-        '',
+        '', // rngAddress param
+        '', // pnkAddress param
         klerosPOCData.timesPerPeriod,
         klerosPOCData.account,
         klerosPOCData.value,
@@ -65,18 +65,18 @@ describe('Contracts', () => {
       expect(contractInstance.address).toEqual(newKlerosPOC.address)
     })
     it('initializing contract with bad address fails', async () => {
-      const newKlerosPOC = new KlerosPOC(provider, '0xfakeaddress')
+      const newKlerosPOC = new KlerosPOC(provider, 0x0) // bad address param
       try {
         // Check that we can bootstrap with address
         await newKlerosPOC.loadContract()
       } catch (err) {
-        expect(err.message).toEqual(errorConstants.UNABLE_TO_LOAD_CONTRACT)
+        expect(err.message).toEqual(errorConstants.CONTRACT_INSTANCE_NOT_SET)
       }
     })
     it('setContractInstance throws with undefined parameters', async () => {
       const newKlerosPOC = await KlerosPOC.deploy(
-        '',
-        '',
+        '', // rngAddress param
+        '', // pnkAddress param
         klerosPOCData.timesPerPeriod,
         klerosPOCData.account,
         klerosPOCData.value,
