@@ -81,7 +81,7 @@ class ArbitrableTransaction extends ContractImplementation {
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the party A.
    * @param {string} account - Ethereum account (default account[0]).
-   * @param {number} arbitrationCost - Amount to pay the arbitrator. (default 10000 wei).
+   * @param {number} arbitrationCost - Amount to pay the arbitrator. (default 0.15 ether).
    * @returns {object} - The result transaction object.
    */
   payArbitrationFeeByPartyA = async (
@@ -212,6 +212,32 @@ class ArbitrableTransaction extends ContractImplementation {
     } catch (err) {
       console.error(err)
       throw new Error(errorConstants.UNABLE_TO_CALL_TIMEOUT)
+    }
+  }
+
+  /**
+   * Appeal an appealable ruling.
+   * @param {string} account Ethereum account (default account[1]).
+   * @param {bytes} extraData for the arbitrator appeal procedure.
+   * @param {number} appealCost Amount to pay the arbitrator. (default 0.35 ether).
+   * @returns {object} - The result transaction object.
+   */
+  appeal = async (
+    account = this._Web3Wrapper.getAccount(1),
+    extraData = 0x0,
+    appealCost = 0.35
+  ) => {
+    await this.loadContract()
+
+    try {
+      return this.contractInstance.appeal(extraData, {
+        from: account,
+        gas: ethConstants.TRANSACTION.GAS,
+        value: this._Web3Wrapper.toWei(appealCost, 'ether')
+      })
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_RAISE_AN_APPEAL)
     }
   }
 
