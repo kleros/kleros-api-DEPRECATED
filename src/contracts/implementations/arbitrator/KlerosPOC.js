@@ -161,6 +161,28 @@ class KlerosPOC extends ContractImplementation {
   }
 
   /**
+   * Fetch the cost of appeal.
+   * @param {number} disputeId - index of the dispute.
+   * @param {bytes} contractExtraData - extra data from arbitrable contract.
+   * @returns {number} - The cost of appeal.
+   */
+  getAppealCost = async (disputeId, contractExtraData) => {
+    await this.loadContract()
+
+    try {
+      const appealCost = await this.contractInstance.appealCost(
+        disputeId,
+        contractExtraData
+      )
+
+      return this._Web3Wrapper.fromWei(appealCost, 'ether')
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_FETCH_APPEAL_COST)
+    }
+  }
+
+  /**
    * Call contract to move on to the next period.
    * @param {string} account - address of user.
    * @returns {Promise} - resulting object.

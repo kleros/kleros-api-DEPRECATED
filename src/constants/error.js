@@ -33,6 +33,7 @@ export const UNABLE_TO_ACTIVATE_PNK =
   'Unable to activate PNK, are you sure you have enough?'
 export const UNABLE_TO_FETCH_ARBITRATION_COST =
   'Unable to fetch arbitration cost.'
+export const UNABLE_TO_FETCH_APPEAL_COST = 'Unable to fetch appeal cost.'
 export const UNABLE_TO_FETCH_TIME_PER_PERIOD = 'Unable to fetch time per period'
 export const UNABLE_TO_PASS_PERIOD = 'Unable to pass period.'
 export const UNABLE_TO_FETCH_DISPUTE = 'Unable to fetch dispute.'
@@ -52,6 +53,8 @@ export const DISPUTE_DOES_NOT_EXIST = disputeId =>
 // ArbitrableTransaction
 export const UNABLE_TO_PAY_ARBITRATION_FEE =
   'Unable to pay fee, are you sure you have enough PNK?'
+export const UNABLE_TO_RAISE_AN_APPEAL =
+  'Unable to raise appeal, are you sure you are in the appeal period?'
 export const UNABLE_TO_PAY_SELLER =
   'Unable to pay the seller, are you sure you have enough ETH?'
 export const UNABLE_TO_CALL_TIMEOUT = 'Unable to call timeout.'
