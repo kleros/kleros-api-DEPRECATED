@@ -172,7 +172,7 @@ class StoreProviderWrapper {
    * @returns {number} The last block number.
    */
   getLastBlock = async userAddress => {
-    const userProfile = await this.getUserProfile(userAddress)
+    const userProfile = await this.setUpUserProfile(userAddress)
 
     return userProfile.lastBlock || 0
   }
@@ -229,10 +229,10 @@ class StoreProviderWrapper {
   setUpUserProfile = async userAddress => {
     let userProfile = await this.getUserProfile(userAddress)
     if (_.isNull(userProfile)) {
-      this.updateUserProfile(userAddress, {})
-      userProfile = await this.queueReadRequest(
-        `${this._storeUri}/${userAddress}`
-      )
+      const response = await this.updateUserProfile(userAddress, {})
+      if (response.status !== 201)
+        throw new Error(errorConstants.REQUEST_FAILED(response.responseText))
+      userProfile = response.body
     }
 
     return userProfile
@@ -329,7 +329,7 @@ class StoreProviderWrapper {
     params
   ) => {
     const getBodyFn = async () => {
-      const userProfile = await this.getUserProfile(userAddress)
+      const userProfile = await this.setUpUserProfile(userAddress)
 
       const currentDisputeProfile =
         _.filter(
@@ -438,7 +438,7 @@ class StoreProviderWrapper {
     isRead = true
   ) => {
     const getBodyFn = async () => {
-      const userProfile = await this.getUserProfile(userAddress)
+      const userProfile = await this.setUpUserProfile(userAddress)
 
       const notificationIndex = await _.findIndex(
         userProfile.notifications,
