@@ -127,7 +127,7 @@ class Disputes {
     const amountShift = event.args._amount.toNumber()
     // juror won/lost tokens
     if (address === account) {
-      const userProfile = await this._StoreProviderInstance.getUserProfile(
+      const userProfile = await this._StoreProviderInstance.setUpUserProfile(
         account
       )
       const contractAddress = this._ArbitratorInstance.getContractAddress()
