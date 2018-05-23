@@ -2,75 +2,78 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-<a name="0.4.1"></a>
-## [0.4.1](https://github.com/kleros/kleros-api/compare/v0.4.0...v0.4.1) (2018-05-10)
+<a name="0.5.0"></a>
 
+# [0.5.0](https://github.com/kleros/kleros-api/compare/v0.4.1...v0.5.0) (2018-05-23)
+
+### Bug Fixes
+
+* **arbitrable:** return new contract from deploy ([2804501](https://github.com/kleros/kleros-api/commit/2804501))
+* **Auth:** make sign async with callback for MetaMask ([9d0aa14](https://github.com/kleros/kleros-api/commit/9d0aa14))
+* **events:** update store related notification handlers for new dispute format ([48b0e5c](https://github.com/kleros/kleros-api/commit/48b0e5c))
+
+### Features
+
+* **auth:** add methods to verify auth token ([c0bfb62](https://github.com/kleros/kleros-api/commit/c0bfb62))
+* **Auth:** add new Auth resource ([5ad300b](https://github.com/kleros/kleros-api/commit/5ad300b))
+* **Auth:** use personal sign from web3 1.0 for token sig ([12cbaac](https://github.com/kleros/kleros-api/commit/12cbaac))
+
+<a name="0.4.1"></a>
+
+## [0.4.1](https://github.com/kleros/kleros-api/compare/v0.4.0...v0.4.1) (2018-05-10)
 
 ### Features
 
 * **users:** use setUpUserProfile if there is a chance it is a new user ([7734223](https://github.com/kleros/kleros-api/commit/7734223))
 
-
-
 <a name="0.4.0"></a>
-# [0.4.0](https://github.com/kleros/kleros-api/compare/v0.3.0...v0.4.0) (2018-05-09)
 
+# [0.4.0](https://github.com/kleros/kleros-api/compare/v0.3.0...v0.4.0) (2018-05-09)
 
 ### Bug Fixes
 
 * **doc:** change ganache set up to have more accounts ([baf5e24](https://github.com/kleros/kleros-api/commit/baf5e24))
 * **test:** err msg ([f2e838d](https://github.com/kleros/kleros-api/commit/f2e838d))
 
-
 ### Features
 
 * **all:** cleanup for the demo ([0dc14e1](https://github.com/kleros/kleros-api/commit/0dc14e1))
 
-
-
 <a name="0.3.0"></a>
-# [0.3.0](https://github.com/kleros/kleros-api/compare/v0.2.5...v0.3.0) (2018-04-18)
 
+# [0.3.0](https://github.com/kleros/kleros-api/compare/v0.2.5...v0.3.0) (2018-04-18)
 
 ### Features
 
 * add getDataFromStore to abstractions/Arbitrable ([54e65ba](https://github.com/kleros/kleros-api/commit/54e65ba))
 
-
-
 <a name="0.2.5"></a>
-## [0.2.5](https://github.com/kleros/kleros-api/compare/v0.2.4...v0.2.5) (2018-04-18)
 
+## [0.2.5](https://github.com/kleros/kleros-api/compare/v0.2.4...v0.2.5) (2018-04-18)
 
 ### Bug Fixes
 
 * bug fixes while updating UI ([f4c7d7c](https://github.com/kleros/kleros-api/commit/f4c7d7c))
 
-
-
 <a name="0.2.4"></a>
+
 ## [0.2.4](https://github.com/kleros/kleros-api/compare/v0.2.3...v0.2.4) (2018-04-13)
 
-
-
 <a name="0.2.3"></a>
+
 ## [0.2.3](https://github.com/kleros/kleros-api/compare/v0.2.2...v0.2.3) (2018-04-13)
 
-
-
 <a name="0.2.2"></a>
-## [0.2.2](https://github.com/kleros/kleros-api/compare/v0.2.1...v0.2.2) (2018-04-13)
 
+## [0.2.2](https://github.com/kleros/kleros-api/compare/v0.2.1...v0.2.2) (2018-04-13)
 
 ### Bug Fixes
 
 * **constants:** move constants into src and exclude from esdocs ([4a510bb](https://github.com/kleros/kleros-api/commit/4a510bb))
 
-
-
 <a name="0.2.1"></a>
-## [0.2.1](https://github.com/kleros/kleros-api/compare/v0.0.70...v0.2.1) (2018-04-12)
 
+## [0.2.1](https://github.com/kleros/kleros-api/compare/v0.0.70...v0.2.1) (2018-04-12)
 
 ### Bug Fixes
 
@@ -79,15 +82,12 @@ All notable changes to this project will be documented in this file. See [standa
 * improper capitalization on imports ([2ff95b8](https://github.com/kleros/kleros-api/commit/2ff95b8))
 * **StoreProviderWrapper:** revert to passing named params for addEvidenceContract ([fc61444](https://github.com/kleros/kleros-api/commit/fc61444))
 
-
 ### Features
 
 * throw semantic errors ([bf76f4a](https://github.com/kleros/kleros-api/commit/bf76f4a)), closes [#107](https://github.com/kleros/kleros-api/issues/107) [kleros/kleros-juror-front#10](https://github.com/kleros/kleros-juror-front/issues/10)
 * **all:** require params in wrappers. fix how StateFullContract wrapper loads ([1478e3e](https://github.com/kleros/kleros-api/commit/1478e3e))
 * **EventListener:** all methods take contract implementation object ([4a89382](https://github.com/kleros/kleros-api/commit/4a89382))
 * update doc strings ([f5baccc](https://github.com/kleros/kleros-api/commit/f5baccc))
-
-
 
 <a name="0.2.0"></a>
 
