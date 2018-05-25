@@ -127,7 +127,8 @@ class Kleros {
    * Stop watching for events on the Arbitrator initialized in the Kleros Instance.
    */
   stopWatchingForEvents = () => {
-    this.eventListener.stopWatchingForEvents(this.arbitrator)
+    if (this.eventListener)
+      this.eventListener.stopWatchingForEvents(this.arbitrator)
   }
 
   /**
