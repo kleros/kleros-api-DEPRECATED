@@ -42,12 +42,28 @@ class Kleros {
     arbitrableContractAddress,
     authToken
   ) {
-    // NOTE we default to KlerosPOC and ArbitrableTransaction
+    /**
+     * We need a set of implementations that we expose to the outside api and a set we use
+     * internally. This is because the implementation class itself sets the contract instance
+     * and we don't want race conditions between external and internal calls.
+     *
+     * FIXME this is an ugly way of doing this and still has some race conditions. See issue #138.
+     */
+    // EXTERNAL
     const _klerosPOC = new contracts.implementations.arbitrator.KlerosPOC(
       ethereumProvider,
       arbitratorAddress
     )
     const _arbitrableTransaction = new contracts.implementations.arbitrable.ArbitrableTransaction(
+      ethereumProvider,
+      arbitrableContractAddress
+    )
+    // INTERNAL
+    const _klerosPOCInternal = new contracts.implementations.arbitrator.KlerosPOC(
+      ethereumProvider,
+      arbitratorAddress
+    )
+    const _arbitrableTransactionInternal = new contracts.implementations.arbitrable.ArbitrableTransaction(
       ethereumProvider,
       arbitrableContractAddress
     )
@@ -68,16 +84,26 @@ class Kleros {
       _arbitrableTransaction,
       this.storeWrapper
     )
+
+    // Create new instance of arbitator and arbitrable for behind the scene task runners to use
+    const _arbitrator = new contracts.abstractions.Arbitrator(
+      _klerosPOCInternal,
+      this.storeWrapper
+    )
+    const _arbitrable = new contracts.abstractions.Arbitrable(
+      _arbitrableTransactionInternal,
+      this.storeWrapper
+    )
     // DISPUTES
     this.disputes = new resources.Disputes(
-      this.arbitrator,
-      this.arbitrable,
+      _arbitrator,
+      _arbitrable,
       this.storeWrapper
     )
     // NOTIFICATIONS
     this.notifications = new resources.Notifications(
-      this.arbitrator,
-      this.arbitrable,
+      _arbitrator,
+      _arbitrable,
       this.storeWrapper
     )
     // AUTH

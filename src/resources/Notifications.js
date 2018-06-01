@@ -344,7 +344,7 @@ class Notifications {
     // load arbitrable contract
     await this._ArbitrableInstance.setContractInstance(event.args._arbitrable)
 
-    const arbitrableData = this._ArbitrableInstance.getData()
+    const arbitrableData = await this._ArbitrableInstance.getData()
 
     if (
       arbitrableData.partyA === account ||
