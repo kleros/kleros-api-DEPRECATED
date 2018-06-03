@@ -236,7 +236,7 @@ class Notifications {
    */
   getUnreadStoredNotifications = async account => {
     this._requireStoreProvider()
-    const profile = await this._StoreProviderInstance.setUpUserProfile(account)
+    const profile = await this._StoreProviderInstance.newUserProfile(account)
     const currentArbitrator = this._ArbitratorInstance.getContractAddress()
     // return notifications that are for current arbitrator and are unread
     return _.filter(
@@ -605,7 +605,7 @@ class Notifications {
 
     // If we have store provider fetch contracts and disputes from the store.
     if (this._StoreProviderInstance) {
-      const userProfile = await this._StoreProviderInstance.setUpUserProfile(
+      const userProfile = await this._StoreProviderInstance.newUserProfile(
         account
       )
 

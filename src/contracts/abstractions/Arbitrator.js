@@ -34,7 +34,7 @@ class Arbitrator extends AbstractContract {
       return _getDisputesForUserFromStore(account)
     }
 
-    let profile = await this._StoreProvider.setUpUserProfile(account)
+    let profile = await this._StoreProvider.newUserProfile(account)
     if (currentSession !== profile.session) {
       // get disputes for juror
       const myDisputes = await this._contractImplementation.getDisputesForJuror(
