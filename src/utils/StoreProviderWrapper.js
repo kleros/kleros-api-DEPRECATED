@@ -11,11 +11,9 @@ class StoreProviderWrapper {
   /**
    * Create a new instance of StoreProviderWrapper.
    * @param {string} storeProviderUri - The uri of kleros store.
-   * @param {string} authToken - Signed token cooresponding to user profile address.
    */
-  constructor(storeProviderUri, authToken) {
+  constructor(storeProviderUri) {
     this._storeUri = storeProviderUri
-    this._token = authToken
     this._storeQueue = new PromiseQueue()
   }
 
@@ -27,12 +25,6 @@ class StoreProviderWrapper {
    * @returns {Promise} request promise that resolves to the HTTP response.
    */
   _makeRequest = (verb, uri, body = null) => {
-    if (verb !== 'GET' && !this._token) {
-      throw new Error(
-        'No auth token set. Cannot make writes to store. Please call setAuthToken or validateNewAuthToken.'
-      )
-    }
-
     const httpRequest = new XMLHttpRequest()
     return new Promise((resolve, reject) => {
       try {
@@ -42,7 +34,6 @@ class StoreProviderWrapper {
             'Content-Type',
             'application/json;charset=UTF-8'
           )
-          httpRequest.setRequestHeader('Authorization', this._token)
         }
         httpRequest.onreadystatechange = () => {
           if (httpRequest.readyState === 4) {
@@ -51,10 +42,6 @@ class StoreProviderWrapper {
               body = JSON.parse(httpRequest.responseText)
               // eslint-disable-next-line no-unused-vars
             } catch (err) {}
-            // auth token error
-            if (httpRequest.status === 401)
-              reject(errorConstants.INVALID_AUTH_TOKEN(body.error))
-
             resolve({
               body: body,
               status: httpRequest.status
@@ -87,55 +74,6 @@ class StoreProviderWrapper {
    */
   queueReadRequest = uri =>
     this._storeQueue.fetch(() => this._makeRequest('GET', uri))
-
-  // **************************** //
-  // *          Auth            * //
-  // **************************** //
-
-  /**
-   * Set the auth token for write requests.
-   * @param {string} token - Hex string of the signed data token.
-   */
-  setAuthToken = token => {
-    this._token = token
-  }
-
-  /**
-   * Generate a new unsigned auth token.
-   * @param {string} userAddress - Address of the user profile.
-   * @returns {string} Hex encoded unsigned token.
-   */
-  newAuthToken = async userAddress => {
-    const newTokenResponse = await this._makeRequest(
-      'GET',
-      `${this._storeUri}/${userAddress}/authToken`
-    )
-
-    return newTokenResponse.body
-  }
-
-  /**
-   * Validate auth token
-   * @param {string} userAddress - Address of user profile.
-   * @param {string} token - <optional> token to use. Sets token.
-   * @returns {bool} - True if token is valid.
-   */
-  isTokenValid = async (userAddress, token) => {
-    if (token) this.setAuthToken(token)
-
-    try {
-      const response = await this._makeRequest(
-        'POST',
-        `${this._storeUri}/${userAddress}/authToken/verify`,
-        JSON.stringify({})
-      )
-
-      return response.status === 201
-      // eslint-disable-next-line no-unused-vars
-    } catch (err) {
-      return false
-    }
-  }
 
   // **************************** //
   // *          Read            * //
@@ -181,7 +119,7 @@ class StoreProviderWrapper {
    * @param {number} disputeId - Index of the dispute.
    * @returns {object} - a response object.
    */
-  getDisputeDataForUser = async (userAddress, arbitratorAddress, disputeId) => {
+  getDispute = async (userAddress, arbitratorAddress, disputeId) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile)
       throw new Error(errorConstants.PROFILE_NOT_FOUND(userAddress))
@@ -211,7 +149,7 @@ class StoreProviderWrapper {
    * @returns {number} The last block number.
    */
   getLastBlock = async userAddress => {
-    const userProfile = await this.setUpUserProfile(userAddress)
+    const userProfile = await this.newUserProfile(userAddress)
 
     return userProfile.lastBlock || 0
   }
@@ -221,39 +159,18 @@ class StoreProviderWrapper {
   // **************************** //
 
   /**
-   * Update user profile. WARNING: This should only be used for session and lastBlock.
-   * Overwriting arrays of unstructured data can lead to data loss.
-   * @param {string} userAddress - users userAddress
-   * @param {object} params - object containing kwargs to update
-   * @returns {promise} - resulting profile
-   */
-  updateUserProfile = (userAddress, params = {}) => {
-    const getBodyFn = async () => {
-      const currentProfile = (await this.getUserProfile(userAddress)) || {}
-      delete currentProfile._id
-      delete currentProfile.created_at
-
-      params.address = userAddress
-
-      return JSON.stringify({ ...currentProfile, ...params })
-    }
-
-    return this.queueWriteRequest(
-      getBodyFn,
-      'POST',
-      `${this._storeUri}/${userAddress}`
-    )
-  }
-
-  /**
    * Set up a new user profile if one does not exist.
    * @param {string} userAddress - user's address
    * @returns {object} - users existing or created profile
    */
-  setUpUserProfile = async userAddress => {
+  newUserProfile = async userAddress => {
     let userProfile = await this.getUserProfile(userAddress)
     if (_.isNull(userProfile)) {
-      const response = await this.updateUserProfile(userAddress, {})
+      // we can safely make request without queuing because all other writes for profile will fail if it hasn't been created.
+      const response = const httpResponse = await this._makeRequest(
+        'POST',
+        `${this._storeUri}/${userAddress}`
+      )
       if (response.status !== 201)
         throw new Error(errorConstants.REQUEST_FAILED(response.responseText))
       userProfile = response.body
@@ -263,7 +180,30 @@ class StoreProviderWrapper {
   }
 
   /**
-   * Update the stored data on a contract for a user.
+   * Update users last block seen. This is the only item in user profile that can be overwritten.
+   * @param {string} userAddress - User's address.
+   * @param {string} blockNumber - The newest block number seen by user.
+   * @returns {object} - HTTP response.
+   */
+  updateLastBlock = async (userAddress, blockNumber) => {
+    const getBodyFn = () =>
+      new Promise(resolve =>
+        resolve(
+          JSON.stringify({
+            lastBlock: blockNumber
+          })
+        )
+      )
+
+    return this.queueWriteRequest(
+      getBodyFn,
+      'POST',
+      `${this._storeUri}/${userAddress}/lastBlock`
+    )
+  }
+
+  /**
+   * Update the stored data on a contract for a user. Note that you cannot overwrite contract data.
    * @param {string} userAddress - The user's address.
    * @param {string} contractAddress - The address of the contract.
    * @param {object} params - Params we want to update.
@@ -339,7 +279,7 @@ class StoreProviderWrapper {
   }
 
   /**
-   * Update stored dispute data for a user.
+   * Update stored dispute data for a user. Note this will not overwrite data.
    * @param {string} userAddress - The address of the user.
    * @param {string} arbitratorAddress - The address of the arbitrator contract.
    * @param {number} disputeId - The index of the dispute.
@@ -353,7 +293,7 @@ class StoreProviderWrapper {
     params
   ) => {
     const getBodyFn = async () => {
-      const userProfile = await this.setUpUserProfile(userAddress)
+      const userProfile = await this.newUserProfile(userAddress)
 
       const currentDisputeProfile =
         _.filter(
@@ -377,6 +317,41 @@ class StoreProviderWrapper {
       `${
         this._storeUri
       }/${userAddress}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
+    )
+  }
+
+  /**
+   * Adds draws for juror to dispute profile.
+   * @param {string} userAddress - The address of the user.
+   * @param {string} arbitratorAddress - The address of the arbitrator contract.
+   * @param {number} disputeId - The index of the dispute.
+   * @param {number[]} draws - The draws the juror has.
+   * @param {number} appeal - The appeal for which it is for.
+   * @returns {Promise} The resulting dispute data.
+   */
+  addNewDrawsDisputeProfile = (
+    userAddress,
+    arbitratorAddress,
+    disputeId,
+    draws,
+    appeal
+  ) => {
+    const getBodyFn = () =>
+      new Promise(resolve =>
+        resolve(
+          JSON.stringify({
+            draws,
+            appeal
+          })
+        )
+      )
+
+    return this.queueWriteRequest(
+      getBodyFn,
+      'POST',
+      `${
+        this._storeUri
+      }/${userAddress}/arbitrators/${arbitratorAddress}/disputes/${disputeId}/draws`
     )
   }
 
@@ -435,7 +410,7 @@ class StoreProviderWrapper {
     isRead = true
   ) => {
     const getBodyFn = async () => {
-      const userProfile = await this.setUpUserProfile(userAddress)
+      const userProfile = await this.newUserProfile(userAddress)
 
       const notificationIndex = await _.findIndex(
         userProfile.notifications,

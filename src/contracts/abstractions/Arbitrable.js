@@ -99,7 +99,7 @@ class ArbitrableContract extends AbstractContract {
    */
   getContractsForUser = async account => {
     // fetch user profile
-    const userProfile = await this._StoreProvider.setUpUserProfile(account)
+    const userProfile = await this._StoreProvider.newUserProfile(account)
 
     return userProfile.contracts
   }

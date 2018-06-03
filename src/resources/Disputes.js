@@ -90,6 +90,7 @@ class Disputes {
     const arbitrableContractData = await this._ArbitrableInstance.getData(
       account
     )
+
     if (
       account === arbitrableContractData.partyA ||
       account === arbitrableContractData.partyB
@@ -100,7 +101,7 @@ class Disputes {
       )).timestamp
 
       // Check if dispute has already been stored. This can happen if there was an appeal
-      const storedDispute = this._StoreProviderInstance.getDisputeDataForUser(
+      const storedDispute = this._StoreProviderInstance.getDispute(
         arbitrableContractData.partyA,
         arbitratorAddress,
         disputeId
@@ -133,7 +134,7 @@ class Disputes {
     const amountShift = event.args._amount.toNumber()
     // juror won/lost tokens
     if (address === account) {
-      const userProfile = await this._StoreProviderInstance.setUpUserProfile(
+      const userProfile = await this._StoreProviderInstance.newUserProfile(
         account
       )
       const contractAddress = this._ArbitratorInstance.getContractAddress()
@@ -298,7 +299,7 @@ class Disputes {
     let appealRuledAt = []
     let netPNK = 0
     try {
-      const userData = await this._StoreProviderInstance.getDisputeDataForUser(
+      const userData = await this._StoreProviderInstance.getDispute(
         account,
         arbitratorAddress,
         disputeId
