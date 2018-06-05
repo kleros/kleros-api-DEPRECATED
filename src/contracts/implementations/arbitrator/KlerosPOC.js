@@ -642,7 +642,10 @@ class KlerosPOC extends ContractImplementation {
       numberOfAppeals + 1
     )
 
-    const eventLogTimestamps = [startBlock]
+    const creationTimestamp = await this._getTimestampForBlock(
+      startBlock
+    )
+    const eventLogTimestamps = [(creationTimestamp * 1000)]
 
     // skip first execute phase as this is the original ruling
     for (let i = 1; i < eventLogs.length; i++) {
@@ -662,7 +665,7 @@ class KlerosPOC extends ContractImplementation {
    * @returns {object} dispute creation event log.
    */
   getDisputeCreationEvent = async disputeId => {
-    const eventLogs = await EventListener.getNextEventLogs(
+    const eventLogs = await EventListener.getEventLogs(
       this,
       'DisputeCreation',
       0
@@ -671,7 +674,7 @@ class KlerosPOC extends ContractImplementation {
     for (let i = 0; i < eventLogs.length; i++) {
       const log = eventLogs[i]
 
-      if (log.args.disputeID.toNumber() === disputeId) return log
+      if (log.args._disputeID.toNumber() === disputeId) return log
     }
 
     return null
@@ -684,7 +687,7 @@ class KlerosPOC extends ContractImplementation {
    * @returns {number} The net total PNK
    */
   getNetTokensForDispute = async (disputeId, account) => {
-    const eventLogs = await EventListener.getNextEventLogs(
+    const eventLogs = await EventListener.getEventLogs(
       this,
       'TokenShift',
       0,
@@ -695,7 +698,7 @@ class KlerosPOC extends ContractImplementation {
     let netPNK = 0
     for (let i = 0; i < eventLogs.length; i++) {
       const event = eventLogs[i]
-      if (event.args.disputeID.toNumber() === disputeId)
+      if (event.args._disputeID.toNumber() === disputeId)
         netPNK += event.args._amount.toNumber()
     }
 
@@ -718,7 +721,7 @@ class KlerosPOC extends ContractImplementation {
    * @returns {object[]} an array of event logs.
    */
   _getNewPeriodEventLogs = async (blockNumber, periodNumber, appeals = 0) => {
-    const logs = await EventListener.getNextEventLogs(
+    const logs = await EventListener.getEventLogs(
       this,
       'NewPeriod',
       blockNumber

@@ -2,6 +2,7 @@ import _ from 'lodash'
 
 import * as arbitratorConstants from '../../constants/arbitrator'
 import AbstractContract from '../AbstractContract'
+import EventListener from '../../utils/EventListener'
 
 /**
  * Arbitrator Abstract Contarct API. This wraps an arbitrator contract. It provides
@@ -44,21 +45,32 @@ class Arbitrator extends AbstractContract {
       // update user profile for each dispute
       await Promise.all(
         myDisputes.map(async dispute => {
+          const disputeCreationLog = (await EventListener.getEventLogs(
+            this._contractImplementation,
+            'DisputeCreation',
+            0,
+            'latest',
+            { "_disputeID": dispute.disputeId}
+          ))[0]
+          if (!disputeCreationLog)
+            throw new Error('Could not fetch dispute creation event log')
           // update profile for account
           await this._StoreProvider.updateDisputeProfile(
             account,
             dispute.arbitratorAddress,
             dispute.disputeId,
             {
-              appealDraws: dispute.appealDraws
+              appealDraws: dispute.appealDraws,
+              blockNumber: disputeCreationLog.blockNumber
             }
           )
         })
       )
 
-      this._StoreProvider.updateUserProfile(account, {
-        session: currentSession
-      })
+      // FIXME do we want to store session?
+      // this._StoreProvider.updateUserProfile(account, {
+      //   session: currentSession
+      // })
     }
 
     return _getDisputesForUserFromStore(account)
