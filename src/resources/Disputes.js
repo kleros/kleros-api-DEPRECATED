@@ -109,6 +109,34 @@ class Disputes {
     }
   }
 
+  _getDisputeStartBlock = async (disputeId, account) => {
+    const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+
+    let blockNumber
+
+    try {
+      const userData = await this._StoreProviderInstance.getDispute(
+        account,
+        arbitratorAddress,
+        disputeId
+      )
+      blockNumber = userData.blockNumber
+      // eslint-disable-next-line no-unused-vars
+    } catch (err) {}
+    // if block number is not stored we can look it up
+    if (!blockNumber) {
+      // Fetching a dispute will fail if it hasn't been added to the store yet. This is ok, we can just not return store data
+      // see if we can get dispute start block from events
+      const disputeCreationEvent = await this._ArbitratorInstance.getDisputeCreationEvent(
+        disputeId
+      )
+      if (disputeCreationEvent) {
+        blockNumber = disputeCreationEvent.blockNumber
+      }
+    }
+    return blockNumber
+  }
+
   // **************************** //
   // *          Public          * //
   // **************************** //
@@ -118,12 +146,23 @@ class Disputes {
    * @param {string} disputeId - The index of the dispute.
    * @returns {Promise} The dispute data in the store.
    */
-  getDisputeFromStore = (account, disputeId) => {
+  getDisputeFromStore = async (account, disputeId) => {
     const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
     return this._StoreProviderInstance.getDispute(
       account,
       arbitratorAddress,
       disputeId
+    )
+  }
+
+  getDisputeDeadline = async (disputeId, account, appeal=0) => {
+    const startBlock = await this._getDisputeStartBlock(disputeId, account)
+    // if there is no start block that means that dispute has not been created yet.
+    if (!startBlock) return []
+
+    return this._ArbitratorInstance.getDisputeDeadlineTimestamps(
+      startBlock,
+      appeal
     )
   }
 
@@ -164,27 +203,23 @@ class Disputes {
     let appealCreatedAt = []
     let appealDeadlines = []
     let appealRuledAt = []
-    let startBlock
-    try {
-      const userData = await this._StoreProviderInstance.getDispute(
-        account,
-        arbitratorAddress,
-        disputeId
-      )
-      if (userData.appealDraws) appealDraws = userData.appealDraws || []
-      startBlock = userData.blockNumber
-      // eslint-disable-next-line no-unused-vars
-    } catch (err) {
-      // Fetching a dispute will fail if it hasn't been added to the store yet. This is ok, we can just not return store data
-      // see if we can get dispute start block from events
-      const disputeCreationEvent = this._ArbitratorInstance.getDisputeCreationEvent(
-        disputeId
-      )
-      if (disputeCreationEvent) startBlock = disputeCreationEvent.blockNumber
-    }
+    const startBlock = await this._getDisputeStartBlock(disputeId, account)
 
+    // dispute exists
     if (startBlock) {
-      // get timestamps
+      try {
+        const userData = await this._StoreProviderInstance.getDispute(
+          account,
+          arbitratorAddress,
+          disputeId
+        )
+        if (userData.appealDraws) appealDraws = userData.appealDraws || []
+        // eslint-disable-next-line no-unused-vars
+      } catch (err) {
+        // Dispute exists on chain but not in store. We have lost draws for past disputes.
+        console.error("Dispute does not exist in store.")
+      }
+
       appealDeadlines = await this._ArbitratorInstance.getDisputeDeadlineTimestamps(
         startBlock,
         dispute.numberOfAppeals

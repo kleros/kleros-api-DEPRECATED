@@ -65,7 +65,7 @@ class EventListener {
    * @param {object} filters - Extra filters
    * @returns {Promise} All events in block range.
    */
-  static getNextEventLogs = async (
+  static getEventLogs = async (
     contractImplementationInstance = isRequired(
       'contractImplementationInstance'
     ),

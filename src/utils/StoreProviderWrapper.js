@@ -102,7 +102,7 @@ class StoreProviderWrapper {
   getContractByAddress = async (userAddress, addressContract) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile)
-      throw new Error(errorConstants.PROFILE_NOT_FOUND(userAddress))
+      return {}
 
     let contract = _.filter(
       userProfile.contracts,
