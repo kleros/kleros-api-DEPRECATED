@@ -22,7 +22,7 @@ describe('Arbitrator', () => {
         getDisputes: mockGetDisputesForUser.mockReturnValue(
           _asyncMockResponse([mockDispute])
         ),
-        setUpUserProfile: mockShouldNotCall
+        newUserProfile: mockShouldNotCall
       }
 
       arbitratorInstance.setStoreProviderInstance(mockStoreProvider)
@@ -54,7 +54,7 @@ describe('Arbitrator', () => {
         getDisputes: mockGetDisputesForUser.mockReturnValue(
           _asyncMockResponse([mockDispute])
         ),
-        setUpUserProfile: mockSetUpUserProfile.mockReturnValue(
+        newUserProfile: mockSetUpUserProfile.mockReturnValue(
           _asyncMockResponse({
             session: 1
           })
@@ -94,7 +94,7 @@ describe('Arbitrator', () => {
         getDisputes: mockGetDisputesForUser.mockReturnValue(
           _asyncMockResponse([mockDispute])
         ),
-        setUpUserProfile: mockSetUpUserProfile.mockReturnValue(
+        newUserProfile: mockSetUpUserProfile.mockReturnValue(
           _asyncMockResponse({
             session: 1
           })

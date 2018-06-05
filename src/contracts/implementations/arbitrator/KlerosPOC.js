@@ -552,10 +552,11 @@ class KlerosPOC extends ContractImplementation {
 
   /**
    * Starting from the blockNumber of the dispute creation, find when and if it was ruled on
-   * @param {Number} blockNumber - The block number that the dispute was created.
-   * @returns {Promise}
+   * @param {number} blockNumber - The block number that the dispute was created.
+   * @param {number} appeal - the number of appeals we need to fetch events for.
+   * @returns {number[]} an array of timestamps
    */
-  getAppealRuledAtTimestamps = async (blockNumber, appeal=0) => {
+  getAppealRuledAtTimestamps = async (blockNumber, appeal = 0) => {
     const eventLogs = await this._getNewPeriodEventLogs(
       blockNumber,
       arbitratorConstants.PERIOD.APPEAL,
@@ -564,7 +565,7 @@ class KlerosPOC extends ContractImplementation {
 
     const eventLogTimestamps = []
 
-    for (let i=0; i<eventLogs.length; i++) {
+    for (let i = 0; i < eventLogs.length; i++) {
       const eventLog = eventLogs[i]
 
       const timestamp = await this._getTimestampForBlock(eventLog.blockNumber)
@@ -577,10 +578,11 @@ class KlerosPOC extends ContractImplementation {
 
   /**
    * Starting from the blockNumber of the dispute creation, find when and if it was ruled on
-   * @param {Number} blockNumber - The block number that the dispute was created.
-   * @returns {Promise}
+   * @param {number} blockNumber - The block number that the dispute was created.
+   * @param {number} appeal - the number of appeals we need to fetch events for.
+   * @returns {number[]} an array of timestamps
    */
-  getDisputeDeadlineTimestamps = async (blockNumber, appeal=0) => {
+  getDisputeDeadlineTimestamps = async (blockNumber, appeal = 0) => {
     const eventLogs = await this._getNewPeriodEventLogs(
       blockNumber,
       arbitratorConstants.PERIOD.VOTE,
@@ -592,7 +594,7 @@ class KlerosPOC extends ContractImplementation {
     )
     const eventLogTimestamps = []
 
-    for (let i=0; i<eventLogs.length; i++) {
+    for (let i = 0; i < eventLogs.length; i++) {
       const eventLog = eventLogs[i]
 
       const periodStartTimestamp = await this._getTimestampForBlock(
@@ -607,12 +609,13 @@ class KlerosPOC extends ContractImplementation {
 
   /**
    * Get the event log for the dispute creation.
-   * @param {Number} disputeId - The block number that the dispute was created.
-   * @returns {Promise}
+   * @param {number} startBlock - The block number that the dispute was created.
+   * @param {number} numberOfAppeals - the number of appeals we need to fetch events for.
+   * @returns {number[]} an array of timestamps
    */
   getAppealCreationTimestamps = async (startBlock, numberOfAppeals) => {
     const eventLogs = await this._getNewPeriodEventLogs(
-      blockNumber,
+      startBlock,
       arbitratorConstants.PERIOD.VOTE,
       numberOfAppeals + 1
     )
@@ -620,7 +623,7 @@ class KlerosPOC extends ContractImplementation {
     const eventLogTimestamps = [startBlock]
 
     // skip first execute phase as this is the original ruling
-    for (let i=1; i<eventLogs.length; i++) {
+    for (let i = 1; i < eventLogs.length; i++) {
       const eventLog = eventLogs[i]
 
       const timestamp = await this._getTimestampForBlock(eventLog.blockNumber)
@@ -633,8 +636,8 @@ class KlerosPOC extends ContractImplementation {
 
   /**
    * Get the event log for the dispute creation.
-   * @param {Number} disputeId - The block number that the dispute was created.
-   * @returns {Promise}
+   * @param {number} disputeId - The block number that the dispute was created.
+   * @returns {object} dispute creation event log.
    */
   getDisputeCreationEvent = async disputeId => {
     const eventLogs = await EventListener.getNextEventLogs(
@@ -643,11 +646,10 @@ class KlerosPOC extends ContractImplementation {
       0
     )
 
-    for (let i=0; i<eventLogs.length; i++) {
+    for (let i = 0; i < eventLogs.length; i++) {
       const log = eventLogs[i]
 
-      if (log.args.disputeID.toNumber() === disputeId)
-        return log
+      if (log.args.disputeID.toNumber() === disputeId) return log
     }
 
     return null
@@ -655,9 +657,9 @@ class KlerosPOC extends ContractImplementation {
 
   /**
    * Get the amount of tokens won or lost by a juror for a dispute
-   * @param {Number} disputeId The index of the dispute
+   * @param {number} disputeId The index of the dispute
    * @param {string} account The account of the juror
-   * @returns {Number} The net total PNK
+   * @returns {number} The net total PNK
    */
   getNetTokensForDispute = async (disputeId, account) => {
     const eventLogs = await EventListener.getNextEventLogs(
@@ -669,8 +671,7 @@ class KlerosPOC extends ContractImplementation {
     )
 
     let netPNK = 0
-    console.log(eventLogs)
-    for (let i=0; i<eventLogs.length; i++){
+    for (let i = 0; i < eventLogs.length; i++) {
       const event = eventLogs[i]
       if (event.args.disputeID.toNumber() === disputeId)
         netPNK += event.args._amount.toNumber()
@@ -681,21 +682,20 @@ class KlerosPOC extends ContractImplementation {
 
   /**
    * Get the timestamp from blockNumber
-   * @param {Number} blockNumber - The block number
+   * @param {number} blockNumber - The block number
    * @returns {number} timestamp
    */
-  _getTimestampForBlock = async blockNumber => (
-    await this.getBlock(blockNumber)
-  ).timestamp
+  _getTimestampForBlock = async blockNumber =>
+    (await this.getBlock(blockNumber)).timestamp
 
   /**
-   * Get NewPeriod events for a certain period
-   * @param {Number} blockNumber - The block number
-   * @param {Number} periodNumber - The period number
-   * @param {Number} appeals - The number of appeals. More appeals will return more event logs.
-   * @returns {[]Object} array of event logs for the period
+   * Get event NewPeriod event logs for a certain number of appeals.
+   * @param {number} blockNumber - The block number the dispute was created.
+   * @param {number} periodNumber - The period number we want logs for.
+   * @param {number} appeals - The number of appeals.
+   * @returns {object[]} an array of event logs.
    */
-  _getNewPeriodEventLogs = async (blockNumber, periodNumber, appeals=0) => {
+  _getNewPeriodEventLogs = async (blockNumber, periodNumber, appeals = 0) => {
     const logs = await EventListener.getNextEventLogs(
       this,
       'NewPeriod',
@@ -703,6 +703,7 @@ class KlerosPOC extends ContractImplementation {
     )
     // List off all appeal logs for period
     const eventLogs = []
+    let skip = false
 
     let appealCount = appeals
 
@@ -711,19 +712,24 @@ class KlerosPOC extends ContractImplementation {
     if (
       firstLogPeriod >= arbitratorConstants.PERIOD.VOTE &&
       firstLogPeriod <= periodNumber
-    ) skip = true
+    )
+      skip = true
 
-    for (let i=0; i<logs.length; i++) {
+    for (let i = 0; i < logs.length; i++) {
       const eventLog = logs[i]
       const period = eventLog.args._period.toNumber()
       if (period === periodNumber) {
-        // this is if dispute was created in the previous session.
-        eventLogs[appeals - appealCount] = eventLog
-        appealCount -= 1
+        if (skip) {
+          skip = false
+        } else {
+          // this is if dispute was created in the previous session.
+          eventLogs[appeals - appealCount] = eventLog
+          appealCount -= 1
 
-        // we have exhausted all appeals. Return events
-        if (appealCount < 0) {
-          return eventLogs
+          // we have exhausted all appeals. Return events
+          if (appealCount < 0) {
+            return eventLogs
+          }
         }
       }
     }
