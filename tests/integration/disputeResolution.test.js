@@ -343,7 +343,7 @@ describe('Dispute Resolution', () => {
         expect(web3.eth.getBalance(partyA).toNumber()).toEqual(partyABalance)
       }
 
-      const netPNK = await KlerosPOCInstance.getNetTokensForDispute(0, partyA)
+      // const netPNK = await KlerosPOCInstance.getNetTokensForDispute(0, partyA)
 
       const updatedContractData = await ArbitrableTransactionInstance.getData()
       expect(parseInt(updatedContractData.status, 10)).toEqual(4)
