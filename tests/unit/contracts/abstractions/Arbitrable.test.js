@@ -29,14 +29,14 @@ describe('ArbitrableContract', async () => {
       const mockGetContractByAddress = jest.fn()
       // return partyA then partyB contract
       mockGetContractByAddress.mockReturnValueOnce({
-        evidences: [
+        evidence: [
           {
             name: 'testPartyA'
           }
         ]
       })
       mockGetContractByAddress.mockReturnValueOnce({
-        evidences: [
+        evidence: [
           {
             name: 'testPartyB'
           }
@@ -70,7 +70,7 @@ describe('ArbitrableContract', async () => {
       const mockGetContractByAddress = jest.fn()
       // return partyA then partyB contract
       mockGetContractByAddress.mockReturnValueOnce({
-        evidences: [
+        evidence: [
           {
             name: 'testPartyA'
           }

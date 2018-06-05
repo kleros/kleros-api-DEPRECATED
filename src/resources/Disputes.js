@@ -114,13 +114,17 @@ class Disputes {
   // **************************** //
   /**
    * Fetch the shared dispute data from the store.
+   * @param {string} account - The users account.
    * @param {string} disputeId - The index of the dispute.
    * @returns {Promise} The dispute data in the store.
    */
-  getDisputeFromStore = disputeId => {
+  getDisputeFromStore = (account, disputeId) => {
     const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
-
-    return this._StoreProviderInstance.getDispute(arbitratorAddress, disputeId)
+    return this._StoreProviderInstance.getDispute(
+      account,
+      arbitratorAddress,
+      disputeId
+    )
   }
 
   /**

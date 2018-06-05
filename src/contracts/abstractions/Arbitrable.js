@@ -121,14 +121,14 @@ class ArbitrableContract extends AbstractContract {
     )
 
     const partyAEvidence = (partyAContractData
-      ? partyAContractData.evidences
+      ? partyAContractData.evidence
       : []
     ).map(evidence => {
       evidence.submitter = arbitrableContractData.partyA
       return evidence
     })
     const partyBEvidence = (partyBContractData
-      ? partyBContractData.evidences
+      ? partyBContractData.evidence
       : []
     ).map(evidence => {
       evidence.submitter = arbitrableContractData.partyB

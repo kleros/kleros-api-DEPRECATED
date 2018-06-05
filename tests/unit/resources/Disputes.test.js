@@ -68,10 +68,12 @@ describe('Disputes', () => {
         currentRulingForDispute: jest.fn().mockReturnValue(0),
         canRuleDispute: jest.fn().mockReturnValue(false),
         getContractAddress: jest.fn().mockReturnValue(arbitratorAddress),
-        getDisputeCreationEvent: jest.fn().mockReturnValue({blockNumber: 1}),
+        getDisputeCreationEvent: jest.fn().mockReturnValue({ blockNumber: 1 }),
         getNetTokensForDispute: jest.fn().mockReturnValue(0),
         getAppealRuledAtTimestamps: jest.fn().mockReturnValue(appealRuledAt),
-        getDisputeDeadlineTimestamps: jest.fn().mockReturnValue(appealDeadlines),
+        getDisputeDeadlineTimestamps: jest
+          .fn()
+          .mockReturnValue(appealDeadlines),
         getAppealCreationTimestamps: jest.fn().mockReturnValue(appealCreatedAt)
       }
       disputesInstance._ArbitratorInstance = mockArbitrator
@@ -161,10 +163,12 @@ describe('Disputes', () => {
         currentRulingForDispute: jest.fn().mockReturnValue(2),
         canRuleDispute: jest.fn().mockReturnValue(true),
         getContractAddress: jest.fn().mockReturnValue(arbitratorAddress),
-        getDisputeCreationEvent: jest.fn().mockReturnValue({blockNumber: 1}),
+        getDisputeCreationEvent: jest.fn().mockReturnValue({ blockNumber: 1 }),
         getNetTokensForDispute: jest.fn().mockReturnValue(0),
         getAppealRuledAtTimestamps: jest.fn().mockReturnValue(appealRuledAt),
-        getDisputeDeadlineTimestamps: jest.fn().mockReturnValue(appealDeadlines),
+        getDisputeDeadlineTimestamps: jest
+          .fn()
+          .mockReturnValue(appealDeadlines),
         getAppealCreationTimestamps: jest.fn().mockReturnValue(appealCreatedAt)
       }
       disputesInstance._ArbitratorInstance = mockArbitrator
@@ -274,10 +278,12 @@ describe('Disputes', () => {
         currentRulingForDispute: jest.fn().mockReturnValue(2),
         canRuleDispute: jest.fn().mockReturnValue(false),
         getContractAddress: jest.fn().mockReturnValue(arbitratorAddress),
-        getDisputeCreationEvent: jest.fn().mockReturnValue({blockNumber: 1}),
+        getDisputeCreationEvent: jest.fn().mockReturnValue({ blockNumber: 1 }),
         getNetTokensForDispute: jest.fn().mockReturnValue(0),
         getAppealRuledAtTimestamps: jest.fn().mockReturnValue(appealRuledAt),
-        getDisputeDeadlineTimestamps: jest.fn().mockReturnValue(appealDeadlines),
+        getDisputeDeadlineTimestamps: jest
+          .fn()
+          .mockReturnValue(appealDeadlines),
         getAppealCreationTimestamps: jest.fn().mockReturnValue(appealCreatedAt)
       }
       disputesInstance._ArbitratorInstance = mockArbitrator
@@ -389,10 +395,12 @@ describe('Disputes', () => {
         currentRulingForDispute: jest.fn().mockReturnValue(2),
         canRuleDispute: jest.fn().mockReturnValue(false),
         getContractAddress: jest.fn().mockReturnValue(arbitratorAddress),
-        getDisputeCreationEvent: jest.fn().mockReturnValue({blockNumber: 1}),
+        getDisputeCreationEvent: jest.fn().mockReturnValue({ blockNumber: 1 }),
         getNetTokensForDispute: jest.fn().mockReturnValue(0),
         getAppealRuledAtTimestamps: jest.fn().mockReturnValue(appealRuledAt),
-        getDisputeDeadlineTimestamps: jest.fn().mockReturnValue(appealDeadlines),
+        getDisputeDeadlineTimestamps: jest
+          .fn()
+          .mockReturnValue(appealDeadlines),
         getAppealCreationTimestamps: jest.fn().mockReturnValue(appealCreatedAt)
       }
       disputesInstance._ArbitratorInstance = mockArbitrator
