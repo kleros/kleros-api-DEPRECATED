@@ -167,7 +167,7 @@ class StoreProviderWrapper {
     let userProfile = await this.getUserProfile(userAddress)
     if (_.isNull(userProfile)) {
       // we can safely make request without queuing because all other writes for profile will fail if it hasn't been created.
-      const response = const httpResponse = await this._makeRequest(
+      const response = await this._makeRequest(
         'POST',
         `${this._storeUri}/${userAddress}`
       )

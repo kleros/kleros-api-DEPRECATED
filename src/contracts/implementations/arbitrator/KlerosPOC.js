@@ -6,6 +6,7 @@ import * as errorConstants from '../../../constants/error'
 import * as arbitratorConstants from '../../../constants/arbitrator'
 import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
+import EventListener from '../../../utils/EventListener'
 
 /**
  * Provides interaction with a KlerosPOC contract on the blockchain.
@@ -550,23 +551,159 @@ class KlerosPOC extends ContractImplementation {
   }
 
   /**
-   * Gets the deadline for an arbitrator's period, which is also the deadline for all its disputes.
-   * @param {number} [period=PERIODS.VOTE] - The period to get the deadline for.
-   * @returns {number} - epoch timestamp
+   * Starting from the blockNumber of the dispute creation, find when and if it was ruled on
+   * @param {Number} blockNumber - The block number that the dispute was created.
+   * @returns {Promise}
    */
-  getDeadlineForOpenDispute = async (
-    period = arbitratorConstants.PERIOD.VOTE
-  ) => {
-    await this.loadContract()
+  getAppealRuledAtTimestamps = async (blockNumber, appeal=0) => {
+    const eventLogs = await this._getNewPeriodEventLogs(
+      blockNumber,
+      arbitratorConstants.PERIOD.APPEAL,
+      appeal
+    )
 
-    // Get arbitrator data
-    const lastPeriodChange = (await this.contractInstance.lastPeriodChange()).toNumber()
+    const eventLogTimestamps = []
 
-    // Last period change + current period duration = deadline
-    const result =
-      1000 * (lastPeriodChange + (await this.getTimeForPeriod(period)))
+    for (let i=0; i<eventLogs.length; i++) {
+      const eventLog = eventLogs[i]
 
-    return result
+      const timestamp = await this._getTimestampForBlock(eventLog.blockNumber)
+
+      eventLogTimestamps.push(timestamp * 1000)
+    }
+
+    return eventLogTimestamps
+  }
+
+  /**
+   * Starting from the blockNumber of the dispute creation, find when and if it was ruled on
+   * @param {Number} blockNumber - The block number that the dispute was created.
+   * @returns {Promise}
+   */
+  getDisputeDeadlineTimestamps = async (blockNumber, appeal=0) => {
+    const eventLogs = await this._getNewPeriodEventLogs(
+      blockNumber,
+      arbitratorConstants.PERIOD.VOTE,
+      appeal
+    )
+    // Fetch length of Vote period
+    const periodLength = await this.getTimeForPeriod(
+      arbitratorConstants.PERIOD.VOTE
+    )
+    const eventLogTimestamps = []
+
+    for (let i=0; i<eventLogs.length; i++) {
+      const eventLog = eventLogs[i]
+
+      const periodStartTimestamp = await this._getTimestampForBlock(
+        eventLog.blockNumber
+      )
+
+      eventLogTimestamps.push((periodLength + periodStartTimestamp) * 1000)
+    }
+
+    return eventLogTimestamps
+  }
+
+  /**
+   * Get the event log for the dispute creation.
+   * @param {Number} disputeId - The block number that the dispute was created.
+   * @returns {Promise}
+   */
+  getDisputeCreationEvent = async disputeId => {
+    const eventLogs = await EventListener.getNextEventLogs(
+      this,
+      'DisputeCreation',
+      0
+    )
+
+    for (let i=0; i<eventLogs.length; i++) {
+      const log = eventLogs[i]
+
+      if (log.args.disputeID.toNumber() === disputeId)
+        return log
+    }
+
+    return null
+  }
+
+  /**
+   * Get the amount of tokens won or lost by a juror for a dispute
+   * @param {Number} disputeId The index of the dispute
+   * @param {string} account The account of the juror
+   * @returns {Number} The net total PNK
+   */
+  getNetTokensForDispute = async (disputeId, account) => {
+    const eventLogs = await EventListener.getNextEventLogs(
+      this,
+      'TokenShift',
+      0,
+      'latest',
+      { _account: account }
+    )
+
+    let netPNK = 0
+    console.log(eventLogs)
+    for (let i=0; i<eventLogs.length; i++){
+      const event = eventLogs[i]
+      if (event.args.disputeID.toNumber() === disputeId)
+        netPNK += event.args._amount.toNumber()
+    }
+
+    return netPNK
+  }
+
+  /**
+   * Get the timestamp from blockNumber
+   * @param {Number} blockNumber - The block number
+   * @returns {number} timestamp
+   */
+  _getTimestampForBlock = async blockNumber => (
+    await this.getBlock(blockNumber)
+  ).timestamp
+
+  /**
+   * Get NewPeriod events for a certain period
+   * @param {Number} blockNumber - The block number
+   * @param {Number} periodNumber - The period number
+   * @param {Number} appeals - The number of appeals. More appeals will return more event logs.
+   * @returns {[]Object} array of event logs for the period
+   */
+  _getNewPeriodEventLogs = async (blockNumber, periodNumber, appeals=0) => {
+    const logs = await EventListener.getNextEventLogs(
+      this,
+      'NewPeriod',
+      blockNumber
+    )
+    // List off all appeal logs for period
+    const eventLogs = []
+
+    let appealCount = appeals
+
+    const firstLogPeriod = logs[0].args._period.toNumber()
+    // if dispute was created for next session and there is still an event in this session for that period
+    if (
+      firstLogPeriod >= arbitratorConstants.PERIOD.VOTE &&
+      firstLogPeriod <= periodNumber
+    ) skip = true
+
+    for (let i=0; i<logs.length; i++) {
+      const eventLog = logs[i]
+      const period = eventLog.args._period.toNumber()
+      if (period === periodNumber) {
+        // this is if dispute was created in the previous session.
+        eventLogs[appeals - appealCount] = eventLog
+        appealCount -= 1
+
+        // we have exhausted all appeals. Return events
+        if (appealCount < 0) {
+          return eventLogs
+        }
+      }
+    }
+
+    // We have hit the latest event log and did not find data. Return all that we have.
+    return eventLogs
   }
 
   /**
