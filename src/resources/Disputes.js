@@ -166,10 +166,9 @@ class Disputes {
 
     // Get dispute data from the store
     let appealDraws = []
-    let appealCreatedAt = null
+    let appealCreatedAt = []
     let appealDeadlines = []
     let appealRuledAt = []
-    let netPNK = 0
     let startBlock
     try {
       const userData = await this._StoreProviderInstance.getDispute(
@@ -195,6 +194,10 @@ class Disputes {
         dispute.numberOfAppeals
       )
       appealRuledAt = await this._ArbitratorInstance.getAppealRuledAtTimestamps(
+        startBlock,
+        dispute.numberOfAppeals
+      )
+      appealCreatedAt = await this._ArbitratorInstance.getAppealCreationTimestamps(
         startBlock,
         dispute.numberOfAppeals
       )
@@ -241,6 +244,7 @@ class Disputes {
       ;[ruling, canRule] = await Promise.all(rulingPromises)
 
       appealJuror[appeal] = {
+        createdAt: appealCreatedAt[appeal],
         fee: dispute.arbitrationFeePerJuror * draws.length,
         draws,
         canRule
@@ -272,8 +276,8 @@ class Disputes {
       disputeStatus: dispute.status,
       appealJuror,
       appealRulings,
-      appealCreatedAt, // there is only one timestamp for when dispute was first created
-      netPNK
+      netPNK,
+      disputeCreatedAt,
 
       // Store Data
       title: contractStoreData ? contractStoreData.title : undefined,

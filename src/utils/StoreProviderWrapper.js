@@ -172,7 +172,7 @@ class StoreProviderWrapper {
         `${this._storeUri}/${userAddress}`
       )
       if (response.status !== 201)
-        throw new Error(errorConstants.REQUEST_FAILED(response.responseText))
+        throw new Error(errorConstants.REQUEST_FAILED(response))
       userProfile = response.body
     }
 
@@ -228,10 +228,6 @@ class StoreProviderWrapper {
       'POST',
       `${this._storeUri}/${userAddress}/contracts/${contractAddress}`
     )
-
-    if (httpResponse.status !== 201) {
-      throw new Error(errorConstants.REQUEST_FAILED(httpResponse.error))
-    }
 
     return _.filter(
       httpResponse.body[0].contracts,

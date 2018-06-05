@@ -610,6 +610,32 @@ class KlerosPOC extends ContractImplementation {
    * @param {Number} disputeId - The block number that the dispute was created.
    * @returns {Promise}
    */
+  getAppealCreationTimestamps = async (startBlock, numberOfAppeals) => {
+    const eventLogs = await this._getNewPeriodEventLogs(
+      blockNumber,
+      arbitratorConstants.PERIOD.VOTE,
+      numberOfAppeals + 1
+    )
+
+    const eventLogTimestamps = [startBlock]
+
+    // skip first execute phase as this is the original ruling
+    for (let i=1; i<eventLogs.length; i++) {
+      const eventLog = eventLogs[i]
+
+      const timestamp = await this._getTimestampForBlock(eventLog.blockNumber)
+
+      eventLogTimestamps.push(timestamp * 1000)
+    }
+
+    return eventLogTimestamps
+  }
+
+  /**
+   * Get the event log for the dispute creation.
+   * @param {Number} disputeId - The block number that the dispute was created.
+   * @returns {Promise}
+   */
   getDisputeCreationEvent = async disputeId => {
     const eventLogs = await EventListener.getNextEventLogs(
       this,

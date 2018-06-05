@@ -314,6 +314,7 @@ class Notifications {
             const notification = await this._newNotification(
               account,
               event.transactionHash,
+              event.blockNumber,
               openDispute.disputeId, // use disputeId instead of logIndex since it doens't have its own event
               notificationConstants.TYPE.APPEAL_POSSIBLE,
               'A ruling has been made. Appeal is possible',
@@ -354,6 +355,7 @@ class Notifications {
       const notification = await this._newNotification(
         account,
         txHash,
+        event.blockNumber,
         event.logIndex,
         notificationConstants.TYPE.DISPUTE_CREATED,
         'New Dispute Created',
@@ -392,6 +394,7 @@ class Notifications {
       const notification = await this._newNotification(
         account,
         event.transactionHash,
+        event.blockNumber,
         event.logIndex,
         notificationConstants.TYPE.APPEAL_POSSIBLE,
         'A ruling has been made. Appeal is possible',
@@ -429,6 +432,7 @@ class Notifications {
       const notification = await this._newNotification(
         account,
         event.transactionHash,
+        event.blockNumber,
         event.logIndex,
         notificationConstants.TYPE.RULING_APPEALED,
         'A ruling been appealed',
@@ -460,6 +464,7 @@ class Notifications {
       const notification = await this._newNotification(
         account,
         event.transactionHash,
+        event.blockNumber,
         event.logIndex,
         notificationConstants.TYPE.TOKEN_SHIFT,
         'Tokens have been redistributed',
@@ -492,6 +497,7 @@ class Notifications {
       const notification = await this._newNotification(
         account,
         event.transactionHash,
+        event.blockNumber,
         event.logIndex,
         notificationConstants.TYPE.ARBITRATION_REWARD,
         'Juror awarded arbitration fee',
@@ -558,6 +564,7 @@ class Notifications {
   _newNotification = async (
     account,
     txHash,
+    blockNumber,
     logIndex,
     notificationType,
     message = '',
@@ -565,6 +572,9 @@ class Notifications {
     read = false
   ) => {
     if (this._StoreProviderInstance) {
+      // update last block we have processed an event for
+      await this._StoreProviderInstance.updateLastBlock(account, blockNumber)
+
       const response = await this._StoreProviderInstance.newNotification(
         account,
         txHash,
