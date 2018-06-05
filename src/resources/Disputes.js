@@ -124,15 +124,6 @@ class Disputes {
   }
 
   /**
-   * Starting from the blockNumber of the dispute creation, find when and if it was ruled on
-   * @param {Number} blockNumber - The block number that the dispute was created.
-   * @returns {Promise}
-   */
-   getTokensMovedForDispute = async (blockNumber, appeal=0) => {
-
-   }
-
-  /**
    * Get data for a dispute. This method provides data from the store as well as both
    * arbitrator and arbitrable contracts. Used to get all relevant data on a dispute.
    * @param {number} disputeId - The dispute's ID.
@@ -182,13 +173,14 @@ class Disputes {
     } catch (err) {
       // Fetching a dispute will fail if it hasn't been added to the store yet. This is ok, we can just not return store data
       // see if we can get dispute start block from events
-      const disputeCreationEvent = this._ArbitratorInstance.getDisputeCreationEvent(disputeId)
+      const disputeCreationEvent = this._ArbitratorInstance.getDisputeCreationEvent(
+        disputeId
+      )
       if (disputeCreationEvent) startBlock = disputeCreationEvent.blockNumber
     }
 
     if (startBlock) {
       // get timestamps
-      disputeCreatedAt = (await this._ArbitratorInstance._getTimestampForBlock(startBlock)) * 1000
       appealDeadlines = await this._ArbitratorInstance.getDisputeDeadlineTimestamps(
         startBlock,
         dispute.numberOfAppeals
@@ -277,7 +269,6 @@ class Disputes {
       appealJuror,
       appealRulings,
       netPNK,
-      disputeCreatedAt,
 
       // Store Data
       title: contractStoreData ? contractStoreData.title : undefined,

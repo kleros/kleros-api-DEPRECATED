@@ -554,6 +554,7 @@ class Notifications {
    * Creates a new notification object in the store.
    * @param {string} account - The account.
    * @param {string} txHash - The txHash.
+   * @param {string} blockNumber - The block number of the event log.
    * @param {number} logIndex - The logIndex.
    * @param {number} notificationType - The notificationType.
    * @param {string} message - The message.

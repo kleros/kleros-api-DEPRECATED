@@ -62,6 +62,7 @@ class EventListener {
    * @param {string} eventName - Name of the event.
    * @param {number} firstBlock - Lower bound of search range.
    * @param {number} lastBlock - Upper bound of search range.
+   * @param {object} filters - Extra filters
    * @returns {Promise} All events in block range.
    */
   static getNextEventLogs = async (
@@ -79,16 +80,13 @@ class EventListener {
       contractImplementationInstance.contractInstance[eventName](filters, {
         fromBlock: firstBlock,
         toBlock: lastBlock
-      })
-      .get((error, result) => {
-        if (error)
-          reject(errorConstants.ERROR_FETCHING_EVENTS(error))
+      }).get((error, result) => {
+        if (error) reject(errorConstants.ERROR_FETCHING_EVENTS(error))
 
         resolve(result)
       })
     })
   }
-
 
   /**
    * Add a contract instance to watch for new event logs.

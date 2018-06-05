@@ -344,7 +344,6 @@ describe('Dispute Resolution', () => {
       }
 
       const netPNK = await KlerosPOCInstance.getNetTokensForDispute(0, partyA)
-      console.log(netPNK)
 
       const updatedContractData = await ArbitrableTransactionInstance.getData()
       expect(parseInt(updatedContractData.status, 10)).toEqual(4)
