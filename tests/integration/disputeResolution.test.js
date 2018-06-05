@@ -216,6 +216,15 @@ describe('Dispute Resolution', () => {
         newPeriod = await KlerosPOCInstance.getPeriod()
         expect(newPeriod).toEqual(i)
       }
+
+      // check deadline timestamp
+      const deadlines = await KlerosPOCInstance.getDisputeDeadlineTimestamps(0)
+      expect(deadlines.length).toEqual(1)
+
+      // check deadline timestamp
+      const noAppeals = await KlerosPOCInstance.getAppealRuledAtTimestamps(0)
+      expect(noAppeals.length).toEqual(0)
+
       let drawA = []
       let drawB = []
       for (let i = 1; i <= 3; i++) {
@@ -268,6 +277,10 @@ describe('Dispute Resolution', () => {
 
       const currentRuling = await klerosPOCInstance.currentRuling(0)
       expect(`${currentRuling}`).toEqual(`${winningRuling}`)
+
+      // check ruled at timestamp
+      const ruledAt = await KlerosPOCInstance.getAppealRuledAtTimestamps(0)
+      expect(ruledAt.length).toEqual(1)
 
       await delaySecond()
       await KlerosPOCInstance.passPeriod(other)
@@ -329,6 +342,9 @@ describe('Dispute Resolution', () => {
         // partyB lost so their balance should remain the same
         expect(web3.eth.getBalance(partyA).toNumber()).toEqual(partyABalance)
       }
+
+      const netPNK = await KlerosPOCInstance.getNetTokensForDispute(0, partyA)
+      console.log(netPNK)
 
       const updatedContractData = await ArbitrableTransactionInstance.getData()
       expect(parseInt(updatedContractData.status, 10)).toEqual(4)
