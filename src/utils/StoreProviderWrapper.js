@@ -304,6 +304,8 @@ class StoreProviderWrapper {
       params.disputeId = disputeId
       params.arbitratorAddress = arbitratorAddress
 
+      console.log(params)
+
       return JSON.stringify({ ...currentDisputeProfile, ...params })
     }
 
