@@ -434,12 +434,13 @@ class KlerosPOC extends ContractImplementation {
       disputeId,
       draws
     )
+
     const lastRuling = (await this.contractInstance.getLastSessionVote(
       disputeId,
       account
     )).toNumber()
-    const currentSession = await this.getSession(this.contractAddress)
 
+    const currentSession = await this.getSession(this.contractAddress)
     return validDraws && lastRuling !== currentSession
   }
 
@@ -579,6 +580,8 @@ class KlerosPOC extends ContractImplementation {
    * @returns {number[]} an array of timestamps
    */
   getAppealRuledAtTimestamps = async (blockNumber, appeal = 0) => {
+
+
     const eventLogs = await this._getNewPeriodEventLogs(
       blockNumber,
       arbitratorConstants.PERIOD.APPEAL,
@@ -631,19 +634,19 @@ class KlerosPOC extends ContractImplementation {
 
   /**
    * Get the event log for the dispute creation.
-   * @param {number} startBlock - The block number that the dispute was created.
+   * @param {number} blockNumber - The block number that the dispute was created.
    * @param {number} numberOfAppeals - the number of appeals we need to fetch events for.
    * @returns {number[]} an array of timestamps
    */
-  getAppealCreationTimestamps = async (startBlock, numberOfAppeals) => {
+  getAppealCreationTimestamps = async (blockNumber, numberOfAppeals) => {
     const eventLogs = await this._getNewPeriodEventLogs(
-      startBlock,
+      blockNumber,
       arbitratorConstants.PERIOD.VOTE,
       numberOfAppeals + 1
     )
 
     const creationTimestamp = await this._getTimestampForBlock(
-      startBlock
+      blockNumber
     )
     const eventLogTimestamps = [(creationTimestamp * 1000)]
 
@@ -668,7 +671,9 @@ class KlerosPOC extends ContractImplementation {
     const eventLogs = await EventListener.getEventLogs(
       this,
       'DisputeCreation',
-      0
+      0,
+      'latest',
+      { "_disputeId": disputeId}
     )
 
     for (let i = 0; i < eventLogs.length; i++) {
@@ -692,7 +697,7 @@ class KlerosPOC extends ContractImplementation {
       'TokenShift',
       0,
       'latest',
-      { _account: account }
+      { "_account": account }
     )
 
     let netPNK = 0

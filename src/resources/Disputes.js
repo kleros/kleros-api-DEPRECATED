@@ -17,6 +17,7 @@ class Disputes {
     this._ArbitratorInstance = arbitratorInstance
     this._ArbitrableInstance = arbitrableInstance
     this._StoreProviderInstance = storeProviderInstance
+    this.disputeCache = {}
   }
   /**
    * Set arbitrator instance.
@@ -54,9 +55,7 @@ class Disputes {
     eventListener = isRequired('eventListener')
   ) => {
     const eventHandlerMap = {
-      DisputeCreation: [this._storeNewDisputeHandler],
-      TokenShift: [this._storeTokensMovedForJuror],
-      NewPeriod: [this._storeDisputeRuledAtTimestamp, this._storeAppealDeadline]
+      DisputeCreation: [this._storeNewDisputeHandler]
     }
 
     for (let event in eventHandlerMap) {
@@ -103,13 +102,40 @@ class Disputes {
           contractAddress: disputeData.arbitrableContractAddress,
           partyA: arbitrableContractData.partyA,
           partyB: arbitrableContractData.partyB,
-          blockNumber: event.blockNumber
+          blockNumber: event.blockNumber.toNumber()
         }
       )
     }
   }
 
+  // **************************** //
+  // *        Internal          * //
+  // **************************** //
+
+  /**
+   * Add new data to the cache
+   * @param {number} disputeId - The index of the dispute. Used as the key in cache
+   * @param {object} newCacheData - Freeform data to cache. Will overwrite data with the same keys.
+   */
+  _updateDisputeCache = (disputeId, newCacheData = {}) => {
+    this.disputeCache[disputeId] = {
+      ...this.disputeCache[disputeId],
+      ...newCacheData
+    }
+  }
+
+  /**
+   * Get the block at which a dispute was created. Used to find timestamps for dispute.
+   * The start block is cached after it has been found once as it will never change.
+   * @param {number} disputeId - The index of the dispute.
+   * @param {string} account - The address of the user.
+   * @returns {number} The block number that the dispute was created.
+   */
   _getDisputeStartBlock = async (disputeId, account) => {
+    const cachedDispute = this.disputeCache[disputeId]
+    if (cachedDispute && cachedDispute.startBlock)
+      return cachedDispute.startBlock
+
     const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
 
     let blockNumber
@@ -134,6 +160,9 @@ class Disputes {
         blockNumber = disputeCreationEvent.blockNumber
       }
     }
+
+    // cache start block for dispute
+    this._updateDisputeCache(disputeId, { startBlock: blockNumber })
     return blockNumber
   }
 
@@ -155,15 +184,105 @@ class Disputes {
     )
   }
 
+  /**
+   * Get the dispute deadline for the appeal.
+   * @param {number} disputeId - The index of the dispute.
+   * @param {string} account - The users address.
+   * @param {number} appeal - The appeal number. 0 if there have been no appeals.
+   * @returns {number} timestamp of the appeal
+   */
   getDisputeDeadline = async (disputeId, account, appeal=0) => {
+    const cachedDispute = this.disputeCache[disputeId]
+    if (
+      cachedDispute &&
+      cachedDispute.appealDeadlines &&
+      cachedDispute.appealDeadlines[appeal]
+    )
+      return cachedDispute.appealDeadlines[appeal]
+
     const startBlock = await this._getDisputeStartBlock(disputeId, account)
     // if there is no start block that means that dispute has not been created yet.
     if (!startBlock) return []
 
-    return this._ArbitratorInstance.getDisputeDeadlineTimestamps(
+    const deadlineTimestamps = await this._ArbitratorInstance.getDisputeDeadlineTimestamps(
       startBlock,
       appeal
     )
+
+    // cache the deadline for the appeal
+    if (deadlineTimestamps.length > 0)
+      this._updateDisputeCache(disputeId, { appealDeadlines: deadlineTimestamps })
+
+    return deadlineTimestamps[appeal]
+  }
+
+  /**
+   * Get the timestamp on when the dispute's ruling was finalized.
+   * @param {number} disputeId - The index of the dispute.
+   * @param {string} account - The users address.
+   * @param {number} appeal - The appeal number. 0 if there have been no appeals.
+   * @returns {number} timestamp of the appeal
+   */
+  getAppealRuledAt = async (disputeId, account, appeal=0) => {
+    const cachedDispute = this.disputeCache[disputeId]
+    if (
+      cachedDispute &&
+      cachedDispute.appealRuledAt &&
+      cachedDispute.appealRuledAt[appeal]
+    )
+      return cachedDispute.appealRuledAt[appeal]
+
+    const startBlock = await this._getDisputeStartBlock(disputeId, account)
+    // if there is no start block that means that dispute has not been created yet.
+    if (!startBlock) return []
+
+    const appealRuledAtTimestamps = await this._ArbitratorInstance.getAppealRuledAtTimestamps(
+      startBlock,
+      appeal
+    )
+
+    // cache the deadline for the appeal
+    if (appealRuledAtTimestamps.length > 0) {
+      this._updateDisputeCache(disputeId, { appealRuledAt: appealRuledAtTimestamps })
+    }
+
+    return appealRuledAtTimestamps[appeal]
+  }
+
+  /**
+   * Get the timestamp on when the dispute's appeal was created
+   * @param {number} disputeId - The index of the dispute.
+   * @param {string} account - The users address.
+   * @param {number} appeal - The appeal number. 0 if there have been no appeals.
+   * @returns {number} timestamp of the appeal
+   */
+  getAppealCreatedAt = async (disputeId, account, appeal=0) => {
+    const cachedDispute = this.disputeCache[disputeId]
+    if (
+      cachedDispute &&
+      cachedDispute.appealCreatedAt &&
+      cachedDispute.appealCreatedAt[appeal]
+    )
+      return cachedDispute.appealCreatedAt[appeal]
+
+    const startBlock = await this._getDisputeStartBlock(disputeId, account)
+    // if there is no start block that means that dispute has not been created yet.
+    if (!startBlock) return []
+
+    const appealCreatedAtTimestamps = await this._ArbitratorInstance.getDisputeDeadlineTimestamps(
+      startBlock,
+      appeal
+    )
+
+    // cache the deadline for the appeal
+    if (appealCreatedAtTimestamps) {
+      this._updateDisputeCache(
+        disputeId,
+        { appealCreatedAt: appealCreatedAtTimestamps }
+      )
+    }
+
+    return appealCreatedAtTimestamps[appeal]
   }
 
   /**
@@ -200,38 +319,19 @@ class Disputes {
 
     // Get dispute data from the store
     let appealDraws = []
-    let appealCreatedAt = []
-    let appealDeadlines = []
-    let appealRuledAt = []
-    const startBlock = await this._getDisputeStartBlock(disputeId, account)
 
-    // dispute exists
-    if (startBlock) {
-      try {
-        const userData = await this._StoreProviderInstance.getDispute(
-          account,
-          arbitratorAddress,
-          disputeId
-        )
-        if (userData.appealDraws) appealDraws = userData.appealDraws || []
-        // eslint-disable-next-line no-unused-vars
-      } catch (err) {
-        // Dispute exists on chain but not in store. We have lost draws for past disputes.
-        console.error("Dispute does not exist in store.")
-      }
-
-      appealDeadlines = await this._ArbitratorInstance.getDisputeDeadlineTimestamps(
-        startBlock,
-        dispute.numberOfAppeals
+    // get draws if they have been added to store.
+    try {
+      const userData = await this._StoreProviderInstance.getDispute(
+        account,
+        arbitratorAddress,
+        disputeId
       )
-      appealRuledAt = await this._ArbitratorInstance.getAppealRuledAtTimestamps(
-        startBlock,
-        dispute.numberOfAppeals
-      )
-      appealCreatedAt = await this._ArbitratorInstance.getAppealCreationTimestamps(
-        startBlock,
-        dispute.numberOfAppeals
-      )
+      if (userData.appealDraws) appealDraws = userData.appealDraws || []
+      // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      // Dispute exists on chain but not in store. We have lost draws for past disputes.
+      console.error("Dispute does not exist in store.")
     }
 
     const netPNK = await this._ArbitratorInstance.getNetTokensForDispute(
@@ -258,6 +358,7 @@ class Disputes {
 
       // Extra info for the last appeal
       if (isLastAppeal) {
+        console.log(draws)
         if (draws.length > 0)
           rulingPromises.push(
             this._ArbitratorInstance.canRuleDispute(disputeId, draws, account)
@@ -274,16 +375,32 @@ class Disputes {
       // Wait for parallel requests to complete
       ;[ruling, canRule] = await Promise.all(rulingPromises)
 
+      const appealCreatedAt = await this.getAppealCreatedAt(
+        dispute.disputeId,
+        account,
+        appeal
+      )
+      const appealDeadline = await this.getDisputeDeadline(
+        dispute.disputeId,
+        account,
+        appeal
+      )
+      const appealRuledAt = await this.getAppealRuledAt(
+        dispute.disputeId,
+        account,
+        appeal
+      )
+
       appealJuror[appeal] = {
-        createdAt: appealCreatedAt[appeal],
+        createdAt: appealCreatedAt,
         fee: dispute.arbitrationFeePerJuror * draws.length,
         draws,
         canRule
       }
       appealRulings[appeal] = {
         voteCounter: dispute.voteCounters[appeal],
-        deadline: appealDeadlines[appeal],
-        ruledAt: appealRuledAt[appeal],
+        deadline: appealDeadline,
+        ruledAt: appealRuledAt,
         ruling,
         canRepartition,
         canExecute

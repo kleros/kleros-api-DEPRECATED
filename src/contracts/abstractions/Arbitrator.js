@@ -45,13 +45,8 @@ class Arbitrator extends AbstractContract {
       // update user profile for each dispute
       await Promise.all(
         myDisputes.map(async dispute => {
-          const disputeCreationLog = (await EventListener.getEventLogs(
-            this._contractImplementation,
-            'DisputeCreation',
-            0,
-            'latest',
-            { "_disputeID": dispute.disputeId}
-          ))[0]
+          const disputeCreationLog = await this._contractImplementation.getDisputeCreationEvent(dispute.disputeId)
+
           if (!disputeCreationLog)
             throw new Error('Could not fetch dispute creation event log')
           // update profile for account
