@@ -401,6 +401,10 @@ describe('Contracts', () => {
         expect(raiseAppealByPartyATxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
+
+        const dispute = await KlerosPOCInstance.getDispute(0)
+
+        expect(dispute.numberOfAppeals).toEqual(1)
       },
       50000
     )

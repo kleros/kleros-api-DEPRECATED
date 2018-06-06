@@ -217,15 +217,15 @@ class ArbitrableTransaction extends ContractImplementation {
 
   /**
    * Appeal an appealable ruling.
-   * @param {string} account Ethereum account (default account[1]).
+   * @param {string} account Ethereum account (default account[0]).
    * @param {bytes} extraData for the arbitrator appeal procedure.
    * @param {number} appealCost Amount to pay the arbitrator. (default 0.35 ether).
    * @returns {object} - The result transaction object.
    */
   appeal = async (
-    account = this._Web3Wrapper.getAccount(1),
+    account = this._Web3Wrapper.getAccount(0),
     extraData = 0x0,
-    appealCost = 0.35
+    appealCost = 0.3
   ) => {
     await this.loadContract()
 
