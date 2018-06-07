@@ -138,7 +138,7 @@ describe('Disputes', () => {
       const partyA = '0x0'
       const partyB = '0x1'
       const appealDeadlines = [1]
-      const appealRuledAt = [2]
+      const appealRuledAt = []
       const appealCreatedAt = [3]
 
       const mockArbitratorGetDispute = jest.fn().mockReturnValue(
@@ -231,6 +231,7 @@ describe('Disputes', () => {
       const appealData = disputeData.appealRulings[0]
       expect(appealData.voteCounter).toEqual(voteCounters[numberOfAppeals])
       expect(appealData.ruledAt).toBeFalsy()
+      expect(appealData.deadline).toEqual(appealDeadlines[numberOfAppeals])
       expect(appealData.ruling).toEqual(2)
       expect(appealData.canRepartition).toBeFalsy()
       expect(appealData.canExecute).toBeFalsy()
