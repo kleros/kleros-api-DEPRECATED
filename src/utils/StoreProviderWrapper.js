@@ -101,8 +101,7 @@ class StoreProviderWrapper {
    */
   getContractByAddress = async (userAddress, addressContract) => {
     const userProfile = await this.getUserProfile(userAddress)
-    if (!userProfile)
-      return {}
+    if (!userProfile) return {}
 
     let contract = _.filter(
       userProfile.contracts,
@@ -303,8 +302,6 @@ class StoreProviderWrapper {
       // set these so if it is a new dispute they are included
       params.disputeId = disputeId
       params.arbitratorAddress = arbitratorAddress
-
-      console.log(params)
 
       return JSON.stringify({ ...currentDisputeProfile, ...params })
     }

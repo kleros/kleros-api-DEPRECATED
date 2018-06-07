@@ -191,7 +191,7 @@ class Disputes {
    * @param {number} appeal - The appeal number. 0 if there have been no appeals.
    * @returns {number} timestamp of the appeal
    */
-  getDisputeDeadline = async (disputeId, account, appeal=0) => {
+  getDisputeDeadline = async (disputeId, account, appeal = 0) => {
     const cachedDispute = this.disputeCache[disputeId]
     if (
       cachedDispute &&
@@ -211,7 +211,9 @@ class Disputes {
 
     // cache the deadline for the appeal
     if (deadlineTimestamps.length > 0)
-      this._updateDisputeCache(disputeId, { appealDeadlines: deadlineTimestamps })
+      this._updateDisputeCache(disputeId, {
+        appealDeadlines: deadlineTimestamps
+      })
 
     return deadlineTimestamps[appeal]
   }
@@ -223,7 +225,7 @@ class Disputes {
    * @param {number} appeal - The appeal number. 0 if there have been no appeals.
    * @returns {number} timestamp of the appeal
    */
-  getAppealRuledAt = async (disputeId, account, appeal=0) => {
+  getAppealRuledAt = async (disputeId, account, appeal = 0) => {
     const cachedDispute = this.disputeCache[disputeId]
     if (
       cachedDispute &&
@@ -243,7 +245,9 @@ class Disputes {
 
     // cache the deadline for the appeal
     if (appealRuledAtTimestamps.length > 0) {
-      this._updateDisputeCache(disputeId, { appealRuledAt: appealRuledAtTimestamps })
+      this._updateDisputeCache(disputeId, {
+        appealRuledAt: appealRuledAtTimestamps
+      })
     }
 
     return appealRuledAtTimestamps[appeal]
@@ -256,7 +260,7 @@ class Disputes {
    * @param {number} appeal - The appeal number. 0 if there have been no appeals.
    * @returns {number} timestamp of the appeal
    */
-  getAppealCreatedAt = async (disputeId, account, appeal=0) => {
+  getAppealCreatedAt = async (disputeId, account, appeal = 0) => {
     const cachedDispute = this.disputeCache[disputeId]
     if (
       cachedDispute &&
@@ -276,10 +280,9 @@ class Disputes {
 
     // cache the deadline for the appeal
     if (appealCreatedAtTimestamps) {
-      this._updateDisputeCache(
-        disputeId,
-        { appealCreatedAt: appealCreatedAtTimestamps }
-      )
+      this._updateDisputeCache(disputeId, {
+        appealCreatedAt: appealCreatedAtTimestamps
+      })
     }
 
     return appealCreatedAtTimestamps[appeal]
@@ -331,7 +334,7 @@ class Disputes {
       // eslint-disable-next-line no-unused-vars
     } catch (err) {
       // Dispute exists on chain but not in store. We have lost draws for past disputes.
-      console.error("Dispute does not exist in store.")
+      console.error('Dispute does not exist in store.')
     }
 
     const netPNK = await this._ArbitratorInstance.getNetTokensForDispute(
@@ -358,7 +361,6 @@ class Disputes {
 
       // Extra info for the last appeal
       if (isLastAppeal) {
-        console.log(draws)
         if (draws.length > 0)
           rulingPromises.push(
             this._ArbitratorInstance.canRuleDispute(disputeId, draws, account)

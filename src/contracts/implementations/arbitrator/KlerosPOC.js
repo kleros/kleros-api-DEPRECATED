@@ -580,8 +580,6 @@ class KlerosPOC extends ContractImplementation {
    * @returns {number[]} an array of timestamps
    */
   getAppealRuledAtTimestamps = async (blockNumber, appeal = 0) => {
-
-
     const eventLogs = await this._getNewPeriodEventLogs(
       blockNumber,
       arbitratorConstants.PERIOD.APPEAL,
@@ -645,10 +643,8 @@ class KlerosPOC extends ContractImplementation {
       numberOfAppeals + 1
     )
 
-    const creationTimestamp = await this._getTimestampForBlock(
-      blockNumber
-    )
-    const eventLogTimestamps = [(creationTimestamp * 1000)]
+    const creationTimestamp = await this._getTimestampForBlock(blockNumber)
+    const eventLogTimestamps = [creationTimestamp * 1000]
 
     // skip first execute phase as this is the original ruling
     for (let i = 1; i < eventLogs.length; i++) {
@@ -673,7 +669,7 @@ class KlerosPOC extends ContractImplementation {
       'DisputeCreation',
       0,
       'latest',
-      { "_disputeId": disputeId}
+      { _disputeId: disputeId }
     )
 
     for (let i = 0; i < eventLogs.length; i++) {
@@ -697,7 +693,7 @@ class KlerosPOC extends ContractImplementation {
       'TokenShift',
       0,
       'latest',
-      { "_account": account }
+      { _account: account }
     )
 
     let netPNK = 0

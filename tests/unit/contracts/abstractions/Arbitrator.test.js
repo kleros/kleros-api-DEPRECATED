@@ -83,7 +83,6 @@ describe('Arbitrator', () => {
       const mockGetDisputesForUser = jest.fn()
       const mockSetUpUserProfile = jest.fn()
       const mockGetDisputesForJuror = jest.fn()
-      const mockUpdateUserProfile = jest.fn()
       const mockUpdateDisputeProfile = jest.fn()
       const mockDispute = {
         arbitratorAddress: arbitratorAddress,
@@ -99,7 +98,6 @@ describe('Arbitrator', () => {
             session: 1
           })
         ),
-        updateUserProfile: mockUpdateUserProfile,
         updateDisputeProfile: mockUpdateDisputeProfile
       }
 
@@ -111,11 +109,10 @@ describe('Arbitrator', () => {
         getDispute: jest.fn().mockReturnValue(_asyncMockResponse(mockDispute)),
         getDisputesForJuror: mockGetDisputesForJuror.mockReturnValue(
           _asyncMockResponse([mockDispute])
-        )
+        ),
+        getDisputeCreationEvent: jest.fn().mockReturnValue({ blockNumber: 1 })
       }
       arbitratorInstance._contractImplementation = mockArbitrator
-
-      arbitratorInstance.updateUserProfile = mockUpdateUserProfile
 
       const disputes = await arbitratorInstance.getDisputesForUser(account)
 
@@ -136,13 +133,8 @@ describe('Arbitrator', () => {
         mockDispute.disputeId
       )
       expect(mockUpdateDisputeProfile.mock.calls[0][3]).toEqual({
-        appealDraws: mockDispute.appealDraws
-      })
-
-      expect(mockUpdateUserProfile.mock.calls.length).toBe(1)
-      expect(mockUpdateUserProfile.mock.calls[0][0]).toBe(account)
-      expect(mockUpdateUserProfile.mock.calls[0][1]).toEqual({
-        session: 2
+        appealDraws: mockDispute.appealDraws,
+        blockNumber: 1
       })
     })
   })
