@@ -192,30 +192,29 @@ class Disputes {
    * @returns {number} timestamp of the appeal
    */
   getDisputeDeadline = async (disputeId, account, appeal = 0) => {
-    const cachedDispute = this.disputeCache[disputeId]
+    const cachedDispute = this.disputeCache[disputeId] || {}
     if (
-      cachedDispute &&
       cachedDispute.appealDeadlines &&
       cachedDispute.appealDeadlines[appeal]
     )
       return cachedDispute.appealDeadlines[appeal]
 
-    const startBlock = await this._getDisputeStartBlock(disputeId, account)
-    // if there is no start block that means that dispute has not been created yet.
-    if (!startBlock) return []
+    const dispute = await this._ArbitratorInstance.getDispute(disputeId)
 
-    const deadlineTimestamps = await this._ArbitratorInstance.getDisputeDeadlineTimestamps(
-      startBlock,
-      appeal
+    const deadlineTimestamp = await this._ArbitratorInstance.getDisputeDeadlineTimestamp(
+      dispute.firstSession + appeal
     )
 
-    // cache the deadline for the appeal
-    if (deadlineTimestamps.length > 0)
+    if (deadlineTimestamp) {
+      const currentDeadlines = cachedDispute.appealDeadlines || []
+      currentDeadlines[appeal] = deadlineTimestamp
+      // cache the deadline for the appeal
       this._updateDisputeCache(disputeId, {
-        appealDeadlines: deadlineTimestamps
+        appealDeadlines: currentDeadlines
       })
+    }
 
-    return deadlineTimestamps[appeal]
+    return deadlineTimestamp
   }
 
   /**
@@ -273,7 +272,7 @@ class Disputes {
     // if there is no start block that means that dispute has not been created yet.
     if (!startBlock) return []
 
-    const appealCreatedAtTimestamps = await this._ArbitratorInstance.getDisputeDeadlineTimestamps(
+    const appealCreatedAtTimestamps = await this._ArbitratorInstance.getAppealCreationTimestamps(
       startBlock,
       appeal
     )

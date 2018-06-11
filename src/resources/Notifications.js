@@ -289,9 +289,13 @@ class Notifications {
    */
   _newPeriodHandler = async (event, account, callback) => {
     const newPeriod = event.args._period.toNumber()
-
-    // send appeal possible notifications
-    if (newPeriod === arbitratorConstants.PERIOD.APPEAL) {
+    const eventSession = event.args._session.toNumber()
+    const currentSession = await this._ArbitratorInstance.getSession()
+    // send appeal possible notifications if in current session
+    if (
+      newPeriod === arbitratorConstants.PERIOD.APPEAL &&
+      eventSession === currentSession
+    ) {
       const disputes = await this._getDisputes(account) // get users disputes
       const openDisputes = await this._ArbitratorInstance.getOpenDisputesForSession() // get all disputes for session
       const arbitratorAddress = this._ArbitratorInstance.getContractAddress()

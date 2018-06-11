@@ -22,16 +22,9 @@ class Arbitrator extends AbstractContract {
       this._contractImplementation.getSession()
     ])
 
-    const _getDisputesForUserFromStore = async account =>
-      Promise.all(
-        (await this._StoreProvider.getDisputes(account)).map(dispute =>
-          this._contractImplementation.getDispute(dispute.disputeId)
-        )
-      )
-
     // new jurors have not been chosen yet. don't update
     if (period !== arbitratorConstants.PERIOD.VOTE) {
-      return _getDisputesForUserFromStore(account)
+      return this.getDisputesForUserFromStore(account)
     }
 
     let profile = await this._StoreProvider.newUserProfile(account)
@@ -69,7 +62,18 @@ class Arbitrator extends AbstractContract {
       // })
     }
 
-    return _getDisputesForUserFromStore(account)
+    return this.getDisputesForUserFromStore(account)
+  }
+
+  getDisputesForUserFromStore = async account => {
+    const aribtratorAddress = this._contractImplementation.getContractAddress()
+    return Promise.all(
+      (await this._StoreProvider.getDisputes(account)).filter(dispute =>
+        dispute.arbitratorAddress === aribtratorAddress
+      ).map(dispute =>
+        this._contractImplementation.getDispute(dispute.disputeId)
+      )
+    )
   }
 
   /**
