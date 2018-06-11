@@ -180,11 +180,13 @@ class EventListener {
    * @param {string} contractImplementationInstance - Address of the contract to stop watching
    */
   stopWatchingForEvents = contractImplementationInstance => {
-    if (contractImplementationInstance)
-      this.watcherInstances[
+    if (contractImplementationInstance) {
+      const watcherInstance = this.watcherInstances[
         contractImplementationInstance.getContractAddress()
-      ].stopWatching()
-    else
+      ]
+
+      if (watcherInstance) watcherInstance.stopWatching()
+    } else
       this.contractInstances.forEach(instance => {
         this.watcherInstances[instance.getContractAddress()].stopWatching()
       })
