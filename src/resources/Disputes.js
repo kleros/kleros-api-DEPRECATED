@@ -187,11 +187,10 @@ class Disputes {
   /**
    * Get the dispute deadline for the appeal.
    * @param {number} disputeId - The index of the dispute.
-   * @param {string} account - The users address.
    * @param {number} appeal - The appeal number. 0 if there have been no appeals.
    * @returns {number} timestamp of the appeal
    */
-  getDisputeDeadline = async (disputeId, account, appeal = 0) => {
+  getDisputeDeadline = async (disputeId, appeal = 0) => {
     const cachedDispute = this.disputeCache[disputeId] || {}
     if (
       cachedDispute.appealDeadlines &&
@@ -233,23 +232,21 @@ class Disputes {
     )
       return cachedDispute.appealRuledAt[appeal]
 
-    const startBlock = await this._getDisputeStartBlock(disputeId, account)
-    // if there is no start block that means that dispute has not been created yet.
-    if (!startBlock) return []
-
-    const appealRuledAtTimestamps = await this._ArbitratorInstance.getAppealRuledAtTimestamps(
-      startBlock,
-      appeal
+    const dispute = await this._ArbitratorInstance.getDispute(disputeId)
+    const appealRuledAtTimestamp = await this._ArbitratorInstance.getAppealRuledAtTimestamp(
+      dispute.firstSession + appeal
     )
 
     // cache the deadline for the appeal
-    if (appealRuledAtTimestamps.length > 0) {
+    if (appealRuledAtTimestamp) {
+      const currentRuledAt = cachedDispute.appealRuledAt || []
+      currentRuledAt[appeal] = appealRuledAtTimestamp
       this._updateDisputeCache(disputeId, {
-        appealRuledAt: appealRuledAtTimestamps
+        appealRuledAt: currentRuledAt
       })
     }
 
-    return appealRuledAtTimestamps[appeal]
+    return appealRuledAtTimestamp
   }
 
   /**
@@ -268,23 +265,34 @@ class Disputes {
     )
       return cachedDispute.appealCreatedAt[appeal]
 
-    const startBlock = await this._getDisputeStartBlock(disputeId, account)
-    // if there is no start block that means that dispute has not been created yet.
-    if (!startBlock) return []
+    const dispute = await this._ArbitratorInstance.getDispute(disputeId)
 
-    const appealCreatedAtTimestamps = await this._ArbitratorInstance.getAppealCreationTimestamps(
-      startBlock,
-      appeal
-    )
+    let appealCreatedAtTimestamp = null
+    if (appeal === 0) {
+      const creationBlock = await this._getDisputeStartBlock(disputeId, account)
+      if (creationBlock) {
+        const timestampSeconds = await this._ArbitratorInstance._getTimestampForBlock(
+          creationBlock
+        )
 
-    // cache the deadline for the appeal
-    if (appealCreatedAtTimestamps) {
-      this._updateDisputeCache(disputeId, {
-        appealCreatedAt: appealCreatedAtTimestamps
-      })
+        appealCreatedAtTimestamp = timestampSeconds * 1000
+      }
+    } else {
+      appealCreatedAtTimestamp = await this._ArbitratorInstance.getAppealCreationTimestamp(
+        dispute.firstSession + (appeal - 1) // appeal was created during previous session
+      )
+
+      // cache the deadline for the appeal
+      if (appealCreatedAtTimestamp) {
+        const currentCreatedAt = cachedDispute.appealCreatedAt || []
+        currentCreatedAt[appeal] = appealCreatedAtTimestamp
+        this._updateDisputeCache(disputeId, {
+          appealCreatedAt: currentCreatedAt
+        })
+      }
     }
 
-    return appealCreatedAtTimestamps[appeal]
+    return appealCreatedAtTimestamp
   }
 
   /**
@@ -378,17 +386,14 @@ class Disputes {
 
       const appealCreatedAt = await this.getAppealCreatedAt(
         dispute.disputeId,
-        account,
         appeal
       )
       const appealDeadline = await this.getDisputeDeadline(
         dispute.disputeId,
-        account,
         appeal
       )
       const appealRuledAt = await this.getAppealRuledAt(
         dispute.disputeId,
-        account,
         appeal
       )
 
