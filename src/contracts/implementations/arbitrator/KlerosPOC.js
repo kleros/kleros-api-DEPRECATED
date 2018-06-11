@@ -579,24 +579,19 @@ class KlerosPOC extends ContractImplementation {
    * @param {number} appeal - the number of appeals we need to fetch events for.
    * @returns {number[]} an array of timestamps
    */
-  getAppealRuledAtTimestamps = async (blockNumber, appeal = 0) => {
-    const eventLogs = await this._getNewPeriodEventLogs(
-      blockNumber,
-      arbitratorConstants.PERIOD.APPEAL,
-      appeal
+  getAppealRuledAtTimestamp = async (session) => {
+    const eventLog = await this._getNewPeriodEventLogForSession(
+      session,
+      arbitratorConstants.PERIOD.APPEAL
+    )
+    // May not have happened yet
+    if (!eventLog) return null
+
+    const ruledAtTimestamp = await this._getTimestampForBlock(
+      eventLog.blockNumber
     )
 
-    const eventLogTimestamps = []
-
-    for (let i = 0; i < eventLogs.length; i++) {
-      const eventLog = eventLogs[i]
-
-      const timestamp = await this._getTimestampForBlock(eventLog.blockNumber)
-
-      eventLogTimestamps.push(timestamp * 1000)
-    }
-
-    return eventLogTimestamps
+    return ruledAtTimestamp * 1000
   }
 
   /**
@@ -608,7 +603,7 @@ class KlerosPOC extends ContractImplementation {
   getDisputeDeadlineTimestamp = async session => {
     const eventLog = await this._getNewPeriodEventLogForSession(
       session,
-      arbitratorConstants.PERIOD.VOTE,
+      arbitratorConstants.PERIOD.VOTE
     )
     // May not have happened yet
     if (!eventLog) return null
@@ -631,28 +626,19 @@ class KlerosPOC extends ContractImplementation {
    * @param {number} numberOfAppeals - the number of appeals we need to fetch events for.
    * @returns {number[]} an array of timestamps
    */
-  getAppealCreationTimestamps = async session => {
+  getAppealCreationTimestamp = async session => {
     const eventLog = await this._getNewPeriodEventLogForSession(
       session,
       arbitratorConstants.PERIOD.EXECUTE
     )
-
     // May not have happened yet
     if (!eventLog) return null
-    
-    const creationTimestamp = await this._getTimestampForBlock(blockNumber)
-    const eventLogTimestamps = [creationTimestamp * 1000]
 
-    // skip first execute phase as this is the original ruling
-    for (let i = 1; i < eventLogs.length; i++) {
-      const eventLog = eventLogs[i]
+    const createdAtTimestamp = await this._getTimestampForBlock(
+      eventLog.blockNumber
+    )
 
-      const timestamp = await this._getTimestampForBlock(eventLog.blockNumber)
-
-      eventLogTimestamps.push(timestamp * 1000)
-    }
-
-    return eventLogTimestamps
+    return createdAtTimestamp * 1000
   }
 
   /**
@@ -666,7 +652,7 @@ class KlerosPOC extends ContractImplementation {
       'DisputeCreation',
       0,
       'latest',
-      { _disputeId: disputeId }
+      { _disputeID: disputeId }
     )
 
     for (let i = 0; i < eventLogs.length; i++) {
@@ -710,56 +696,6 @@ class KlerosPOC extends ContractImplementation {
    */
   _getTimestampForBlock = async blockNumber =>
     (await this.getBlock(blockNumber)).timestamp
-
-  /**
-   * Get event NewPeriod event logs for a certain number of appeals.
-   * @param {number} blockNumber - The block number the dispute was created.
-   * @param {number} periodNumber - The period number we want logs for.
-   * @param {number} appeals - The number of appeals.
-   * @returns {object[]} an array of event logs.
-   */
-  _getNewPeriodEventLogs = async (blockNumber, periodNumber, appeals = 0) => {
-    const logs = await EventListener.getEventLogs(
-      this,
-      'NewPeriod',
-      0
-    )
-    // List off all appeal logs for period
-    const eventLogs = []
-    let skip = false
-
-    let appealCount = appeals
-
-    const firstLogPeriod = logs[0].args._period.toNumber()
-    // if dispute was created for next session and there is still an event in this session for that period
-    if (
-      firstLogPeriod >= arbitratorConstants.PERIOD.VOTE &&
-      firstLogPeriod <= periodNumber
-    )
-      skip = true
-
-    for (let i = 0; i < logs.length; i++) {
-      const eventLog = logs[i]
-      const period = eventLog.args._period.toNumber()
-      if (period === periodNumber) {
-        if (skip) {
-          skip = false
-        } else {
-          // this is if dispute was created in the previous session.
-          eventLogs[appeals - appealCount] = eventLog
-          appealCount -= 1
-
-          // we have exhausted all appeals. Return events
-          if (appealCount < 0) {
-            return eventLogs
-          }
-        }
-      }
-    }
-
-    // We have hit the latest event log and did not find data. Return all that we have.
-    return eventLogs
-  }
 
   /**
    * Get event NewPeriod event logs a period in a session.
