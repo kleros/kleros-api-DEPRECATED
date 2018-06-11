@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.7.1"></a>
+## [0.7.1](https://github.com/kleros/kleros-api/compare/v0.7.0...v0.7.1) (2018-06-11)
+
+
+### Bug Fixes
+
+* **EventListener:** only stop watching if listener exists ([c28f20c](https://github.com/kleros/kleros-api/commit/c28f20c))
+
+
+
 <a name="0.7.0"></a>
 # [0.7.0](https://github.com/kleros/kleros-api/compare/v0.6.1...v0.7.0) (2018-06-07)
 
