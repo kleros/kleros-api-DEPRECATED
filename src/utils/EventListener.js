@@ -75,7 +75,6 @@ class EventListener {
     filters = {}
   ) => {
     await contractImplementationInstance.loadContract()
-
     return new Promise((resolve, reject) => {
       contractImplementationInstance.contractInstance[eventName](filters, {
         fromBlock: firstBlock,
