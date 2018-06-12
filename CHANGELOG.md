@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.8.0"></a>
+# [0.8.0](https://github.com/kleros/kleros-api/compare/v0.7.1...v0.8.0) (2018-06-12)
+
+
+### Bug Fixes
+
+* blockNumber is not bigNumber ([1117dae](https://github.com/kleros/kleros-api/commit/1117dae))
+
+
+### Features
+
+* add MiniMe PNK contract ([cacc9be](https://github.com/kleros/kleros-api/commit/cacc9be))
+* get all period based timestamps by session ([a6d19bb](https://github.com/kleros/kleros-api/commit/a6d19bb))
+* use session for dispute deadline and appeal created at ([2920255](https://github.com/kleros/kleros-api/commit/2920255))
+
+
+
 <a name="0.7.1"></a>
 ## [0.7.1](https://github.com/kleros/kleros-api/compare/v0.7.0...v0.7.1) (2018-06-11)
 
