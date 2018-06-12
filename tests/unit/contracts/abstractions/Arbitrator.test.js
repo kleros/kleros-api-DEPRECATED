@@ -30,7 +30,8 @@ describe('Arbitrator', () => {
       const mockArbitrator = {
         getPeriod: jest.fn().mockReturnValue(_asyncMockResponse(0)),
         getSession: jest.fn().mockReturnValue(_asyncMockResponse(1)),
-        getDispute: jest.fn().mockReturnValue(_asyncMockResponse(mockDispute))
+        getDispute: jest.fn().mockReturnValue(_asyncMockResponse(mockDispute)),
+        getContractAddress: jest.fn().mockReturnValue(arbitratorAddress)
       }
       arbitratorInstance._contractImplementation = mockArbitrator
 
@@ -38,6 +39,37 @@ describe('Arbitrator', () => {
 
       expect(disputes.length).toBe(1)
       expect(disputes[0]).toEqual(mockDispute)
+      expect(mockGetDisputesForUser.mock.calls.length).toBe(1)
+      expect(mockShouldNotCall.mock.calls.length).toBe(0)
+    })
+
+    it('has different arbitrator', async () => {
+      const mockGetDisputesForUser = jest.fn()
+      const mockShouldNotCall = jest.fn()
+      const mockDispute = {
+        arbitratorAddress: arbitratorAddress,
+        disputeId: '1'
+      }
+      const mockStoreProvider = {
+        getDisputes: mockGetDisputesForUser.mockReturnValue(
+          _asyncMockResponse([mockDispute])
+        ),
+        newUserProfile: mockShouldNotCall
+      }
+
+      arbitratorInstance.setStoreProviderInstance(mockStoreProvider)
+
+      const mockArbitrator = {
+        getPeriod: jest.fn().mockReturnValue(_asyncMockResponse(0)),
+        getSession: jest.fn().mockReturnValue(_asyncMockResponse(1)),
+        getDispute: jest.fn().mockReturnValue(_asyncMockResponse(mockDispute)),
+        getContractAddress: jest.fn().mockReturnValue(arbitratorAddress + 'x')
+      }
+      arbitratorInstance._contractImplementation = mockArbitrator
+
+      const disputes = await arbitratorInstance.getDisputesForUser(account)
+
+      expect(disputes.length).toBe(0)
       expect(mockGetDisputesForUser.mock.calls.length).toBe(1)
       expect(mockShouldNotCall.mock.calls.length).toBe(0)
     })
@@ -66,7 +98,8 @@ describe('Arbitrator', () => {
       const mockArbitrator = {
         getPeriod: jest.fn().mockReturnValue(_asyncMockResponse(2)),
         getSession: jest.fn().mockReturnValue(_asyncMockResponse(1)),
-        getDispute: jest.fn().mockReturnValue(_asyncMockResponse(mockDispute))
+        getDispute: jest.fn().mockReturnValue(_asyncMockResponse(mockDispute)),
+        getContractAddress: jest.fn().mockReturnValue(arbitratorAddress)
       }
       arbitratorInstance._contractImplementation = mockArbitrator
 
@@ -110,7 +143,8 @@ describe('Arbitrator', () => {
         getDisputesForJuror: mockGetDisputesForJuror.mockReturnValue(
           _asyncMockResponse([mockDispute])
         ),
-        getDisputeCreationEvent: jest.fn().mockReturnValue({ blockNumber: 1 })
+        getDisputeCreationEvent: jest.fn().mockReturnValue({ blockNumber: 1 }),
+        getContractAddress: jest.fn().mockReturnValue(arbitratorAddress)
       }
       arbitratorInstance._contractImplementation = mockArbitrator
 

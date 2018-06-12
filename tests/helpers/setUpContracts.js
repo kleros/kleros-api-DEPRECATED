@@ -1,5 +1,6 @@
 import BlockHashRNG from '../../src/contracts/implementations/RNG/BlockHashRNG'
-import PinakionPOC from '../../src/contracts/implementations/PNK/PinakionPOC'
+import MiniMePinakion from '../../src/contracts/implementations/PNK/MiniMePinakion'
+import TokenFactory from '../../src/contracts/implementations/PNK/TokenFactory'
 import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
 import ArbitrableTransaction from '../../src/contracts/implementations/arbitrable/ArbitrableTransaction'
 
@@ -8,28 +9,33 @@ const setUpContracts = async (
   klerosPOCParams,
   arbitrableContractParams
 ) => {
-  // initialize RNG and Pinakion contracts
-  const rngInstance = await BlockHashRNG.deploy(
+  // initialize RNG
+  const rngContract = await BlockHashRNG.deploy(
     klerosPOCParams.account,
     provider
   )
-  const pinakionInstance = await PinakionPOC.deploy(
+  // minime token
+  const tokenFactory = await TokenFactory.deploy(
     klerosPOCParams.account,
     provider
+  )
+  const pnkContract = await MiniMePinakion.deploy(
+    klerosPOCParams.account,
+    provider,
+    tokenFactory.address
   )
   // initialize KlerosPOC
   const klerosCourt = await KlerosPOC.deploy(
-    rngInstance.address,
-    pinakionInstance.address,
+    rngContract.address,
+    pnkContract.address,
     klerosPOCParams.timesPerPeriod,
     klerosPOCParams.account,
     klerosPOCParams.value,
     provider
   )
-  const pinakionPOC = new PinakionPOC(provider, pinakionInstance.address)
-  // transfer ownership and set kleros instance
-  await pinakionPOC.setKleros(klerosCourt.address, klerosPOCParams.account)
-  await pinakionPOC.transferOwnership(
+  const pinakionPOC = new MiniMePinakion(provider, pnkContract.address)
+  // transfer ownership
+  await pinakionPOC.changeController(
     klerosCourt.address,
     klerosPOCParams.account
   )
@@ -46,8 +52,8 @@ const setUpContracts = async (
   return [
     klerosCourt.address,
     contractArbitrableTransaction.address,
-    rngInstance.address,
-    pinakionInstance.address
+    rngContract.address,
+    pnkContract.address
   ]
 }
 

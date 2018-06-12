@@ -2,6 +2,7 @@ import Web3 from 'web3'
 
 import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
 import EventListener from '../../src/utils/EventListener'
+import Kleros from '../../src/kleros'
 import * as ethConstants from '../../src/constants/eth'
 import setUpContracts from '../helpers/setUpContracts'
 import waitNotifications from '../helpers/waitNotifications'
@@ -129,7 +130,6 @@ describe('Event Listener', () => {
       'FakeEvent',
       () => {}
     )
-
     await EventListenerInstance.watchForEvents()
 
     EventListenerInstance.removeContractInstance(KlerosPOCInstance)
@@ -139,4 +139,82 @@ describe('Event Listener', () => {
       EventListenerInstance.contractEventHandlerMap[KlerosPOCInstance]
     ).toBeUndefined()
   })
+  it(
+    'registers handler for event, stops and starts again using only second handler from kleros',
+    async () => {
+      const [
+        klerosPOCAddress,
+        arbitrableContractAddress,
+        rngAddress,
+        pnkAddress
+      ] = await setUpContracts(provider, klerosPOCData, arbitrableContractData)
+
+      expect(klerosPOCAddress).toBeDefined()
+      expect(arbitrableContractAddress).toBeDefined()
+      expect(rngAddress).toBeDefined()
+      expect(pnkAddress).toBeDefined()
+
+      const KlerosInstance = new Kleros(provider, '', klerosPOCAddress)
+
+      // start event watching
+      await KlerosInstance.watchForEvents(partyA)
+      // stop watching for events to clear store provider events and to reset contractInstances
+      await KlerosInstance.stopWatchingForEvents()
+      expect(KlerosInstance.eventListener.contractInstances.length).toEqual(0)
+      expect(
+        KlerosInstance.eventListener.contractEventHandlerMap[
+          KlerosInstance.arbitrator
+        ]
+      ).toBeUndefined()
+      expect(
+        KlerosInstance.eventListener.watcherInstances[KlerosInstance.arbitrator]
+      ).toBeUndefined()
+      // add the contract back
+      await KlerosInstance.eventListener.addContractImplementation(
+        KlerosInstance.arbitrator
+      )
+      // set up callback
+      let { promise: waitPromise, callback: waitCallback } = waitNotifications(
+        1,
+        eventCallback
+      )
+      // add event handler
+      const eventName = 'NewPeriod'
+      KlerosInstance.eventListener.addEventHandler(
+        KlerosInstance.arbitrator,
+        eventName,
+        waitCallback
+      )
+      // start watching for events again
+      await KlerosInstance.eventListener.watchForEvents()
+
+      await delaySecond()
+      await KlerosInstance.arbitrator.passPeriod()
+      // we will wait for 2 seconds for promise to resolve or else throw
+      let throwError = true
+      setTimeout(() => {
+        if (throwError) {
+          KlerosInstance.eventListener.stopWatchingForEvents(
+            KlerosInstance.arbitrator
+          )
+          throw new Error('Callback Promise did not resolve')
+        }
+      }, 1000 * 2)
+
+      await waitPromise
+      throwError = false
+
+      expect(
+        eventLogs.filter(
+          event =>
+            event.address === KlerosInstance.arbitrator.getContractAddress()
+        ).length
+      ).toEqual(1)
+
+      KlerosInstance.eventListener.stopWatchingForEvents(
+        KlerosInstance.arbitrator
+      )
+    },
+    50000
+  )
 })

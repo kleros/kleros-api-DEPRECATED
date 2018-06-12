@@ -65,14 +65,19 @@ class Arbitrator extends AbstractContract {
     return this.getDisputesForUserFromStore(account)
   }
 
+  /**
+   * Get disputes from the store.
+   * @param {string} account - The users account.
+   * @returns {object[]} The dispute objects.
+   */
   getDisputesForUserFromStore = async account => {
     const aribtratorAddress = this._contractImplementation.getContractAddress()
     return Promise.all(
-      (await this._StoreProvider.getDisputes(account)).filter(dispute =>
-        dispute.arbitratorAddress === aribtratorAddress
-      ).map(dispute =>
-        this._contractImplementation.getDispute(dispute.disputeId)
-      )
+      (await this._StoreProvider.getDisputes(account))
+        .filter(dispute => dispute.arbitratorAddress === aribtratorAddress)
+        .map(dispute =>
+          this._contractImplementation.getDispute(dispute.disputeId)
+        )
     )
   }
 
