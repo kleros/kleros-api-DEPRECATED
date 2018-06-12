@@ -5,6 +5,6 @@ export const LOCALHOST_STORE_PROVIDER = 'https://kleros.in'
 export const NULL_ADDRESS = '0x'
 
 export const TRANSACTION = {
-  GAS: 4400000,
+  GAS: 6400000,
   VALUE: 0
 }

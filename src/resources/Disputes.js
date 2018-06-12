@@ -192,10 +192,7 @@ class Disputes {
    */
   getDisputeDeadline = async (disputeId, appeal = 0) => {
     const cachedDispute = this.disputeCache[disputeId] || {}
-    if (
-      cachedDispute.appealDeadlines &&
-      cachedDispute.appealDeadlines[appeal]
-    )
+    if (cachedDispute.appealDeadlines && cachedDispute.appealDeadlines[appeal])
       return cachedDispute.appealDeadlines[appeal]
 
     const dispute = await this._ArbitratorInstance.getDispute(disputeId)
@@ -219,11 +216,10 @@ class Disputes {
   /**
    * Get the timestamp on when the dispute's ruling was finalized.
    * @param {number} disputeId - The index of the dispute.
-   * @param {string} account - The users address.
    * @param {number} appeal - The appeal number. 0 if there have been no appeals.
    * @returns {number} timestamp of the appeal
    */
-  getAppealRuledAt = async (disputeId, account, appeal = 0) => {
+  getAppealRuledAt = async (disputeId, appeal = 0) => {
     const cachedDispute = this.disputeCache[disputeId]
     if (
       cachedDispute &&
@@ -386,6 +382,7 @@ class Disputes {
 
       const appealCreatedAt = await this.getAppealCreatedAt(
         dispute.disputeId,
+        account,
         appeal
       )
       const appealDeadline = await this.getDisputeDeadline(

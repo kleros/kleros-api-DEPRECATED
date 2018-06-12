@@ -148,7 +148,13 @@ class StoreProviderWrapper {
    * @returns {number} The last block number.
    */
   getLastBlock = async userAddress => {
-    const userProfile = await this.newUserProfile(userAddress)
+    let userProfile
+    try {
+      userProfile = await this.newUserProfile(userAddress)
+      // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      userProfile = {}
+    }
 
     return userProfile.lastBlock || 0
   }

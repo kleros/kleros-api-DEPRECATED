@@ -218,12 +218,12 @@ describe('Dispute Resolution', () => {
       }
 
       // check deadline timestamp
-      const deadlines = await KlerosPOCInstance.getDisputeDeadlineTimestamps(0)
-      expect(deadlines.length).toEqual(1)
+      const deadline = await KlerosPOCInstance.getDisputeDeadlineTimestamp(1)
+      expect(deadline).toBeTruthy()
 
       // check deadline timestamp
-      const noAppeals = await KlerosPOCInstance.getAppealRuledAtTimestamps(0)
-      expect(noAppeals.length).toEqual(0)
+      const noAppeal = await KlerosPOCInstance.getAppealRuledAtTimestamp(1)
+      expect(noAppeal).toBeFalsy()
 
       let drawA = []
       let drawB = []
@@ -278,12 +278,12 @@ describe('Dispute Resolution', () => {
       const currentRuling = await klerosPOCInstance.currentRuling(0)
       expect(`${currentRuling}`).toEqual(`${winningRuling}`)
 
-      // check ruled at timestamp
-      const ruledAt = await KlerosPOCInstance.getAppealRuledAtTimestamps(0)
-      expect(ruledAt.length).toEqual(1)
-
       await delaySecond()
       await KlerosPOCInstance.passPeriod(other)
+
+      // check ruled at timestamp
+      const ruledAt = await KlerosPOCInstance.getAppealRuledAtTimestamp(1)
+      expect(ruledAt).toBeTruthy()
 
       // stateful notifications
       jurorStatefullNotifications = await NotificationsInstance.getStatefulNotifications(

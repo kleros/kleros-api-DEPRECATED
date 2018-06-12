@@ -33,14 +33,12 @@ class Kleros {
    *                 use when initializing KlerosPOC
    * @param {string} arbitrableContractAddress - Address of the arbitrator contract we should
    *                 use when initializing KlerosPOC
-   * @param {string} authToken - Signed token cooresponding to the user profile address.
    */
   constructor(
     ethereumProvider = isRequired('ethereumProvider'),
     storeUri = isRequired('storeUri'),
     arbitratorAddress,
-    arbitrableContractAddress,
-    authToken
+    arbitrableContractAddress
   ) {
     /**
      * We need a set of implementations that we expose to the outside api and a set we use
@@ -73,7 +71,7 @@ class Kleros {
     // **************************** //
     // KLEROS WRAPPERS
     this.web3Wrapper = new Web3Wrapper(ethereumProvider)
-    this.storeWrapper = new StoreProviderWrapper(storeUri, authToken)
+    this.storeWrapper = new StoreProviderWrapper(storeUri)
     // ARBITRATOR
     this.arbitrator = new contracts.abstractions.Arbitrator(
       _klerosPOC,
@@ -124,6 +122,7 @@ class Kleros {
    * store for metadata.
    * @param {string} account Address of the user
    * @param {function} callback The function to be called once a notification
+   * @returns {Promise} the watcher promise so that user can wait for event watcher to start before taking other actions.
    */
   watchForEvents = async (
     account,
@@ -146,7 +145,7 @@ class Kleros {
     // fetch last block for user
     const fromBlock = await this.storeWrapper.getLastBlock(account)
     // start event listener
-    this.eventListener.watchForEvents(fromBlock)
+    return this.eventListener.watchForEvents(fromBlock)
   }
 
   /**
@@ -154,7 +153,7 @@ class Kleros {
    */
   stopWatchingForEvents = () => {
     if (this.eventListener)
-      this.eventListener.stopWatchingForEvents(this.arbitrator)
+      this.eventListener.removeContractInstance(this.arbitrator)
   }
 
   /**

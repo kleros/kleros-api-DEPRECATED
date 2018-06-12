@@ -574,12 +574,11 @@ class KlerosPOC extends ContractImplementation {
   }
 
   /**
-   * Starting from the blockNumber of the dispute creation, find when and if it was ruled on
-   * @param {number} blockNumber - The block number that the dispute was created.
-   * @param {number} appeal - the number of appeals we need to fetch events for.
+   * Find when a ruling was made in a session
+   * @param {number} session - The session number.
    * @returns {number[]} an array of timestamps
    */
-  getAppealRuledAtTimestamp = async (session) => {
+  getAppealRuledAtTimestamp = async session => {
     const eventLog = await this._getNewPeriodEventLogForSession(
       session,
       arbitratorConstants.PERIOD.APPEAL
@@ -595,9 +594,8 @@ class KlerosPOC extends ContractImplementation {
   }
 
   /**
-   * Starting from the blockNumber of the dispute creation, find when and if it was ruled on
-   * @param {number} blockNumber - The block number that the dispute was created.
-   * @param {number} appeal - the number of appeals we need to fetch events for.
+   * Find the deadline for disputes in a session.
+   * @param {number} session - The session number.
    * @returns {number[]} an array of timestamps
    */
   getDisputeDeadlineTimestamp = async session => {
@@ -621,9 +619,8 @@ class KlerosPOC extends ContractImplementation {
   }
 
   /**
-   * Get the event log for the dispute creation.
-   * @param {number} blockNumber - The block number that the dispute was created.
-   * @param {number} numberOfAppeals - the number of appeals we need to fetch events for.
+   * Get the event log for an appeal creation
+   * @param {number} session - The session number.
    * @returns {number[]} an array of timestamps
    */
   getAppealCreationTimestamp = async session => {
@@ -709,9 +706,9 @@ class KlerosPOC extends ContractImplementation {
       'NewPeriod',
       0,
       'latest',
-      { _session: session }
+      { _session: [session] }
     )
-    for (let i=0; i<logs.length; i++) {
+    for (let i = 0; i < logs.length; i++) {
       const eventLog = logs[i]
       if (eventLog.args._period.toNumber() === periodNumber) return eventLog
     }

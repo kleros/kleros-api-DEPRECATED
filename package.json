@@ -68,8 +68,9 @@
     "babel-runtime": "^6.26.0",
     "eth-sig-util": "^1.4.2",
     "kleros": "^0.0.6",
-    "kleros-interaction": "^0.0.8",
+    "kleros-interaction": "^0.0.17",
     "lodash": "^4.17.4",
+    "minimetoken": "^0.2.0",
     "truffle-contract": "^2.0.5",
     "web3": "^0.20.1",
     "web3-eth-personal": "^1.0.0-beta.34"
