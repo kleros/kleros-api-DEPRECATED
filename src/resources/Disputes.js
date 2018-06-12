@@ -102,7 +102,7 @@ class Disputes {
           contractAddress: disputeData.arbitrableContractAddress,
           partyA: arbitrableContractData.partyA,
           partyB: arbitrableContractData.partyB,
-          blockNumber: event.blockNumber.toNumber()
+          blockNumber: event.blockNumber
         }
       )
     }
