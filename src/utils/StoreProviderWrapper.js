@@ -208,6 +208,29 @@ class StoreProviderWrapper {
   }
 
   /**
+   * Update users last processed session.
+   * @param {string} userAddress - User's address.
+   * @param {string} session - The current session that the user has processed
+   * @returns {object} - HTTP response.
+   */
+  updateUserSession = async (userAddress, session) => {
+    const getBodyFn = () =>
+      new Promise(resolve =>
+        resolve(
+          JSON.stringify({
+            session
+          })
+        )
+      )
+
+    return this.queueWriteRequest(
+      getBodyFn,
+      'POST',
+      `${this._storeUri}/${userAddress}/session`
+    )
+  }
+
+  /**
    * Update the stored data on a contract for a user. Note that you cannot overwrite contract data.
    * @param {string} userAddress - The user's address.
    * @param {string} contractAddress - The address of the contract.

@@ -117,6 +117,7 @@ describe('Arbitrator', () => {
       const mockSetUpUserProfile = jest.fn()
       const mockGetDisputesForJuror = jest.fn()
       const mockUpdateDisputeProfile = jest.fn()
+      const mockUpdateSession = jest.fn()
       const mockDispute = {
         arbitratorAddress: arbitratorAddress,
         disputeId: '1',
@@ -131,7 +132,8 @@ describe('Arbitrator', () => {
             session: 1
           })
         ),
-        updateDisputeProfile: mockUpdateDisputeProfile
+        updateDisputeProfile: mockUpdateDisputeProfile,
+        updateUserSession: mockUpdateSession
       }
 
       arbitratorInstance.setStoreProviderInstance(mockStoreProvider)
@@ -170,6 +172,7 @@ describe('Arbitrator', () => {
         appealDraws: mockDispute.appealDraws,
         blockNumber: 1
       })
+      expect(mockUpdateSession.mock.calls.length).toBe(1)
     })
   })
 })

@@ -57,9 +57,7 @@ class Arbitrator extends AbstractContract {
       )
 
       // FIXME do we want to store session?
-      // this._StoreProvider.updateUserProfile(account, {
-      //   session: currentSession
-      // })
+      this._StoreProvider.updateUserSession(account, currentSession)
     }
 
     return this.getDisputesForUserFromStore(account)
