@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.9.0"></a>
+# [0.9.0](https://github.com/kleros/kleros-api/compare/v0.8.0...v0.9.0) (2018-06-20)
+
+
+### Features
+
+* new endpoint for mark notification read ([1b46d8a](https://github.com/kleros/kleros-api/commit/1b46d8a))
+* store last session seen for faster loading ([430e494](https://github.com/kleros/kleros-api/commit/430e494))
+
+
+
 <a name="0.8.0"></a>
 # [0.8.0](https://github.com/kleros/kleros-api/compare/v0.7.1...v0.8.0) (2018-06-12)
 
