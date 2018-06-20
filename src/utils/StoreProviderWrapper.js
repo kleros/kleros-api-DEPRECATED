@@ -433,30 +433,21 @@ class StoreProviderWrapper {
     logIndex,
     isRead = true
   ) => {
-    const getBodyFn = async () => {
-      const userProfile = await this.newUserProfile(userAddress)
-
-      const notificationIndex = await _.findIndex(
-        userProfile.notifications,
-        notification =>
-          notification.txHash === txHash && notification.logIndex === logIndex
+    const getBodyFn = () =>
+      new Promise(resolve =>
+        resolve(
+          JSON.stringify({
+            logIndex,
+            isRead
+          })
+        )
       )
-
-      if (_.isNull(notificationIndex))
-        throw new Error(errorConstants.NOTIFICATION_NOT_FOUND(txHash))
-
-      userProfile.notifications[notificationIndex].read = isRead
-      delete userProfile._id
-      delete userProfile.created_at
-      return JSON.stringify(userProfile)
-    }
 
     const result = await this.queueWriteRequest(
       getBodyFn,
       'POST',
-      `${this._storeUri}/${userAddress}`
+      `${this._storeUri}/${userAddress}/notifications/${txHash}/read`
     )
-
     return result.body.notifications
   }
 }
