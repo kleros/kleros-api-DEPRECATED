@@ -683,7 +683,7 @@ class KlerosPOC extends ContractImplementation {
         netPNK += event.args._amount.toNumber()
     }
 
-    return netPNK
+    return this._Web3Wrapper.fromWei(netPNK, 'ether')
   }
 
   /**
