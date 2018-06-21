@@ -440,8 +440,9 @@ class KlerosPOC extends ContractImplementation {
       account
     )).toNumber()
 
-    const currentSession = await this.getSession(this.contractAddress)
-    return validDraws && lastRuling !== currentSession
+    const currentSession = await this.getSession()
+    const period = await this.getPeriod()
+    return validDraws && lastRuling !== currentSession && period < arbitratorConstants.PERIOD.APPEAL
   }
 
   /**
@@ -628,6 +629,7 @@ class KlerosPOC extends ContractImplementation {
       session,
       arbitratorConstants.PERIOD.EXECUTE
     )
+
     // May not have happened yet
     if (!eventLog) return null
 
