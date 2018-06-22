@@ -37,22 +37,31 @@ class Arbitrator extends AbstractContract {
       // update user profile for each dispute
       await Promise.all(
         myDisputes.map(async dispute => {
-          const disputeCreationLog = await this._contractImplementation.getDisputeCreationEvent(
-            dispute.disputeId
-          )
+          if (dispute.appealDraws[dispute.numberOfAppeals].length > 0) {
+            const disputeCreationLog = await this._contractImplementation.getDisputeCreationEvent(
+              dispute.disputeId
+            )
 
-          if (!disputeCreationLog)
-            throw new Error('Could not fetch dispute creation event log')
-          // update profile for account
-          await this._StoreProvider.updateDisputeProfile(
-            account,
-            dispute.arbitratorAddress,
-            dispute.disputeId,
-            {
-              appealDraws: dispute.appealDraws,
-              blockNumber: disputeCreationLog.blockNumber
-            }
-          )
+            if (!disputeCreationLog)
+              throw new Error('Could not fetch dispute creation event log')
+            // update profile for account
+            await this._StoreProvider.updateDisputeProfile(
+              account,
+              dispute.arbitratorAddress,
+              dispute.disputeId,
+              {
+                blockNumber: disputeCreationLog.blockNumber
+              }
+            )
+            // add draws separately for appeals
+            await this._StoreProvider.addNewDrawsDisputeProfile(
+              account,
+              dispute.arbitratorAddress,
+              dispute.disputeId,
+              dispute.appealDraws[dispute.numberOfAppeals],
+              dispute.numberOfAppeals
+            )
+          }
         })
       )
 
