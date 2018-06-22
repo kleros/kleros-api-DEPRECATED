@@ -442,7 +442,11 @@ class KlerosPOC extends ContractImplementation {
 
     const currentSession = await this.getSession()
     const period = await this.getPeriod()
-    return validDraws && lastRuling !== currentSession && period < arbitratorConstants.PERIOD.APPEAL
+    return (
+      validDraws &&
+      lastRuling !== currentSession &&
+      period < arbitratorConstants.PERIOD.APPEAL
+    )
   }
 
   /**
