@@ -18,6 +18,9 @@ class Disputes {
     this._ArbitrableInstance = arbitrableInstance
     this._StoreProviderInstance = storeProviderInstance
     this.disputeCache = {}
+    this.eventHandlerMap = {
+      DisputeCreation: [this._storeNewDisputeHandler]
+    }
   }
   /**
    * Set arbitrator instance.
@@ -54,19 +57,21 @@ class Disputes {
     account = isRequired('account'),
     eventListener = isRequired('eventListener')
   ) => {
-    const eventHandlerMap = {
-      DisputeCreation: [this._storeNewDisputeHandler]
-    }
-
-    for (let event in eventHandlerMap) {
-      if (eventHandlerMap.hasOwnProperty(event)) {
-        eventHandlerMap[event].forEach(handler => {
+    for (let event in this.eventHandlerMap) {
+      if (this.eventHandlerMap.hasOwnProperty(event)) {
+        this.eventHandlerMap[event].forEach(handler => {
           eventListener.addEventHandler(this._ArbitratorInstance, event, args =>
             handler(args, account)
           )
         })
       }
     }
+  }
+
+  processMissedEvents = async (events, eventType, account) => {
+    const handler = this.eventHandlerMap[eventType]
+    if (handler)
+      return Promise.all(events.map(event => handler(event, account)))
   }
 
   /**

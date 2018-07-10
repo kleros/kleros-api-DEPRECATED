@@ -19,6 +19,15 @@ class Notifications {
     this._ArbitratorInstance = arbitratorInstance
     this._ArbitrableInstance = arbitrableInstance
     this._StoreProviderInstance = storeProviderInstance
+
+    this.eventHandlerMap = {
+      DisputeCreation: this._disputeCreationHandler,
+      AppealPossible: this._appealPossibleHandler,
+      AppealDecision: this._appealingDecisionHandler,
+      TokenShift: this._tokenShiftHandler,
+      ArbitrationReward: this._arbitrationRewardHandler,
+      NewPeriod: this._newPeriodHandler
+    }
   }
   /**
    * Set arbitrator instance.
@@ -45,7 +54,6 @@ class Notifications {
   // **************************** //
   // *         Public           * //
   // **************************** //
-
   /**
    * Register event handlers for the arbitrator instance.
    * @param {string} account - Filter notifications for account.
@@ -57,24 +65,26 @@ class Notifications {
     eventListener = isRequired('eventListener'),
     callback
   ) => {
-    const eventHandlerMap = {
-      DisputeCreation: this._disputeCreationHandler,
-      AppealPossible: this._appealPossibleHandler,
-      AppealDecision: this._appealingDecisionHandler,
-      TokenShift: this._tokenShiftHandler,
-      ArbitrationReward: this._arbitrationRewardHandler,
-      NewPeriod: this._newPeriodHandler
-    }
-
-    for (let event in eventHandlerMap) {
-      if (eventHandlerMap.hasOwnProperty(event)) {
+    for (let event in this.eventHandlerMap) {
+      if (this.eventHandlerMap.hasOwnProperty(event)) {
         eventListener.addEventHandler(
           this._ArbitratorInstance,
           event,
-          this._createHandler(eventHandlerMap[event], account, callback)
+          this._createHandler(this.eventHandlerMap[event], account, callback)
         )
       }
     }
+  }
+
+  /**
+   * - Get all DisputeCreation events. Add to store and make notification. If relevant, look up specific period appeal event
+   * - TokenShift/ArbitrationReward
+   * - AppealDecision
+   */
+  processMissedEvents = async (events, eventType, account) => {
+    const handler = this.eventHandlerMap[eventType]
+    if (handler)
+      return Promise.all(events.map(event => handler(event, account)))
   }
 
   /**
@@ -368,47 +378,6 @@ class Notifications {
           arbitratorAddress: arbitratorAddress
         }
       )
-      if (notification) await this._sendPushNotification(callback, notification)
-    }
-  }
-
-  /**
-   * handler for AppealPossible event
-   * sends notification informing accounts that a ruling has been made and an appeal possible
-   * @param {object} event - The event log.
-   * @param {string} account - The user account.
-   * @param {function} callback - The callback.
-   */
-  _appealPossibleHandler = async (event, account, callback) => {
-    const disputes = await this._getDisputes(account)
-    const disputeId = event.args._disputeID.toNumber()
-    const ruling = await this._ArbitratorInstance.currentRulingForDispute(
-      disputeId
-    )
-    const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
-
-    if (
-      _.findIndex(
-        disputes,
-        dispute =>
-          dispute.disputeId === disputeId &&
-          dispute.arbitratorAddress === arbitratorAddress
-      ) >= 0
-    ) {
-      const notification = await this._newNotification(
-        account,
-        event.transactionHash,
-        event.blockNumber,
-        event.logIndex,
-        notificationConstants.TYPE.APPEAL_POSSIBLE,
-        'A ruling has been made. Appeal is possible',
-        {
-          disputeId,
-          arbitratorAddress,
-          ruling
-        }
-      )
-
       if (notification) await this._sendPushNotification(callback, notification)
     }
   }

@@ -578,16 +578,20 @@ class KlerosPOC extends ContractImplementation {
     return openDisputes
   }
 
+  getAppealRuledAtEvent = session => {
+    return this._getNewPeriodEventLogForSession(
+      session,
+      arbitratorConstants.PERIOD.APPEAL
+    )
+  }
+
   /**
    * Find when a ruling was made in a session
    * @param {number} session - The session number.
    * @returns {number[]} an array of timestamps
    */
   getAppealRuledAtTimestamp = async session => {
-    const eventLog = await this._getNewPeriodEventLogForSession(
-      session,
-      arbitratorConstants.PERIOD.APPEAL
-    )
+    const eventLog = await this.getAppealRuledAtEvent(session)
     // May not have happened yet
     if (!eventLog) return null
 

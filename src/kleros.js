@@ -78,7 +78,7 @@ class Kleros {
       this.storeWrapper
     )
     // ARBITRABLE CONTRACTS
-    this.arbitrable = new contracts.abstractions.Arbitrable(
+      this.arbitrable = new contracts.abstractions.Arbitrable(
       _arbitrableTransaction,
       this.storeWrapper
     )
@@ -124,6 +124,26 @@ class Kleros {
    * @param {function} callback The function to be called once a notification
    * @returns {Promise} the watcher promise so that user can wait for event watcher to start before taking other actions.
    */
+  handleEventsInRange = async (
+    account,
+    callback // for notification callback
+  ) => {
+
+  }
+
+  /**
+   * Step 1: Catch up on past events
+   * - Get all DisputeCreation events. Add to store and make notification. If relevant, look up specific period appeal event
+   * - TokenShift/ArbitrationReward
+   * - AppealDecision
+   * Step 2: Start watching ALL events from current block
+   * Bootstraps an EventListener and adds all Kleros handlers for event logs. Use
+   * this if you want to watch the chain for notifications, or are using the off chain
+   * store for metadata.
+   * @param {string} account Address of the user
+   * @param {function} callback The function to be called once a notification
+   * @returns {Promise} the watcher promise so that user can wait for event watcher to start before taking other actions.
+   */
   watchForEvents = async (
     account,
     callback // for notification callback
@@ -132,6 +152,9 @@ class Kleros {
     if (this.eventListener) {
       this.eventListener.stopWatchingForEvents()
     }
+    // fetch last block for user
+    const fromBlock = await this.storeWrapper.getLastBlock(account)
+    const toBlock = this.web3Wrapper.blockNumber()
     // reinitialize with current arbitrator contract instance
     this.eventListener = new EventListener([this.arbitrator])
     // add handlers for notifications
@@ -142,10 +165,34 @@ class Kleros {
     )
     // add handlers for event driven store updates
     this.disputes.registerStoreUpdateEventListeners(account, this.eventListener)
-    // fetch last block for user
-    const fromBlock = await this.storeWrapper.getLastBlock(account)
-    // start event listener
-    return this.eventListener.watchForEvents(fromBlock)
+
+    // catch up on missed events
+    const disputeCreationEvents = await this.eventListener.getEventLogs(
+      this.arbitrator,
+      'DisputeCreation',
+      fromBlock,
+      toBlock
+    )
+    // process events for dispute creation
+    const disputeCreationNotificationPromise = this.notifications.processMissedEvents(disputeCreationEvent, 'DisputeCreation', account)
+    const disputeCreationDisputesPromise = this.disputes.processMissedEvents(disputeCreationEvents, 'DisputeCreation', account)
+    // process ruling made events
+    const rulingMadeEvents = await Promise.all(disputeCreationEvents.map(async event => {
+      // fetch dispute
+      const dispute = await this.arbitrator.getDispute(event.args._disputeID.toNumber())
+      const arbitrableContractData = await this.arbitrable
+      if (account === )
+      // get appeal ruled at event
+      return this.arbitrator.getAppealRuledAtEvent(dispute.firstSession)
+    })
+    // wait on all the catching up promises
+    await this.notifications.processMissedEvents(rulingMadeEvents, 'NewPeriod', account)
+    await disputeCreationNotificationPromise
+    await disputeCreationDisputesPromise
+
+    await this.storeWrapper.updateLastBlock(account, toBlock)
+    // start listening for all events from the point we updated to
+    return this.eventListener.watchForEvents(toBlock)
   }
 
   /**
