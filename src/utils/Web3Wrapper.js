@@ -18,6 +18,8 @@ class Web3Wrapper {
 
   getCoinbase = () => this._web3.eth.coinbase
 
+  getNonce = address => this._web3.eth.getTransactionCount(address)
+
   toWei = (amount, unit) => {
     const newAmount = this._web3.toWei(amount, unit)
     return newAmount.toNumber ? newAmount.toNumber() : Number(newAmount)
