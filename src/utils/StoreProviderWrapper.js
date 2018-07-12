@@ -75,6 +75,11 @@ class StoreProviderWrapper {
   queueReadRequest = uri =>
     this._storeQueue.fetch(() => this._makeRequest('GET', uri))
 
+
+  getMetaEvidenceUri = address => (
+    `${this._storeUri}/${userAddress}/contracts/${address}/meta-evidence`
+  )
+
   // **************************** //
   // *          Read            * //
   // **************************** //

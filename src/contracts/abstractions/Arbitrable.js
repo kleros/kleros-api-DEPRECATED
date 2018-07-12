@@ -1,5 +1,7 @@
 import AbstractContract from '../AbstractContract'
 
+import getContractAddress from '../../utils/getContractAddress'
+
 /**
  * Arbitrable Abstract Contarct API. This wraps an arbitrable contract. It provides
  * interaction with both the off chain store as well as the arbitrable instance. All
@@ -33,8 +35,14 @@ class ArbitrableContract extends AbstractContract {
     email = '',
     title = '',
     description = '',
+    metaEvidence = {}
     ...args
   ) => {
+    const web3Provider = this._contractImplementation.getWeb3Provider()
+    // determine the contract address WARNING if the nonce changes this will produce a different address
+    const contractAddress = getContractAddress(account, web3Provider)
+    const metaEvidenceUri = this._StoreProvider.getMetaEvidenceUri(contractAddress)
+
     const contractInstance = await this._contractImplementation.constructor.deploy(
       account,
       value,
@@ -43,9 +51,13 @@ class ArbitrableContract extends AbstractContract {
       timeout,
       partyB,
       arbitratorExtraData,
-      this._contractImplementation.getWeb3Provider(),
+      metaEvidenceUri,
+      web3Provider,
       ...args
     )
+
+    if (contractInstance.address !== contractAddress)
+      raise new Error('Contract address does not match meta-evidence uri')
 
     const newContract = await this._StoreProvider.updateContract(
       account,
@@ -58,7 +70,8 @@ class ArbitrableContract extends AbstractContract {
         timeout,
         email,
         title,
-        description
+        description,
+        metaEvidence
       }
     )
 
