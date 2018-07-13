@@ -118,40 +118,6 @@ class ArbitrableContract extends AbstractContract {
   }
 
   /**
-   * Get evidence for contract.
-   * @param {string} contractAddress - Address of arbitrable contract.
-   * @returns {object[]} - Array of evidence objects.
-   */
-  getEvidenceForArbitrableContract = async () => {
-    const arbitrableContractData = await this._contractImplementation.getData()
-    const partyAContractData = await this._StoreProvider.getContractByAddress(
-      arbitrableContractData.partyA,
-      this._contractImplementation.contractAddress
-    )
-    const partyBContractData = await this._StoreProvider.getContractByAddress(
-      arbitrableContractData.partyB,
-      this._contractImplementation.contractAddress
-    )
-
-    const partyAEvidence = (partyAContractData
-      ? partyAContractData.evidence
-      : []
-    ).map(evidence => {
-      evidence.submitter = arbitrableContractData.partyA
-      return evidence
-    })
-    const partyBEvidence = (partyBContractData
-      ? partyBContractData.evidence
-      : []
-    ).map(evidence => {
-      evidence.submitter = arbitrableContractData.partyB
-      return evidence
-    })
-
-    return partyAEvidence.concat(partyBEvidence)
-  }
-
-  /**
    * Fetch all data from the store on the current contract.
    * @returns {object} - Store data for contract.
    */

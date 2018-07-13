@@ -6,6 +6,8 @@ import * as contractConstants from '../../../constants/contract'
 import * as errorConstants from '../../../constants/error'
 import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
+import EventListener from '../../../utils/EventListener'
+import httpRequest from '../../../utils/httpRequest'
 
 /**
  * Provides interaction with an Arbitrable Transaction contract deployed on the blockchain.
@@ -55,6 +57,79 @@ class ArbitrableTransaction extends ContractImplementation {
     )
 
     return contractDeployed
+  }
+
+  /**
+   * Get the meta evidence for a contract dispute. Look up meta-evidence events
+   * and make an http request to the resource.
+   * @param {string} arbitratorAddress - The arbitrators address.
+   * @param {number} disputeId - The index of the dispute.
+   */
+  getMetaEvidenceForDispute = async (arbitratorAddress, disputeId) => {
+    const metaEvidenceLinkLog = await EventListener.getEventLogs(
+      this,
+      'LinkMetaEvidence',
+      0,
+      'latest',
+      { _disputeID: disputeId, _arbitrator: arbitratorAddress }
+    )
+
+    // No meta-evidence for dispute
+    if (!metaEvidenceLinkLog)
+      return {}
+
+    // Always use the first log
+    const metaEvidenceId = metaEvidenceLinkLog[0].args._metaEvidenceID
+    const metaEvidenceLog = await EventListener.getEventLogs(
+      this,
+      'MetaEvidence',
+      0,
+      'latest',
+      { _metaEvidenceID: metaEvidenceId }
+    )
+
+    if (!metaEvidenceLog)
+      return {} // NOTE better to throw errors for missing meta-evidence?
+
+    const metaEvidenceUri = metaEvidenceLog[0].args._evidence
+    const metaEvidenceResponse = await httpRequest(
+      'GET',
+      metaEvidenceUri
+    )
+
+    if (metaEvidenceResponse.status !== 200)
+      throw new Error(`Unable to fetch meta-evidence at ${metaEvidenceUri}`)
+    return metaEvidenceResponse.body || {}
+  }
+
+  /**
+   * Get the evidence submitted in a dispute.
+   * @param {string} arbitratorAddress - The arbitrators address.
+   * @param {number} disputeId - The index of the dispute.
+   */
+  getEvidenceForDispute = async (arbitratorAddress, disputeId) => {
+    const evidenceLogs = await EventListener.getEventLogs(
+      this,
+      'Evidence',
+      0,
+      'latest',
+      { _disputeID: disputeId, _arbitrator: arbitratorAddress }
+    )
+
+    return evidenceLogs.map(async evidenceLog => {
+      const evidenceURI = evidenceLog.args._evidence
+      const evidence = await httpRequest(
+        'GET',
+        metaEvidenceUri
+      )
+      const submittedAt = (
+        await this._Web3Wrapper.getBlock(evidenceLog.blockNumber)
+      ).timestamp
+      return {
+        ...evidence.body,
+        ...{ submittedBy: evidenceLog.args._party, submittedAt }
+      }
+    })
   }
 
   /**
