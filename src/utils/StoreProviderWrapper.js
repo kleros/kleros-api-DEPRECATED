@@ -39,8 +39,12 @@ class StoreProviderWrapper {
     this._storeQueue.fetch(() => httpRequest('GET', uri))
 
 
-  getMetaEvidenceUri = address => (
-    `${this._storeUri}/${userAddress}/contracts/${address}/meta-evidence`
+  getMetaEvidenceUri = userAddress, contractAddress => (
+    `${this._storeUri}/${userAddress}/contracts/${contractAddress}/meta-evidence`
+  )
+
+  getEvidenceUri = (address, contractAddress, evidenceIndex) => (
+    `${this._storeUri}/${userAddress}/contracts/${contractAddress}/evidence/evidenceIndex`
   )
 
   // **************************** //
@@ -239,35 +243,38 @@ class StoreProviderWrapper {
    * @param {string} name - Name of evidence.
    * @param {string} description - Description of evidence.
    * @param {string} url - A link to the evidence.
-   * @returns {Promise} - The resulting evidence data.
+   * @returns {number} - The index of the evidence
    */
   addEvidenceContract = (
     contractAddress,
     userAddress,
     name,
     description,
-    url
+    url,
+    hash
   ) => {
-    // get timestamp for submission
-    const submittedAt = new Date().getTime()
-
     const getBodyFn = () =>
       new Promise(resolve =>
         resolve(
           JSON.stringify({
             name,
             description,
-            url,
-            submittedAt
+            URI: url,
+            hash
           })
         )
       )
 
-    return this.queueWriteRequest(
+    const response = await this.queueWriteRequest(
       getBodyFn,
       'POST',
       `${this._storeUri}/${userAddress}/contracts/${contractAddress}/evidence`
     )
+
+    if (response.status !== 200)
+      throw new Error(errorConstants.REQUEST_FAILED('Unable to submit evidence')
+
+    return response.body.evidenceIndex
   }
 
   /**

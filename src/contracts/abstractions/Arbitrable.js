@@ -41,7 +41,7 @@ class ArbitrableContract extends AbstractContract {
     const web3Provider = this._contractImplementation.getWeb3Provider()
     // determine the contract address WARNING if the nonce changes this will produce a different address
     const contractAddress = getContractAddress(account, web3Provider)
-    const metaEvidenceUri = this._StoreProvider.getMetaEvidenceUri(contractAddress)
+    const metaEvidenceUri = this._StoreProvider.getMetaEvidenceUri(account, contractAddress)
 
     const contractInstance = await this._contractImplementation.constructor.deploy(
       account,
@@ -79,28 +79,36 @@ class ArbitrableContract extends AbstractContract {
   }
 
   /**
-   * Submit evidence.
+   * Submit evidence. FIXME should we determine the hash for the user?
    * @param {string} account - ETH address of user.
    * @param {string} name - Name of evidence.
    * @param {string} description - Description of evidence.
    * @param {string} url - A link to an evidence using its URI.
+   * @param {string} hash - A hash of the evidence at the URI. No hash if content is dynamic
    * @returns {string} - txHash Hash transaction.
    */
-  submitEvidence = async (account, name, description = '', url) => {
+  submitEvidence = async (account, name, description, url, hash) => {
+    const contractAddress = this._contractImplementation.contractAddress
+    // get the index of the new evidence
+    const evidenceIndex = await this._StoreProvider.addEvidenceContract(
+      contractAddress,
+      account,
+      name,
+      description,
+      url,
+      hash
+    )
+    // construct the unique URI
+    const evidenceUri = this._StoreProvider.getEvidenceUri(account, contractAddress, evidenceIndex)
+
     const txHash = await this._contractImplementation.submitEvidence(
       account,
       name,
       description,
-      url
+      evidenceUri
     )
 
-    await this._StoreProvider.addEvidenceContract(
-      this._contractImplementation.contractAddress,
-      account,
-      name,
-      description,
-      url
-    )
+
 
     return txHash
   }
