@@ -116,6 +116,7 @@ class ArbitrableTransaction extends ContractImplementation {
       { _disputeID: disputeId, _arbitrator: arbitratorAddress }
     )
 
+    // TODO verify hash and data are valid if hash exists
     return evidenceLogs.map(async evidenceLog => {
       const evidenceURI = evidenceLog.args._evidence
       const evidence = await httpRequest(
