@@ -314,14 +314,8 @@ class Disputes {
     )
     const [arbitrableContractData, evidence, metaEvidence] = await Promise.all([
       this._ArbitrableInstance.getData(account),
-      this._ArbitrableInstance.getEvidenceForDispute(
-        arbitratorAddress,
-        dispute.disputeId
-      ),
-      this._ArbitrableInstance.getMetaEvidenceForDispute(
-        arbitratorAddress,
-        dispute.disputeId
-      )
+      this._ArbitrableInstance.getEvidence(),
+      this._ArbitrableInstance.getMetaEvidence()
     ])
     const contractStoreData = await this._StoreProviderInstance.getContractByAddress(
       arbitrableContractData.partyA,

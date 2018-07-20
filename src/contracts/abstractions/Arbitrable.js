@@ -1,4 +1,5 @@
 import AbstractContract from '../AbstractContract'
+import Eth from 'ethjs'
 
 import getContractAddress from '../../utils/getContractAddress'
 
@@ -19,34 +20,29 @@ class ArbitrableContract extends AbstractContract {
    * @param {string} partyB - Ethereum address of the other party in the contract.
    * @param {bytes} arbitratorExtraData - Extra data for the arbitrator.
    * @param {string} email - Email address of the contract creator (default empty string).
-   * @param {string} title - Title of the contract (default empty string).
-   * @param {string} description - Description of what the contract is about (default empty string).
    * @param {...any} args - Extra arguments for the contract.
    * @returns {object | Error} - The contract object or an error.
    */
   deploy = async (
     account,
     value,
-    hashContract,
     arbitratorAddress,
     timeout,
     partyB,
     arbitratorExtraData = '',
     email = '',
-    title = '',
-    description = '',
-    metaEvidence = {}
+    metaEvidence = {},
     ...args
   ) => {
     const web3Provider = this._contractImplementation.getWeb3Provider()
+    const eth = new Eth(web3Provider)
+    const txCount = await eth.getTransactionCount(account)
     // determine the contract address WARNING if the nonce changes this will produce a different address
-    const contractAddress = getContractAddress(account, web3Provider)
+    const contractAddress = getContractAddress(account, txCount)
     const metaEvidenceUri = this._StoreProvider.getMetaEvidenceUri(account, contractAddress)
-
     const contractInstance = await this._contractImplementation.constructor.deploy(
       account,
       value,
-      hashContract,
       arbitratorAddress,
       timeout,
       partyB,
@@ -57,20 +53,17 @@ class ArbitrableContract extends AbstractContract {
     )
 
     if (contractInstance.address !== contractAddress)
-      raise new Error('Contract address does not match meta-evidence uri')
+      throw new Error('Contract address does not match meta-evidence uri')
 
     const newContract = await this._StoreProvider.updateContract(
       account,
       contractInstance.address,
       {
-        hashContract,
         partyA: account,
         partyB,
         arbitrator: arbitratorAddress,
         timeout,
         email,
-        title,
-        description,
         metaEvidence
       }
     )
@@ -100,15 +93,10 @@ class ArbitrableContract extends AbstractContract {
     )
     // construct the unique URI
     const evidenceUri = this._StoreProvider.getEvidenceUri(account, contractAddress, evidenceIndex)
-
     const txHash = await this._contractImplementation.submitEvidence(
       account,
-      name,
-      description,
       evidenceUri
     )
-
-
 
     return txHash
   }
@@ -137,24 +125,6 @@ class ArbitrableContract extends AbstractContract {
       partyA,
       this._contractImplementation.contractAddress
     )
-  }
-
-  /**
-   * Get data from the store and contract for Arbitrable Contract.
-   * @param {string} account - ETH address of user.
-   * @returns {object} - Contract data.
-   */
-  getData = async account => {
-    const contractData = await this._contractImplementation.getData()
-
-    let storeData = {}
-    if (account)
-      storeData = await this._StoreProvider.getContractByAddress(
-        account,
-        this._contractImplementation.contractAddress
-      )
-
-    return Object.assign({}, storeData, contractData)
   }
 }
 

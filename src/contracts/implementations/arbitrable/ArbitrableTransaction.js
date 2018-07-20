@@ -37,11 +37,11 @@ class ArbitrableTransaction extends ContractImplementation {
   static deploy = async (
     account,
     value = ethConstants.TRANSACTION.VALUE,
-    hashContract,
     arbitratorAddress,
     timeout,
     partyB,
     arbitratorExtraData = '',
+    metaEvidenceUri,
     web3Provider
   ) => {
     const contractDeployed = await deployContractAsync(
@@ -50,45 +50,30 @@ class ArbitrableTransaction extends ContractImplementation {
       arbitrableTransactionArtifact,
       web3Provider,
       arbitratorAddress,
-      hashContract,
       timeout,
       partyB,
-      arbitratorExtraData
+      arbitratorExtraData,
+      metaEvidenceUri
     )
 
     return contractDeployed
   }
 
   /**
-   * Get the meta evidence for a contract dispute. Look up meta-evidence events
+   * Get the meta evidence for the contract. Arbitrable Transaction can only have
+   * one meta-evidence that is submitted on contract creation. Look up meta-evidence event
    * and make an http request to the resource.
-   * @param {string} arbitratorAddress - The arbitrators address.
-   * @param {number} disputeId - The index of the dispute.
    */
-  getMetaEvidenceForDispute = async (arbitratorAddress, disputeId) => {
-    const metaEvidenceLinkLog = await EventListener.getEventLogs(
-      this,
-      'LinkMetaEvidence',
-      0,
-      'latest',
-      { _disputeID: disputeId, _arbitrator: arbitratorAddress }
-    )
-
-    // No meta-evidence for dispute
-    if (!metaEvidenceLinkLog)
-      return {}
-
-    // Always use the first log
-    const metaEvidenceId = metaEvidenceLinkLog[0].args._metaEvidenceID
+  getMetaEvidence = async () => {
     const metaEvidenceLog = await EventListener.getEventLogs(
       this,
       'MetaEvidence',
       0,
       'latest',
-      { _metaEvidenceID: metaEvidenceId }
+      { _metaEvidenceID: 0 }
     )
 
-    if (!metaEvidenceLog)
+    if (!metaEvidenceLog[0])
       return {} // NOTE better to throw errors for missing meta-evidence?
 
     const metaEvidenceUri = metaEvidenceLog[0].args._evidence
@@ -104,10 +89,17 @@ class ArbitrableTransaction extends ContractImplementation {
 
   /**
    * Get the evidence submitted in a dispute.
-   * @param {string} arbitratorAddress - The arbitrators address.
-   * @param {number} disputeId - The index of the dispute.
    */
-  getEvidenceForDispute = async (arbitratorAddress, disputeId) => {
+  getEvidence = async () => {
+    await this.loadContract()
+    const arbitratorAddress = await this.contractInstance.arbitrator()
+    await this.loadContract()
+    const disputeId = (await this.contractInstance.disputeID()).toNumber()
+
+    // No evidence yet as there is no dispute
+    if (_.isNull(disputeId))
+      return []
+
     const evidenceLogs = await EventListener.getEventLogs(
       this,
       'Evidence',
@@ -117,11 +109,11 @@ class ArbitrableTransaction extends ContractImplementation {
     )
 
     // TODO verify hash and data are valid if hash exists
-    return evidenceLogs.map(async evidenceLog => {
+    return Promise.all(evidenceLogs.map(async evidenceLog => {
       const evidenceURI = evidenceLog.args._evidence
       const evidence = await httpRequest(
         'GET',
-        metaEvidenceUri
+        evidenceURI
       )
       const submittedAt = (
         await this._Web3Wrapper.getBlock(evidenceLog.blockNumber)
@@ -130,7 +122,7 @@ class ArbitrableTransaction extends ContractImplementation {
         ...evidence.body,
         ...{ submittedBy: evidenceLog.args._party, submittedAt }
       }
-    })
+    }))
   }
 
   /**
@@ -212,14 +204,12 @@ class ArbitrableTransaction extends ContractImplementation {
    */
   submitEvidence = async (
     account = this._Web3Wrapper.getAccount(0),
-    name,
-    description = '',
     url
   ) => {
     await this.loadContract()
 
     const txHashObj = await this.contractInstance.submitEvidence(
-      JSON.stringify(name, description, url),
+      url,
       {
         from: account,
         gas: ethConstants.TRANSACTION.GAS,
@@ -386,7 +376,9 @@ class ArbitrableTransaction extends ContractImplementation {
       partyAFee,
       partyBFee,
       lastInteraction,
-      amount
+      amount,
+      evidence,
+      metaEvidence
     ] = await Promise.all([
       this.contractInstance.arbitrator(),
       this.contractInstance.arbitratorExtraData(),
@@ -400,7 +392,9 @@ class ArbitrableTransaction extends ContractImplementation {
       this.contractInstance.partyAFee(),
       this.contractInstance.partyBFee(),
       this.contractInstance.lastInteraction(),
-      this.contractInstance.amount()
+      this.contractInstance.amount(),
+      this.getEvidence(),
+      this.getMetaEvidence()
     ])
 
     return {
@@ -416,7 +410,9 @@ class ArbitrableTransaction extends ContractImplementation {
       partyAFee: this._Web3Wrapper.fromWei(partyAFee, 'ether'),
       partyBFee: this._Web3Wrapper.fromWei(partyBFee, 'ether'),
       lastInteraction: lastInteraction.toNumber(),
-      amount: amount.toNumber()
+      amount: amount.toNumber(),
+      evidence,
+      metaEvidence
     }
   }
 }
