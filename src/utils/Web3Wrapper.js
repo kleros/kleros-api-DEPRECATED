@@ -18,7 +18,11 @@ class Web3Wrapper {
 
   getCoinbase = () => this._web3.eth.coinbase
 
-  getNonce = address => this._web3.eth.getTransactionCount(address)
+  getNonce = async address => {
+    console.log(this._web3.eth.blockNumber)
+    const nonce = await this._web3.eth.getTransactionCount(address)
+    return nonce
+  }
 
   toWei = (amount, unit) => {
     const newAmount = this._web3.toWei(amount, unit)
