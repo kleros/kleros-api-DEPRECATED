@@ -19,7 +19,6 @@ class Web3Wrapper {
   getCoinbase = () => this._web3.eth.coinbase
 
   getNonce = async address => {
-    console.log(this._web3.eth.blockNumber)
     const nonce = await this._web3.eth.getTransactionCount(address)
     return nonce
   }

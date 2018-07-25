@@ -1,3 +1,4 @@
 import ArbitrableTransaction from './ArbitrableTransaction'
+import ArbitrablePermissionList from './ArbitrablePermissionList'
 
-export { ArbitrableTransaction }
+export { ArbitrableTransaction, ArbitrablePermissionList }

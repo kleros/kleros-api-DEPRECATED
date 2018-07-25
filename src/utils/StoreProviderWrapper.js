@@ -38,14 +38,15 @@ class StoreProviderWrapper {
   queueReadRequest = uri =>
     this._storeQueue.fetch(() => httpRequest('GET', uri))
 
+  getMetaEvidenceUri = (userAddress, contractAddress) =>
+    `${
+      this._storeUri
+    }/${userAddress}/contracts/${contractAddress}/meta-evidence`
 
-  getMetaEvidenceUri = (userAddress, contractAddress) => (
-    `${this._storeUri}/${userAddress}/contracts/${contractAddress}/meta-evidence`
-  )
-
-  getEvidenceUri = (userAddress, contractAddress, evidenceIndex) => (
-    `${this._storeUri}/${userAddress}/contracts/${contractAddress}/evidence/${evidenceIndex}`
-  )
+  getEvidenceUri = (userAddress, contractAddress, evidenceIndex) =>
+    `${
+      this._storeUri
+    }/${userAddress}/contracts/${contractAddress}/evidence/${evidenceIndex}`
 
   // **************************** //
   // *          Read            * //
@@ -272,7 +273,9 @@ class StoreProviderWrapper {
     )
 
     if (response.status !== 201)
-      throw new Error(errorConstants.REQUEST_FAILED('Unable to submit evidence'))
+      throw new Error(
+        errorConstants.REQUEST_FAILED('Unable to submit evidence')
+      )
 
     return response.body.evidenceIndex
   }

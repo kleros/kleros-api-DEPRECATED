@@ -4,15 +4,13 @@ import _ from 'lodash'
 import * as ethConstants from '../../../constants/eth'
 import * as contractConstants from '../../../constants/contract'
 import * as errorConstants from '../../../constants/error'
-import ContractImplementation from '../../ContractImplementation'
+import Arbitrable from './Arbitrable'
 import deployContractAsync from '../../../utils/deployContractAsync'
-import EventListener from '../../../utils/EventListener'
-import httpRequest from '../../../utils/httpRequest'
 
 /**
  * Provides interaction with an Arbitrable Transaction contract deployed on the blockchain.
  */
-class ArbitrableTransaction extends ContractImplementation {
+class ArbitrableTransaction extends Arbitrable {
   /**
    * Constructor ArbitrableTransaction.
    * @param {object} web3Provider instance
@@ -57,72 +55,6 @@ class ArbitrableTransaction extends ContractImplementation {
     )
 
     return contractDeployed
-  }
-
-  /**
-   * Get the meta evidence for the contract. Arbitrable Transaction can only have
-   * one meta-evidence that is submitted on contract creation. Look up meta-evidence event
-   * and make an http request to the resource.
-   */
-  getMetaEvidence = async () => {
-    const metaEvidenceLog = await EventListener.getEventLogs(
-      this,
-      'MetaEvidence',
-      0,
-      'latest',
-      { _metaEvidenceID: 0 }
-    )
-
-    if (!metaEvidenceLog[0])
-      return {} // NOTE better to throw errors for missing meta-evidence?
-
-    const metaEvidenceUri = metaEvidenceLog[0].args._evidence
-    const metaEvidenceResponse = await httpRequest(
-      'GET',
-      metaEvidenceUri
-    )
-
-    if (metaEvidenceResponse.status !== 200)
-      throw new Error(`Unable to fetch meta-evidence at ${metaEvidenceUri}`)
-    return metaEvidenceResponse.body || {}
-  }
-
-  /**
-   * Get the evidence submitted in a dispute.
-   */
-  getEvidence = async () => {
-    await this.loadContract()
-    const arbitratorAddress = await this.contractInstance.arbitrator()
-    await this.loadContract()
-    const disputeId = (await this.contractInstance.disputeID()).toNumber()
-
-    // No evidence yet as there is no dispute
-    if (_.isNull(disputeId))
-      return []
-
-    const evidenceLogs = await EventListener.getEventLogs(
-      this,
-      'Evidence',
-      0,
-      'latest',
-      { _disputeID: disputeId, _arbitrator: arbitratorAddress }
-    )
-
-    // TODO verify hash and data are valid if hash exists
-    return Promise.all(evidenceLogs.map(async evidenceLog => {
-      const evidenceURI = evidenceLog.args._evidence
-      const evidence = await httpRequest(
-        'GET',
-        evidenceURI
-      )
-      const submittedAt = (
-        await this._Web3Wrapper.getBlock(evidenceLog.blockNumber)
-      ).timestamp
-      return {
-        ...evidence.body,
-        ...{ submittedBy: evidenceLog.args._party, submittedAt }
-      }
-    }))
   }
 
   /**
@@ -202,20 +134,14 @@ class ArbitrableTransaction extends ContractImplementation {
    * @param {string} url A link to an evidence using its URI.
    * @returns {string} txHash Hash transaction.
    */
-  submitEvidence = async (
-    account = this._Web3Wrapper.getAccount(0),
-    url
-  ) => {
+  submitEvidence = async (account = this._Web3Wrapper.getAccount(0), url) => {
     await this.loadContract()
 
-    const txHashObj = await this.contractInstance.submitEvidence(
-      url,
-      {
-        from: account,
-        gas: ethConstants.TRANSACTION.GAS,
-        value: 0
-      }
-    )
+    const txHashObj = await this.contractInstance.submitEvidence(url, {
+      from: account,
+      gas: ethConstants.TRANSACTION.GAS,
+      value: 0
+    })
 
     return txHashObj.tx
   }
@@ -305,56 +231,6 @@ class ArbitrableTransaction extends ContractImplementation {
       console.error(err)
       throw new Error(errorConstants.UNABLE_TO_RAISE_AN_APPEAL)
     }
-  }
-
-  /**
-   * Get ruling options from dispute via event
-   * @param {string} arbitratorAddress address of arbitrator contract
-   * @param {number} disputeId index of dispute
-   * @returns {object[]} an array of objects that specify the name and value of the resolution option
-   */
-  getRulingOptions = async (arbitratorAddress, disputeId) => {
-    await this.loadContract()
-
-    // fetch dispute resolution options
-    const statusNumber = (await this.contractInstance.status()).toNumber()
-
-    // should this just be !== ?
-    if (statusNumber < contractConstants.STATUS.DISPUTE_CREATED) return []
-
-    // FIXME we should have a block number to start from so we don't have to rip through the entire chain
-    const disputeEvents = await new Promise((resolve, reject) => {
-      this.contractInstance
-        .Dispute({}, { fromBlock: 0, toBlock: 'latest' })
-        .get((error, eventResult) => {
-          if (error) reject(error)
-
-          resolve(eventResult)
-        })
-    })
-
-    const disputeOption = _.filter(disputeEvents, event => {
-      const optionDisputeId = event.args._disputeID.toNumber()
-      // filter by arbitrator address and disputeId
-      return (
-        event.args._arbitrator === arbitratorAddress &&
-        optionDisputeId === disputeId
-      )
-    })
-    // should only be 1 at this point
-    if (disputeOption.length !== 1) return []
-
-    const rulingOptions = disputeOption[0].args._rulingOptions.split(';')
-    let optionIndex = 0
-    const resolutionOptions = rulingOptions.map(option => {
-      optionIndex += 1
-      return {
-        name: option,
-        value: optionIndex
-      }
-    })
-
-    return resolutionOptions
   }
 
   /**
