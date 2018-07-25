@@ -1,7 +1,8 @@
-import AbstractContract from '../AbstractContract'
 import Eth from 'ethjs'
 
 import getContractAddress from '../../utils/getContractAddress'
+
+import AbstractContract from '../AbstractContract'
 
 /**
  * Arbitrable Abstract Contarct API. This wraps an arbitrable contract. It provides
@@ -39,7 +40,10 @@ class ArbitrableContract extends AbstractContract {
     const txCount = await eth.getTransactionCount(account)
     // determine the contract address WARNING if the nonce changes this will produce a different address
     const contractAddress = getContractAddress(account, txCount)
-    const metaEvidenceUri = this._StoreProvider.getMetaEvidenceUri(account, contractAddress)
+    const metaEvidenceUri = this._StoreProvider.getMetaEvidenceUri(
+      account,
+      contractAddress
+    )
     const contractInstance = await this._contractImplementation.constructor.deploy(
       account,
       value,
@@ -61,8 +65,6 @@ class ArbitrableContract extends AbstractContract {
       {
         partyA: account,
         partyB,
-        arbitrator: arbitratorAddress,
-        timeout,
         email,
         metaEvidence
       }
@@ -92,7 +94,11 @@ class ArbitrableContract extends AbstractContract {
       hash
     )
     // construct the unique URI
-    const evidenceUri = this._StoreProvider.getEvidenceUri(account, contractAddress, evidenceIndex)
+    const evidenceUri = this._StoreProvider.getEvidenceUri(
+      account,
+      contractAddress,
+      evidenceIndex
+    )
     const txHash = await this._contractImplementation.submitEvidence(
       account,
       evidenceUri

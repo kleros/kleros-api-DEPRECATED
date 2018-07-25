@@ -1,3 +1,5 @@
+import * as errorConstants from '../constants/error'
+
 /**
  * Helper method for sending an http requests.
  * @param {string} verb - HTTP verb to be used in request. E.g. GET, POST, PUT.
