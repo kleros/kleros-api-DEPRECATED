@@ -5,6 +5,7 @@ import * as ethConstants from '../../src/constants/eth'
 
 describe('Kleros', () => {
   let klerosInstance
+  let blockNumber
   const mockArbitrator = '0x0'
   const mockArbitrable = '0x1'
   // taken from web3js documentation - TODO: TRUE random address
@@ -21,6 +22,8 @@ describe('Kleros', () => {
       mockArbitrator,
       mockArbitrable
     )
+
+    blockNumber = klerosInstance.web3Wrapper.blockNumber()
   })
   it('can be created', () => {
     expect(klerosInstance.arbitrator).toBeTruthy()
@@ -37,9 +40,6 @@ describe('Kleros', () => {
   })
   it('web3wrapper', () => {
     // Utils functions
-    expect(
-      klerosInstance.web3Wrapper._getNetworkIdIfExistsAsync()
-    ).resolves.toBeTruthy()
     expect(klerosInstance.web3Wrapper.isAddress(randomEthAddress)).toBe(true)
     expect(klerosInstance.web3Wrapper.getAccount(0)).toBeTruthy()
     expect(klerosInstance.web3Wrapper.getProvider()).toBeTruthy()
@@ -55,15 +55,33 @@ describe('Kleros', () => {
         .toBigNumber('200000000000000000000001')
         .toString(10)
     ).toBe('200000000000000000000001')
-    // Balance/user functions
+    // Balance functions
     expect(klerosInstance.web3Wrapper.getBalanceInWeiAsync()).toBeTruthy()
-    expect(
-      klerosInstance.web3Wrapper.doesContractExistAtAddressAsync(
-        randomEthAddress
-      )
-    ).resolves.toBeTruthy()
     // Block tests
-    expect(klerosInstance.web3Wrapper.getBlock(10)).resolves.toBeTruthy()
     expect(klerosInstance.web3Wrapper.blockNumber()).toBeTruthy()
+  })
+  // Can't test it util having a mock address (0x0)
+  // [const code = await this._web3.eth.getCode(address) => invalid address]
+  // it('web3wrapper doesContractExistAtAddressAsync', () => {
+  //   expect.assertions(1)
+  //   return klerosInstance.web3Wrapper
+  //     .doesContractExistAtAddressAsync(
+  //       klerosInstance.arbitrable.getContractAddress()
+  //     )
+  //     .then(res => {
+  //       expect(res).toEqual(true)
+  //     })
+  // })
+  it('web3wrapper async getBlock', () => {
+    expect.assertions(1)
+    return klerosInstance.web3Wrapper.getBlock(blockNumber).then(res => {
+      expect(res.number).toEqual(blockNumber)
+    })
+  })
+  it('web3wrapper async _getNetworkIdIfExistsAsync', () => {
+    expect.assertions(1)
+    return klerosInstance.web3Wrapper._getNetworkIdIfExistsAsync().then(res => {
+      expect(res).toBeTruthy()
+    })
   })
 })
