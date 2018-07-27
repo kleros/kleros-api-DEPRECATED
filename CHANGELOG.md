@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.10.0"></a>
+# [0.10.0](https://github.com/kleros/kleros-api/compare/v0.9.2...v0.10.0) (2018-07-25)
+
+
+### Features
+
+* create meta-evidence with contract ([fef04aa](https://github.com/kleros/kleros-api/commit/fef04aa))
+* fetch evidence from the chain ([c3f410f](https://github.com/kleros/kleros-api/commit/c3f410f))
+* get data directly from implementation ([5ff4aee](https://github.com/kleros/kleros-api/commit/5ff4aee))
+* split event based functions into base Arbitrable.js ([9544efe](https://github.com/kleros/kleros-api/commit/9544efe))
+* submit evidence uri use evidenceIndex ([12040dd](https://github.com/kleros/kleros-api/commit/12040dd))
+
+
+
 <a name="0.9.2"></a>
 ## [0.9.2](https://github.com/kleros/kleros-api/compare/v0.9.1...v0.9.2) (2018-06-22)
 

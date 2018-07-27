@@ -313,10 +313,8 @@ class Disputes {
       arbitrableContractAddress
     )
     const [arbitrableContractData, evidence] = await Promise.all([
-      this._ArbitrableInstance.getData(account),
-      this._ArbitrableInstance.getEvidenceForArbitrableContract(
-        arbitrableContractAddress
-      )
+      this._ArbitrableInstance.getContractData(),
+      this._ArbitrableInstance.getEvidence()
     ])
     const contractStoreData = await this._StoreProviderInstance.getContractByAddress(
       arbitrableContractData.partyA,
@@ -413,7 +411,6 @@ class Disputes {
     return {
       // Arbitrable Contract Data
       arbitrableContractAddress,
-      arbitrableContractStatus: arbitrableContractData.status,
       arbitratorAddress,
       partyA: arbitrableContractData.partyA,
       partyB: arbitrableContractData.partyB,
@@ -435,7 +432,8 @@ class Disputes {
         ? contractStoreData.description
         : undefined,
       email: contractStoreData ? contractStoreData.email : undefined,
-      evidence
+      evidence,
+      metaEvidence: arbitrableContractData.metaEvidence
     }
   }
 }

@@ -3,6 +3,7 @@ import _ from 'lodash'
 import * as errorConstants from '../constants/error'
 
 import PromiseQueue from './PromiseQueue'
+import httpRequest from './httpRequest'
 
 /**
  * A wrapper for interacting with Kleros Store.
@@ -18,44 +19,6 @@ class StoreProviderWrapper {
   }
 
   /**
-   * Helper method for sending an http request to kleros store.
-   * @param {string} verb - HTTP verb to be used in request. E.g. GET, POST, PUT.
-   * @param {string} uri - The uri to send the request to.
-   * @param {string} body - json string of the body.
-   * @returns {Promise} request promise that resolves to the HTTP response.
-   */
-  _makeRequest = (verb, uri, body = null) => {
-    const httpRequest = new XMLHttpRequest()
-    return new Promise((resolve, reject) => {
-      try {
-        httpRequest.open(verb, uri, true)
-        if (body) {
-          httpRequest.setRequestHeader(
-            'Content-Type',
-            'application/json;charset=UTF-8'
-          )
-        }
-        httpRequest.onreadystatechange = () => {
-          if (httpRequest.readyState === 4) {
-            let body = null
-            try {
-              body = JSON.parse(httpRequest.responseText)
-              // eslint-disable-next-line no-unused-vars
-            } catch (err) {}
-            resolve({
-              body: body,
-              status: httpRequest.status
-            })
-          }
-        }
-        httpRequest.send(body)
-      } catch (err) {
-        reject(errorConstants.REQUEST_FAILED(err))
-      }
-    })
-  }
-
-  /**
    * use the queue for write request. this allows a function to be passed so we can read immediately before we write
    * @param {fn} getBodyFn async function to call before we write. Should to reads and return JSON to be used as body.
    * @param {string} verb POST or PUT
@@ -64,7 +27,7 @@ class StoreProviderWrapper {
    */
   queueWriteRequest = (getBodyFn, verb, uri = null) =>
     this._storeQueue.fetch(() =>
-      getBodyFn().then(result => this._makeRequest(verb, uri, result))
+      getBodyFn().then(result => httpRequest(verb, uri, result))
     )
 
   /**
@@ -73,7 +36,17 @@ class StoreProviderWrapper {
    * @returns {Promise} promise of the result function
    */
   queueReadRequest = uri =>
-    this._storeQueue.fetch(() => this._makeRequest('GET', uri))
+    this._storeQueue.fetch(() => httpRequest('GET', uri))
+
+  getMetaEvidenceUri = (userAddress, contractAddress) =>
+    `${
+      this._storeUri
+    }/${userAddress}/contracts/${contractAddress}/meta-evidence`
+
+  getEvidenceUri = (userAddress, contractAddress, evidenceIndex) =>
+    `${
+      this._storeUri
+    }/${userAddress}/contracts/${contractAddress}/evidence/${evidenceIndex}`
 
   // **************************** //
   // *          Read            * //
@@ -85,7 +58,7 @@ class StoreProviderWrapper {
    * @returns {object} - a response object.
    */
   getUserProfile = async userAddress => {
-    const httpResponse = await this._makeRequest(
+    const httpResponse = await httpRequest(
       'GET',
       `${this._storeUri}/${userAddress}`
     )
@@ -172,7 +145,7 @@ class StoreProviderWrapper {
     let userProfile = await this.getUserProfile(userAddress)
     if (_.isNull(userProfile)) {
       // we can safely make request without queuing because all other writes for profile will fail if it hasn't been created.
-      const response = await this._makeRequest(
+      const response = await httpRequest(
         'POST',
         `${this._storeUri}/${userAddress}`
       )
@@ -271,35 +244,40 @@ class StoreProviderWrapper {
    * @param {string} name - Name of evidence.
    * @param {string} description - Description of evidence.
    * @param {string} url - A link to the evidence.
-   * @returns {Promise} - The resulting evidence data.
+   * @returns {number} - The index of the evidence
    */
-  addEvidenceContract = (
+  addEvidenceContract = async (
     contractAddress,
     userAddress,
     name,
     description,
-    url
+    url,
+    hash
   ) => {
-    // get timestamp for submission
-    const submittedAt = new Date().getTime()
-
     const getBodyFn = () =>
       new Promise(resolve =>
         resolve(
           JSON.stringify({
             name,
             description,
-            url,
-            submittedAt
+            URI: url,
+            hash
           })
         )
       )
 
-    return this.queueWriteRequest(
+    const response = await this.queueWriteRequest(
       getBodyFn,
       'POST',
       `${this._storeUri}/${userAddress}/contracts/${contractAddress}/evidence`
     )
+
+    if (response.status !== 201)
+      throw new Error(
+        errorConstants.REQUEST_FAILED('Unable to submit evidence')
+      )
+
+    return response.body.evidenceIndex
   }
 
   /**

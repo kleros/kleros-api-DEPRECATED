@@ -1,3 +1,7 @@
+import Eth from 'ethjs'
+
+import getContractAddress from '../../utils/getContractAddress'
+
 import AbstractContract from '../AbstractContract'
 
 /**
@@ -17,48 +21,52 @@ class ArbitrableContract extends AbstractContract {
    * @param {string} partyB - Ethereum address of the other party in the contract.
    * @param {bytes} arbitratorExtraData - Extra data for the arbitrator.
    * @param {string} email - Email address of the contract creator (default empty string).
-   * @param {string} title - Title of the contract (default empty string).
-   * @param {string} description - Description of what the contract is about (default empty string).
    * @param {...any} args - Extra arguments for the contract.
    * @returns {object | Error} - The contract object or an error.
    */
   deploy = async (
     account,
     value,
-    hashContract,
     arbitratorAddress,
     timeout,
     partyB,
     arbitratorExtraData = '',
     email = '',
-    title = '',
-    description = '',
+    metaEvidence = {},
     ...args
   ) => {
+    const web3Provider = this._contractImplementation.getWeb3Provider()
+    const eth = new Eth(web3Provider)
+    const txCount = await eth.getTransactionCount(account)
+    // determine the contract address WARNING if the nonce changes this will produce a different address
+    const contractAddress = getContractAddress(account, txCount)
+    const metaEvidenceUri = this._StoreProvider.getMetaEvidenceUri(
+      account,
+      contractAddress
+    )
     const contractInstance = await this._contractImplementation.constructor.deploy(
       account,
       value,
-      hashContract,
       arbitratorAddress,
       timeout,
       partyB,
       arbitratorExtraData,
-      this._contractImplementation.getWeb3Provider(),
+      metaEvidenceUri,
+      web3Provider,
       ...args
     )
+
+    if (contractInstance.address !== contractAddress)
+      throw new Error('Contract address does not match meta-evidence uri')
 
     const newContract = await this._StoreProvider.updateContract(
       account,
       contractInstance.address,
       {
-        hashContract,
         partyA: account,
         partyB,
-        arbitrator: arbitratorAddress,
-        timeout,
         email,
-        title,
-        description
+        metaEvidence
       }
     )
 
@@ -66,27 +74,34 @@ class ArbitrableContract extends AbstractContract {
   }
 
   /**
-   * Submit evidence.
+   * Submit evidence. FIXME should we determine the hash for the user?
    * @param {string} account - ETH address of user.
    * @param {string} name - Name of evidence.
    * @param {string} description - Description of evidence.
    * @param {string} url - A link to an evidence using its URI.
+   * @param {string} hash - A hash of the evidence at the URI. No hash if content is dynamic
    * @returns {string} - txHash Hash transaction.
    */
-  submitEvidence = async (account, name, description = '', url) => {
+  submitEvidence = async (account, name, description, url, hash) => {
+    const contractAddress = this._contractImplementation.contractAddress
+    // get the index of the new evidence
+    const evidenceIndex = await this._StoreProvider.addEvidenceContract(
+      contractAddress,
+      account,
+      name,
+      description,
+      url,
+      hash
+    )
+    // construct the unique URI
+    const evidenceUri = this._StoreProvider.getEvidenceUri(
+      account,
+      contractAddress,
+      evidenceIndex
+    )
     const txHash = await this._contractImplementation.submitEvidence(
       account,
-      name,
-      description,
-      url
-    )
-
-    await this._StoreProvider.addEvidenceContract(
-      this._contractImplementation.contractAddress,
-      account,
-      name,
-      description,
-      url
+      evidenceUri
     )
 
     return txHash
@@ -105,40 +120,6 @@ class ArbitrableContract extends AbstractContract {
   }
 
   /**
-   * Get evidence for contract.
-   * @param {string} contractAddress - Address of arbitrable contract.
-   * @returns {object[]} - Array of evidence objects.
-   */
-  getEvidenceForArbitrableContract = async () => {
-    const arbitrableContractData = await this._contractImplementation.getData()
-    const partyAContractData = await this._StoreProvider.getContractByAddress(
-      arbitrableContractData.partyA,
-      this._contractImplementation.contractAddress
-    )
-    const partyBContractData = await this._StoreProvider.getContractByAddress(
-      arbitrableContractData.partyB,
-      this._contractImplementation.contractAddress
-    )
-
-    const partyAEvidence = (partyAContractData
-      ? partyAContractData.evidence
-      : []
-    ).map(evidence => {
-      evidence.submitter = arbitrableContractData.partyA
-      return evidence
-    })
-    const partyBEvidence = (partyBContractData
-      ? partyBContractData.evidence
-      : []
-    ).map(evidence => {
-      evidence.submitter = arbitrableContractData.partyB
-      return evidence
-    })
-
-    return partyAEvidence.concat(partyBEvidence)
-  }
-
-  /**
    * Fetch all data from the store on the current contract.
    * @returns {object} - Store data for contract.
    */
@@ -150,24 +131,6 @@ class ArbitrableContract extends AbstractContract {
       partyA,
       this._contractImplementation.contractAddress
     )
-  }
-
-  /**
-   * Get data from the store and contract for Arbitrable Contract.
-   * @param {string} account - ETH address of user.
-   * @returns {object} - Contract data.
-   */
-  getData = async account => {
-    const contractData = await this._contractImplementation.getData()
-
-    let storeData = {}
-    if (account)
-      storeData = await this._StoreProvider.getContractByAddress(
-        account,
-        this._contractImplementation.contractAddress
-      )
-
-    return Object.assign({}, storeData, contractData)
   }
 }
 

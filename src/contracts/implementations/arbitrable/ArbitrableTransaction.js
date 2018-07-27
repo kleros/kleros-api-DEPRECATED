@@ -4,13 +4,13 @@ import _ from 'lodash'
 import * as ethConstants from '../../../constants/eth'
 import * as contractConstants from '../../../constants/contract'
 import * as errorConstants from '../../../constants/error'
-import ContractImplementation from '../../ContractImplementation'
+import Arbitrable from './Arbitrable'
 import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
  * Provides interaction with an Arbitrable Transaction contract deployed on the blockchain.
  */
-class ArbitrableTransaction extends ContractImplementation {
+class ArbitrableTransaction extends Arbitrable {
   /**
    * Constructor ArbitrableTransaction.
    * @param {object} web3Provider instance
@@ -35,11 +35,11 @@ class ArbitrableTransaction extends ContractImplementation {
   static deploy = async (
     account,
     value = ethConstants.TRANSACTION.VALUE,
-    hashContract,
     arbitratorAddress,
     timeout,
     partyB,
     arbitratorExtraData = '',
+    metaEvidenceUri,
     web3Provider
   ) => {
     const contractDeployed = await deployContractAsync(
@@ -48,10 +48,10 @@ class ArbitrableTransaction extends ContractImplementation {
       arbitrableTransactionArtifact,
       web3Provider,
       arbitratorAddress,
-      hashContract,
       timeout,
       partyB,
-      arbitratorExtraData
+      arbitratorExtraData,
+      metaEvidenceUri
     )
 
     return contractDeployed
@@ -134,22 +134,14 @@ class ArbitrableTransaction extends ContractImplementation {
    * @param {string} url A link to an evidence using its URI.
    * @returns {string} txHash Hash transaction.
    */
-  submitEvidence = async (
-    account = this._Web3Wrapper.getAccount(0),
-    name,
-    description = '',
-    url
-  ) => {
+  submitEvidence = async (account = this._Web3Wrapper.getAccount(0), url) => {
     await this.loadContract()
 
-    const txHashObj = await this.contractInstance.submitEvidence(
-      JSON.stringify(name, description, url),
-      {
-        from: account,
-        gas: ethConstants.TRANSACTION.GAS,
-        value: 0
-      }
-    )
+    const txHashObj = await this.contractInstance.submitEvidence(url, {
+      from: account,
+      gas: ethConstants.TRANSACTION.GAS,
+      value: 0
+    })
 
     return txHashObj.tx
   }
@@ -242,56 +234,6 @@ class ArbitrableTransaction extends ContractImplementation {
   }
 
   /**
-   * Get ruling options from dispute via event
-   * @param {string} arbitratorAddress address of arbitrator contract
-   * @param {number} disputeId index of dispute
-   * @returns {object[]} an array of objects that specify the name and value of the resolution option
-   */
-  getRulingOptions = async (arbitratorAddress, disputeId) => {
-    await this.loadContract()
-
-    // fetch dispute resolution options
-    const statusNumber = (await this.contractInstance.status()).toNumber()
-
-    // should this just be !== ?
-    if (statusNumber < contractConstants.STATUS.DISPUTE_CREATED) return []
-
-    // FIXME we should have a block number to start from so we don't have to rip through the entire chain
-    const disputeEvents = await new Promise((resolve, reject) => {
-      this.contractInstance
-        .Dispute({}, { fromBlock: 0, toBlock: 'latest' })
-        .get((error, eventResult) => {
-          if (error) reject(error)
-
-          resolve(eventResult)
-        })
-    })
-
-    const disputeOption = _.filter(disputeEvents, event => {
-      const optionDisputeId = event.args._disputeID.toNumber()
-      // filter by arbitrator address and disputeId
-      return (
-        event.args._arbitrator === arbitratorAddress &&
-        optionDisputeId === disputeId
-      )
-    })
-    // should only be 1 at this point
-    if (disputeOption.length !== 1) return []
-
-    const rulingOptions = disputeOption[0].args._rulingOptions.split(';')
-    let optionIndex = 0
-    const resolutionOptions = rulingOptions.map(option => {
-      optionIndex += 1
-      return {
-        name: option,
-        value: optionIndex
-      }
-    })
-
-    return resolutionOptions
-  }
-
-  /**
    * Data of the contract
    * @returns {object} Object Data of the contract.
    */
@@ -310,7 +252,9 @@ class ArbitrableTransaction extends ContractImplementation {
       partyAFee,
       partyBFee,
       lastInteraction,
-      amount
+      amount,
+      evidence,
+      metaEvidence
     ] = await Promise.all([
       this.contractInstance.arbitrator(),
       this.contractInstance.arbitratorExtraData(),
@@ -324,7 +268,9 @@ class ArbitrableTransaction extends ContractImplementation {
       this.contractInstance.partyAFee(),
       this.contractInstance.partyBFee(),
       this.contractInstance.lastInteraction(),
-      this.contractInstance.amount()
+      this.contractInstance.amount(),
+      this.getEvidence(),
+      this.getMetaEvidence()
     ])
 
     return {
@@ -340,7 +286,9 @@ class ArbitrableTransaction extends ContractImplementation {
       partyAFee: this._Web3Wrapper.fromWei(partyAFee, 'ether'),
       partyBFee: this._Web3Wrapper.fromWei(partyBFee, 'ether'),
       lastInteraction: lastInteraction.toNumber(),
-      amount: amount.toNumber()
+      amount: amount.toNumber(),
+      evidence,
+      metaEvidence
     }
   }
 }

@@ -698,7 +698,7 @@ class KlerosPOC extends ContractImplementation {
    * @returns {number} timestamp
    */
   _getTimestampForBlock = async blockNumber =>
-    (await this.getBlock(blockNumber)).timestamp
+    (await this._Web3Wrapper.getBlock(blockNumber)).timestamp
 
   /**
    * Get event NewPeriod event logs a period in a session.
