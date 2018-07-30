@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.11.1"></a>
+## [0.11.1](https://github.com/kleros/kleros-api/compare/v0.11.0...v0.11.1) (2018-07-30)
+
+
+### Bug Fixes
+
+* change working from activate to deposit ([#160](https://github.com/kleros/kleros-api/issues/160)) ([f92b18a](https://github.com/kleros/kleros-api/commit/f92b18a))
+
+
+
 <a name="0.11.0"></a>
 # [0.11.0](https://github.com/kleros/kleros-api/compare/v0.10.0...v0.11.0) (2018-07-30)
 
