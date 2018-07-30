@@ -108,7 +108,7 @@ class Notifications {
           notifications.push(
             this._createNotification(
               notificationConstants.TYPE.CAN_ACTIVATE,
-              'Ready to activate tokens',
+              'Ready to deposit tokens',
               {}
             )
           )
