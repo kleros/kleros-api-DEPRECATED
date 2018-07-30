@@ -83,6 +83,28 @@ class MiniMePinakion extends ContractImplementation {
       throw new Error(errorConstants.UNABLE_TO_TRANSFER_OWNERSHIP)
     }
   }
+
+  /**
+   * Approve the arbitrator contract to transfer PNK to the contract and call the arbitrators
+   * receiveApproval()
+   * @param {string} arbitratorAddress - The address of the arbitrator contract.
+   * @param {number} amount - The amount of PNK to transfer.
+   * @param {string} account - The users account.
+   * @returns {bool} If the transfer succeeded or not
+   */
+  approveAndCall = async (arbitratorAddress, amount, account = this._Web3Wrapper.getAccount(0)) => {
+    await this.loadContract()
+
+    return this.contractInstance.approveAndCall(
+      arbitratorAddress,
+      this._Web3Wrapper.toWei(amount, 'ether'),
+      '0x0',
+      {
+        from: account,
+        gas: ethConstants.TRANSACTION.GAS
+      }
+    )
+  }
 }
 
 export default MiniMePinakion
