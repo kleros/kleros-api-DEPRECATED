@@ -99,6 +99,14 @@ class Kleros extends ContractImplementation {
   getPNKBalance = async (account = this._Web3Wrapper.getAccount(0)) => {
     await this.loadContract()
 
+    const pinakionContractAddress = await this.contractInstance.pinakion()
+    const pnkInstance = new MiniMePinakion(this.getWeb3Provider(), pinakionContractAddress)
+
+    const contractBalance = this._Web3Wrapper.fromWei(
+      (await pnkInstance.getTokenBalance(account)),
+      'ether'
+    )
+
     const juror = await this.contractInstance.jurors(account)
     if (!juror)
       throw new Error(
@@ -126,7 +134,8 @@ class Kleros extends ContractImplementation {
     return {
       tokenBalance: totalTokens,
       activatedTokens,
-      lockedTokens
+      lockedTokens,
+      contractBalance
     }
   }
 
