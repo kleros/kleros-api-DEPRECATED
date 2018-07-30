@@ -105,6 +105,17 @@ class MiniMePinakion extends ContractImplementation {
       }
     )
   }
+
+  /**
+   * Get the token balance for an account
+   * @param {string} account - The users account.
+   * @returns {number} the amount of tokens.
+   */
+  getTokenBalance = async (account) => {
+    await this.loadContract()
+
+    return this.contractInstance.balanceOf(account)
+  }
 }
 
 export default MiniMePinakion
