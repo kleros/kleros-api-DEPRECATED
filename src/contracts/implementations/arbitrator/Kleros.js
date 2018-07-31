@@ -611,6 +611,25 @@ class Kleros extends ContractImplementation {
   }
 
   /**
+   * Get the ruling that a juror gave in dispute
+   * @param {number} disputeId - the index of the dispute.
+   * @param {number} appeal - the index of the appeal.
+   * @param {number} draw - the index of the vote draw.
+   * @returns {number} ruling.
+   */
+  getVoteForDraw = async (disputeId, appeal, draw) => {
+    await this.loadContract()
+
+    const vote = await this.contractInstance.getVoteRuling(
+      disputeId,
+      appeal,
+      draw
+    )
+
+    return vote.toNumber()
+  }
+
+  /**
    * Find when a ruling was made in a session
    * @param {number} session - The session number.
    * @returns {number[]} an array of timestamps
