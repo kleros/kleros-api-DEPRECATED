@@ -37,11 +37,12 @@ class Arbitrable extends ContractImplementation {
     // FIXME caching issue need a query param to fetch from AWS
     const metaEvidenceResponse = await httpRequest(
       'GET',
-      metaEvidenceUri + '?nocache'
+      metaEvidenceUri
     )
 
     if (metaEvidenceResponse.status >= 400)
       throw new Error(`Unable to fetch meta-evidence at ${metaEvidenceUri}`)
+
     return metaEvidenceResponse.body || metaEvidenceResponse
   }
 
@@ -87,15 +88,11 @@ class Arbitrable extends ContractImplementation {
   getContractData = async () => {
     await this.loadContract()
 
-    const [metaEvidence, partyA, partyB] = await Promise.all([
-      this.getMetaEvidence(),
-      this.contractInstance.partyA(),
-      this.contractInstance.partyB()
+    const [metaEvidence] = await Promise.all([
+      this.getMetaEvidence()
     ])
 
     return {
-      partyA,
-      partyB,
       metaEvidence
     }
   }

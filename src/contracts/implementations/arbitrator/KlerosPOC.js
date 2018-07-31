@@ -35,7 +35,6 @@ class KlerosPOC extends Kleros {
     try {
       return this.contractInstance.buyPinakion({
         from: account,
-        gas: ethConstants.TRANSACTION.GAS,
         value: this._Web3Wrapper.toWei(amount, 'ether')
       })
     } catch (err) {

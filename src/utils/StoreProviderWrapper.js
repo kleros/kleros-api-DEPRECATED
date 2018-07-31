@@ -149,8 +149,6 @@ class StoreProviderWrapper {
         'POST',
         `${this._storeUri}/${userAddress}`
       )
-      if (response.status !== 201)
-        throw new Error(errorConstants.REQUEST_FAILED(response))
       userProfile = response.body
     }
 

@@ -76,7 +76,6 @@ class MiniMePinakion extends ContractImplementation {
     try {
       return this.contractInstance.changeController(klerosAddress, {
         from: account,
-        gas: ethConstants.TRANSACTION.GAS
       })
     } catch (err) {
       console.error(err)
@@ -101,7 +100,6 @@ class MiniMePinakion extends ContractImplementation {
       '0x0',
       {
         from: account,
-        gas: ethConstants.TRANSACTION.GAS
       }
     )
   }

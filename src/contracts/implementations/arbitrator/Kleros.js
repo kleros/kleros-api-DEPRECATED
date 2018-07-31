@@ -84,7 +84,6 @@ class Kleros extends ContractImplementation {
       this._Web3Wrapper.toWei(amount, 'ether'),
       {
         from: account,
-        gas: ethConstants.TRANSACTION.GAS
       }
     )
 
@@ -156,7 +155,6 @@ class Kleros extends ContractImplementation {
         this._Web3Wrapper.toWei(amount, 'ether'),
         {
           from: account,
-          gas: ethConstants.TRANSACTION.GAS
         }
       )
     } catch (err) {
@@ -220,7 +218,6 @@ class Kleros extends ContractImplementation {
     try {
       await this.contractInstance.passPeriod.original({
         from: account,
-        gas: ethConstants.TRANSACTION.GAS
       })
       return this.getData()
     } catch (err) {
@@ -248,7 +245,6 @@ class Kleros extends ContractImplementation {
     try {
       return this.contractInstance.voteRuling(disputeId, ruling, votes, {
         from: account,
-        gas: ethConstants.TRANSACTION.GAS
       })
     } catch (err) {
       console.error(err)
@@ -274,7 +270,6 @@ class Kleros extends ContractImplementation {
       return this.contractInstance.appeal(disputeId, extraData, {
         from: account,
         value: await this.contractInstance.appealCost(disputeId, extraData),
-        gas: ethConstants.TRANSACTION.GAS
       })
     } catch (err) {
       console.error(err)
@@ -297,7 +292,6 @@ class Kleros extends ContractImplementation {
     try {
       return this.contractInstance.oneShotTokenRepartition(disputeId, {
         from: account,
-        gas: ethConstants.TRANSACTION.GAS
       })
     } catch (err) {
       console.error(err)
@@ -320,7 +314,6 @@ class Kleros extends ContractImplementation {
     try {
       return this.contractInstance.executeRuling(disputeId, {
         from: account,
-        gas: ethConstants.TRANSACTION.GAS
       })
     } catch (err) {
       console.error(err)

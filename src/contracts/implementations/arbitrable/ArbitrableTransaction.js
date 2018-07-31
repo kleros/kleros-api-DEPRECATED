@@ -69,7 +69,6 @@ class ArbitrableTransaction extends Arbitrable {
     try {
       return this.contractInstance.pay({
         from: account,
-        gas: ethConstants.TRANSACTION.GAS,
         value: 0
       })
     } catch (err) {
@@ -93,7 +92,6 @@ class ArbitrableTransaction extends Arbitrable {
     try {
       return this.contractInstance.payArbitrationFeeByPartyA({
         from: account,
-        gas: ethConstants.TRANSACTION.GAS,
         value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
       })
     } catch (err) {
@@ -117,7 +115,6 @@ class ArbitrableTransaction extends Arbitrable {
     try {
       return this.contractInstance.payArbitrationFeeByPartyB({
         from: account,
-        gas: ethConstants.TRANSACTION.GAS,
         value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
       })
     } catch (err) {
@@ -139,7 +136,6 @@ class ArbitrableTransaction extends Arbitrable {
 
     const txHashObj = await this.contractInstance.submitEvidence(url, {
       from: account,
-      gas: ethConstants.TRANSACTION.GAS,
       value: 0
     })
 
@@ -167,7 +163,6 @@ class ArbitrableTransaction extends Arbitrable {
     try {
       return this.contractInstance.timeOutByPartyA({
         from: account,
-        gas: ethConstants.TRANSACTION.GAS,
         value: 0
       })
     } catch (err) {
@@ -198,7 +193,6 @@ class ArbitrableTransaction extends Arbitrable {
     try {
       return this.contractInstance.timeOutByPartyB({
         from: account,
-        gas: ethConstants.TRANSACTION.GAS,
         value: 0
       })
     } catch (err) {
@@ -224,7 +218,6 @@ class ArbitrableTransaction extends Arbitrable {
     try {
       return this.contractInstance.appeal(extraData, {
         from: account,
-        gas: ethConstants.TRANSACTION.GAS,
         value: this._Web3Wrapper.toWei(appealCost, 'ether')
       })
     } catch (err) {

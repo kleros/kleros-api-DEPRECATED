@@ -51,7 +51,6 @@ class PinakionPOC extends ContractImplementation {
     try {
       return this.contractInstance.setKleros(klerosAddress, {
         from: account,
-        gas: ethConstants.TRANSACTION.GAS
       })
     } catch (err) {
       console.error(err)
@@ -74,7 +73,6 @@ class PinakionPOC extends ContractImplementation {
     try {
       return this.contractInstance.transferOwnership(klerosAddress, {
         from: account,
-        gas: ethConstants.TRANSACTION.GAS
       })
     } catch (err) {
       console.error(err)
