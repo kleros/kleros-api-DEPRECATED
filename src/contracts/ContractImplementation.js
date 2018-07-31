@@ -152,6 +152,12 @@ class ContractImplementation {
    * @returns {string} - The address of the contract.
    */
   getContractAddress = () => this.contractAddress
+
+  /**
+   * Returns the web3 wrapper
+   * @returns {object} - Web3 Wrapper
+   */
+  getWeb3Wrapper = () => this._Web3Wrapper
 }
 
 export default ContractImplementation

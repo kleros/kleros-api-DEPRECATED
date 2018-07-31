@@ -17,6 +17,7 @@ class Notifications {
     storeProviderInstance
   ) {
     this._ArbitratorInstance = arbitratorInstance
+    this._Web3Wrapper = this._ArbitratorInstance.getWeb3Wrapper()
     this._ArbitrableInstance = arbitrableInstance
     this._StoreProviderInstance = storeProviderInstance
   }
@@ -471,7 +472,7 @@ class Notifications {
         event.blockNumber,
         event.logIndex,
         notificationConstants.TYPE.TOKEN_SHIFT,
-        'Tokens have been redistributed',
+        `You have ${amount < 0 ? 'lost' : 'won'} ${this._Web3Wrapper.fromWei(amount, 'ether')} PNK.`,
         {
           disputeId,
           arbitratorAddress,
@@ -504,7 +505,7 @@ class Notifications {
         event.blockNumber,
         event.logIndex,
         notificationConstants.TYPE.ARBITRATION_REWARD,
-        'Juror awarded arbitration fee',
+        `You have been awarded an ${this._Web3Wrapper.fromWei(amount, 'ether')} ETH arbitration fee`,
         {
           disputeId,
           arbitratorAddress,

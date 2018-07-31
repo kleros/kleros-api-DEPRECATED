@@ -499,6 +499,18 @@ class Kleros extends ContractImplementation {
   }
 
   /**
+   * Get min activated tokens for a session
+   * @returns {number} - Number of tokens
+   */
+  getMinActivatedToken = async () => {
+    await this.loadContract()
+
+    const minActivatedTokens = await this.contractInstance.minActivatedToken()
+
+    return this._Web3Wrapper.fromWei(minActivatedTokens.toNumber(), 'ether')
+  }
+
+  /**
    * Get current session of the contract.
    * @returns {number} - Int indicating the session.
    */
@@ -750,18 +762,27 @@ class Kleros extends ContractImplementation {
   getData = async () => {
     await this.loadContract()
 
+    const timePerPeriod = await Promise.all([
+      this.getTimeForPeriod(arbitratorConstants.PERIOD.ACTIVATION),
+      this.getTimeForPeriod(arbitratorConstants.PERIOD.DRAW),
+      this.getTimeForPeriod(arbitratorConstants.PERIOD.VOTE),
+      this.getTimeForPeriod(arbitratorConstants.PERIOD.APPEAL),
+      this.getTimeForPeriod(arbitratorConstants.PERIOD.EXECUTE)
+    ])
     const [
       pinakionContractAddress,
       rngContractAddress,
       period,
       session,
-      lastPeriodChange
+      lastPeriodChange,
+      minActivatedToken
     ] = await Promise.all([
       this.contractInstance.pinakion(),
       this.contractInstance.rng(),
       this.contractInstance.period(),
       this.contractInstance.session(),
-      this.contractInstance.lastPeriodChange()
+      this.contractInstance.lastPeriodChange(),
+      this.getMinActivatedToken()
     ])
 
     return {
@@ -769,7 +790,9 @@ class Kleros extends ContractImplementation {
       rngContractAddress,
       period: period.toNumber(),
       session: session.toNumber(),
-      lastPeriodChange: lastPeriodChange.toNumber()
+      lastPeriodChange: lastPeriodChange.toNumber(),
+      timePerPeriod,
+      minActivatedToken
     }
   }
 }
