@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.12.0"></a>
+# [0.12.0](https://github.com/kleros/kleros-api/compare/v0.11.3...v0.12.0) (2018-07-31)
+
+
+### Features
+
+* minAcivatedTokens and timePerPeriod ([b49796e](https://github.com/kleros/kleros-api/commit/b49796e))
+
+
+
 <a name="0.11.3"></a>
 ## [0.11.3](https://github.com/kleros/kleros-api/compare/v0.11.2...v0.11.3) (2018-07-31)
 
