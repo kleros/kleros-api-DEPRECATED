@@ -109,7 +109,7 @@ class Notifications {
           notifications.push(
             this._createNotification(
               notificationConstants.TYPE.CAN_ACTIVATE,
-              'Ready to deposit tokens',
+              'You can now deposit PNK.',
               {}
             )
           )
@@ -127,7 +127,7 @@ class Notifications {
               notifications.push(
                 this._createNotification(
                   notificationConstants.TYPE.CAN_VOTE,
-                  'Need to vote on dispute',
+                  'Open cases still need your decision.',
                   {
                     disputeId: dispute.disputeId,
                     arbitratorAddress: dispute.arbitratorAddress
@@ -440,7 +440,7 @@ class Notifications {
         event.blockNumber,
         event.logIndex,
         notificationConstants.TYPE.RULING_APPEALED,
-        'A ruling been appealed',
+        'A ruling you made has been appealed by one of the parties.',
         {
           disputeId,
           arbitratorAddress
