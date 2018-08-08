@@ -381,14 +381,10 @@ class Disputes {
       let rulings = []
       // if can't rule that means they already did or they missed it
       if (!canRule) {
-        rulings = await Promise.all(
-          draws.map(
-            draw => this._ArbitratorInstance.getVoteForDraw(
-              dispute.disputeId,
-              appeal,
-              draw
-            )
-          )
+        ruling = await this._ArbitratorInstance.getVoteForJuror(
+          dispute.disputeId,
+          appeal,
+          account
         )
       }
 
@@ -410,7 +406,7 @@ class Disputes {
         createdAt: appealCreatedAt,
         fee: dispute.arbitrationFeePerJuror * draws.length,
         draws,
-        rulings,
+        ruling,
         canRule
       }
       appealRulings[appeal] = {

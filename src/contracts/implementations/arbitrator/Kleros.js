@@ -610,6 +610,30 @@ class Kleros extends ContractImplementation {
     return openDisputes
   }
 
+  getVoteForJuror = async (disputeId, appeal, address) => {
+    await this.loadContract()
+
+    const numberOfJurors = await this.getAmountOfJurorsForDispute(disputeId)
+    let jurorDraw = null
+    for (let i=0; i < numberOfJurors; i++) {
+      const jurorAddress = await this.contractInstance.getVoteAccount(
+        disputeId,
+        appeal,
+        i
+      )
+
+      // NOTE jurors can only vote once per session so this is safe for now.
+      if (jurorAddress === address) {
+        jurorDraw = i
+        break
+      }
+    }
+
+    if (_.isNull(jurorDraw)) return null
+
+    return this.getVoteForDraw(disputeId, appeal, jurorDraw)
+  }
+
   /**
    * Get the ruling that a juror gave in dispute
    * @param {number} disputeId - the index of the dispute.
