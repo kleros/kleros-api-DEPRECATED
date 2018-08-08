@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.14.0"></a>
+# [0.14.0](https://github.com/kleros/kleros-api/compare/v0.13.0...v0.14.0) (2018-08-08)
+
+
+### Features
+
+* **disputes:** fetch ruling from blockchain ([#164](https://github.com/kleros/kleros-api/issues/164)) ([ef7d9ab](https://github.com/kleros/kleros-api/commit/ef7d9ab))
+
+
+
 <a name="0.13.0"></a>
 # [0.13.0](https://github.com/kleros/kleros-api/compare/v0.12.2...v0.13.0) (2018-07-31)
 
