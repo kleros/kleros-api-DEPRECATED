@@ -5,7 +5,6 @@ import * as ethConstants from '../../../constants/eth'
 import * as contractConstants from '../../../constants/contract'
 import * as errorConstants from '../../../constants/error'
 import Arbitrable from './Arbitrable'
-import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
  * Provides interaction with an Arbitrable Transaction contract deployed on the blockchain.
@@ -38,7 +37,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
     value,
     timeout = 3600,
     arbitratorExtraData = 0x0,
-    metaEvidenceUri = ''
+    metaEvidence
   ) => {
     await this.loadContract()
 
@@ -48,7 +47,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
         timeout,
         seller,
         arbitratorExtraData,
-        metaEvidenceUri,
+        metaEvidence,
         {
           from: account,
           value: this._Web3Wrapper.toWei(value, 'ether')
@@ -56,7 +55,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
       )
     } catch (err) {
       console.error(err)
-      throw new Error(errorConstants.UNABLE_TO_PAY_SELLER)
+      throw new Error(errorConstants.UNABLE_TO_CREATE_TRANSACTION)
     }
   }
 

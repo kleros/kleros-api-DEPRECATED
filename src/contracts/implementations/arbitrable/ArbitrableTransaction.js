@@ -1,4 +1,4 @@
-import arbitrableTransactionArtifact from 'kleros-interaction/build/contracts/ArbitrableTransaction'
+import arbitrableTransactionArtifact from 'kleros-interaction/build/contracts/MultipleArbitrableTransaction'
 import _ from 'lodash'
 
 import * as ethConstants from '../../../constants/eth'
