@@ -51,6 +51,8 @@ export const DISPUTE_DOES_NOT_EXIST = disputeId =>
   `Dispute ${disputeId} does not exist`
 
 // ArbitrableTransaction
+export const UNABLE_TO_CREATE_TRANSACTION =
+  'Unable to create a new transaction.'
 export const UNABLE_TO_PAY_ARBITRATION_FEE =
   'Unable to pay fee, are you sure you have enough PNK?'
 export const UNABLE_TO_RAISE_AN_APPEAL =

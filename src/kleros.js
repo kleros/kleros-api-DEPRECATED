@@ -52,7 +52,7 @@ class Kleros {
       ethereumProvider,
       arbitratorAddress
     )
-    const _arbitrableTransaction = new contracts.implementations.arbitrable.ArbitrableTransaction(
+    const _arbitrableTransaction = new contracts.implementations.arbitrable.MultipleArbitrableTransaction(
       ethereumProvider,
       arbitrableContractAddress
     )
@@ -61,7 +61,7 @@ class Kleros {
       ethereumProvider,
       arbitratorAddress
     )
-    const _arbitrableTransactionInternal = new contracts.implementations.arbitrable.ArbitrableTransaction(
+    const _arbitrableTransactionInternal = new contracts.implementations.arbitrable.MultipleArbitrableTransaction(
       ethereumProvider,
       arbitrableContractAddress
     )

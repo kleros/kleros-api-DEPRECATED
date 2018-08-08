@@ -24,6 +24,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
    * Create MultipleArbitrableTransaction.
    * @param {object} account Ethereum account (default account[0])
    * @param {string} arbitratorAddress The address of the arbitrator contract
+   * @param {object} seller Seller Ethereum account
    * @param {number} value funds to be placed in contract
    * @param {number} timeout Time (seconds) after which a party automatically loose a dispute. (default 3600)
    * @param {bytes} arbitratorExtraData Extra data for the arbitrator. (default empty string)
@@ -33,6 +34,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
   createArbitrableTransaction = async (
     account = this._Web3Wrapper.getAccount(0),
     arbitratorAddress,
+    seller,
     value,
     timeout = 3600,
     arbitratorExtraData = 0x0,
@@ -44,7 +46,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
       return this.contractInstance.createTransaction(
         arbitratorAddress,
         timeout,
-        account,
+        seller,
         arbitratorExtraData,
         metaEvidenceUri,
         {
@@ -275,7 +277,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
       partyAFee: this._Web3Wrapper.fromWei(transaction.sellerFee, 'ether'),
       partyBFee: this._Web3Wrapper.fromWei(transaction.buyerFee, 'ether'),
       lastInteraction: transaction.lastInteraction.toNumber(),
-      amount: transaction.amount.toNumber(),
+      amount: transaction.amount.toNumber()
     }
   }
 }
