@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.14.1"></a>
+## [0.14.1](https://github.com/kleros/kleros-api/compare/v0.14.0...v0.14.1) (2018-08-09)
+
+
+### Bug Fixes
+
+* use BigNumber .minus ([#165](https://github.com/kleros/kleros-api/issues/165)) ([76f457e](https://github.com/kleros/kleros-api/commit/76f457e))
+
+
+
 <a name="0.14.0"></a>
 # [0.14.0](https://github.com/kleros/kleros-api/compare/v0.13.0...v0.14.0) (2018-08-08)
 
