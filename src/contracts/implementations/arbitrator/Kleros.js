@@ -123,7 +123,7 @@ class Kleros extends ContractImplementation {
     let activatedTokens = 0
     if (juror[2].toNumber() === currentSession.toNumber())
       activatedTokens = this._Web3Wrapper.fromWei(
-        juror[4].toNumber() - juror[3].toNumber(),
+        (juror[4].minus(juror[3])).toNumber(),
         'ether'
       )
 
