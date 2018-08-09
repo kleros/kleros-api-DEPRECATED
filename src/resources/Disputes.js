@@ -378,10 +378,10 @@ class Disputes {
       // Wait for parallel requests to complete
       ;[ruling, canRule] = await Promise.all(rulingPromises)
 
-      let rulings = []
+      let jurorRuling = []
       // if can't rule that means they already did or they missed it
       if (!canRule) {
-        ruling = await this._ArbitratorInstance.getVoteForJuror(
+        jurorRuling = await this._ArbitratorInstance.getVoteForJuror(
           dispute.disputeId,
           appeal,
           account
@@ -406,7 +406,7 @@ class Disputes {
         createdAt: appealCreatedAt,
         fee: dispute.arbitrationFeePerJuror * draws.length,
         draws,
-        ruling,
+        jurorRuling,
         canRule
       }
       appealRulings[appeal] = {
