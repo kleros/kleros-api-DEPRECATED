@@ -1,7 +1,7 @@
 import Web3 from 'web3'
 
 import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
-import ArbitrableTransaction from '../../src/contracts/implementations/arbitrable/ArbitrableTransaction'
+import MultipleArbitrableTransaction from '../../src/contracts/implementations/arbitrable/MultipleArbitrableTransaction'
 import * as ethConstants from '../../src/constants/eth'
 import * as errorConstants from '../../src/constants/error'
 import setUpContracts from '../helpers/setUpContracts'
@@ -46,7 +46,8 @@ describe('Contracts', () => {
       value: 0,
       hash: 'test',
       timeout: 1,
-      extraData: ''
+      extraData: '',
+      metaEvidenceUri: 'https://my-meta-evidence.ipfs.io'
     }
   })
 
@@ -137,30 +138,38 @@ describe('Contracts', () => {
         expect(klerosCourtData.rngContractAddress).toEqual(rngAddress)
         expect(klerosCourtData.period).toEqual(0)
         expect(klerosCourtData.session).toEqual(1)
-        // // arbitrable contract
-        const ArbitrableTransactionInstanceInstance = new ArbitrableTransaction(
+      },
+      10000
+    )
+    it(
+      'create a arbitrable transaction',
+      async () => {
+        const [
+          klerosPOCAddress,
+          arbitrableContractAddress
+        ] = await setUpContracts(
+          provider,
+          klerosPOCData,
+          arbitrableContractData
+        )
+
+        expect(klerosPOCAddress).toBeDefined()
+        expect(arbitrableContractAddress).toBeDefined()
+
+        // arbitrable contract
+        const ArbitrableTransactionInstanceInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
 
-        const contractArbitrableTransactionData = await ArbitrableTransactionInstanceInstance.getData(
+        await ArbitrableTransactionInstanceInstance.createArbitrableTransaction(
+          arbitrableContractData.partyA,
           arbitrableContractAddress,
-          partyA
-        )
-        expect(contractArbitrableTransactionData.address).toEqual(
-          arbitrableContractAddress
-        )
-        expect(contractArbitrableTransactionData.arbitrator).toEqual(
-          klerosPOCAddress
-        )
-        expect(contractArbitrableTransactionData.timeout).toEqual(
-          arbitrableContractData.timeout
-        )
-        expect(contractArbitrableTransactionData.partyA).toEqual(
-          arbitrableContractData.partyA
-        )
-        expect(contractArbitrableTransactionData.partyB).toEqual(
-          arbitrableContractData.partyB
+          arbitrableContractData.partyB,
+          arbitrableContractData.value,
+          arbitrableContractData.timeout,
+          arbitrableContractData.extraData,
+          arbitrableContractData.metaEvidenceUri
         )
       },
       10000
@@ -181,7 +190,7 @@ describe('Contracts', () => {
         expect(arbitrableContractAddress).toBeDefined()
 
         // FIXME use arbitrableTransaction
-        const ArbitrableTransactionInstance = new ArbitrableTransaction(
+        const ArbitrableTransactionInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )

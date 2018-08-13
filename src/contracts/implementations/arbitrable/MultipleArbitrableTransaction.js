@@ -4,6 +4,8 @@ import _ from 'lodash'
 import * as ethConstants from '../../../constants/eth'
 import * as contractConstants from '../../../constants/contract'
 import * as errorConstants from '../../../constants/error'
+import deployContractAsync from '../../../utils/deployContractAsync'
+
 import Arbitrable from './Arbitrable'
 
 /**
@@ -17,6 +19,23 @@ class MultipleArbitrableTransaction extends Arbitrable {
    */
   constructor(web3Provider, contractAddress) {
     super(web3Provider, multipleArbitrableTransactionArtifact, contractAddress)
+  }
+
+  /**
+   * Deploy MultipleArbitrableTransaction.
+   * @param {object} account Ethereum account (default account[0])
+   * @param {object} web3Provider web3 provider object
+   * @returns {object} truffle-contract Object | err The deployed contract or an error
+   */
+  static deploy = async (account, web3Provider) => {
+    const contractDeployed = await deployContractAsync(
+      account,
+      0,
+      multipleArbitrableTransactionArtifact,
+      web3Provider
+    )
+
+    return contractDeployed
   }
 
   /**
@@ -37,7 +56,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
     value,
     timeout = 3600,
     arbitratorExtraData = 0x0,
-    metaEvidence
+    metaEvidenceUri
   ) => {
     await this.loadContract()
 
@@ -47,7 +66,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
         timeout,
         seller,
         arbitratorExtraData,
-        metaEvidence,
+        metaEvidenceUri,
         {
           from: account,
           value: this._Web3Wrapper.toWei(value, 'ether')
