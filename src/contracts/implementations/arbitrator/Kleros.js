@@ -20,6 +20,10 @@ class Kleros extends ContractImplementation {
    */
   constructor(web3Provider, contractAddress, artifact = klerosArtifact) {
     super(web3Provider, artifact, contractAddress)
+    this._disputeDeadlineCache = {}
+    this._appealCreationTimestampCache = {}
+    this._appealRuledAtTimestampCache = {}
+    this._openDisputesCache = {}
   }
 
   /**
@@ -348,7 +352,7 @@ class Kleros extends ContractImplementation {
    * @param {number} disputeId - The index of the dispute.
    * @returns {object} - The dispute data from the contract.
    */
-  getDispute = async disputeId => {
+  getDispute = async (disputeId, withVoteCount = false) => {
     await this.loadContract()
 
     try {
@@ -357,22 +361,21 @@ class Kleros extends ContractImplementation {
       const rulingChoices = dispute[3].toNumber()
 
       let voteCounters = []
-      let status
-      for (let appeal = 0; appeal <= numberOfAppeals; appeal++) {
-        const voteCounts = []
-        for (let choice = 0; choice <= rulingChoices; choice++)
-          voteCounts.push(
-            this.contractInstance
-              .getVoteCount(disputeId, appeal, choice)
-              .then(v => v.toNumber())
-          )
-        voteCounters.push(voteCounts)
-      }
+      const status = await this.contractInstance.disputeStatus(disputeId)
+      if (withVoteCount) {
+        for (let appeal = 0; appeal <= numberOfAppeals; appeal++) {
+          const voteCounts = []
+          for (let choice = 0; choice <= rulingChoices; choice++)
+            voteCounts.push(
+              this.contractInstance
+                .getVoteCount(disputeId, appeal, choice)
+                .then(v => v.toNumber())
+            )
+          voteCounters.push(voteCounts)
+        }
 
-      ;[voteCounters, status] = await Promise.all([
-        Promise.all(voteCounters.map(voteCounts => Promise.all(voteCounts))),
-        this.contractInstance.disputeStatus(disputeId)
-      ])
+        voteCounters = await Promise.all(voteCounters.map(voteCounts => Promise.all(voteCounts)))
+      }
 
       return {
         arbitratorAddress: this.contractAddress,
@@ -385,7 +388,7 @@ class Kleros extends ContractImplementation {
         arbitrationFeePerJuror: this._Web3Wrapper.fromWei(dispute[5], 'ether'),
         state: dispute[6].toNumber(),
         voteCounters,
-        status: status.toNumber()
+        status: status ? status.toNumber() : null
       }
       // eslint-disable-next-line no-unused-vars
     } catch (err) {
@@ -580,6 +583,8 @@ class Kleros extends ContractImplementation {
     await this.loadContract()
 
     const currentSession = await this.getSession()
+    if (this._openDisputesCache[currentSession])
+      return this._openDisputesCache[currentSession]
     const openDisputes = []
 
     let disputeId = 0
@@ -607,6 +612,7 @@ class Kleros extends ContractImplementation {
       disputeId++
     }
 
+    this._openDisputesCache[currentSession] = openDisputes
     return openDisputes
   }
 
@@ -659,6 +665,8 @@ class Kleros extends ContractImplementation {
    * @returns {number[]} an array of timestamps
    */
   getAppealRuledAtTimestamp = async session => {
+    if (this._appealRuledAtTimestampCache[session])
+      return this._appealRuledAtTimestampCache[session]
     const eventLog = await this._getNewPeriodEventLogForSession(
       session,
       arbitratorConstants.PERIOD.APPEAL
@@ -670,7 +678,9 @@ class Kleros extends ContractImplementation {
       eventLog.blockNumber
     )
 
-    return ruledAtTimestamp * 1000
+    const timestamp = ruledAtTimestamp * 1000
+    this._appealRuledAtTimestampCache[session] = timestamp
+    return timestamp
   }
 
   /**
@@ -679,6 +689,9 @@ class Kleros extends ContractImplementation {
    * @returns {number[]} an array of timestamps
    */
   getDisputeDeadlineTimestamp = async session => {
+    if (this._disputeDeadlineCache[session])
+      return this._disputeDeadlineCache[session]
+
     const eventLog = await this._getNewPeriodEventLogForSession(
       session,
       arbitratorConstants.PERIOD.VOTE
@@ -695,7 +708,9 @@ class Kleros extends ContractImplementation {
       eventLog.blockNumber
     )
 
-    return (periodLength + periodStartTimestamp) * 1000
+    const deadline = (periodLength + periodStartTimestamp) * 1000
+    this._disputeDeadlineCache[session] = deadline
+    return deadline
   }
 
   /**
@@ -704,6 +719,8 @@ class Kleros extends ContractImplementation {
    * @returns {number[]} an array of timestamps
    */
   getAppealCreationTimestamp = async session => {
+    if (this._appealCreationTimestampCache[session])
+      return this._appealCreationTimestampCache[session]
     const eventLog = await this._getNewPeriodEventLogForSession(
       session,
       arbitratorConstants.PERIOD.EXECUTE
@@ -716,7 +733,9 @@ class Kleros extends ContractImplementation {
       eventLog.blockNumber
     )
 
-    return createdAtTimestamp * 1000
+    const timestamp = createdAtTimestamp * 1000
+    this._appealCreationTimestampCache[session] = timestamp
+    return timestamp
   }
 
   /**

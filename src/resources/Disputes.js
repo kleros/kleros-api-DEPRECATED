@@ -302,7 +302,7 @@ class Disputes {
     const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
     // Get dispute data from contract. Also get the current session and period.
     const [dispute, period, session] = await Promise.all([
-      this._ArbitratorInstance.getDispute(disputeId),
+      this._ArbitratorInstance.getDispute(disputeId, true),
       this._ArbitratorInstance.getPeriod(),
       this._ArbitratorInstance.getSession()
     ])
@@ -347,9 +347,9 @@ class Disputes {
     const lastSession = dispute.firstSession + dispute.numberOfAppeals
     const appealJuror = []
     const appealRulings = []
+
     for (let appeal = 0; appeal <= dispute.numberOfAppeals; appeal++) {
       const isLastAppeal = dispute.firstSession + appeal === lastSession
-
       // Get appeal data
       const draws = appealDraws[appeal] || []
       let canRule = false
@@ -378,7 +378,7 @@ class Disputes {
       // Wait for parallel requests to complete
       ;[ruling, canRule] = await Promise.all(rulingPromises)
 
-      let jurorRuling = []
+      let jurorRuling = null
       // if can't rule that means they already did or they missed it
       if (!canRule) {
         jurorRuling = await this._ArbitratorInstance.getVoteForJuror(
