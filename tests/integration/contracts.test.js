@@ -213,7 +213,7 @@ describe('Contracts', () => {
         const transactionArbitrable0 = await ArbitrableTransactionInstanceInstance.pay(
           arbitrableContractData.partyA,
           0,
-          arbitrableContractData.amount
+          arbitrableContractData.value
         )
 
         expect(transactionArbitrable0.tx).toEqual(
@@ -241,7 +241,7 @@ describe('Contracts', () => {
           arbitrableContractAddress
         )
 
-        // raise dispute party A
+        // party A pays fee
         const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeByPartyA(
           arbitrableContractData.partyA,
           0
@@ -253,8 +253,7 @@ describe('Contracts', () => {
 
         await delaySecond()
         // call timeout by partyA
-        // TODO should test the api not directly the truffle contract
-        const txHashTimeOutByPartyA = await arbitrableContractInstance.callTimeOutPartyA(
+        const txHashTimeOutByPartyA = await ArbitrableTransactionInstanceInstance.callTimeOutPartyA(
           arbitrableContractData.partyA,
           0
         )
@@ -281,9 +280,7 @@ describe('Contracts', () => {
 
         const KlerosPOCInstance = new KlerosPOC(provider, klerosPOCAddress)
 
-        // return a bigint
-        // FIXME use arbitrableTransaction
-        const ArbitrableTransactionInstance = new ArbitrableTransaction(
+        const ArbitrableTransactionInstanceInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
@@ -311,37 +308,22 @@ describe('Contracts', () => {
 
         // ****** Parties side (raise dispute) ****** //
 
-        const arbitrableContractInstance = await ArbitrableTransactionInstance.loadContract()
-
-        const partyAFeeContractInstance = await arbitrableContractInstance.partyAFee()
-        const partyBFeeContractInstance = await arbitrableContractInstance.partyBFee()
-
-        // return bytes
-        // FIXME use arbitrableTransaction
-        let extraDataContractInstance = await arbitrableContractInstance.arbitratorExtraData()
-
-        const KlerosInstance = new KlerosPOC(provider, klerosPOCAddress)
-        // return a bigint with the default value : 10000 wei fees in ether
-        const arbitrationCost = await KlerosInstance.getArbitrationCost(
-          extraDataContractInstance
+        // party A pays fee
+        const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeByPartyA(
+          arbitrableContractData.partyA,
+          0
         )
 
-        // raise dispute party A
-        const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyA(
-          partyA,
-          arbitrationCost -
-            web3.fromWei(partyAFeeContractInstance, 'ether').toNumber()
-        )
         expect(raiseDisputeByPartyATxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
 
-        // raise dispute party B
-        const raiseDisputeByPartyBTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyB(
-          partyB,
-          arbitrationCost -
-            web3.fromWei(partyBFeeContractInstance, 'ether').toNumber()
+        // party A pays fee
+        const raiseDisputeByPartyBTxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeByPartyB(
+          arbitrableContractData.partyB,
+          0
         )
+
         expect(raiseDisputeByPartyBTxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
@@ -402,13 +384,14 @@ describe('Contracts', () => {
 
         const appealCost = await KlerosPOCInstance.getAppealCost(
           0,
-          extraDataContractInstance
+          arbitrableContractData.extraData
         )
 
         // raise appeal party A
-        const raiseAppealByPartyATxObj = await ArbitrableTransactionInstance.appeal(
+        const raiseAppealByPartyATxObj = await ArbitrableTransactionInstanceInstance.appeal(
           partyA,
-          extraDataContractInstance,
+          0,
+          arbitrableContractData.extraData,
           appealCost
         )
         expect(raiseAppealByPartyATxObj.tx).toEqual(
