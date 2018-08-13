@@ -16,6 +16,7 @@ class StoreProviderWrapper {
   constructor(storeProviderUri) {
     this._storeUri = storeProviderUri
     this._storeQueue = new PromiseQueue()
+    this._cachedProfiles = {}
   }
 
   /**
@@ -25,10 +26,15 @@ class StoreProviderWrapper {
    * @param {string} uri uri to call
    * @returns {promise} promise that returns result of request. wait on this if you need it to be syncronous
    */
-  queueWriteRequest = (getBodyFn, verb, uri = null) =>
-    this._storeQueue.fetch(() =>
+  queueWriteRequest = (getBodyFn, verb, uri = null, userAddress) => {
+    // Clear cache on write TODO update cache after every write
+    this._cachedProfiles[userAddress] = null
+
+    return this._storeQueue.fetch(() =>
       getBodyFn().then(result => httpRequest(verb, uri, result))
     )
+  }
+
 
   /**
    * If we know we are waiting on some other write before we want to read we can add a read request to the end of the queue.
@@ -57,11 +63,12 @@ class StoreProviderWrapper {
    * @param {string} userAddress - Address of user.
    * @returns {object} - a response object.
    */
-  getUserProfile = async userAddress => {
+  getUserProfile = async (userAddress) => {
     const httpResponse = await httpRequest(
       'GET',
       `${this._storeUri}/${userAddress}`
     )
+    this._cachedProfiles[userAddress] = httpResponse.body
 
     return httpResponse.body
   }

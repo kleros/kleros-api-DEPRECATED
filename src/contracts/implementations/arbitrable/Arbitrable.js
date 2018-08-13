@@ -15,6 +15,8 @@ class Arbitrable extends ContractImplementation {
    */
   constructor(web3Provider, contractArtifact, contractAddress) {
     super(web3Provider, contractArtifact, contractAddress)
+
+    this.metaEvidenceCache = {}
   }
 
   /**
@@ -23,6 +25,9 @@ class Arbitrable extends ContractImplementation {
    * and make an http request to the resource.
    */
   getMetaEvidence = async () => {
+    if (this.metaEvidenceCache[this.contractAddress])
+      return this.metaEvidenceCache[this.contractAddress]
+
     const metaEvidenceLog = await EventListener.getEventLogs(
       this,
       'MetaEvidence',
@@ -43,6 +48,7 @@ class Arbitrable extends ContractImplementation {
     if (metaEvidenceResponse.status >= 400)
       throw new Error(`Unable to fetch meta-evidence at ${metaEvidenceUri}`)
 
+    this.metaEvidenceCache[this.contractAddress] = metaEvidenceResponse.body || metaEvidenceResponse
     return metaEvidenceResponse.body || metaEvidenceResponse
   }
 
