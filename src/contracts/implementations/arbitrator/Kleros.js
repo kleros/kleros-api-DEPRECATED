@@ -21,8 +21,8 @@ class Kleros extends ContractImplementation {
   constructor(web3Provider, contractAddress, artifact = klerosArtifact) {
     super(web3Provider, artifact, contractAddress)
     this._disputeDeadlineCache = {}
-    this._appealCreationTimestamp = {}
-    this._appealRuledAtTimestamp = {}
+    this._appealCreationTimestampCache = {}
+    this._appealRuledAtTimestampCache = {}
     this._openDisputesCache = {}
   }
 
@@ -593,7 +593,6 @@ class Kleros extends ContractImplementation {
       // Iterate over all the disputes
       // TODO: Implement a more performant solution
       try {
-        // get without voteCounts to speed it up
         dispute = await this.getDispute(disputeId)
       } catch (err) {
         // Dispute out of range, break
@@ -666,8 +665,8 @@ class Kleros extends ContractImplementation {
    * @returns {number[]} an array of timestamps
    */
   getAppealRuledAtTimestamp = async session => {
-    if (this._appealRuledAtTimestamp[session])
-      return this._appealRuledAtTimestamp[session]
+    if (this._appealRuledAtTimestampCache[session])
+      return this._appealRuledAtTimestampCache[session]
     const eventLog = await this._getNewPeriodEventLogForSession(
       session,
       arbitratorConstants.PERIOD.APPEAL
@@ -680,7 +679,7 @@ class Kleros extends ContractImplementation {
     )
 
     const timestamp = ruledAtTimestamp * 1000
-    this._appealRuledAtTimestamp[session] = timestamp
+    this._appealRuledAtTimestampCache[session] = timestamp
     return timestamp
   }
 
@@ -720,8 +719,8 @@ class Kleros extends ContractImplementation {
    * @returns {number[]} an array of timestamps
    */
   getAppealCreationTimestamp = async session => {
-    if (this._appealCreationTimestamp[session])
-      return this._appealCreationTimestamp[session]
+    if (this._appealCreationTimestampCache[session])
+      return this._appealCreationTimestampCache[session]
     const eventLog = await this._getNewPeriodEventLogForSession(
       session,
       arbitratorConstants.PERIOD.EXECUTE
@@ -735,7 +734,7 @@ class Kleros extends ContractImplementation {
     )
 
     const timestamp = createdAtTimestamp * 1000
-    this._appealCreationTimestamp[session] = timestamp
+    this._appealCreationTimestampCache[session] = timestamp
     return timestamp
   }
 

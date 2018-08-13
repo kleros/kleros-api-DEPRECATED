@@ -63,7 +63,7 @@ class StoreProviderWrapper {
    * @param {string} userAddress - Address of user.
    * @returns {object} - a response object.
    */
-  getUserProfile = async (userAddress) => {
+  getUserProfile = async userAddress => {
     const httpResponse = await httpRequest(
       'GET',
       `${this._storeUri}/${userAddress}`
