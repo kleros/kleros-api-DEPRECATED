@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.15.0"></a>
+# [0.15.0](https://github.com/kleros/kleros-api/compare/v0.14.2...v0.15.0) (2018-08-13)
+
+
+### Features
+
+* fetch minimal data and cache where possible ([#167](https://github.com/kleros/kleros-api/issues/167)) ([0b8670f](https://github.com/kleros/kleros-api/commit/0b8670f))
+
+
+
 <a name="0.14.2"></a>
 ## [0.14.2](https://github.com/kleros/kleros-api/compare/v0.14.1...v0.14.2) (2018-08-09)
 
