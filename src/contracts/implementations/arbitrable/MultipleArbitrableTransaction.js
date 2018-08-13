@@ -69,7 +69,8 @@ class MultipleArbitrableTransaction extends Arbitrable {
         metaEvidenceUri,
         {
           from: account,
-          value: this._Web3Wrapper.toWei(value, 'ether')
+          value: this._Web3Wrapper.toWei(value, 'ether'),
+          gas: 800000 // FIXME gas hardcoded maybe use estimateGas before
         }
       )
     } catch (err) {
@@ -107,20 +108,23 @@ class MultipleArbitrableTransaction extends Arbitrable {
    * Pay the arbitration fee to raise a dispute. To be called by the party A.
    * @param {string} account - Ethereum account (default account[0]).
    * @param {number} transactionId - The index of the transaction.
-   * @param {number} arbitrationCost - Amount to pay the arbitrator. (default 0.15 ether).
    * @returns {object} - The result transaction object.
    */
   payArbitrationFeeByPartyA = async (
     account = this._Web3Wrapper.getAccount(0),
-    transactionId,
-    arbitrationCost = 0.15
+    transactionId
   ) => {
     await this.loadContract()
+
+    const transactionArbitrableData0 = await this.getData(0)
 
     try {
       return this.contractInstance.payArbitrationFeeByPartyA(transactionId, {
         from: account,
-        value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
+        value: this._Web3Wrapper.toWei(
+          transactionArbitrableData0.buyerFee,
+          'ether'
+        )
       })
     } catch (err) {
       console.error(err)
@@ -132,20 +136,23 @@ class MultipleArbitrableTransaction extends Arbitrable {
    * Pay the arbitration fee to raise a dispute. To be called by the party B.
    * @param {string} account Ethereum account (default account[1]).
    * @param {number} transactionId - The index of the transaction.
-   * @param {number} arbitrationCost Amount to pay the arbitrator. (default 10000 wei).
    * @returns {object} - The result transaction object.
    */
   payArbitrationFeeByPartyB = async (
     account = this._Web3Wrapper.getAccount(1),
-    transactionId,
-    arbitrationCost = 0.15
+    transactionId
   ) => {
     await this.loadContract()
+
+    const transactionArbitrableData0 = await this.getData(0)
 
     try {
       return this.contractInstance.payArbitrationFeeByPartyB(transactionId, {
         from: account,
-        value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
+        value: this._Web3Wrapper.toWei(
+          transactionArbitrableData0.sellerFee,
+          'ether'
+        )
       })
     } catch (err) {
       console.error(err)
@@ -284,18 +291,17 @@ class MultipleArbitrableTransaction extends Arbitrable {
     const transaction = await this.contractInstance.transactions(transactionId)
 
     return {
-      arbitrator: transaction.arbitrator,
-      extraData: transaction.arbitratorExtraData,
-      timeout: transaction.timeout.toNumber(),
-      partyA: transaction.seller,
-      partyB: transaction.buyer,
-      status: transaction.status.toNumber(),
-      arbitratorExtraData: transaction.arbitratorExtraData,
-      disputeId: transaction.disputeId.toNumber(),
-      partyAFee: this._Web3Wrapper.fromWei(transaction.sellerFee, 'ether'),
-      partyBFee: this._Web3Wrapper.fromWei(transaction.buyerFee, 'ether'),
-      lastInteraction: transaction.lastInteraction.toNumber(),
-      amount: transaction.amount.toNumber()
+      seller: transaction[0],
+      buyer: transaction[1],
+      amount: transaction[2].toNumber(),
+      timeout: transaction[3].toNumber(),
+      disputeId: transaction[4].toNumber(),
+      arbitrator: transaction[5],
+      arbitratorExtraData: transaction[6],
+      sellerFee: this._Web3Wrapper.fromWei(transaction[7], 'ether'),
+      buyerFee: this._Web3Wrapper.fromWei(transaction[8], 'ether'),
+      lastInteraction: transaction[9].toNumber(),
+      status: transaction[10].toNumber()
     }
   }
 }

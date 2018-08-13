@@ -29,7 +29,7 @@
     "docs": "esdoc",
     "prettify": "kleros-scripts prettify",
     "lint": "kleros-scripts lint:js --config ./.eslintrc.js",
-    "ganache": "ganache-cli -a 15",
+    "ganache": "ganache-cli -a 15 -l 8000000",
     "test": "jest --config ./jest.config.js",
     "test:coveralls": "coveralls < ./coverage/lcov.info",
     "commitmsg": "kleros-scripts commitmsg",

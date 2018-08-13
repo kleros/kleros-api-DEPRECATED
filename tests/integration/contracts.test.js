@@ -164,13 +164,29 @@ describe('Contracts', () => {
 
         await ArbitrableTransactionInstanceInstance.createArbitrableTransaction(
           arbitrableContractData.partyA,
-          arbitrableContractAddress,
+          klerosPOCAddress,
           arbitrableContractData.partyB,
           arbitrableContractData.value,
           arbitrableContractData.timeout,
           arbitrableContractData.extraData,
           arbitrableContractData.metaEvidenceUri
         )
+
+        const transactionArbitrable0 = await ArbitrableTransactionInstanceInstance.getData(
+          0
+        )
+
+        expect(transactionArbitrable0.seller).toEqual(arbitrableContractData.partyB)
+        expect(transactionArbitrable0.buyer).toEqual(arbitrableContractData.partyA)
+        expect(transactionArbitrable0.amount).toEqual(arbitrableContractData.value)
+        expect(transactionArbitrable0.timeout).toEqual(arbitrableContractData.timeout)
+        expect(transactionArbitrable0.disputeId).toEqual(0)
+        expect(transactionArbitrable0.arbitrator).toEqual(klerosPOCAddress)
+        expect(transactionArbitrable0.arbitratorExtraData).toEqual('0x')
+        expect(transactionArbitrable0.sellerFee).toEqual(0)
+        expect(transactionArbitrable0.buyerFee).toEqual(0)
+        expect(transactionArbitrable0.lastInteraction).toBeDefined()
+        expect(transactionArbitrable0.status).toEqual(0)
       },
       10000
     )
@@ -189,17 +205,18 @@ describe('Contracts', () => {
         expect(klerosPOCAddress).toBeDefined()
         expect(arbitrableContractAddress).toBeDefined()
 
-        // FIXME use arbitrableTransaction
-        const ArbitrableTransactionInstance = new MultipleArbitrableTransaction(
+        const ArbitrableTransactionInstanceInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
-        const arbitrableContractInstance = await ArbitrableTransactionInstance.loadContract()
-        const partyApaysPartyB = await arbitrableContractInstance.pay({
-          from: partyA
-        })
 
-        expect(partyApaysPartyB.tx).toEqual(
+        const transactionArbitrable0 = await ArbitrableTransactionInstanceInstance.pay(
+          arbitrableContractData.partyA,
+          0,
+          arbitrableContractData.amount
+        )
+
+        expect(transactionArbitrable0.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
       },
@@ -219,31 +236,17 @@ describe('Contracts', () => {
         expect(klerosPOCAddress).toBeDefined()
         expect(arbitrableContractAddress).toBeDefined()
 
-        // return a bigint
-        // FIXME use arbitrableTransaction
-        const ArbitrableTransactionInstance = new ArbitrableTransaction(
+        const ArbitrableTransactionInstanceInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
-        const arbitrableContractInstance = await ArbitrableTransactionInstance.loadContract()
-        const partyAFeeContractInstance = await arbitrableContractInstance.partyAFee()
-
-        // return bytes
-        // FIXME use arbitrableTransaction
-        let extraDataContractInstance = await arbitrableContractInstance.arbitratorExtraData()
-
-        const KlerosInstance = new KlerosPOC(provider, klerosPOCAddress)
-        // return a bigint with the default value : 10000 wei fees in ether
-        const arbitrationCost = await KlerosInstance.getArbitrationCost(
-          extraDataContractInstance
-        )
 
         // raise dispute party A
-        const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyA(
-          partyA,
-          arbitrationCost -
-            web3.fromWei(partyAFeeContractInstance, 'ether').toNumber()
+        const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeByPartyA(
+          arbitrableContractData.partyA,
+          0
         )
+
         expect(raiseDisputeByPartyATxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
@@ -251,8 +254,9 @@ describe('Contracts', () => {
         await delaySecond()
         // call timeout by partyA
         // TODO should test the api not directly the truffle contract
-        const txHashTimeOutByPartyA = await arbitrableContractInstance.timeOutByPartyA(
-          { from: partyA }
+        const txHashTimeOutByPartyA = await arbitrableContractInstance.callTimeOutPartyA(
+          arbitrableContractData.partyA,
+          0
         )
         expect(txHashTimeOutByPartyA.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
