@@ -105,26 +105,48 @@ class MultipleArbitrableTransaction extends Arbitrable {
   }
 
   /**
-   * Pay the arbitration fee to raise a dispute. To be called by the party A.
+   * Reimburse the party A. To be called when the good is not delivered or the service rendered.
    * @param {string} account - Ethereum account (default account[0]).
    * @param {number} transactionId - The index of the transaction.
+   * @param {amount} amount - Part or all of the amount of the good or the service.
    * @returns {object} - The result transaction object.
    */
-  payArbitrationFeeByPartyA = async (
+  reimburse = async (
     account = this._Web3Wrapper.getAccount(0),
-    transactionId
+    transactionId,
+    amount
   ) => {
     await this.loadContract()
 
-    const transactionArbitrableData0 = await this.getData(0)
+    try {
+      return this.contractInstance.reimburse(transactionId, amount, {
+        from: account,
+        value: 0
+      })
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_REIMBURSE_BUYER)
+    }
+  }
+
+  /**
+   * Pay the arbitration fee to raise a dispute. To be called by the party A.
+   * @param {string} account - Ethereum account (default account[0]).
+   * @param {number} transactionId - The index of the transaction.
+   * @param {number} arbitrationCost - Arbitration cost.
+   * @returns {object} - The result transaction object.
+   */
+  payArbitrationFeeByBuyer = async (
+    account = this._Web3Wrapper.getAccount(0),
+    transactionId,
+    arbitrationCost
+  ) => {
+    await this.loadContract()
 
     try {
-      return this.contractInstance.payArbitrationFeeByPartyA(transactionId, {
+      return this.contractInstance.payArbitrationFeeByBuyer(transactionId, {
         from: account,
-        value: this._Web3Wrapper.toWei(
-          transactionArbitrableData0.buyerFee,
-          'ether'
-        )
+        value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
       })
     } catch (err) {
       console.error(err)
@@ -147,7 +169,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
     const transactionArbitrableData0 = await this.getData(0)
 
     try {
-      return this.contractInstance.payArbitrationFeeByPartyB(transactionId, {
+      return this.contractInstance.payArbitrationFeeBySeller(transactionId, {
         from: account,
         value: this._Web3Wrapper.toWei(
           transactionArbitrableData0.sellerFee,
@@ -187,29 +209,31 @@ class MultipleArbitrableTransaction extends Arbitrable {
   }
 
   /**
-   * Call by partyA if partyB is timeout
+   * Call by buyer if seller is timeout
    * @param {string} account ETH address of user
    * @param {number} transactionId - The index of the transaction.
    * @returns {object} The result transaction object.
    */
-  callTimeOutPartyA = async (
+  callTimeOutBuyer = async (
     account = this._Web3Wrapper.getAccount(0),
     transactionId
   ) => {
     await this.loadContract()
 
-    const status = (await this.contractInstance.status()).toNumber()
-    const timeout = (await this.contractInstance.timeout()).toNumber()
-    const lastInteraction = (await this.contractInstance.lastInteraction()).toNumber()
+    const transactionArbitrableData = await this.getData(transactionId)
 
-    if (status !== contractConstants.STATUS.WAITING_PARTY_B) {
+    const status = transactionArbitrableData.status
+    const timeout = transactionArbitrableData.timeout
+    const lastInteraction = transactionArbitrableData.lastInteraction
+
+    if (status !== contractConstants.STATUS.WAITING_SELLER) {
       throw new Error(errorConstants.CONTRACT_IS_NOT_WAITING_ON_OTHER_PARTY)
-    } else if (Date.now() >= lastInteraction + timeout) {
+    } else if (Math.trunc(Date.now() / 1000) <= lastInteraction + timeout) {
       throw new Error(errorConstants.TIMEOUT_NOT_REACHED)
     }
 
     try {
-      return this.contractInstance.timeOutByPartyA(transactionId, {
+      return this.contractInstance.timeOutByBuyer(transactionId, {
         from: account,
         value: 0
       })
@@ -220,13 +244,13 @@ class MultipleArbitrableTransaction extends Arbitrable {
   }
 
   /**
-   * Call by partyB if partyA is timeout.
+   * Call by seller if buyer is timeout.
    * @param {string} account - ETH address of user.
    * @param {number} transactionId - The index of the transaction.
    * @param {string} contractAddress - ETH address of contract.
    * @returns {object} The result transaction object.
    */
-  callTimeOutPartyB = async (
+  callTimeOutSeller = async (
     account = this._Web3Wrapper.getAccount(1),
     transactionId
   ) => {
@@ -236,14 +260,14 @@ class MultipleArbitrableTransaction extends Arbitrable {
     const timeout = await this.contractInstance.timeout()
     const lastInteraction = await this.contractInstance.lastInteraction()
 
-    if (status !== contractConstants.STATUS.WAITING_PARTY_A) {
+    if (status !== contractConstants.STATUS.WAITING_BUYER) {
       throw new Error(errorConstants.CONTRACT_IS_NOT_WAITING_ON_OTHER_PARTY)
     } else if (Date.now() >= lastInteraction + timeout) {
       throw new Error(errorConstants.TIMEOUT_NOT_REACHED)
     }
 
     try {
-      return this.contractInstance.timeOutByPartyB(transactionId, {
+      return this.contractInstance.timeOutBySeller(transactionId, {
         from: account,
         value: 0
       })

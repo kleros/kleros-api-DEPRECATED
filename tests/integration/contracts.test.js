@@ -210,6 +210,18 @@ describe('Contracts', () => {
           arbitrableContractAddress
         )
 
+        // create a arbitrable transaction
+        await ArbitrableTransactionInstanceInstance.createArbitrableTransaction(
+          arbitrableContractData.partyA,
+          klerosPOCAddress,
+          arbitrableContractData.partyB,
+          arbitrableContractData.value,
+          arbitrableContractData.timeout,
+          arbitrableContractData.extraData,
+          arbitrableContractData.metaEvidenceUri
+        )
+
+        // buyer pays the seller
         const transactionArbitrable0 = await ArbitrableTransactionInstanceInstance.pay(
           arbitrableContractData.partyA,
           0,
@@ -223,7 +235,7 @@ describe('Contracts', () => {
       50000
     )
     it(
-      'dispute with a timeout call by partyA',
+      'dispute with a timeout call by the buyer',
       async () => {
         const [
           klerosPOCAddress,
@@ -241,23 +253,41 @@ describe('Contracts', () => {
           arbitrableContractAddress
         )
 
-        // party A pays fee
-        const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeByPartyA(
+        // create a arbitrable transaction
+        await ArbitrableTransactionInstanceInstance.createArbitrableTransaction(
           arbitrableContractData.partyA,
-          0
+          klerosPOCAddress,
+          arbitrableContractData.partyB,
+          arbitrableContractData.value,
+          arbitrableContractData.timeout,
+          arbitrableContractData.extraData,
+          arbitrableContractData.metaEvidenceUri
         )
 
-        expect(raiseDisputeByPartyATxObj.tx).toEqual(
+        const KlerosInstance = new KlerosPOC(provider, klerosPOCAddress)
+        // return a bigint with the default value : 10000 wei fees in ether
+        const arbitrationCost = await KlerosInstance.getArbitrationCost(
+          arbitrableContractData.extraData
+        )
+
+        // buyer A pays fee
+        const raiseDisputeByBuyerTxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeByBuyer(
+          arbitrableContractData.partyA,
+          0,
+          arbitrationCost
+        )
+
+        expect(raiseDisputeByBuyerTxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
 
-        await delaySecond()
-        // call timeout by partyA
-        const txHashTimeOutByPartyA = await ArbitrableTransactionInstanceInstance.callTimeOutPartyA(
+        await delaySecond(2)
+        // call timeout by the buyer
+        const txHashTimeOutByBuyer = await ArbitrableTransactionInstanceInstance.callTimeOutBuyer(
           arbitrableContractData.partyA,
           0
         )
-        expect(txHashTimeOutByPartyA.tx).toEqual(
+        expect(txHashTimeOutByBuyer.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
       },

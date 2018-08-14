@@ -59,6 +59,7 @@ export const UNABLE_TO_RAISE_AN_APPEAL =
   'Unable to raise appeal, are you sure you are in the appeal period?'
 export const UNABLE_TO_PAY_SELLER =
   'Unable to pay the seller, are you sure you have enough ETH?'
+export const UNABLE_TO_REIMBURSE_BUYER = 'Unable to reimburse the buyer.'
 export const UNABLE_TO_CALL_TIMEOUT = 'Unable to call timeout.'
 export const CONTRACT_IS_NOT_WAITING_ON_OTHER_PARTY =
   'Unable to call timeout, because the contract is not waiting on the other party.'
