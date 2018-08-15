@@ -155,12 +155,12 @@ class MultipleArbitrableTransaction extends Arbitrable {
   }
 
   /**
-   * Pay the arbitration fee to raise a dispute. To be called by the party B.
+   * Pay the arbitration fee to raise a dispute. To be called by the seller.
    * @param {string} account Ethereum account (default account[1]).
    * @param {number} transactionId - The index of the transaction.
    * @returns {object} - The result transaction object.
    */
-  payArbitrationFeeByPartyB = async (
+  payArbitrationFeeBySeller = async (
     account = this._Web3Wrapper.getAccount(1),
     transactionId
   ) => {

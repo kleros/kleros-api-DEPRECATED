@@ -315,6 +315,17 @@ describe('Contracts', () => {
           arbitrableContractAddress
         )
 
+        // create a arbitrable transaction
+        await ArbitrableTransactionInstanceInstance.createArbitrableTransaction(
+          arbitrableContractData.partyA,
+          klerosPOCAddress,
+          arbitrableContractData.partyB,
+          arbitrableContractData.value,
+          arbitrableContractData.timeout,
+          arbitrableContractData.extraData,
+          arbitrableContractData.metaEvidenceUri
+        )
+
         // ****** Juror side (activate token) ****** //
 
         // jurors buy PNK
@@ -338,25 +349,32 @@ describe('Contracts', () => {
 
         // ****** Parties side (raise dispute) ****** //
 
-        // party A pays fee
-        const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeByPartyA(
+        const arbitrationCost = await KlerosInstance.getArbitrationCost(
+          arbitrableContractData.extraData
+        )
+
+        // buyer A pays fee
+        const raiseDisputeByBuyerTxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeByBuyer(
           arbitrableContractData.partyA,
-          0
+          0,
+          arbitrationCost
         )
 
-        expect(raiseDisputeByPartyATxObj.tx).toEqual(
+        expect(txHashTimeOutByBuyer.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
 
-        // party A pays fee
-        const raiseDisputeByPartyBTxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeByPartyB(
+        // seller A pays fee
+        const raiseDisputeBySellerTxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeBySeller(
           arbitrableContractData.partyB,
-          0
+          0,
+          arbitrationCost
         )
 
-        expect(raiseDisputeByPartyBTxObj.tx).toEqual(
+        expect(raiseDisputeBySellerTxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
+
 
         // ****** Juror side (pass period) ****** //
 
