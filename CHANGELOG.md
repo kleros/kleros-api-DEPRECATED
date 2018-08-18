@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.15.0"></a>
+# [0.15.0](https://github.com/kleros/kleros-api/compare/v0.14.2...v0.15.0) (2018-08-13)
+
+
+### Features
+
+* fetch minimal data and cache where possible ([#167](https://github.com/kleros/kleros-api/issues/167)) ([0b8670f](https://github.com/kleros/kleros-api/commit/0b8670f))
+
+
+
+<a name="0.14.2"></a>
+## [0.14.2](https://github.com/kleros/kleros-api/compare/v0.14.1...v0.14.2) (2018-08-09)
+
+
+### Bug Fixes
+
+* change reused variable ([#166](https://github.com/kleros/kleros-api/issues/166)) ([84dce71](https://github.com/kleros/kleros-api/commit/84dce71))
+
+
+
+<a name="0.14.1"></a>
+## [0.14.1](https://github.com/kleros/kleros-api/compare/v0.14.0...v0.14.1) (2018-08-09)
+
+
+### Bug Fixes
+
+* use BigNumber .minus ([#165](https://github.com/kleros/kleros-api/issues/165)) ([76f457e](https://github.com/kleros/kleros-api/commit/76f457e))
+
+
+
+<a name="0.14.0"></a>
+# [0.14.0](https://github.com/kleros/kleros-api/compare/v0.13.0...v0.14.0) (2018-08-08)
+
+
+### Features
+
+* **disputes:** fetch ruling from blockchain ([#164](https://github.com/kleros/kleros-api/issues/164)) ([ef7d9ab](https://github.com/kleros/kleros-api/commit/ef7d9ab))
+
+
+
 <a name="0.13.0"></a>
 # [0.13.0](https://github.com/kleros/kleros-api/compare/v0.12.2...v0.13.0) (2018-07-31)
 
