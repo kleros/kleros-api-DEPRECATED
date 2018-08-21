@@ -1,7 +1,6 @@
 import multipleArbitrableTransactionArtifact from 'kleros-interaction/build/contracts/MultipleArbitrableTransaction'
 import _ from 'lodash'
 
-import * as ethConstants from '../../../constants/eth'
 import * as contractConstants from '../../../constants/contract'
 import * as errorConstants from '../../../constants/error'
 import deployContractAsync from '../../../utils/deployContractAsync'
@@ -61,6 +60,18 @@ class MultipleArbitrableTransaction extends Arbitrable {
     await this.loadContract()
 
     try {
+      const estimateGas = await this.contractInstance.createTransaction.estimateGas(
+        arbitratorAddress,
+        timeout,
+        seller,
+        arbitratorExtraData,
+        metaEvidenceUri,
+        {
+          from: account,
+          value: this._Web3Wrapper.toWei(value, 'ether')
+        }
+      )
+
       return this.contractInstance.createTransaction(
         arbitratorAddress,
         timeout,
@@ -70,7 +81,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
         {
           from: account,
           value: this._Web3Wrapper.toWei(value, 'ether'),
-          gas: 800000 // FIXME gas hardcoded maybe use estimateGas before
+          gas: estimateGas
         }
       )
     } catch (err) {
@@ -80,7 +91,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
   }
 
   /**
-   * Pay the party B. To be called when the good is delivered or the service rendered.
+   * Pay the seller. To be called when the good is delivered or the service rendered.
    * @param {string} account - Ethereum account (default account[0]).
    * @param {number} transactionId - The index of the transaction.
    * @param {amount} amount - Part or all of the amount of the good or the service.
@@ -105,7 +116,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
   }
 
   /**
-   * Reimburse the party A. To be called when the good is not delivered or the service rendered.
+   * Reimburse the seller. To be called when the good is not delivered or the service rendered.
    * @param {string} account - Ethereum account (default account[0]).
    * @param {number} transactionId - The index of the transaction.
    * @param {amount} amount - Part or all of the amount of the good or the service.
@@ -130,7 +141,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
   }
 
   /**
-   * Pay the arbitration fee to raise a dispute. To be called by the party A.
+   * Pay the arbitration fee to raise a dispute. To be called by the buyer.
    * @param {string} account - Ethereum account (default account[0]).
    * @param {number} transactionId - The index of the transaction.
    * @param {number} arbitrationCost - Arbitration cost.
