@@ -93,19 +93,19 @@ class MultipleArbitrableTransaction extends Arbitrable {
   /**
    * Pay the seller. To be called when the good is delivered or the service rendered.
    * @param {string} account - Ethereum account (default account[0]).
-   * @param {number} transactionId - The index of the transaction.
+   * @param {number} arbitrableTransactionId - The index of the transaction.
    * @param {amount} amount - Part or all of the amount of the good or the service.
    * @returns {object} - The result transaction object.
    */
   pay = async (
     account = this._Web3Wrapper.getAccount(0),
-    transactionId,
+    arbitrableTransactionId,
     amount
   ) => {
     await this.loadContract()
 
     try {
-      return this.contractInstance.pay(transactionId, amount, {
+      return this.contractInstance.pay(arbitrableTransactionId, amount, {
         from: account,
         value: 0
       })
@@ -118,19 +118,19 @@ class MultipleArbitrableTransaction extends Arbitrable {
   /**
    * Reimburse the seller. To be called when the good is not delivered or the service rendered.
    * @param {string} account - Ethereum account (default account[0]).
-   * @param {number} transactionId - The index of the transaction.
+   * @param {number} arbitrableTransactionId - The index of the transaction.
    * @param {amount} amount - Part or all of the amount of the good or the service.
    * @returns {object} - The result transaction object.
    */
   reimburse = async (
     account = this._Web3Wrapper.getAccount(0),
-    transactionId,
+    arbitrableTransactionId,
     amount
   ) => {
     await this.loadContract()
 
     try {
-      return this.contractInstance.reimburse(transactionId, amount, {
+      return this.contractInstance.reimburse(arbitrableTransactionId, amount, {
         from: account,
         value: 0
       })
@@ -143,22 +143,25 @@ class MultipleArbitrableTransaction extends Arbitrable {
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the buyer.
    * @param {string} account - Ethereum account (default account[0]).
-   * @param {number} transactionId - The index of the transaction.
+   * @param {number} arbitrableTransactionId - The index of the transaction.
    * @param {number} arbitrationCost - Arbitration cost.
    * @returns {object} - The result transaction object.
    */
   payArbitrationFeeByBuyer = async (
     account = this._Web3Wrapper.getAccount(0),
-    transactionId,
+    arbitrableTransactionId,
     arbitrationCost
   ) => {
     await this.loadContract()
 
     try {
-      return this.contractInstance.payArbitrationFeeByBuyer(transactionId, {
-        from: account,
-        value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
-      })
+      return this.contractInstance.payArbitrationFeeByBuyer(
+        arbitrableTransactionId,
+        {
+          from: account,
+          value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
+        }
+      )
     } catch (err) {
       console.error(err)
       throw new Error(errorConstants.UNABLE_TO_PAY_ARBITRATION_FEE)
@@ -168,25 +171,28 @@ class MultipleArbitrableTransaction extends Arbitrable {
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the seller.
    * @param {string} account Ethereum account (default account[1]).
-   * @param {number} transactionId - The index of the transaction.
+   * @param {number} arbitrableTransactionId - The index of the transaction.
    * @returns {object} - The result transaction object.
    */
   payArbitrationFeeBySeller = async (
     account = this._Web3Wrapper.getAccount(1),
-    transactionId
+    arbitrableTransactionId
   ) => {
     await this.loadContract()
 
     const transactionArbitrableData0 = await this.getData(0)
 
     try {
-      return this.contractInstance.payArbitrationFeeBySeller(transactionId, {
-        from: account,
-        value: this._Web3Wrapper.toWei(
-          transactionArbitrableData0.sellerFee,
-          'ether'
-        )
-      })
+      return this.contractInstance.payArbitrationFeeBySeller(
+        arbitrableTransactionId,
+        {
+          from: account,
+          value: this._Web3Wrapper.toWei(
+            transactionArbitrableData0.sellerFee,
+            'ether'
+          )
+        }
+      )
     } catch (err) {
       console.error(err)
       throw new Error(errorConstants.UNABLE_TO_PAY_ARBITRATION_FEE)
@@ -196,19 +202,19 @@ class MultipleArbitrableTransaction extends Arbitrable {
   /**
    * Submit evidence.
    * @param {string} account ETH address of user.
-   * @param {number} transactionId - The index of the transaction.
+   * @param {number} arbitrableTransactionId - The index of the transaction.
    * @param {string} url A link to an evidence using its URI.
    * @returns {string} txHash Hash transaction.
    */
   submitEvidence = async (
     account = this._Web3Wrapper.getAccount(0),
-    transactionId,
+    arbitrableTransactionId,
     url
   ) => {
     await this.loadContract()
 
     const txHashObj = await this.contractInstance.submitEvidence(
-      transactionId,
+      arbitrableTransactionId,
       url,
       {
         from: account,
@@ -222,16 +228,18 @@ class MultipleArbitrableTransaction extends Arbitrable {
   /**
    * Call by buyer if seller is timeout
    * @param {string} account ETH address of user
-   * @param {number} transactionId - The index of the transaction.
+   * @param {number} arbitrableTransactionId - The index of the transaction.
    * @returns {object} The result transaction object.
    */
   callTimeOutBuyer = async (
     account = this._Web3Wrapper.getAccount(0),
-    transactionId
+    arbitrableTransactionId
   ) => {
     await this.loadContract()
 
-    const transactionArbitrableData = await this.getData(transactionId)
+    const transactionArbitrableData = await this.getData(
+      arbitrableTransactionId
+    )
 
     const status = transactionArbitrableData.status
     const timeout = transactionArbitrableData.timeout
@@ -244,7 +252,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
     }
 
     try {
-      return this.contractInstance.timeOutByBuyer(transactionId, {
+      return this.contractInstance.timeOutByBuyer(arbitrableTransactionId, {
         from: account,
         value: 0
       })
@@ -257,13 +265,13 @@ class MultipleArbitrableTransaction extends Arbitrable {
   /**
    * Call by seller if buyer is timeout.
    * @param {string} account - ETH address of user.
-   * @param {number} transactionId - The index of the transaction.
+   * @param {number} arbitrableTransactionId - The index of the transaction.
    * @param {string} contractAddress - ETH address of contract.
    * @returns {object} The result transaction object.
    */
   callTimeOutSeller = async (
     account = this._Web3Wrapper.getAccount(1),
-    transactionId
+    arbitrableTransactionId
   ) => {
     await this.loadContract()
 
@@ -278,7 +286,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
     }
 
     try {
-      return this.contractInstance.timeOutBySeller(transactionId, {
+      return this.contractInstance.timeOutBySeller(arbitrableTransactionId, {
         from: account,
         value: 0
       })
@@ -291,21 +299,21 @@ class MultipleArbitrableTransaction extends Arbitrable {
   /**
    * Appeal an appealable ruling.
    * @param {string} account Ethereum account (default account[0]).
-   * @param {number} transactionId - The index of the transaction.
+   * @param {number} arbitrableTransactionId - The index of the transaction.
    * @param {bytes} extraData for the arbitrator appeal procedure.
    * @param {number} appealCost Amount to pay the arbitrator. (default 0.35 ether).
    * @returns {object} - The result transaction object.
    */
   appeal = async (
     account = this._Web3Wrapper.getAccount(0),
-    transactionId,
+    arbitrableTransactionId,
     extraData = 0x0,
     appealCost = 0.3
   ) => {
     await this.loadContract()
 
     try {
-      return this.contractInstance.appeal(transactionId, extraData, {
+      return this.contractInstance.appeal(arbitrableTransactionId, extraData, {
         from: account,
         value: this._Web3Wrapper.toWei(appealCost, 'ether')
       })
@@ -317,26 +325,28 @@ class MultipleArbitrableTransaction extends Arbitrable {
 
   /**
    * Data of the contract
-   * @param {number} transactionId - The index of the transaction.
+   * @param {number} arbitrableTransactionId - The index of the transaction.
    * @returns {object} Object Data of the contract.
    */
-  getData = async transactionId => {
+  getData = async arbitrableTransactionId => {
     await this.loadContract()
 
-    const transaction = await this.contractInstance.transactions(transactionId)
+    const arbitrableTransaction = await this.contractInstance.transactions(
+      arbitrableTransactionId
+    )
 
     return {
-      seller: transaction[0],
-      buyer: transaction[1],
-      amount: transaction[2].toNumber(),
-      timeout: transaction[3].toNumber(),
-      disputeId: transaction[4].toNumber(),
-      arbitrator: transaction[5],
-      arbitratorExtraData: transaction[6],
-      sellerFee: this._Web3Wrapper.fromWei(transaction[7], 'ether'),
-      buyerFee: this._Web3Wrapper.fromWei(transaction[8], 'ether'),
-      lastInteraction: transaction[9].toNumber(),
-      status: transaction[10].toNumber()
+      seller: arbitrableTransaction[0],
+      buyer: arbitrableTransaction[1],
+      amount: arbitrableTransaction[2].toNumber(),
+      timeout: arbitrableTransaction[3].toNumber(),
+      disputeId: arbitrableTransaction[4].toNumber(),
+      arbitrator: arbitrableTransaction[5],
+      arbitratorExtraData: arbitrableTransaction[6],
+      sellerFee: this._Web3Wrapper.fromWei(arbitrableTransaction[7], 'ether'),
+      buyerFee: this._Web3Wrapper.fromWei(arbitrableTransaction[8], 'ether'),
+      lastInteraction: arbitrableTransaction[9].toNumber(),
+      status: arbitrableTransaction[10].toNumber()
     }
   }
 }
