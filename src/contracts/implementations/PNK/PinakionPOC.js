@@ -50,7 +50,7 @@ class PinakionPOC extends ContractImplementation {
 
     try {
       return this.contractInstance.setKleros(klerosAddress, {
-        from: account,
+        from: account
       })
     } catch (err) {
       console.error(err)
@@ -72,7 +72,7 @@ class PinakionPOC extends ContractImplementation {
 
     try {
       return this.contractInstance.transferOwnership(klerosAddress, {
-        from: account,
+        from: account
       })
     } catch (err) {
       console.error(err)

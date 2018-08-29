@@ -40,15 +40,13 @@ class Arbitrable extends ContractImplementation {
 
     const metaEvidenceUri = metaEvidenceLog[0].args._evidence
     // FIXME caching issue need a query param to fetch from AWS
-    const metaEvidenceResponse = await httpRequest(
-      'GET',
-      metaEvidenceUri
-    )
+    const metaEvidenceResponse = await httpRequest('GET', metaEvidenceUri)
 
     if (metaEvidenceResponse.status >= 400)
       throw new Error(`Unable to fetch meta-evidence at ${metaEvidenceUri}`)
 
-    this.metaEvidenceCache[this.contractAddress] = metaEvidenceResponse.body || metaEvidenceResponse
+    this.metaEvidenceCache[this.contractAddress] =
+      metaEvidenceResponse.body || metaEvidenceResponse
     return metaEvidenceResponse.body || metaEvidenceResponse
   }
 
@@ -94,9 +92,7 @@ class Arbitrable extends ContractImplementation {
   getContractData = async () => {
     await this.loadContract()
 
-    const [metaEvidence] = await Promise.all([
-      this.getMetaEvidence()
-    ])
+    const [metaEvidence] = await Promise.all([this.getMetaEvidence()])
 
     return {
       metaEvidence

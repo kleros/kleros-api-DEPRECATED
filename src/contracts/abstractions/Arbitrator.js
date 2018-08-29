@@ -2,7 +2,8 @@ import _ from 'lodash'
 
 import * as arbitratorConstants from '../../constants/arbitrator'
 import AbstractContract from '../AbstractContract'
-
+import httpRequest from '../../utils/httpRequest'
+import { DISPUTE_CACHE_URI } from '../../constants/dispute'
 /**
  * Arbitrator Abstract Contarct API. This wraps an arbitrator contract. It provides
  * interaction with both the off chain store as well as the arbitrator instance. All
@@ -12,10 +13,13 @@ import AbstractContract from '../AbstractContract'
 class Arbitrator extends AbstractContract {
   /**
    * Get disputes for user with extra data from arbitrated transaction and store
-   * @param {string} account address of user
+   * @param {string} account Address of user
+   * @param {bool} allowOffChainCache Should open disputes be pulled from off chain cache.
+   * The cache is maintained by Kleros for performance. To pull open disputes from the blockchain
+   * set false
    * @returns {object[]} dispute data objects for user
    */
-  getDisputesForUser = async account => {
+  getDisputesForUser = async (account, allowOffChainCache = true) => {
     // contract data
     const [period, currentSession] = await Promise.all([
       this._contractImplementation.getPeriod(),
@@ -29,9 +33,30 @@ class Arbitrator extends AbstractContract {
 
     let profile = await this._StoreProvider.newUserProfile(account)
     if (currentSession !== profile.session) {
+      // pull open disputes from off chain cache
+      let cachedDisputes = null
+      if (allowOffChainCache) {
+        const cachedDisputesResponse = await httpRequest(
+          'GET',
+          `${DISPUTE_CACHE_URI}/${currentSession}`
+        )
+
+        if (
+          cachedDisputesResponse.body &&
+          cachedDisputesResponse.body.open_disputes
+        ) {
+          cachedDisputes = await Promise.all(
+            cachedDisputesResponse.body.open_disputes.map(disputeIdString =>
+              this._contractImplementation.getDispute(Number(disputeIdString))
+            )
+          )
+        }
+      }
+
       // get disputes for juror
       const myDisputes = await this._contractImplementation.getDisputesForJuror(
-        account
+        account,
+        cachedDisputes
       )
 
       // update user profile for each dispute
