@@ -465,6 +465,12 @@ class Notifications {
     const amount = event.args._amount.toNumber()
 
     if (account === address) {
+      const message =
+        amount === 0
+          ? `Dispute Resolved: No PNK won`
+          : `Dispute Resolved: You have ${
+              amount < 0 ? 'lost' : 'won'
+            } ${this._Web3Wrapper.fromWei(amount, 'ether')} PNK.`
       const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
       const notification = await this._newNotification(
         account,
@@ -472,7 +478,7 @@ class Notifications {
         event.blockNumber,
         event.logIndex,
         notificationConstants.TYPE.TOKEN_SHIFT,
-        `You have ${amount < 0 ? 'lost' : 'won'} ${this._Web3Wrapper.fromWei(amount, 'ether')} PNK.`,
+        message,
         {
           disputeId,
           arbitratorAddress,
@@ -505,7 +511,10 @@ class Notifications {
         event.blockNumber,
         event.logIndex,
         notificationConstants.TYPE.ARBITRATION_REWARD,
-        `You have been awarded an ${this._Web3Wrapper.fromWei(amount, 'ether')} ETH arbitration fee`,
+        `You have been awarded an ${this._Web3Wrapper.fromWei(
+          amount,
+          'ether'
+        )} ETH arbitration fee`,
         {
           disputeId,
           arbitratorAddress,

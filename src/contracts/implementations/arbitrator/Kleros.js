@@ -63,15 +63,24 @@ class Kleros extends ContractImplementation {
    * @param {string} account - The address of the user.
    * @returns {object} - Balance information including total PNK balance and activated tokens.
    */
-  transferPNKToArbitrator = async (amount, account = this._Web3Wrapper.getAccount(0)) => {
+  transferPNKToArbitrator = async (
+    amount,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
     await this.loadContract()
 
     const pinakionContractAddress = await this.contractInstance.pinakion()
-    const pnkInstance = new MiniMePinakion(this.getWeb3Provider(), pinakionContractAddress)
+    const pnkInstance = new MiniMePinakion(
+      this.getWeb3Provider(),
+      pinakionContractAddress
+    )
 
-    const deposited = await pnkInstance.approveAndCall(this.contractAddress, amount, account)
-    if (!deposited)
-      throw new Error('Unable to deposit PNK')
+    const deposited = await pnkInstance.approveAndCall(
+      this.contractAddress,
+      amount,
+      account
+    )
+    if (!deposited) throw new Error('Unable to deposit PNK')
 
     return this.getPNKBalance(account)
   }
@@ -87,7 +96,7 @@ class Kleros extends ContractImplementation {
     await this.contractInstance.withdraw(
       this._Web3Wrapper.toWei(amount, 'ether'),
       {
-        from: account,
+        from: account
       }
     )
 
@@ -103,10 +112,13 @@ class Kleros extends ContractImplementation {
     await this.loadContract()
 
     const pinakionContractAddress = await this.contractInstance.pinakion()
-    const pnkInstance = new MiniMePinakion(this.getWeb3Provider(), pinakionContractAddress)
+    const pnkInstance = new MiniMePinakion(
+      this.getWeb3Provider(),
+      pinakionContractAddress
+    )
 
     const contractBalance = this._Web3Wrapper.fromWei(
-      (await pnkInstance.getTokenBalance(account)),
+      await pnkInstance.getTokenBalance(account),
       'ether'
     )
 
@@ -127,7 +139,7 @@ class Kleros extends ContractImplementation {
     let activatedTokens = 0
     if (juror[2].toNumber() === currentSession.toNumber())
       activatedTokens = this._Web3Wrapper.fromWei(
-        (juror[4].minus(juror[3])).toNumber(),
+        juror[4].minus(juror[3]).toNumber(),
         'ether'
       )
 
@@ -158,7 +170,7 @@ class Kleros extends ContractImplementation {
       await this.contractInstance.activateTokens(
         this._Web3Wrapper.toWei(amount, 'ether'),
         {
-          from: account,
+          from: account
         }
       )
     } catch (err) {
@@ -221,7 +233,7 @@ class Kleros extends ContractImplementation {
 
     try {
       await this.contractInstance.passPeriod.original({
-        from: account,
+        from: account
       })
       return this.getData()
     } catch (err) {
@@ -248,7 +260,7 @@ class Kleros extends ContractImplementation {
 
     try {
       return this.contractInstance.voteRuling(disputeId, ruling, votes, {
-        from: account,
+        from: account
       })
     } catch (err) {
       console.error(err)
@@ -273,7 +285,7 @@ class Kleros extends ContractImplementation {
     try {
       return this.contractInstance.appeal(disputeId, extraData, {
         from: account,
-        value: await this.contractInstance.appealCost(disputeId, extraData),
+        value: await this.contractInstance.appealCost(disputeId, extraData)
       })
     } catch (err) {
       console.error(err)
@@ -295,7 +307,7 @@ class Kleros extends ContractImplementation {
 
     try {
       return this.contractInstance.oneShotTokenRepartition(disputeId, {
-        from: account,
+        from: account
       })
     } catch (err) {
       console.error(err)
@@ -317,7 +329,7 @@ class Kleros extends ContractImplementation {
 
     try {
       return this.contractInstance.executeRuling(disputeId, {
-        from: account,
+        from: account
       })
     } catch (err) {
       console.error(err)
@@ -374,7 +386,9 @@ class Kleros extends ContractImplementation {
           voteCounters.push(voteCounts)
         }
 
-        voteCounters = await Promise.all(voteCounters.map(voteCounts => Promise.all(voteCounts)))
+        voteCounters = await Promise.all(
+          voteCounters.map(voteCounts => Promise.all(voteCounts))
+        )
       }
 
       return {
@@ -528,13 +542,14 @@ class Kleros extends ContractImplementation {
   /**
    * Get disputes from Kleros contract.
    * @param {string} account - Address of user.
+   * @param {string} openDisputes - <optional> Pass open disputes from cached source
    * @returns {object[]} - Array of disputes.
    */
-  getDisputesForJuror = async account => {
+  getDisputesForJuror = async (account, openDisputes) => {
     await this.loadContract()
 
     // contract data
-    const openDisputes = await this.getOpenDisputesForSession()
+    if (!openDisputes) openDisputes = await this.getOpenDisputesForSession()
 
     const disputes = await Promise.all(
       openDisputes.map(async disputeData => {
@@ -621,7 +636,7 @@ class Kleros extends ContractImplementation {
 
     const numberOfJurors = await this.getAmountOfJurorsForDispute(disputeId)
     let jurorDraw = null
-    for (let i=0; i < numberOfJurors; i++) {
+    for (let i = 0; i < numberOfJurors; i++) {
       const jurorAddress = await this.contractInstance.getVoteAccount(
         disputeId,
         appeal,

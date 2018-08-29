@@ -35,7 +35,6 @@ class StoreProviderWrapper {
     )
   }
 
-
   /**
    * If we know we are waiting on some other write before we want to read we can add a read request to the end of the queue.
    * @param {string} uri uri to hit

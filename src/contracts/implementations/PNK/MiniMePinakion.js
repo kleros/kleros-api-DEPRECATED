@@ -75,7 +75,7 @@ class MiniMePinakion extends ContractImplementation {
 
     try {
       return this.contractInstance.changeController(klerosAddress, {
-        from: account,
+        from: account
       })
     } catch (err) {
       console.error(err)
@@ -91,7 +91,11 @@ class MiniMePinakion extends ContractImplementation {
    * @param {string} account - The users account.
    * @returns {bool} If the transfer succeeded or not
    */
-  approveAndCall = async (arbitratorAddress, amount, account = this._Web3Wrapper.getAccount(0)) => {
+  approveAndCall = async (
+    arbitratorAddress,
+    amount,
+    account = this._Web3Wrapper.getAccount(0)
+  ) => {
     await this.loadContract()
 
     return this.contractInstance.approveAndCall(
@@ -99,7 +103,7 @@ class MiniMePinakion extends ContractImplementation {
       this._Web3Wrapper.toWei(amount, 'ether'),
       '0x0',
       {
-        from: account,
+        from: account
       }
     )
   }
@@ -109,7 +113,7 @@ class MiniMePinakion extends ContractImplementation {
    * @param {string} account - The users account.
    * @returns {number} the amount of tokens.
    */
-  getTokenBalance = async (account) => {
+  getTokenBalance = async account => {
     await this.loadContract()
 
     return this.contractInstance.balanceOf(account)
