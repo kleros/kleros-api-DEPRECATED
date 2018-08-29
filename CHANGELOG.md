@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.16.0"></a>
+# [0.16.0](https://github.com/kleros/kleros-api/compare/v0.15.0...v0.16.0) (2018-08-29)
+
+
+### Features
+
+* pull open disputes from cache ([39505f5](https://github.com/kleros/kleros-api/commit/39505f5))
+
+
+
 <a name="0.15.0"></a>
 # [0.15.0](https://github.com/kleros/kleros-api/compare/v0.14.2...v0.15.0) (2018-08-13)
 
