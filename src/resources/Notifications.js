@@ -119,7 +119,7 @@ class Notifications {
           const draws = dispute.appealDraws[dispute.appealDraws.length - 1]
           if (draws) {
             const canVote = await this._ArbitratorInstance.canRuleDispute(
-              dispute.disputeId,
+              dispute.disputeID,
               draws,
               account
             )
@@ -129,7 +129,7 @@ class Notifications {
                   notificationConstants.TYPE.CAN_VOTE,
                   'Open cases still need your decision.',
                   {
-                    disputeId: dispute.disputeId,
+                    disputeID: dispute.disputeID,
                     arbitratorAddress: dispute.arbitratorAddress
                   }
                 )
@@ -192,7 +192,7 @@ class Notifications {
       await Promise.all(
         disputes.map(async dispute => {
           const disputeData = await this._ArbitratorInstance.getDispute(
-            dispute.disputeId
+            dispute.disputeID
           )
           if (
             disputeData.firstSession + disputeData.numberOfAppeals ===
@@ -204,7 +204,7 @@ class Notifications {
                   notificationConstants.TYPE.CAN_REPARTITION,
                   'Ready to repartition dispute',
                   {
-                    disputeId: dispute.disputeId,
+                    disputeID: dispute.disputeID,
                     arbitratorAddress: dispute.arbitratorAddress
                   }
                 )
@@ -217,7 +217,7 @@ class Notifications {
                   notificationConstants.TYPE.CAN_EXECUTE,
                   'Ready to execute dispute',
                   {
-                    disputeId: dispute.disputeId,
+                    disputeID: dispute.disputeID,
                     arbitratorAddress: dispute.arbitratorAddress
                   }
                 )
@@ -307,12 +307,12 @@ class Notifications {
             _.findIndex(
               disputes,
               dispute =>
-                dispute.disputeId === openDispute.disputeId &&
+                dispute.disputeID === openDispute.disputeID &&
                 dispute.arbitratorAddress === arbitratorAddress
             ) >= 0
           ) {
             const ruling = await this._ArbitratorInstance.currentRulingForDispute(
-              openDispute.disputeId,
+              openDispute.disputeID,
               openDispute.numberOfAppeals
             )
 
@@ -320,11 +320,11 @@ class Notifications {
               account,
               event.transactionHash,
               event.blockNumber,
-              openDispute.disputeId, // use disputeId instead of logIndex since it doens't have its own event
+              openDispute.disputeID, // use disputeID instead of logIndex since it doens't have its own event
               notificationConstants.TYPE.APPEAL_POSSIBLE,
               'A ruling has been made. Appeal is possible',
               {
-                disputeId: openDispute.disputeId,
+                disputeID: openDispute.disputeID,
                 arbitratorAddress,
                 ruling
               }
@@ -345,7 +345,7 @@ class Notifications {
    * @param {function} callback - The callback.
    */
   _disputeCreationHandler = async (event, account, callback) => {
-    const disputeId = event.args._disputeID.toNumber()
+    const disputeID = event.args._disputeID.toNumber()
     const txHash = event.transactionHash
     // load arbitrable contract
     await this._ArbitrableInstance.setContractInstance(event.args._arbitrable)
@@ -365,7 +365,7 @@ class Notifications {
         notificationConstants.TYPE.DISPUTE_CREATED,
         'New Dispute Created',
         {
-          disputeId: disputeId,
+          disputeID: disputeID,
           arbitratorAddress: arbitratorAddress
         }
       )
@@ -382,9 +382,9 @@ class Notifications {
    */
   _appealPossibleHandler = async (event, account, callback) => {
     const disputes = await this._getDisputes(account)
-    const disputeId = event.args._disputeID.toNumber()
+    const disputeID = event.args._disputeID.toNumber()
     const ruling = await this._ArbitratorInstance.currentRulingForDispute(
-      disputeId
+      disputeID
     )
     const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
 
@@ -392,7 +392,7 @@ class Notifications {
       _.findIndex(
         disputes,
         dispute =>
-          dispute.disputeId === disputeId &&
+          dispute.disputeID === disputeID &&
           dispute.arbitratorAddress === arbitratorAddress
       ) >= 0
     ) {
@@ -404,7 +404,7 @@ class Notifications {
         notificationConstants.TYPE.APPEAL_POSSIBLE,
         'A ruling has been made. Appeal is possible',
         {
-          disputeId,
+          disputeID,
           arbitratorAddress,
           ruling
         }
@@ -423,14 +423,14 @@ class Notifications {
    */
   _appealingDecisionHandler = async (event, account, callback) => {
     const disputes = await this._getDisputes(account)
-    const disputeId = event.args._disputeID.toNumber()
+    const disputeID = event.args._disputeID.toNumber()
     const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
 
     if (
       _.findIndex(
         disputes,
         dispute =>
-          dispute.disputeId === disputeId &&
+          dispute.disputeID === disputeID &&
           dispute.arbitratorAddress === arbitratorAddress
       ) >= 0
     ) {
@@ -442,7 +442,7 @@ class Notifications {
         notificationConstants.TYPE.RULING_APPEALED,
         'A ruling you made has been appealed by one of the parties.',
         {
-          disputeId,
+          disputeID,
           arbitratorAddress
         }
       )
@@ -460,7 +460,7 @@ class Notifications {
    */
   _tokenShiftHandler = async (event, account, callback) => {
     // address indexed _account, uint _disputeID, int _amount
-    const disputeId = event.args._disputeID.toNumber()
+    const disputeID = event.args._disputeID.toNumber()
     const address = event.args._account
     const amount = event.args._amount.toNumber()
 
@@ -480,7 +480,7 @@ class Notifications {
         notificationConstants.TYPE.TOKEN_SHIFT,
         message,
         {
-          disputeId,
+          disputeID,
           arbitratorAddress,
           account: address,
           amount
@@ -499,7 +499,7 @@ class Notifications {
    */
   _arbitrationRewardHandler = async (event, account, callback) => {
     // address indexed _account, uint _disputeID, int _amount
-    const disputeId = event.args._disputeID.toNumber()
+    const disputeID = event.args._disputeID.toNumber()
     const address = event.args._account
     const amount = event.args._amount.toNumber()
 
@@ -516,7 +516,7 @@ class Notifications {
           'ether'
         )} ETH arbitration fee`,
         {
-          disputeId,
+          disputeID,
           arbitratorAddress,
           account: address,
           amount

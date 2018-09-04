@@ -42,10 +42,7 @@ class PinakionPOC extends ContractImplementation {
    * @param {string} account - Address of user.
    * @returns {object} - The result transaction object.
    */
-  setKleros = async (
-    klerosAddress,
-    account
-  ) => {
+  setKleros = async (klerosAddress, account) => {
     await this.loadContract()
 
     try {
@@ -64,10 +61,7 @@ class PinakionPOC extends ContractImplementation {
    * @param {string} account - Address of user.
    * @returns {object} - The result transaction object.
    */
-  transferOwnership = async (
-    klerosAddress,
-    account
-  ) => {
+  transferOwnership = async (klerosAddress, account) => {
     await this.loadContract()
 
     try {

@@ -17,6 +17,8 @@ class Kleros extends ContractImplementation {
    * Create new Kleros Implementation.
    * @param {object} web3Provider - web3 instance.
    * @param {string} contractAddress - Address of the Kleros contract.
+   * @param {object} artifact - <optional> An alternate Kleros artifact can be
+   * passed for classes that inherit Kleros (such as KlerosPOC)
    */
   constructor(web3Provider, contractAddress, artifact = klerosArtifact) {
     super(web3Provider, artifact, contractAddress)
@@ -93,12 +95,9 @@ class Kleros extends ContractImplementation {
    */
   withdrawPNK = async (amount, account) => {
     await this.loadContract()
-    await this.contractInstance.withdraw(
-    amount,
-      {
-        from: account
-      }
-    )
+    await this.contractInstance.withdraw(amount, {
+      from: account
+    })
 
     return this.getPNKBalance(account)
   }
@@ -155,12 +154,9 @@ class Kleros extends ContractImplementation {
     await this.loadContract()
 
     try {
-      await this.contractInstance.activateTokens(
-        amount,
-        {
-          from: account
-        }
-      )
+      await this.contractInstance.activateTokens(amount, {
+        from: account
+      })
     } catch (err) {
       console.error(err)
       throw new Error(errorConstants.UNABLE_TO_ACTIVATE_PNK)
@@ -178,9 +174,7 @@ class Kleros extends ContractImplementation {
     await this.loadContract()
 
     try {
-      return this.contractInstance.arbitrationCost(
-        contractExtraData
-      )
+      return this.contractInstance.arbitrationCost(contractExtraData)
     } catch (err) {
       console.error(err)
       throw new Error(errorConstants.UNABLE_TO_FETCH_ARBITRATION_COST)
@@ -189,19 +183,15 @@ class Kleros extends ContractImplementation {
 
   /**
    * Fetch the cost of appeal.
-   * @param {number} disputeId - index of the dispute.
+   * @param {number} disputeID - index of the dispute.
    * @param {bytes} contractExtraData - extra data from arbitrable contract.
    * @returns {number} - The cost of appeal as a BigNumber.
    */
-  getAppealCost = async (disputeId, contractExtraData) => {
+  getAppealCost = async (disputeID, contractExtraData) => {
     await this.loadContract()
 
     try {
-      return this.contractInstance.appealCost(
-        disputeId,
-        contractExtraData
-      )
-
+      return this.contractInstance.appealCost(disputeID, contractExtraData)
     } catch (err) {
       console.error(err)
       throw new Error(errorConstants.UNABLE_TO_FETCH_APPEAL_COST)
@@ -228,22 +218,17 @@ class Kleros extends ContractImplementation {
 
   /**
    * Submit votes. Note can only be called during Voting period (Period 2).
-   * @param {number} disputeId - index of the dispute.
+   * @param {number} disputeID - index of the dispute.
    * @param {number} ruling - int representing the jurors decision.
    * @param {number[]} votes - int[] of drawn votes for dispute.
    * @param {string} account - address of user.
    * @returns {object} - The result transaction object.
    */
-  submitVotes = async (
-    disputeId,
-    ruling,
-    votes,
-    account
-  ) => {
+  submitVotes = async (disputeID, ruling, votes, account) => {
     await this.loadContract()
 
     try {
-      return this.contractInstance.voteRuling(disputeId, ruling, votes, {
+      return this.contractInstance.voteRuling(disputeID, ruling, votes, {
         from: account,
         gas: process.env.GAS || undefined
       })
@@ -255,22 +240,18 @@ class Kleros extends ContractImplementation {
 
   /**
    * Appeal ruling on dispute.
-   * @param {number} disputeId - Index of the dispute.
+   * @param {number} disputeID - Index of the dispute.
    * @param {string} extraData - Extra data.
    * @param {string} account - Address of user.
    * @returns {object} - The result transaction object.
    */
-  appealRuling = async (
-    disputeId,
-    extraData,
-    account
-  ) => {
+  appealRuling = async (disputeID, extraData, account) => {
     await this.loadContract()
 
     try {
-      return this.contractInstance.appeal(disputeId, extraData, {
+      return this.contractInstance.appeal(disputeID, extraData, {
         from: account,
-        value: await this.contractInstance.appealCost(disputeId, extraData)
+        value: await this.contractInstance.appealCost(disputeID, extraData)
       })
     } catch (err) {
       console.error(err)
@@ -280,18 +261,15 @@ class Kleros extends ContractImplementation {
 
   /**
    * Repartition juror tokens.
-   * @param {number} disputeId - index of the dispute.
+   * @param {number} disputeID - index of the dispute.
    * @param {string} account - address of user.
    * @returns {object} - The result transaction object.
    */
-  repartitionJurorTokens = async (
-    disputeId,
-    account
-  ) => {
+  repartitionJurorTokens = async (disputeID, account) => {
     await this.loadContract()
 
     try {
-      return this.contractInstance.oneShotTokenRepartition(disputeId, {
+      return this.contractInstance.oneShotTokenRepartition(disputeID, {
         from: account,
         gas: process.env.GAS || undefined
       })
@@ -303,18 +281,15 @@ class Kleros extends ContractImplementation {
 
   /**
    * Execute ruling on dispute
-   * @param {number} disputeId - index of the dispute.
+   * @param {number} disputeID - index of the dispute.
    * @param {string} account - address of user.
    * @returns {object} - The result transaction object.
    */
-  executeRuling = async (
-    disputeId,
-    account
-  ) => {
+  executeRuling = async (disputeID, account) => {
     await this.loadContract()
 
     try {
-      return this.contractInstance.executeRuling(disputeId, {
+      return this.contractInstance.executeRuling(disputeID, {
         from: account
       })
     } catch (err) {
@@ -347,26 +322,28 @@ class Kleros extends ContractImplementation {
 
   /**
    * Get dispute.
-   * @param {number} disputeId - The index of the dispute.
+   * @param {number} disputeID - The index of the dispute.
+   * @param {bool} withVoteCount - Whether to pull voteCounter data for a dispute.
+   * false by default for better performance.
    * @returns {object} - The dispute data from the contract.
    */
-  getDispute = async (disputeId, withVoteCount = false) => {
+  getDispute = async (disputeID, withVoteCount = false) => {
     await this.loadContract()
 
     try {
-      const dispute = await this.contractInstance.disputes(disputeId)
+      const dispute = await this.contractInstance.disputes(disputeID)
       const numberOfAppeals = dispute[2].toNumber()
       const rulingChoices = dispute[3].toNumber()
 
       let voteCounters = []
-      const status = await this.contractInstance.disputeStatus(disputeId)
+      const status = await this.contractInstance.disputeStatus(disputeID)
       if (withVoteCount) {
         for (let appeal = 0; appeal <= numberOfAppeals; appeal++) {
           const voteCounts = []
           for (let choice = 0; choice <= rulingChoices; choice++)
             voteCounts.push(
               this.contractInstance
-                .getVoteCount(disputeId, appeal, choice)
+                .getVoteCount(disputeID, appeal, choice)
                 .then(v => v.toNumber())
             )
           voteCounters.push(voteCounts)
@@ -379,7 +356,7 @@ class Kleros extends ContractImplementation {
 
       return {
         arbitratorAddress: this.contractAddress,
-        disputeId,
+        disputeID,
         arbitrableContractAddress: dispute[0],
         firstSession: dispute[1].toNumber(),
         numberOfAppeals,
@@ -399,16 +376,16 @@ class Kleros extends ContractImplementation {
 
   /**
    * Get number of jurors for a dispute.
-   * @param {number} disputeId - Index of dispute.
+   * @param {number} disputeID - Index of dispute.
    * @returns {number} - Number of jurors for a dispute.
    */
-  getAmountOfJurorsForDispute = async disputeId => {
+  getAmountOfJurorsForDispute = async disputeID => {
     await this.loadContract()
 
     let amountOfJurors
 
     try {
-      amountOfJurors = await this.contractInstance.amountJurors(disputeId)
+      amountOfJurors = await this.contractInstance.amountJurors(disputeID)
     } catch (err) {
       console.error(err)
       throw new Error(errorConstants.UNABLE_TO_FETCH_AMOUNT_OF_JURORS)
@@ -421,20 +398,16 @@ class Kleros extends ContractImplementation {
 
   /**
    * Get number of jurors for a dispute.
-   * @param {number} disputeId - Index of dispute.
+   * @param {number} disputeID - Index of dispute.
    * @param {number} draw - Int for draw.
    * @param {string} jurorAddress - Address of juror.
    * @returns {bool} - `true` indicates juror has a vote for draw, `false` indicates they do not.
    */
-  isJurorDrawnForDispute = async (
-    disputeId,
-    draw,
-    jurorAddress
-  ) => {
+  isJurorDrawnForDispute = async (disputeID, draw, jurorAddress) => {
     await this.loadContract()
 
     const isDrawn = await this.contractInstance.isDrawn(
-      disputeId,
+      disputeID,
       jurorAddress,
       draw
     )
@@ -444,22 +417,22 @@ class Kleros extends ContractImplementation {
 
   /**
    * Can juror currently rule in dispute.
-   * @param {number} disputeId - index of dispute.
+   * @param {number} disputeID - index of dispute.
    * @param {int[]} draws - voting positions for dispute.
    * @param {string} account - address of user.
    * @returns {bool} - Boolean indicating if juror can rule or not.
    */
-  canRuleDispute = async (disputeId, draws, account) => {
+  canRuleDispute = async (disputeID, draws, account) => {
     await this.loadContract()
 
     const validDraws = await this.contractInstance.validDraws(
       account,
-      disputeId,
+      disputeID,
       draws
     )
 
     const lastRuling = (await this.contractInstance.getLastSessionVote(
-      disputeId,
+      disputeID,
       account
     )).toNumber()
 
@@ -474,15 +447,15 @@ class Kleros extends ContractImplementation {
 
   /**
    * Get number of jurors for a dispute.
-   * @param {number} disputeId - Index of dispute.
+   * @param {number} disputeID - Index of dispute.
    * @param {number} appeal - Index of appeal.
    * @returns {number} - Int indicating the ruling of the dispute.
    */
-  currentRulingForDispute = async (disputeId, appeal) => {
+  currentRulingForDispute = async (disputeID, appeal) => {
     await this.loadContract()
 
     const ruling = await this.contractInstance.getWinningChoice(
-      disputeId,
+      disputeID,
       appeal
     )
 
@@ -538,7 +511,7 @@ class Kleros extends ContractImplementation {
     const disputes = await Promise.all(
       openDisputes.map(async disputeData => {
         const draws = await this.getDrawsForJuror(
-          disputeData.disputeId,
+          disputeData.disputeID,
           account
         )
         disputeData.appealDraws = disputeData.appealDraws || []
@@ -553,18 +526,18 @@ class Kleros extends ContractImplementation {
 
   /**
    * Fetch the votes a juror has in a dispute.
-   * @param {number} disputeId - ID of the dispute.
+   * @param {number} disputeID - ID of the dispute.
    * @param {string} account - Potential jurors address.
    * @returns {number[]} - Array of integers indicating the draw.
    */
-  getDrawsForJuror = async (disputeId, account) => {
+  getDrawsForJuror = async (disputeID, account) => {
     await this.loadContract()
 
-    const numberOfJurors = await this.getAmountOfJurorsForDispute(disputeId)
+    const numberOfJurors = await this.getAmountOfJurorsForDispute(disputeID)
     const draws = []
     for (let draw = 1; draw <= numberOfJurors; draw++) {
       const isJuror = await this.isJurorDrawnForDispute(
-        disputeId,
+        disputeID,
         draw,
         account
       )
@@ -576,28 +549,27 @@ class Kleros extends ContractImplementation {
   }
 
   /** Get all disputes that are active this session.
-   * @returns {int[]} - array of active disputeId
+   * @returns {int[]} - array of active disputeID
    */
   getOpenDisputesForSession = async () => {
     await this.loadContract()
     const period = (await this.contractInstance.period()).toNumber()
 
     // There are never any open disputes before VOTE. Don't want to populate cache
-    if (period < arbitratorConstants.PERIOD.VOTE)
-      return []
+    if (period < arbitratorConstants.PERIOD.VOTE) return []
 
     const currentSession = await this.getSession()
     if (this._openDisputesCache[currentSession])
       return this._openDisputesCache[currentSession]
     const openDisputes = []
 
-    let disputeId = 0
+    let disputeID = 0
     let dispute
     while (1) {
       // Iterate over all the disputes
       // TODO: Implement a more performant solution
       try {
-        dispute = await this.getDispute(disputeId)
+        dispute = await this.getDispute(disputeID)
       } catch (err) {
         // Dispute out of range, break
         if (err.message === errorConstants.UNABLE_TO_FETCH_DISPUTE) break
@@ -612,21 +584,28 @@ class Kleros extends ContractImplementation {
         openDisputes.push(dispute)
 
       // Advance to the next dispute
-      disputeId++
+      disputeID++
     }
 
     this._openDisputesCache[currentSession] = openDisputes
     return openDisputes
   }
 
-  getVoteForJuror = async (disputeId, appeal, address) => {
+  /**
+   * Fetch how a juror ruled in a dispute
+   * @param {number} disputeID The index of the dispute
+   * @param {number} appeal The index of the appeal
+   * @param {string} address The users ETH address
+   * @returns {number} The ruling that the juror gave
+   */
+  getVoteForJuror = async (disputeID, appeal, address) => {
     await this.loadContract()
 
-    const numberOfJurors = await this.getAmountOfJurorsForDispute(disputeId)
+    const numberOfJurors = await this.getAmountOfJurorsForDispute(disputeID)
     let jurorDraw = null
     for (let i = 0; i < numberOfJurors; i++) {
       const jurorAddress = await this.contractInstance.getVoteAccount(
-        disputeId,
+        disputeID,
         appeal,
         i
       )
@@ -640,21 +619,21 @@ class Kleros extends ContractImplementation {
 
     if (_.isNull(jurorDraw)) return null
 
-    return this.getVoteForDraw(disputeId, appeal, jurorDraw)
+    return this.getVoteForDraw(disputeID, appeal, jurorDraw)
   }
 
   /**
    * Get the ruling that a juror gave in dispute
-   * @param {number} disputeId - the index of the dispute.
+   * @param {number} disputeID - the index of the dispute.
    * @param {number} appeal - the index of the appeal.
    * @param {number} draw - the index of the vote draw.
    * @returns {number} ruling.
    */
-  getVoteForDraw = async (disputeId, appeal, draw) => {
+  getVoteForDraw = async (disputeID, appeal, draw) => {
     await this.loadContract()
 
     const vote = await this.contractInstance.getVoteRuling(
-      disputeId,
+      disputeID,
       appeal,
       draw
     )
@@ -743,22 +722,22 @@ class Kleros extends ContractImplementation {
 
   /**
    * Get the event log for the dispute creation.
-   * @param {number} disputeId - The block number that the dispute was created.
+   * @param {number} disputeID - The block number that the dispute was created.
    * @returns {object} dispute creation event log.
    */
-  getDisputeCreationEvent = async disputeId => {
+  getDisputeCreationEvent = async disputeID => {
     const eventLogs = await EventListener.getEventLogs(
       this,
       'DisputeCreation',
       0,
       'latest',
-      { _disputeID: disputeId }
+      { _disputeID: disputeID }
     )
 
     for (let i = 0; i < eventLogs.length; i++) {
       const log = eventLogs[i]
 
-      if (log.args._disputeID.toNumber() === disputeId) return log
+      if (log.args._disputeID.toNumber() === disputeID) return log
     }
 
     return null
@@ -766,11 +745,11 @@ class Kleros extends ContractImplementation {
 
   /**
    * Get the amount of tokens won or lost by a juror for a dispute
-   * @param {number} disputeId The index of the dispute
+   * @param {number} disputeID The index of the dispute
    * @param {string} account The account of the juror
    * @returns {number} The net total PNK
    */
-  getNetTokensForDispute = async (disputeId, account) => {
+  getNetTokensForDispute = async (disputeID, account) => {
     const eventLogs = await EventListener.getEventLogs(
       this,
       'TokenShift',
@@ -782,7 +761,7 @@ class Kleros extends ContractImplementation {
     let netPNK = 0
     for (let i = 0; i < eventLogs.length; i++) {
       const event = eventLogs[i]
-      if (event.args._disputeID.toNumber() === disputeId)
+      if (event.args._disputeID.toNumber() === disputeID)
         netPNK += event.args._amount.toNumber()
     }
 

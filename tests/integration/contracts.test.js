@@ -278,7 +278,7 @@ describe('Contracts', () => {
         // ****** Juror side (activate token) ****** //
 
         // jurors buy PNK
-        const pnkAmount = "1000000000000000000"
+        const pnkAmount = '1000000000000000000'
         const buyPNKJurors = await Promise.all([
           KlerosPOCInstance.buyPNK(pnkAmount, jurorContract1),
           await KlerosPOCInstance.buyPNK(pnkAmount, jurorContract2)

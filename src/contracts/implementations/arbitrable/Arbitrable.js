@@ -10,8 +10,9 @@ import httpRequest from '../../../utils/httpRequest'
 class Arbitrable extends ContractImplementation {
   /**
    * Constructor ArbitrableTransaction.
-   * @param {object} web3Provider instance
-   * @param {string} contractAddress of the contract
+   * @param {object} web3Provider instance.
+   * @param {object} contractArtifact The abi JSON of the arbitrable contract.
+   * @param {string} contractAddress of the contract.
    */
   constructor(web3Provider, contractArtifact, contractAddress) {
     super(web3Provider, contractArtifact, contractAddress)
@@ -23,6 +24,7 @@ class Arbitrable extends ContractImplementation {
    * Get the meta evidence for the contract. Arbitrable Transaction can only have
    * one meta-evidence that is submitted on contract creation. Look up meta-evidence event
    * and make an http request to the resource.
+   * @returns {object} The metaEvidence object
    */
   getMetaEvidence = async () => {
     if (this.metaEvidenceCache[this.contractAddress])
@@ -52,22 +54,23 @@ class Arbitrable extends ContractImplementation {
 
   /**
    * Get the evidence submitted in a dispute.
+   * @returns {object[]} An array of evidence objects.
    */
   getEvidence = async () => {
     await this.loadContract()
     const arbitratorAddress = await this.contractInstance.arbitrator()
     await this.loadContract()
-    const disputeId = (await this.contractInstance.disputeID()).toNumber()
+    const disputeID = (await this.contractInstance.disputeID()).toNumber()
 
     // No evidence yet as there is no dispute
-    if (_.isNull(disputeId)) return []
+    if (_.isNull(disputeID)) return []
 
     const evidenceLogs = await EventListener.getEventLogs(
       this,
       'Evidence',
       0,
       'latest',
-      { _disputeID: disputeId, _arbitrator: arbitratorAddress }
+      { _disputeID: disputeID, _arbitrator: arbitratorAddress }
     )
 
     // TODO verify hash and data are valid if hash exists
@@ -84,19 +87,6 @@ class Arbitrable extends ContractImplementation {
         }
       })
     )
-  }
-
-  /**
-   * Fetch all standard contract data.
-   */
-  getContractData = async () => {
-    await this.loadContract()
-
-    const [metaEvidence] = await Promise.all([this.getMetaEvidence()])
-
-    return {
-      metaEvidence
-    }
   }
 }
 

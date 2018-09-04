@@ -47,8 +47,8 @@ export const ACCOUNT_NOT_A_JUROR_FOR_CONTRACT = (account, contractAddress) =>
   `${account} is not a juror for contract ${contractAddress}`
 export const PERIOD_OUT_OF_RANGE = periodNumber =>
   `Period ${periodNumber} does not have a time associated with it.`
-export const DISPUTE_DOES_NOT_EXIST = disputeId =>
-  `Dispute ${disputeId} does not exist`
+export const DISPUTE_DOES_NOT_EXIST = disputeID =>
+  `Dispute ${disputeID} does not exist`
 
 // ArbitrableTransaction
 export const UNABLE_TO_PAY_ARBITRATION_FEE =

@@ -1,7 +1,6 @@
 import BlockHashRNGArtifact from 'kleros-interaction/build/contracts/BlockHashRNGFallback'
 import _ from 'lodash'
 
-import * as ethConstants from '../../../constants/eth'
 import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
 
