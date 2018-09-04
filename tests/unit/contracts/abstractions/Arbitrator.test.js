@@ -16,7 +16,7 @@ describe('Arbitrator', () => {
       const mockShouldNotCall = jest.fn()
       const mockDispute = {
         arbitratorAddress: arbitratorAddress,
-        disputeId: '1'
+        disputeID: '1'
       }
       const mockStoreProvider = {
         getDisputes: mockGetDisputesForUser.mockReturnValue(
@@ -51,7 +51,7 @@ describe('Arbitrator', () => {
       const mockShouldNotCall = jest.fn()
       const mockDispute = {
         arbitratorAddress: arbitratorAddress,
-        disputeId: '1'
+        disputeID: '1'
       }
       const mockStoreProvider = {
         getDisputes: mockGetDisputesForUser.mockReturnValue(
@@ -86,7 +86,7 @@ describe('Arbitrator', () => {
       const mockShouldNotCall = jest.fn()
       const mockDispute = {
         arbitratorAddress: arbitratorAddress,
-        disputeId: '1'
+        disputeID: '1'
       }
       const mockStoreProvider = {
         getDisputes: mockGetDisputesForUser.mockReturnValue(
@@ -130,7 +130,7 @@ describe('Arbitrator', () => {
       const mockAddNewDrawsDisputeProfile = jest.fn()
       const mockDispute = {
         arbitratorAddress: arbitratorAddress,
-        disputeId: '1',
+        disputeID: '1',
         appealDraws: [[1]],
         numberOfAppeals: 0
       }
@@ -181,7 +181,7 @@ describe('Arbitrator', () => {
       expect(mockUpdateDisputeProfile.mock.calls[0][0]).toBe(account)
       expect(mockUpdateDisputeProfile.mock.calls[0][1]).toBe(arbitratorAddress)
       expect(mockUpdateDisputeProfile.mock.calls[0][2]).toBe(
-        mockDispute.disputeId
+        mockDispute.disputeID
       )
       expect(mockUpdateDisputeProfile.mock.calls[0][3]).toEqual({
         blockNumber: 1

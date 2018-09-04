@@ -76,11 +76,11 @@ class Disputes {
    */
   _storeNewDisputeHandler = async (event, account) => {
     // There is no need to handle this event if we are not using the store
-    const disputeId = event.args._disputeID.toNumber()
+    const disputeID = event.args._disputeID.toNumber()
 
     const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
     // arbitrator data
-    const disputeData = await this._ArbitratorInstance.getDispute(disputeId)
+    const disputeData = await this._ArbitratorInstance.getDispute(disputeID)
     // arbitrable contract data
     await this._ArbitrableInstance.setContractInstance(
       disputeData.arbitrableContractAddress
@@ -97,7 +97,7 @@ class Disputes {
       await this._StoreProviderInstance.updateDisputeProfile(
         account,
         arbitratorAddress,
-        disputeId,
+        disputeID,
         {
           contractAddress: disputeData.arbitrableContractAddress,
           partyA: arbitrableContractData.partyA,
@@ -114,12 +114,12 @@ class Disputes {
 
   /**
    * Add new data to the cache
-   * @param {number} disputeId - The index of the dispute. Used as the key in cache
+   * @param {number} disputeID - The index of the dispute. Used as the key in cache
    * @param {object} newCacheData - Freeform data to cache. Will overwrite data with the same keys.
    */
-  _updateDisputeCache = (disputeId, newCacheData = {}) => {
-    this.disputeCache[disputeId] = {
-      ...this.disputeCache[disputeId],
+  _updateDisputeCache = (disputeID, newCacheData = {}) => {
+    this.disputeCache[disputeID] = {
+      ...this.disputeCache[disputeID],
       ...newCacheData
     }
   }
@@ -127,12 +127,12 @@ class Disputes {
   /**
    * Get the block at which a dispute was created. Used to find timestamps for dispute.
    * The start block is cached after it has been found once as it will never change.
-   * @param {number} disputeId - The index of the dispute.
+   * @param {number} disputeID - The index of the dispute.
    * @param {string} account - The address of the user.
    * @returns {number} The block number that the dispute was created.
    */
-  _getDisputeStartBlock = async (disputeId, account) => {
-    const cachedDispute = this.disputeCache[disputeId]
+  _getDisputeStartBlock = async (disputeID, account) => {
+    const cachedDispute = this.disputeCache[disputeID]
     if (cachedDispute && cachedDispute.startBlock)
       return cachedDispute.startBlock
 
@@ -144,7 +144,7 @@ class Disputes {
       const userData = await this._StoreProviderInstance.getDispute(
         account,
         arbitratorAddress,
-        disputeId
+        disputeID
       )
       blockNumber = userData.blockNumber
       // eslint-disable-next-line no-unused-vars
@@ -154,7 +154,7 @@ class Disputes {
       // Fetching a dispute will fail if it hasn't been added to the store yet. This is ok, we can just not return store data
       // see if we can get dispute start block from events
       const disputeCreationEvent = await this._ArbitratorInstance.getDisputeCreationEvent(
-        disputeId
+        disputeID
       )
       if (disputeCreationEvent) {
         blockNumber = disputeCreationEvent.blockNumber
@@ -162,7 +162,7 @@ class Disputes {
     }
 
     // cache start block for dispute
-    this._updateDisputeCache(disputeId, { startBlock: blockNumber })
+    this._updateDisputeCache(disputeID, { startBlock: blockNumber })
     return blockNumber
   }
 
@@ -172,30 +172,30 @@ class Disputes {
   /**
    * Fetch the shared dispute data from the store.
    * @param {string} account - The users account.
-   * @param {string} disputeId - The index of the dispute.
+   * @param {string} disputeID - The index of the dispute.
    * @returns {Promise} The dispute data in the store.
    */
-  getDisputeFromStore = async (account, disputeId) => {
+  getDisputeFromStore = async (account, disputeID) => {
     const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
     return this._StoreProviderInstance.getDispute(
       account,
       arbitratorAddress,
-      disputeId
+      disputeID
     )
   }
 
   /**
    * Get the dispute deadline for the appeal.
-   * @param {number} disputeId - The index of the dispute.
+   * @param {number} disputeID - The index of the dispute.
    * @param {number} appeal - The appeal number. 0 if there have been no appeals.
    * @returns {number} timestamp of the appeal
    */
-  getDisputeDeadline = async (disputeId, appeal = 0) => {
-    const cachedDispute = this.disputeCache[disputeId] || {}
+  getDisputeDeadline = async (disputeID, appeal = 0) => {
+    const cachedDispute = this.disputeCache[disputeID] || {}
     if (cachedDispute.appealDeadlines && cachedDispute.appealDeadlines[appeal])
       return cachedDispute.appealDeadlines[appeal]
 
-    const dispute = await this._ArbitratorInstance.getDispute(disputeId)
+    const dispute = await this._ArbitratorInstance.getDispute(disputeID)
 
     const deadlineTimestamp = await this._ArbitratorInstance.getDisputeDeadlineTimestamp(
       dispute.firstSession + appeal
@@ -205,7 +205,7 @@ class Disputes {
       const currentDeadlines = cachedDispute.appealDeadlines || []
       currentDeadlines[appeal] = deadlineTimestamp
       // cache the deadline for the appeal
-      this._updateDisputeCache(disputeId, {
+      this._updateDisputeCache(disputeID, {
         appealDeadlines: currentDeadlines
       })
     }
@@ -215,12 +215,12 @@ class Disputes {
 
   /**
    * Get the timestamp on when the dispute's ruling was finalized.
-   * @param {number} disputeId - The index of the dispute.
+   * @param {number} disputeID - The index of the dispute.
    * @param {number} appeal - The appeal number. 0 if there have been no appeals.
    * @returns {number} timestamp of the appeal
    */
-  getAppealRuledAt = async (disputeId, appeal = 0) => {
-    const cachedDispute = this.disputeCache[disputeId]
+  getAppealRuledAt = async (disputeID, appeal = 0) => {
+    const cachedDispute = this.disputeCache[disputeID]
     if (
       cachedDispute &&
       cachedDispute.appealRuledAt &&
@@ -228,7 +228,7 @@ class Disputes {
     )
       return cachedDispute.appealRuledAt[appeal]
 
-    const dispute = await this._ArbitratorInstance.getDispute(disputeId)
+    const dispute = await this._ArbitratorInstance.getDispute(disputeID)
     const appealRuledAtTimestamp = await this._ArbitratorInstance.getAppealRuledAtTimestamp(
       dispute.firstSession + appeal
     )
@@ -237,7 +237,7 @@ class Disputes {
     if (appealRuledAtTimestamp) {
       const currentRuledAt = cachedDispute.appealRuledAt || []
       currentRuledAt[appeal] = appealRuledAtTimestamp
-      this._updateDisputeCache(disputeId, {
+      this._updateDisputeCache(disputeID, {
         appealRuledAt: currentRuledAt
       })
     }
@@ -247,13 +247,13 @@ class Disputes {
 
   /**
    * Get the timestamp on when the dispute's appeal was created
-   * @param {number} disputeId - The index of the dispute.
+   * @param {number} disputeID - The index of the dispute.
    * @param {string} account - The users address.
    * @param {number} appeal - The appeal number. 0 if there have been no appeals.
    * @returns {number} timestamp of the appeal
    */
-  getAppealCreatedAt = async (disputeId, account, appeal = 0) => {
-    const cachedDispute = this.disputeCache[disputeId]
+  getAppealCreatedAt = async (disputeID, account, appeal = 0) => {
+    const cachedDispute = this.disputeCache[disputeID]
     if (
       cachedDispute &&
       cachedDispute.appealCreatedAt &&
@@ -261,11 +261,11 @@ class Disputes {
     )
       return cachedDispute.appealCreatedAt[appeal]
 
-    const dispute = await this._ArbitratorInstance.getDispute(disputeId)
+    const dispute = await this._ArbitratorInstance.getDispute(disputeID)
 
     let appealCreatedAtTimestamp = null
     if (appeal === 0) {
-      const creationBlock = await this._getDisputeStartBlock(disputeId, account)
+      const creationBlock = await this._getDisputeStartBlock(disputeID, account)
       if (creationBlock) {
         const timestampSeconds = await this._ArbitratorInstance._getTimestampForBlock(
           creationBlock
@@ -282,7 +282,7 @@ class Disputes {
       if (appealCreatedAtTimestamp) {
         const currentCreatedAt = cachedDispute.appealCreatedAt || []
         currentCreatedAt[appeal] = appealCreatedAtTimestamp
-        this._updateDisputeCache(disputeId, {
+        this._updateDisputeCache(disputeID, {
           appealCreatedAt: currentCreatedAt
         })
       }
@@ -294,15 +294,15 @@ class Disputes {
   /**
    * Get data for a dispute. This method provides data from the store as well as both
    * arbitrator and arbitrable contracts. Used to get all relevant data on a dispute.
-   * @param {number} disputeId - The dispute's ID.
+   * @param {number} disputeID - The dispute's ID.
    * @param {string} account - The juror's address.
    * @returns {object} - Data object for the dispute that uses data from the contract and the store.
    */
-  getDataForDispute = async (disputeId, account) => {
+  getDataForDispute = async (disputeID, account) => {
     const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
     // Get dispute data from contract. Also get the current session and period.
     const [dispute, period, session] = await Promise.all([
-      this._ArbitratorInstance.getDispute(disputeId, true),
+      this._ArbitratorInstance.getDispute(disputeID, true),
       this._ArbitratorInstance.getPeriod(),
       this._ArbitratorInstance.getSession()
     ])
@@ -326,7 +326,7 @@ class Disputes {
       const userData = await this._StoreProviderInstance.getDispute(
         account,
         arbitratorAddress,
-        disputeId
+        disputeID
       )
       if (userData.appealDraws) appealDraws = userData.appealDraws || []
       // eslint-disable-next-line no-unused-vars
@@ -336,7 +336,7 @@ class Disputes {
     }
 
     const netPNK = await this._ArbitratorInstance.getNetTokensForDispute(
-      disputeId,
+      disputeID,
       account
     )
 
@@ -354,14 +354,14 @@ class Disputes {
       let canExecute = false
       let ruling
       const rulingPromises = [
-        this._ArbitratorInstance.currentRulingForDispute(disputeId, appeal)
+        this._ArbitratorInstance.currentRulingForDispute(disputeID, appeal)
       ]
 
       // Extra info for the last appeal
       if (isLastAppeal) {
         if (draws.length > 0)
           rulingPromises.push(
-            this._ArbitratorInstance.canRuleDispute(disputeId, draws, account)
+            this._ArbitratorInstance.canRuleDispute(disputeID, draws, account)
           )
 
         if (session && period)
@@ -379,23 +379,23 @@ class Disputes {
       // if can't rule that means they already did or they missed it
       if (!canRule) {
         jurorRuling = await this._ArbitratorInstance.getVoteForJuror(
-          dispute.disputeId,
+          dispute.disputeID,
           appeal,
           account
         )
       }
 
       const appealCreatedAt = await this.getAppealCreatedAt(
-        dispute.disputeId,
+        dispute.disputeID,
         account,
         appeal
       )
       const appealDeadline = await this.getDisputeDeadline(
-        dispute.disputeId,
+        dispute.disputeID,
         appeal
       )
       const appealRuledAt = await this.getAppealRuledAt(
-        dispute.disputeId,
+        dispute.disputeID,
         appeal
       )
 
@@ -425,7 +425,7 @@ class Disputes {
       metaEvidence,
 
       // Dispute Data
-      disputeId,
+      disputeID,
       firstSession: dispute.firstSession,
       lastSession,
       numberOfAppeals: dispute.numberOfAppeals,

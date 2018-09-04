@@ -24,6 +24,7 @@ class StoreProviderWrapper {
    * @param {fn} getBodyFn async function to call before we write. Should to reads and return JSON to be used as body.
    * @param {string} verb POST or PUT
    * @param {string} uri uri to call
+   * @param {string} userAddress The users ETH address. Used to clear cache.
    * @returns {promise} promise that returns result of request. wait on this if you need it to be syncronous
    */
   queueWriteRequest = (getBodyFn, verb, uri = null, userAddress) => {
@@ -43,11 +44,25 @@ class StoreProviderWrapper {
   queueReadRequest = uri =>
     this._storeQueue.fetch(() => httpRequest('GET', uri))
 
+  /**
+   * Fetch the URI where metaEvidence in the kleros store should be stored.
+   * @param {string} userAddress - The users ETH address.
+   * @param {string} contractAddress - The address of the arbitrable contract.
+   * @returns {stirng} - The URI where metaEvidence in the kleros store should be stored.
+   */
   getMetaEvidenceUri = (userAddress, contractAddress) =>
     `${
       this._storeUri
     }/${userAddress}/contracts/${contractAddress}/meta-evidence`
 
+  /**
+   * Fetch the URI where evidence in the kleros store should be stored.
+   * @param {string} userAddress - The users ETH address.
+   * @param {string} contractAddress - The address of the arbitrable contract.
+   * @param {number} evidenceIndex - The index of the evidence.
+   * Should be returned when evidence is added to the store
+   * @returns {stirng} - The URI where evidence in the kleros store should be stored.
+   */
   getEvidenceUri = (userAddress, contractAddress, evidenceIndex) =>
     `${
       this._storeUri
@@ -94,10 +109,10 @@ class StoreProviderWrapper {
    * Get all stored data for a dispute. Must exist in User Profile.
    * @param {string} userAddress - Address of user.
    * @param {string} arbitratorAddress - Address of arbitrator contract.
-   * @param {number} disputeId - Index of the dispute.
+   * @param {number} disputeID - Index of the dispute.
    * @returns {object} - a response object.
    */
-  getDispute = async (userAddress, arbitratorAddress, disputeId) => {
+  getDispute = async (userAddress, arbitratorAddress, disputeID) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile)
       throw new Error(errorConstants.PROFILE_NOT_FOUND(userAddress))
@@ -105,7 +120,7 @@ class StoreProviderWrapper {
     return _.filter(
       userProfile.disputes,
       o =>
-        o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeId
+        o.arbitratorAddress === arbitratorAddress && o.disputeID === disputeID
     )[0]
   }
 
@@ -248,6 +263,7 @@ class StoreProviderWrapper {
    * @param {string} name - Name of evidence.
    * @param {string} description - Description of evidence.
    * @param {string} url - A link to the evidence.
+   * @param {string} hash - The hash of the evidence.
    * @returns {number} - The index of the evidence
    */
   addEvidenceContract = async (
@@ -288,14 +304,14 @@ class StoreProviderWrapper {
    * Update stored dispute data for a user. Note this will not overwrite data.
    * @param {string} userAddress - The address of the user.
    * @param {string} arbitratorAddress - The address of the arbitrator contract.
-   * @param {number} disputeId - The index of the dispute.
+   * @param {number} disputeID - The index of the dispute.
    * @param {object} params - The dispute data we are updating.
    * @returns {Promise} The resulting dispute data.
    */
   updateDisputeProfile = (
     userAddress,
     arbitratorAddress,
-    disputeId,
+    disputeID,
     params
   ) => {
     const getBodyFn = async () => {
@@ -306,12 +322,12 @@ class StoreProviderWrapper {
           userProfile.disputes,
           dispute =>
             dispute.arbitratorAddress === arbitratorAddress &&
-            dispute.disputeId === disputeId
+            dispute.disputeID === disputeID
         )[0] || {}
 
       delete currentDisputeProfile._id
       // set these so if it is a new dispute they are included
-      params.disputeId = disputeId
+      params.disputeID = disputeID
       params.arbitratorAddress = arbitratorAddress
 
       return JSON.stringify({ ...currentDisputeProfile, ...params })
@@ -322,7 +338,7 @@ class StoreProviderWrapper {
       'POST',
       `${
         this._storeUri
-      }/${userAddress}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
+      }/${userAddress}/arbitrators/${arbitratorAddress}/disputes/${disputeID}`
     )
   }
 
@@ -330,7 +346,7 @@ class StoreProviderWrapper {
    * Adds draws for juror to dispute profile.
    * @param {string} userAddress - The address of the user.
    * @param {string} arbitratorAddress - The address of the arbitrator contract.
-   * @param {number} disputeId - The index of the dispute.
+   * @param {number} disputeID - The index of the dispute.
    * @param {number[]} draws - The draws the juror has.
    * @param {number} appeal - The appeal for which it is for.
    * @returns {Promise} The resulting dispute data.
@@ -338,7 +354,7 @@ class StoreProviderWrapper {
   addNewDrawsDisputeProfile = (
     userAddress,
     arbitratorAddress,
-    disputeId,
+    disputeID,
     draws,
     appeal
   ) => {
@@ -357,7 +373,7 @@ class StoreProviderWrapper {
       'POST',
       `${
         this._storeUri
-      }/${userAddress}/arbitrators/${arbitratorAddress}/disputes/${disputeId}/draws`
+      }/${userAddress}/arbitrators/${arbitratorAddress}/disputes/${disputeID}/draws`
     )
   }
 

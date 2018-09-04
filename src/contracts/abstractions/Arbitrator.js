@@ -46,8 +46,8 @@ class Arbitrator extends AbstractContract {
           cachedDisputesResponse.body.open_disputes
         ) {
           cachedDisputes = await Promise.all(
-            cachedDisputesResponse.body.open_disputes.map(disputeIdString =>
-              this._contractImplementation.getDispute(Number(disputeIdString))
+            cachedDisputesResponse.body.open_disputes.map(disputeIDString =>
+              this._contractImplementation.getDispute(Number(disputeIDString))
             )
           )
         }
@@ -64,7 +64,7 @@ class Arbitrator extends AbstractContract {
         myDisputes.map(async dispute => {
           if (dispute.appealDraws[dispute.numberOfAppeals].length > 0) {
             const disputeCreationLog = await this._contractImplementation.getDisputeCreationEvent(
-              dispute.disputeId
+              dispute.disputeID
             )
 
             if (!disputeCreationLog)
@@ -73,7 +73,7 @@ class Arbitrator extends AbstractContract {
             await this._StoreProvider.updateDisputeProfile(
               account,
               dispute.arbitratorAddress,
-              dispute.disputeId,
+              dispute.disputeID,
               {
                 blockNumber: disputeCreationLog.blockNumber
               }
@@ -82,7 +82,7 @@ class Arbitrator extends AbstractContract {
             await this._StoreProvider.addNewDrawsDisputeProfile(
               account,
               dispute.arbitratorAddress,
-              dispute.disputeId,
+              dispute.disputeID,
               dispute.appealDraws[dispute.numberOfAppeals],
               dispute.numberOfAppeals
             )
@@ -108,7 +108,7 @@ class Arbitrator extends AbstractContract {
       (await this._StoreProvider.getDisputes(account))
         .filter(dispute => dispute.arbitratorAddress === aribtratorAddress)
         .map(dispute =>
-          this._contractImplementation.getDispute(dispute.disputeId)
+          this._contractImplementation.getDispute(dispute.disputeID)
         )
     )
   }

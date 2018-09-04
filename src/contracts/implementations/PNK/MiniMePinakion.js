@@ -1,7 +1,6 @@
 import PinakionPOCArtifact from 'kleros-interaction/build/contracts/MiniMeTokenERC20'
 import _ from 'lodash'
 
-import * as ethConstants from '../../../constants/eth'
 import * as errorConstants from '../../../constants/error'
 import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
@@ -67,15 +66,12 @@ class MiniMePinakion extends ContractImplementation {
    * @param {string} controllerAccount - Address of the current controller. (They must sign the tx)
    * @returns {object} - The result transaction object.
    */
-  changeController = async (
-    newControllerAddress,
-    controllerAccount
-  ) => {
+  changeController = async (newControllerAddress, controllerAccount) => {
     await this.loadContract()
 
     try {
       return this.contractInstance.changeController(newControllerAddress, {
-        from: controllerAccount,
+        from: controllerAccount
       })
     } catch (err) {
       console.error(err)
@@ -115,6 +111,10 @@ class MiniMePinakion extends ContractImplementation {
     return this.contractInstance.balanceOf(account)
   }
 
+  /**
+   * Fetch the controller of the contract.
+   * @returns {string} The ETH address of the controller.
+   */
   getController = async () => {
     await this.loadContract()
 
