@@ -35,7 +35,10 @@ describe('Arbitrator', () => {
       }
       arbitratorInstance._contractImplementation = mockArbitrator
 
-      const disputes = await arbitratorInstance.getDisputesForUser(account)
+      const disputes = await arbitratorInstance.getDisputesForUser(
+        account,
+        false
+      )
 
       expect(disputes.length).toBe(1)
       expect(disputes[0]).toEqual(mockDispute)
@@ -67,7 +70,10 @@ describe('Arbitrator', () => {
       }
       arbitratorInstance._contractImplementation = mockArbitrator
 
-      const disputes = await arbitratorInstance.getDisputesForUser(account)
+      const disputes = await arbitratorInstance.getDisputesForUser(
+        account,
+        false
+      )
 
       expect(disputes.length).toBe(0)
       expect(mockGetDisputesForUser.mock.calls.length).toBe(1)
@@ -103,7 +109,10 @@ describe('Arbitrator', () => {
       }
       arbitratorInstance._contractImplementation = mockArbitrator
 
-      const disputes = await arbitratorInstance.getDisputesForUser(account)
+      const disputes = await arbitratorInstance.getDisputesForUser(
+        account,
+        false
+      )
 
       expect(disputes.length).toBe(1)
       expect(disputes[0]).toEqual(mockDispute)
@@ -153,7 +162,10 @@ describe('Arbitrator', () => {
       }
       arbitratorInstance._contractImplementation = mockArbitrator
 
-      const disputes = await arbitratorInstance.getDisputesForUser(account)
+      const disputes = await arbitratorInstance.getDisputesForUser(
+        account,
+        false
+      )
 
       expect(disputes.length).toBe(1)
       expect(disputes[0]).toEqual(mockDispute)
