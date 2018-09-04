@@ -4057,12 +4057,11 @@ functional-red-black-tree@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
 
-ganache-cli@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/ganache-cli/-/ganache-cli-6.1.0.tgz#486c846497204b644166b5f0f74c9b41d02bdc25"
+ganache-cli@^6.1.8:
+  version "6.1.8"
+  resolved "https://registry.yarnpkg.com/ganache-cli/-/ganache-cli-6.1.8.tgz#49a8a331683a9652183f82ef1378d17e1814fcd3"
   dependencies:
     source-map-support "^0.5.3"
-    webpack-cli "^2.0.9"
 
 gauge@~2.7.3:
   version "2.7.4"
@@ -5746,9 +5745,9 @@ kleros-interaction@^0.0.15:
     minimetoken "^0.2.0"
     zeppelin-solidity "^1.7.0"
 
-kleros-interaction@^0.0.18:
-  version "0.0.18"
-  resolved "https://registry.yarnpkg.com/kleros-interaction/-/kleros-interaction-0.0.18.tgz#33cc24de75a9bb218077b2d38a61a6dfe8a43519"
+kleros-interaction@^0.0.22:
+  version "0.0.22"
+  resolved "https://registry.yarnpkg.com/kleros-interaction/-/kleros-interaction-0.0.22.tgz#abf006cc3c8d07e35246779e18ea3fabb47bf6a8"
   dependencies:
     minimetoken "^0.2.0"
     zeppelin-solidity "^1.7.0"

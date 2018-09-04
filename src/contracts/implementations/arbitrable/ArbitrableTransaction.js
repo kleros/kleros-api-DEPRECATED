@@ -59,11 +59,11 @@ class ArbitrableTransaction extends Arbitrable {
 
   /**
    * Pay the party B. To be called when the good is delivered or the service rendered.
-   * @param {string} account - Ethereum account (default account[0]).
+   * @param {string} account - Ethereum address.
    * @param {string} contractAddress - The address of the arbitrator contract.
    * @returns {object} - The result transaction object.
    */
-  pay = async (account = this._Web3Wrapper.getAccount(0)) => {
+  pay = async account => {
     await this.loadContract()
 
     try {
@@ -79,20 +79,20 @@ class ArbitrableTransaction extends Arbitrable {
 
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the party A.
-   * @param {string} account - Ethereum account (default account[0]).
-   * @param {number} arbitrationCost - Amount to pay the arbitrator. (default 0.15 ether).
+   * @param {string} account - Ethereum address.
+   * @param {number} arbitrationCost - Arbitration fee in wei.
    * @returns {object} - The result transaction object.
    */
   payArbitrationFeeByPartyA = async (
-    account = this._Web3Wrapper.getAccount(0),
-    arbitrationCost = 0.15
+    account,
+    arbitrationCost
   ) => {
     await this.loadContract()
 
     try {
       return this.contractInstance.payArbitrationFeeByPartyA({
         from: account,
-        value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
+        value: arbitrationCost
       })
     } catch (err) {
       console.error(err)
@@ -102,20 +102,21 @@ class ArbitrableTransaction extends Arbitrable {
 
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the party B.
-   * @param {string} account Ethereum account (default account[1]).
-   * @param {number} arbitrationCost Amount to pay the arbitrator. (default 10000 wei).
+   * @param {string} account Ethereum address.
+   * @param {number} arbitrationCost Amount to pay the arbitrator.
    * @returns {object} - The result transaction object.
    */
   payArbitrationFeeByPartyB = async (
-    account = this._Web3Wrapper.getAccount(1),
-    arbitrationCost = 0.15
+    account,
+    arbitrationCost
   ) => {
     await this.loadContract()
 
     try {
       return this.contractInstance.payArbitrationFeeByPartyB({
         from: account,
-        value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
+        value: arbitrationCost,
+        gas: process.env.GAS || undefined
       })
     } catch (err) {
       console.error(err)
@@ -131,7 +132,7 @@ class ArbitrableTransaction extends Arbitrable {
    * @param {string} url A link to an evidence using its URI.
    * @returns {string} txHash Hash transaction.
    */
-  submitEvidence = async (account = this._Web3Wrapper.getAccount(0), url) => {
+  submitEvidence = async (account, url) => {
     await this.loadContract()
 
     const txHashObj = await this.contractInstance.submitEvidence(url, {
@@ -147,7 +148,7 @@ class ArbitrableTransaction extends Arbitrable {
    * @param {string} account ETH address of user
    * @returns {object} The result transaction object.
    */
-  callTimeOutPartyA = async (account = this._Web3Wrapper.getAccount(0)) => {
+  callTimeOutPartyA = async account => {
     await this.loadContract()
 
     const status = (await this.contractInstance.status()).toNumber()
@@ -177,7 +178,7 @@ class ArbitrableTransaction extends Arbitrable {
    * @param {string} contractAddress - ETH address of contract.
    * @returns {object} The result transaction object.
    */
-  callTimeOutPartyB = async (account = this._Web3Wrapper.getAccount(1)) => {
+  callTimeOutPartyB = async account => {
     await this.loadContract()
 
     const status = await this.contractInstance.status()
@@ -204,21 +205,21 @@ class ArbitrableTransaction extends Arbitrable {
   /**
    * Appeal an appealable ruling.
    * @param {string} account Ethereum account (default account[0]).
+   * @param {number} appealCost Fee for the appeal
    * @param {bytes} extraData for the arbitrator appeal procedure.
-   * @param {number} appealCost Amount to pay the arbitrator. (default 0.35 ether).
    * @returns {object} - The result transaction object.
    */
   appeal = async (
-    account = this._Web3Wrapper.getAccount(0),
-    extraData = 0x0,
-    appealCost = 0.3
+    account,
+    appealCost,
+    extraData = 0x0
   ) => {
     await this.loadContract()
 
     try {
       return this.contractInstance.appeal(extraData, {
         from: account,
-        value: this._Web3Wrapper.toWei(appealCost, 'ether')
+        value: appealCost
       })
     } catch (err) {
       console.error(err)
@@ -276,8 +277,8 @@ class ArbitrableTransaction extends Arbitrable {
       status: status.toNumber(),
       arbitratorExtraData,
       disputeId: disputeId.toNumber(),
-      partyAFee: this._Web3Wrapper.fromWei(partyAFee, 'ether'),
-      partyBFee: this._Web3Wrapper.fromWei(partyBFee, 'ether'),
+      partyAFee,
+      partyBFee,
       lastInteraction: lastInteraction.toNumber(),
       amount: amount.toNumber(),
       evidence,
