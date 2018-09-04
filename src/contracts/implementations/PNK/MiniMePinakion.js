@@ -63,19 +63,19 @@ class MiniMePinakion extends ContractImplementation {
 
   /**
    * Transfer ownership of the PNK contract to the kleros POC contract.
-   * @param {string} klerosAddress - Address of Kleros POC contract.
-   * @param {string} account - Address of user.
+   * @param {string} newControllerAddress - Address of the new controller.
+   * @param {string} controllerAccount - Address of the current controller. (They must sign the tx)
    * @returns {object} - The result transaction object.
    */
   changeController = async (
-    klerosAddress,
-    account = this._Web3Wrapper.getAccount(0)
+    newControllerAddress,
+    controllerAccount
   ) => {
     await this.loadContract()
 
     try {
-      return this.contractInstance.changeController(klerosAddress, {
-        from: account
+      return this.contractInstance.changeController(newControllerAddress, {
+        from: controllerAccount,
       })
     } catch (err) {
       console.error(err)
@@ -87,20 +87,16 @@ class MiniMePinakion extends ContractImplementation {
    * Approve the arbitrator contract to transfer PNK to the contract and call the arbitrators
    * receiveApproval()
    * @param {string} arbitratorAddress - The address of the arbitrator contract.
-   * @param {number} amount - The amount of PNK to transfer.
+   * @param {number} amount - The amount of PNK to transfer in wei.
    * @param {string} account - The users account.
    * @returns {bool} If the transfer succeeded or not
    */
-  approveAndCall = async (
-    arbitratorAddress,
-    amount,
-    account = this._Web3Wrapper.getAccount(0)
-  ) => {
+  approveAndCall = async (arbitratorAddress, amount, account) => {
     await this.loadContract()
 
     return this.contractInstance.approveAndCall(
       arbitratorAddress,
-      this._Web3Wrapper.toWei(amount, 'ether'),
+      amount,
       '0x0',
       {
         from: account
@@ -117,6 +113,12 @@ class MiniMePinakion extends ContractImplementation {
     await this.loadContract()
 
     return this.contractInstance.balanceOf(account)
+  }
+
+  getController = async () => {
+    await this.loadContract()
+
+    return this.contractInstance.controller()
   }
 }
 

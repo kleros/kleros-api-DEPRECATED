@@ -42,13 +42,15 @@ describe('Dispute Resolution', () => {
     arbitrableContractData = {
       partyA,
       partyB,
-      value: 1,
-      hash: 'test',
+      value: "1000000000000000000",
       timeout: 1,
       extraData: '',
       title: 'test title',
       description: 'test description',
-      email: 'test@test.test'
+      email: 'test@test.test',
+      metaEvidenceUri: 'https://test-meta-evidence.com',
+      accounts: [juror1, juror2],
+      pnkAmount: 10000000000
     }
   })
 
@@ -87,24 +89,24 @@ describe('Dispute Resolution', () => {
       )
       // juror1 should have no balance to start with
       const initialBalance = await KlerosPOCInstance.getPNKBalance(juror1)
-      expect(initialBalance.tokenBalance).toEqual(0)
+      expect(initialBalance.tokenBalance.toString()).toEqual("0")
       // buy 1 PNK juror1
-      await KlerosPOCInstance.buyPNK(1, juror1)
-
+      const amount = web3.toWei(web3.toBigNumber(1), 'ether')
+      await KlerosPOCInstance.buyPNK(amount, juror1)
       const newBalance = await KlerosPOCInstance.getPNKBalance(juror1)
 
-      expect(newBalance.tokenBalance).toEqual(1)
+      expect(newBalance.tokenBalance.toString()).toEqual(amount.toString())
       // buy PNK for juror2
-      await KlerosPOCInstance.buyPNK(1, juror2)
+      await KlerosPOCInstance.buyPNK(amount, juror2)
 
       // activate PNK juror1
-      const activatedTokenAmount = 0.5
+      const activatedTokenAmount = amount.div(2)
       const balance = await KlerosPOCInstance.activatePNK(
         activatedTokenAmount,
         juror1
       )
-      expect(balance.tokenBalance).toEqual(1)
-      expect(balance.activatedTokens).toEqual(0.5)
+      expect(balance.tokenBalance.toString()).toEqual(amount.toString())
+      expect(balance.activatedTokens.toString()).toEqual(activatedTokenAmount.toString())
 
       // stateful notifications juror1
       juror1StatefullNotifications = await NotificationsInstance.getStatefulNotifications(
@@ -122,8 +124,8 @@ describe('Dispute Resolution', () => {
       expect(juror1Data[2].toNumber()).toEqual(
         (await klerosPOCInstance.session()).toNumber()
       )
-      expect(juror1Data[4].toNumber() - juror1Data[3].toNumber()).toEqual(
-        parseInt(web3.toWei(activatedTokenAmount, 'ether'), 10)
+      expect(juror1Data[4].minus(juror1Data[3]).toString()).toEqual(
+        activatedTokenAmount.toString()
       )
       // return a bigint
       // FIXME use arbitrableTransaction
@@ -137,12 +139,10 @@ describe('Dispute Resolution', () => {
       const arbitrationCost = await KlerosPOCInstance.getArbitrationCost(
         extraDataContractInstance
       )
-
       // raise dispute party A
       const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyA(
         partyA,
-        arbitrationCost -
-          web3.fromWei(partyAFeeContractInstance, 'ether').toNumber()
+        arbitrationCost.minus(partyAFeeContractInstance)
       )
       expect(raiseDisputeByPartyATxObj.tx).toEqual(
         expect.stringMatching(/^0x[a-f0-9]{64}$/)
@@ -154,13 +154,12 @@ describe('Dispute Resolution', () => {
 
       const raiseDisputeByPartyBTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyB(
         partyB,
-        arbitrationCost -
-          web3.fromWei(partyBFeeContractInstance, 'ether').toNumber()
+        arbitrationCost.minus(partyBFeeContractInstance)
       )
       expect(raiseDisputeByPartyBTxObj.tx).toEqual(
         expect.stringMatching(/^0x[a-f0-9]{64}$/)
       ) // tx hash
-      const dispute = await KlerosPOCInstance.getDispute(0)
+      const dispute = await KlerosPOCInstance.getDispute(0, true)
       expect(dispute.arbitrableContractAddress).toEqual(
         arbitrableContractAddress
       )
@@ -173,12 +172,7 @@ describe('Dispute Resolution', () => {
           new Array(dispute.rulingChoices + 1).fill(0)
         )
       )
-      // check fetch resolution options
-      const resolutionOptions = await ArbitrableTransactionInstance.getRulingOptions(
-        klerosPOCAddress,
-        0
-      )
-      expect(resolutionOptions.length).toEqual(2)
+
       // add an evidence for partyA
       const testName = 'test name'
       const testDesc = 'test description'
@@ -204,14 +198,14 @@ describe('Dispute Resolution', () => {
       for (let i = 1; i < 3; i++) {
         // NOTE we need to make another block before we can generate the random number. Should not be an issue on main nets where avg block time < period length
         if (i === 2)
-          web3.eth.sendTransaction({
+          await web3.eth.sendTransaction({
             from: partyA,
             to: partyB,
             value: 10000,
             data: '0x'
           })
         await delaySecond()
-        await KlerosPOCInstance.passPeriod()
+        await KlerosPOCInstance.passPeriod(other)
 
         newPeriod = await KlerosPOCInstance.getPeriod()
         expect(newPeriod).toEqual(i)
@@ -230,11 +224,10 @@ describe('Dispute Resolution', () => {
       for (let i = 1; i <= 3; i++) {
         if (await KlerosPOCInstance.isJurorDrawnForDispute(0, i, juror1)) {
           drawA.push(i)
-        } else {
+        } else if (await KlerosPOCInstance.isJurorDrawnForDispute(0, i, juror2)) {
           drawB.push(i)
         }
       }
-
       expect(drawA.length + drawB.length).toEqual(3)
       const disputesForJuror1 = await KlerosPOCInstance.getDisputesForJuror(
         juror1

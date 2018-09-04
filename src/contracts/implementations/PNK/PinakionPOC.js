@@ -44,7 +44,7 @@ class PinakionPOC extends ContractImplementation {
    */
   setKleros = async (
     klerosAddress,
-    account = this._Web3Wrapper.getAccount(0)
+    account
   ) => {
     await this.loadContract()
 
@@ -66,7 +66,7 @@ class PinakionPOC extends ContractImplementation {
    */
   transferOwnership = async (
     klerosAddress,
-    account = this._Web3Wrapper.getAccount(0)
+    account
   ) => {
     await this.loadContract()
 
