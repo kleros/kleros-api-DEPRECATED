@@ -227,6 +227,20 @@ class ArbitrableTransaction extends Arbitrable {
     }
   }
 
+  getParties = async () => {
+    await this.loadContract()
+
+    const [partyA, partyB] = await Promise.all([
+      this.contractInstance.partyA(),
+      this.contractInstance.partyB()
+    ])
+
+    return {
+      partyA,
+      partyB
+    }
+  }
+
   /**
    * Data of the contract
    * @returns {object} Object Data of the contract.
