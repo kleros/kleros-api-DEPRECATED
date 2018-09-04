@@ -40,7 +40,6 @@ const setUpContracts = async (
     klerosCourt.address,
     klerosPOCParams.account
   )
-  console.log(klerosCourt.address)
 
   const contractArbitrableTransaction = await ArbitrableTransaction.deploy(
     arbitrableContractParams.partyA,

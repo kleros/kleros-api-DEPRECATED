@@ -62,7 +62,6 @@ class KlerosPOC extends Kleros {
    */
   buyPNK = async (amount, account) => {
     await this.loadContract()
-    console.log(process.env.GAS)
     return this.contractInstance.buyPinakion({
       from: account,
       value: amount,

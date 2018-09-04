@@ -44,9 +44,9 @@ describe('Contracts', () => {
       partyA,
       partyB,
       value: 0,
-      hash: 'test',
       timeout: 1,
-      extraData: ''
+      extraData: '',
+      metaEvidenceUri: 'https://test-meta-evidence.com'
     }
   })
 
@@ -278,19 +278,20 @@ describe('Contracts', () => {
         // ****** Juror side (activate token) ****** //
 
         // jurors buy PNK
+        const pnkAmount = "1000000000000000000"
         const buyPNKJurors = await Promise.all([
-          KlerosPOCInstance.buyPNK(1, jurorContract1),
-          await KlerosPOCInstance.buyPNK(1, jurorContract2)
+          KlerosPOCInstance.buyPNK(pnkAmount, jurorContract1),
+          await KlerosPOCInstance.buyPNK(pnkAmount, jurorContract2)
         ])
 
         const newBalance = await KlerosPOCInstance.getPNKBalance(jurorContract1)
 
-        expect(newBalance.tokenBalance).toEqual(1)
+        expect(newBalance.tokenBalance.toString()).toEqual(pnkAmount)
 
         // activate PNK jurors
         if (buyPNKJurors) {
-          await KlerosPOCInstance.activatePNK(1, jurorContract1)
-          await KlerosPOCInstance.activatePNK(1, jurorContract2)
+          await KlerosPOCInstance.activatePNK(pnkAmount, jurorContract1)
+          await KlerosPOCInstance.activatePNK(pnkAmount, jurorContract2)
         }
 
         // load klerosPOC
@@ -316,8 +317,7 @@ describe('Contracts', () => {
         // raise dispute party A
         const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyA(
           partyA,
-          arbitrationCost -
-            web3.fromWei(partyAFeeContractInstance, 'ether').toNumber()
+          arbitrationCost.minus(partyAFeeContractInstance)
         )
         expect(raiseDisputeByPartyATxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
@@ -326,8 +326,7 @@ describe('Contracts', () => {
         // raise dispute party B
         const raiseDisputeByPartyBTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyB(
           partyB,
-          arbitrationCost -
-            web3.fromWei(partyBFeeContractInstance, 'ether').toNumber()
+          arbitrationCost.minus(partyBFeeContractInstance)
         )
         expect(raiseDisputeByPartyBTxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
@@ -347,7 +346,7 @@ describe('Contracts', () => {
               data: '0x'
             })
           await delaySecond()
-          await KlerosPOCInstance.passPeriod()
+          await KlerosPOCInstance.passPeriod(other)
 
           newPeriod = await KlerosPOCInstance.getPeriod()
           expect(newPeriod).toEqual(i)
@@ -365,7 +364,7 @@ describe('Contracts', () => {
           }
         }
 
-        const rulingJuror1 = 2 // vote for partyB
+        const rulingJuror1 = 1 // vote for partyA
         await KlerosPOCInstance.submitVotes(
           0,
           rulingJuror1,
@@ -380,30 +379,27 @@ describe('Contracts', () => {
           drawB,
           jurorContract2
         )
-
         await delaySecond()
         await KlerosPOCInstance.passPeriod(other)
 
         const currentRuling = await klerosPOCInstance.currentRuling(0)
-        expect(`${currentRuling}`).toEqual('2') // partyB wins
+        expect(currentRuling.toString()).toBeTruthy() // make sure the ruling exists
 
         const appealCost = await KlerosPOCInstance.getAppealCost(
           0,
           extraDataContractInstance
         )
-
         // raise appeal party A
         const raiseAppealByPartyATxObj = await ArbitrableTransactionInstance.appeal(
           partyA,
-          extraDataContractInstance,
-          appealCost
+          appealCost,
+          extraDataContractInstance
         )
         expect(raiseAppealByPartyATxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
 
         const dispute = await KlerosPOCInstance.getDispute(0)
-
         expect(dispute.numberOfAppeals).toEqual(1)
       },
       50000

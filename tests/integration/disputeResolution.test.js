@@ -48,9 +48,7 @@ describe('Dispute Resolution', () => {
       title: 'test title',
       description: 'test description',
       email: 'test@test.test',
-      metaEvidenceUri: 'https://test-meta-evidence.com',
-      accounts: [juror1, juror2],
-      pnkAmount: 10000000000
+      metaEvidenceUri: 'https://test-meta-evidence.com'
     }
   })
 
@@ -238,6 +236,7 @@ describe('Dispute Resolution', () => {
       expect(
         disputesForJuror1.length > 0 || disputesForJuror2.length > 0
       ).toBeTruthy()
+
       const disputeForJuror =
         disputesForJuror1.length > 0
           ? disputesForJuror1[0]
@@ -257,6 +256,7 @@ describe('Dispute Resolution', () => {
       expect(jurorStatefullNotifications[0].notificationType).toEqual(
         notificationConstants.TYPE.CAN_VOTE
       )
+
       // submit rulings
       const rulingJuror1 = 1
       await KlerosPOCInstance.submitVotes(0, rulingJuror1, drawA, juror1)
@@ -287,10 +287,9 @@ describe('Dispute Resolution', () => {
       expect(jurorStatefullNotifications[0].notificationType).toEqual(
         notificationConstants.TYPE.CAN_REPARTITION
       )
-
       // balances before ruling is executed
-      const partyABalance = web3.eth.getBalance(partyA).toNumber()
-      const partyBBalance = web3.eth.getBalance(partyB).toNumber()
+      const partyABalance = web3.eth.getBalance(partyA)
+      const partyBBalance = web3.eth.getBalance(partyB)
       // repartition tokens
       await KlerosPOCInstance.repartitionJurorTokens(0, other)
 
@@ -303,7 +302,6 @@ describe('Dispute Resolution', () => {
       expect(jurorStatefullNotifications[0].notificationType).toEqual(
         notificationConstants.TYPE.CAN_EXECUTE
       )
-
       // execute ruling
       await KlerosPOCInstance.executeRuling(0, other)
 
@@ -319,23 +317,19 @@ describe('Dispute Resolution', () => {
       expect(partyAStatefullNotifications.length).toEqual(0)
       // balances after ruling
       // partyA wins so they should recieve their arbitration fee as well as the value locked in contract
-
       if (winningRuling === rulingJuror1) {
-        expect(web3.eth.getBalance(partyA).toNumber() - partyABalance).toEqual(
-          KlerosPOCInstance._Web3Wrapper.toWei(arbitrationCost, 'ether') +
-            arbitrableContractData.value
+        expect((web3.eth.getBalance(partyA).minus(partyABalance)).toString()).toEqual(
+          (arbitrationCost.plus(web3.toBigNumber(arbitrableContractData.value))).toString()
         )
         // partyB lost so their balance should remain the same
-        expect(web3.eth.getBalance(partyB).toNumber()).toEqual(partyBBalance)
+        expect(web3.eth.getBalance(partyB).toString()).toEqual(partyBBalance.toString(  ))
       } else {
-        expect(web3.eth.getBalance(partyB).toNumber() - partyBBalance).toEqual(
-          KlerosPOCInstance._Web3Wrapper.toWei(arbitrationCost, 'ether') +
-            arbitrableContractData.value
+        expect((web3.eth.getBalance(partyB).minus(partyBBalance)).toString()).toEqual(
+          (arbitrationCost.plus(web3.toBigNumber(arbitrableContractData.value))).toString()
         )
         // partyB lost so their balance should remain the same
-        expect(web3.eth.getBalance(partyA).toNumber()).toEqual(partyABalance)
+        expect(web3.eth.getBalance(partyA).toString()).toEqual(partyABalance.toString())
       }
-
       // const netPNK = await KlerosPOCInstance.getNetTokensForDispute(0, partyA)
 
       const updatedContractData = await ArbitrableTransactionInstance.getData()
