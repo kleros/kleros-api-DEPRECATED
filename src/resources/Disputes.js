@@ -312,14 +312,11 @@ class Disputes {
     await this._ArbitrableInstance.setContractInstance(
       arbitrableContractAddress
     )
-    const [arbitrableContractData, evidence] = await Promise.all([
-      this._ArbitrableInstance.getContractData(),
-      this._ArbitrableInstance.getEvidence()
+    const [metaEvidence, evidence, parties] = await Promise.all([
+      this._ArbitrableInstance.getMetaEvidence(),
+      this._ArbitrableInstance.getEvidence(),
+      this._ArbitrableInstance.getParties()
     ])
-    const contractStoreData = await this._StoreProviderInstance.getContractByAddress(
-      arbitrableContractData.partyA,
-      arbitrableContractAddress
-    )
 
     // Get dispute data from the store
     let appealDraws = []
@@ -423,8 +420,9 @@ class Disputes {
       // Arbitrable Contract Data
       arbitrableContractAddress,
       arbitratorAddress,
-      partyA: arbitrableContractData.partyA,
-      partyB: arbitrableContractData.partyB,
+      parties,
+      evidence,
+      metaEvidence,
 
       // Dispute Data
       disputeId,
@@ -435,16 +433,7 @@ class Disputes {
       disputeStatus: dispute.status,
       appealJuror,
       appealRulings,
-      netPNK,
-
-      // Store Data
-      title: contractStoreData ? contractStoreData.title : undefined,
-      description: contractStoreData
-        ? contractStoreData.description
-        : undefined,
-      email: contractStoreData ? contractStoreData.email : undefined,
-      evidence,
-      metaEvidence: arbitrableContractData.metaEvidence
+      netPNK
     }
   }
 }
