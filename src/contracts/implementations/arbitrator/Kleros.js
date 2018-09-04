@@ -244,7 +244,8 @@ class Kleros extends ContractImplementation {
 
     try {
       return this.contractInstance.voteRuling(disputeId, ruling, votes, {
-        from: account
+        from: account,
+        gas: process.env.GAS || undefined
       })
     } catch (err) {
       console.error(err)
@@ -291,7 +292,8 @@ class Kleros extends ContractImplementation {
 
     try {
       return this.contractInstance.oneShotTokenRepartition(disputeId, {
-        from: account
+        from: account,
+        gas: process.env.GAS || undefined
       })
     } catch (err) {
       console.error(err)
@@ -532,7 +534,6 @@ class Kleros extends ContractImplementation {
 
     // contract data
     if (!openDisputes) openDisputes = await this.getOpenDisputesForSession()
-    console.log(openDisputes.length)
 
     const disputes = await Promise.all(
       openDisputes.map(async disputeData => {
@@ -579,6 +580,11 @@ class Kleros extends ContractImplementation {
    */
   getOpenDisputesForSession = async () => {
     await this.loadContract()
+    const period = (await this.contractInstance.period()).toNumber()
+
+    // There are never any open disputes before VOTE. Don't want to populate cache
+    if (period < arbitratorConstants.PERIOD.VOTE)
+      return []
 
     const currentSession = await this.getSession()
     if (this._openDisputesCache[currentSession])
@@ -598,7 +604,6 @@ class Kleros extends ContractImplementation {
         console.error(err)
         throw err
       }
-
       // Dispute has no arbitrable contract, break
       if (dispute.arbitrableContractAddress === ethConstants.NULL_ADDRESS) break
 

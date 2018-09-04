@@ -41,12 +41,12 @@ describe('Event Listener', () => {
       partyA,
       partyB,
       value: 1,
-      hash: 'test',
       timeout: 1,
       extraData: '',
       title: 'test title',
       description: 'test description',
-      email: 'test@test.test'
+      email: 'test@test.test',
+      metaEvidenceUri: 'https://test-meta-evidence.com'
     }
 
     eventCallback = log => {
@@ -87,7 +87,7 @@ describe('Event Listener', () => {
       await EventListenerInstance.watchForEvents()
 
       await delaySecond()
-      KlerosPOCInstance.passPeriod()
+      KlerosPOCInstance.passPeriod(other)
       // we will wait for 2 seconds for promise to resolve or else throw
       let throwError = true
       setTimeout(() => {
@@ -189,7 +189,7 @@ describe('Event Listener', () => {
       await KlerosInstance.eventListener.watchForEvents()
 
       await delaySecond()
-      await KlerosInstance.arbitrator.passPeriod()
+      await KlerosInstance.arbitrator.passPeriod(other)
       // we will wait for 2 seconds for promise to resolve or else throw
       let throwError = true
       setTimeout(() => {

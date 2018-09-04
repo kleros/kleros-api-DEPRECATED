@@ -129,7 +129,7 @@ class StoreProviderWrapper {
   getLastBlock = async userAddress => {
     let userProfile
     try {
-      userProfile = await this.newUserProfile(userAddress)
+      userProfile = (await this.newUserProfile(userAddress)) || {}
       // eslint-disable-next-line no-unused-vars
     } catch (err) {
       userProfile = {}
