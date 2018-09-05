@@ -120,7 +120,7 @@ class StoreProviderWrapper {
     return _.filter(
       userProfile.disputes,
       o =>
-        o.arbitratorAddress === arbitratorAddress && o.disputeID === disputeID
+        o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeID
     )[0]
   }
 
@@ -322,12 +322,12 @@ class StoreProviderWrapper {
           userProfile.disputes,
           dispute =>
             dispute.arbitratorAddress === arbitratorAddress &&
-            dispute.disputeID === disputeID
+            dispute.disputeId === disputeID
         )[0] || {}
 
       delete currentDisputeProfile._id
       // set these so if it is a new dispute they are included
-      params.disputeID = disputeID
+      params.disputeId = disputeID
       params.arbitratorAddress = arbitratorAddress
 
       return JSON.stringify({ ...currentDisputeProfile, ...params })
