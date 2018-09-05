@@ -401,7 +401,7 @@ class Disputes {
 
       appealJuror[appeal] = {
         createdAt: appealCreatedAt,
-        fee: dispute.arbitrationFeePerJuror * draws.length,
+        fee: dispute.arbitrationFeePerJuror.mul(draws.length),
         draws,
         jurorRuling,
         canRule
