@@ -108,7 +108,7 @@ class Arbitrator extends AbstractContract {
       (await this._StoreProvider.getDisputes(account))
         .filter(dispute => dispute.arbitratorAddress === aribtratorAddress)
         .map(dispute =>
-          this._contractImplementation.getDispute(dispute.disputeID)
+          this._contractImplementation.getDispute(dispute.disputeId)
         )
     )
   }

@@ -369,7 +369,7 @@ class Kleros extends ContractImplementation {
       }
       // eslint-disable-next-line no-unused-vars
     } catch (err) {
-      // console.error(err)
+      console.error(err)
       throw new Error(errorConstants.UNABLE_TO_FETCH_DISPUTE)
     }
   }
