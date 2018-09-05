@@ -1,3 +1,5 @@
+import Web3 from 'web3'
+
 import DisputesApi from '../../../src/resources/Disputes'
 import _asyncMockResponse from '../../helpers/asyncMockResponse'
 
@@ -8,6 +10,7 @@ describe('Disputes', () => {
   let arbitrableConctractAddress = '0xEcB2db3E3fA7a6cba5dFE964408099d860246D7Z'
   let account = '0x'
   let disputesInstance
+  let web3 = new Web3()
 
   beforeEach(async () => {
     disputesInstance = new DisputesApi(
@@ -38,7 +41,7 @@ describe('Disputes', () => {
       const numberOfAppeals = 0
       const rulingChoices = [0, 1]
       const initialNumberJurors = 3
-      const arbitrationFeePerJuror = 0.15
+      const arbitrationFeePerJuror = web3.toBigNumber(web3.toWei(0.15, 'ether'))
       const voteCounters = []
       const partyA = '0x0'
       const partyB = '0x1'
@@ -136,7 +139,7 @@ describe('Disputes', () => {
       const numberOfAppeals = 0
       const rulingChoices = [0, 1]
       const initialNumberJurors = 3
-      const arbitrationFeePerJuror = 0.15
+      const arbitrationFeePerJuror = web3.toBigNumber(web3.toWei(0.15, 'ether'))
       const voteCounters = [[2, 4]]
       const partyA = '0x0'
       const partyB = '0x1'
@@ -226,8 +229,9 @@ describe('Disputes', () => {
       expect(disputeData.appealJuror.length).toBe(1)
       const jurorData = disputeData.appealJuror[0]
       expect(jurorData.fee).toEqual(
-        arbitrationFeePerJuror *
+        arbitrationFeePerJuror.mul(
           mockUserData.appealDraws[numberOfAppeals].length
+        )
       )
       expect(jurorData.draws).toEqual(mockUserData.appealDraws[numberOfAppeals])
       expect(jurorData.canRule).toBeTruthy()
@@ -255,7 +259,7 @@ describe('Disputes', () => {
       const numberOfAppeals = 0
       const rulingChoices = [0, 1]
       const initialNumberJurors = 3
-      const arbitrationFeePerJuror = 0.15
+      const arbitrationFeePerJuror = web3.toBigNumber(web3.toWei(0.15, 'ether'))
       const voteCounters = [[4, 5]]
       const partyA = '0x0'
       const partyB = '0x1'
@@ -349,8 +353,9 @@ describe('Disputes', () => {
       expect(disputeData.appealJuror.length).toBe(1)
       const jurorData = disputeData.appealJuror[0]
       expect(jurorData.fee).toEqual(
-        arbitrationFeePerJuror *
+        arbitrationFeePerJuror.mul(
           mockUserData.appealDraws[numberOfAppeals].length
+        )
       )
       expect(jurorData.draws).toEqual(mockUserData.appealDraws[numberOfAppeals])
       expect(jurorData.canRule).toBeFalsy()
@@ -371,7 +376,7 @@ describe('Disputes', () => {
       const numberOfAppeals = 0
       const rulingChoices = [0, 1]
       const initialNumberJurors = 3
-      const arbitrationFeePerJuror = 0.15
+      const arbitrationFeePerJuror = web3.toBigNumber(web3.toWei(0.15, 'ether'))
       const voteCounters = [[4, 5]]
       const partyA = '0x0'
       const partyB = '0x1'
@@ -463,8 +468,9 @@ describe('Disputes', () => {
       expect(disputeData.appealJuror.length).toBe(1)
       const jurorData = disputeData.appealJuror[0]
       expect(jurorData.fee).toEqual(
-        arbitrationFeePerJuror *
+        arbitrationFeePerJuror.mul(
           mockUserData.appealDraws[numberOfAppeals].length
+        )
       )
       expect(jurorData.draws).toEqual(mockUserData.appealDraws[numberOfAppeals])
       expect(jurorData.canRule).toBeFalsy()
