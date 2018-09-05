@@ -1,5 +1,6 @@
 import _ from 'lodash'
 
+import isRequired from '../../../utils/isRequired'
 import ContractImplementation from '../../ContractImplementation'
 import EventListener from '../../../utils/EventListener'
 import httpRequest from '../../../utils/httpRequest'
@@ -7,15 +8,35 @@ import httpRequest from '../../../utils/httpRequest'
 /**
  * Provides interaction with standard Arbitrable contracts
  */
-class Arbitrable extends ContractImplementation {
+class MultipleArbitrable extends ContractImplementation {
   /**
    * Constructor ArbitrableTransaction.
    * @param {object} web3Provider instance
+   * @param {string} multipleArbitrableTransactionArtifact of the contract
    * @param {string} contractAddress of the contract
+   * @param {string} storeProviderInstance of the contract
+   * @param {number} arbitrableTransactionId of the contract
+   * @param {string} metaEvidenceJsonLink of the contract
    */
-  constructor(web3Provider, contractArtifact, contractAddress) {
-    super(web3Provider, contractArtifact, contractAddress)
+  constructor(
+    web3Provider,
+    multipleArbitrableTransactionArtifact,
+    contractAddress,
+    storeProviderInstance = isRequired('storeProviderInstance'),
+    arbitrableTransactionId,
+    metaEvidenceJsonLink
+  ) {
+    super(
+      web3Provider,
+      multipleArbitrableTransactionArtifact,
+      contractAddress,
+      arbitrableTransactionId
+    )
 
+    this._StoreProvider = storeProviderInstance
+
+    this.arbitrableTransactionId = arbitrableTransactionId
+    this.metaEvidenceJsonLink = metaEvidenceJsonLink
     this.metaEvidenceCache = {}
   }
 
@@ -33,7 +54,10 @@ class Arbitrable extends ContractImplementation {
       'MetaEvidence',
       0,
       'latest',
-      { _metaEvidenceID: 0 }
+      {
+        _transactionId: this.arbitrableTransactionId,
+        _evidence: this.metaEvidenceJsonLink
+      }
     )
 
     if (!metaEvidenceLog[0]) return {} // NOTE better to throw errors for missing meta-evidence?
@@ -55,7 +79,6 @@ class Arbitrable extends ContractImplementation {
   getEvidence = async () => {
     await this.loadContract()
     const arbitratorAddress = await this.contractInstance.arbitrator()
-    await this.loadContract()
     const disputeId = (await this.contractInstance.disputeID()).toNumber()
 
     // No evidence yet as there is no dispute
@@ -66,7 +89,12 @@ class Arbitrable extends ContractImplementation {
       'Evidence',
       0,
       'latest',
-      { _disputeID: disputeId, _arbitrator: arbitratorAddress }
+      {
+        _disputeID: disputeId,
+        _arbitrator: arbitratorAddress,
+        _party: this._Web3Wrapper.getAccount(0),
+        _transactionId: this.arbitrableTransactionId
+      }
     )
 
     // TODO verify hash and data are valid if hash exists
@@ -92,7 +120,10 @@ class Arbitrable extends ContractImplementation {
     await this.loadContract()
 
     const [metaEvidence] = await Promise.all([
-      this.getMetaEvidence()
+      this.getMetaEvidence(
+        this.arbitrableTransactionId,
+        this.metaEvidenceJsonLink
+      )
     ])
 
     return {
@@ -101,4 +132,4 @@ class Arbitrable extends ContractImplementation {
   }
 }
 
-export default Arbitrable
+export default MultipleArbitrable

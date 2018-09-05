@@ -70,7 +70,7 @@
     "ethereumjs-util": "^5.2.0",
     "ethjs": "^0.4.0",
     "kleros": "^0.0.6",
-    "kleros-interaction": "^0.0.22",
+    "kleros-interaction": "^0.0.24",
     "lodash": "^4.17.4",
     "minimetoken": "^0.2.0",
     "truffle-contract": "^2.0.5",

@@ -44,15 +44,20 @@ class StoreProviderWrapper {
   queueReadRequest = uri =>
     this._storeQueue.fetch(() => httpRequest('GET', uri))
 
-  getMetaEvidenceUri = (userAddress, contractAddress) =>
+  getMetaEvidenceUri = (userAddress, contractAddress, arbitrableTransaction) =>
     `${
       this._storeUri
-    }/${userAddress}/contracts/${contractAddress}/meta-evidence`
+    }/${userAddress}/contracts/${contractAddress}/arbitrable-transaction/${arbitrableTransaction}/meta-evidence`
 
-  getEvidenceUri = (userAddress, contractAddress, evidenceIndex) =>
+  getEvidenceUri = (
+    userAddress,
+    contractAddress,
+    arbitrableTransaction,
+    evidenceIndex
+  ) =>
     `${
       this._storeUri
-    }/${userAddress}/contracts/${contractAddress}/evidence/${evidenceIndex}`
+    }/${userAddress}/contracts/${contractAddress}/arbitrable-transaction/${arbitrableTransaction}/evidence/${evidenceIndex}`
 
   // **************************** //
   // *          Read            * //
