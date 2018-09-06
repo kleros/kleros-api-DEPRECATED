@@ -462,7 +462,7 @@ class Notifications {
     // address indexed _account, uint _disputeID, int _amount
     const disputeID = event.args._disputeID.toNumber()
     const address = event.args._account
-    const amount = event.args._amount.toNumber()
+    const amount = event.args._amount.toString()
 
     if (account === address) {
       const message =
@@ -501,7 +501,7 @@ class Notifications {
     // address indexed _account, uint _disputeID, int _amount
     const disputeID = event.args._disputeID.toNumber()
     const address = event.args._account
-    const amount = event.args._amount.toNumber()
+    const amount = event.args._amount.toString()
 
     if (account === address) {
       const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
