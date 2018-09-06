@@ -129,7 +129,7 @@ class Kleros extends ContractImplementation {
 
     // Activated Tokens
     const currentSession = await this.contractInstance.session()
-    let activatedTokens = 0
+    let activatedTokens = this._Web3Wrapper.toBigNumber(0)
     if (juror[2].toNumber() === currentSession.toNumber())
       activatedTokens = juror[4].minus(juror[3])
 
