@@ -5,12 +5,12 @@ import * as contractConstants from '../../../constants/contract'
 import * as errorConstants from '../../../constants/error'
 import deployContractAsync from '../../../utils/deployContractAsync'
 
-import MultipleArbitrable from './MultipleArbitrable'
+import Arbitrable from './Arbitrable'
 
 /**
  * Provides interaction with an Arbitrable Transaction contract deployed on the blockchain.
  */
-class MultipleArbitrableTransaction extends MultipleArbitrable {
+class MultipleArbitrableTransaction extends Arbitrable {
   /**
    * Constructor ArbitrableTransaction.
    * @param {object} web3Provider instance
@@ -18,6 +18,8 @@ class MultipleArbitrableTransaction extends MultipleArbitrable {
    */
   constructor(web3Provider, contractAddress) {
     super(web3Provider, multipleArbitrableTransactionArtifact, contractAddress)
+
+    this.arbitrableTransactionId = null
   }
 
   /**
@@ -322,6 +324,14 @@ class MultipleArbitrableTransaction extends MultipleArbitrable {
       throw new Error(errorConstants.UNABLE_TO_RAISE_AN_APPEAL)
     }
   }
+
+  /**
+   * Set the arbitrable transaction id
+   * @param {number} arbitrableTransactionId - The index of the transaction.
+   * @returns {object} Object Data of the contract.
+   */
+  setArbitrableTransactionId = arbitrableTransactionId =>
+    (this.arbitrableTransactionId = arbitrableTransactionId)
 
   /**
    * Data of the contract

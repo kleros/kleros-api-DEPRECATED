@@ -11,6 +11,7 @@ class Arbitrable extends ContractImplementation {
   /**
    * Constructor ArbitrableTransaction.
    * @param {object} web3Provider instance
+   * @param {string} contractArtifact of the contract
    * @param {string} contractAddress of the contract
    */
   constructor(web3Provider, contractArtifact, contractAddress) {
@@ -28,12 +29,17 @@ class Arbitrable extends ContractImplementation {
     if (this.metaEvidenceCache[this.contractAddress])
       return this.metaEvidenceCache[this.contractAddress]
 
+    if (this.arbitrableTransactionId === null)
+      throw new Error(
+        `Unable to fetch meta-evidence. "ArbitrableTransactionId" must be set up.`
+      )
+
     const metaEvidenceLog = await EventListener.getEventLogs(
       this,
       'MetaEvidence',
       0,
       'latest',
-      { _metaEvidenceID: 0 }
+      { _metaEvidenceID: this.arbitrableTransactionId }
     )
 
     if (!metaEvidenceLog[0]) return {} // NOTE better to throw errors for missing meta-evidence?
@@ -45,7 +51,8 @@ class Arbitrable extends ContractImplementation {
     if (metaEvidenceResponse.status >= 400)
       throw new Error(`Unable to fetch meta-evidence at ${metaEvidenceUri}`)
 
-    this.metaEvidenceCache[this.contractAddress] = metaEvidenceResponse.body || metaEvidenceResponse
+    this.metaEvidenceCache[this.contractAddress] =
+      metaEvidenceResponse.body || metaEvidenceResponse
     return metaEvidenceResponse.body || metaEvidenceResponse
   }
 
@@ -66,7 +73,10 @@ class Arbitrable extends ContractImplementation {
       'Evidence',
       0,
       'latest',
-      { _disputeID: disputeId, _arbitrator: arbitratorAddress }
+      {
+        _disputeID: disputeId,
+        _arbitrator: arbitratorAddress
+      }
     )
 
     // TODO verify hash and data are valid if hash exists
@@ -91,9 +101,7 @@ class Arbitrable extends ContractImplementation {
   getContractData = async () => {
     await this.loadContract()
 
-    const [metaEvidence] = await Promise.all([
-      this.getMetaEvidence()
-    ])
+    const [metaEvidence] = await Promise.all([this.getMetaEvidence()])
 
     return {
       metaEvidence
