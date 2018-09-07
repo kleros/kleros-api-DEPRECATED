@@ -1,6 +1,5 @@
 import _ from 'lodash'
 
-import isRequired from '../../../utils/isRequired'
 import ContractImplementation from '../../ContractImplementation'
 import EventListener from '../../../utils/EventListener'
 import httpRequest from '../../../utils/httpRequest'
@@ -12,31 +11,12 @@ class MultipleArbitrable extends ContractImplementation {
   /**
    * Constructor ArbitrableTransaction.
    * @param {object} web3Provider instance
-   * @param {string} multipleArbitrableTransactionArtifact of the contract
+   * @param {string} contractArtifact of the contract
    * @param {string} contractAddress of the contract
-   * @param {string} storeProviderInstance of the contract
-   * @param {number} arbitrableTransactionId of the contract
-   * @param {string} metaEvidenceJsonLink of the contract
    */
-  constructor(
-    web3Provider,
-    multipleArbitrableTransactionArtifact,
-    contractAddress,
-    storeProviderInstance = isRequired('storeProviderInstance'),
-    arbitrableTransactionId,
-    metaEvidenceJsonLink
-  ) {
-    super(
-      web3Provider,
-      multipleArbitrableTransactionArtifact,
-      contractAddress,
-      arbitrableTransactionId
-    )
+  constructor(web3Provider, contractArtifact, contractAddress) {
+    super(web3Provider, contractArtifact, contractAddress)
 
-    this._StoreProvider = storeProviderInstance
-
-    this.arbitrableTransactionId = arbitrableTransactionId
-    this.metaEvidenceJsonLink = metaEvidenceJsonLink
     this.metaEvidenceCache = {}
   }
 
@@ -45,7 +25,7 @@ class MultipleArbitrable extends ContractImplementation {
    * one meta-evidence that is submitted on contract creation. Look up meta-evidence event
    * and make an http request to the resource.
    */
-  getMetaEvidence = async () => {
+  getMetaEvidence = async (arbitrableTransactionId, metaEvidenceJsonLink) => {
     if (this.metaEvidenceCache[this.contractAddress])
       return this.metaEvidenceCache[this.contractAddress]
 
@@ -55,8 +35,8 @@ class MultipleArbitrable extends ContractImplementation {
       0,
       'latest',
       {
-        _transactionId: this.arbitrableTransactionId,
-        _evidence: this.metaEvidenceJsonLink
+        _transactionId: arbitrableTransactionId,
+        _evidence: metaEvidenceJsonLink
       }
     )
 
@@ -69,14 +49,15 @@ class MultipleArbitrable extends ContractImplementation {
     if (metaEvidenceResponse.status >= 400)
       throw new Error(`Unable to fetch meta-evidence at ${metaEvidenceUri}`)
 
-    this.metaEvidenceCache[this.contractAddress] = metaEvidenceResponse.body || metaEvidenceResponse
+    this.metaEvidenceCache[this.contractAddress] =
+      metaEvidenceResponse.body || metaEvidenceResponse
     return metaEvidenceResponse.body || metaEvidenceResponse
   }
 
   /**
    * Get the evidence submitted in a dispute.
    */
-  getEvidence = async () => {
+  getEvidence = async evidenceJsonLink => {
     await this.loadContract()
     const arbitratorAddress = await this.contractInstance.arbitrator()
     const disputeId = (await this.contractInstance.disputeID()).toNumber()
@@ -90,10 +71,10 @@ class MultipleArbitrable extends ContractImplementation {
       0,
       'latest',
       {
-        _disputeID: disputeId,
         _arbitrator: arbitratorAddress,
+        _disputeID: disputeId,
         _party: this._Web3Wrapper.getAccount(0),
-        _transactionId: this.arbitrableTransactionId
+        _evidence: evidenceJsonLink
       }
     )
 
@@ -116,14 +97,11 @@ class MultipleArbitrable extends ContractImplementation {
   /**
    * Fetch all standard contract data.
    */
-  getContractData = async () => {
+  getContractData = async (arbitrableTransactionId, metaEvidenceJsonLink) => {
     await this.loadContract()
 
     const [metaEvidence] = await Promise.all([
-      this.getMetaEvidence(
-        this.arbitrableTransactionId,
-        this.metaEvidenceJsonLink
-      )
+      this.getMetaEvidence(arbitrableTransactionId, metaEvidenceJsonLink)
     ])
 
     return {

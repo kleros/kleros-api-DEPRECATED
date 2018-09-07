@@ -157,12 +157,12 @@ describe('Contracts', () => {
         expect(arbitrableContractAddress).toBeDefined()
 
         // arbitrable contract
-        const ArbitrableTransactionInstanceInstance = new MultipleArbitrableTransaction(
+        const ArbitrableTransactionInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
 
-        await ArbitrableTransactionInstanceInstance.createArbitrableTransaction(
+        await ArbitrableTransactionInstance.createArbitrableTransaction(
           arbitrableContractData.partyA,
           klerosPOCAddress,
           arbitrableContractData.partyB,
@@ -172,7 +172,7 @@ describe('Contracts', () => {
           arbitrableContractData.metaEvidenceUri
         )
 
-        const transactionArbitrable0 = await ArbitrableTransactionInstanceInstance.getData(
+        const transactionArbitrable0 = await ArbitrableTransactionInstance.getData(
           0
         )
 
@@ -349,7 +349,7 @@ describe('Contracts', () => {
 
         // ****** Parties side (raise dispute) ****** //
 
-        const arbitrationCost = await KlerosInstance.getArbitrationCost(
+        const arbitrationCost = await klerosPOCInstance.getArbitrationCost(
           arbitrableContractData.extraData
         )
 
@@ -360,7 +360,7 @@ describe('Contracts', () => {
           arbitrationCost
         )
 
-        expect(txHashTimeOutByBuyer.tx).toEqual(
+        expect(raiseDisputeByBuyerTxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
 

@@ -35,7 +35,6 @@ class StoreProviderWrapper {
     )
   }
 
-
   /**
    * If we know we are waiting on some other write before we want to read we can add a read request to the end of the queue.
    * @param {string} uri uri to hit
@@ -44,20 +43,24 @@ class StoreProviderWrapper {
   queueReadRequest = uri =>
     this._storeQueue.fetch(() => httpRequest('GET', uri))
 
-  getMetaEvidenceUri = (userAddress, contractAddress, arbitrableTransaction) =>
+  getMetaEvidenceUri = (
+    userAddress,
+    contractAddress,
+    arbitrableTransactionIndex
+  ) =>
     `${
       this._storeUri
-    }/${userAddress}/contracts/${contractAddress}/arbitrable-transaction/${arbitrableTransaction}/meta-evidence`
+    }/${userAddress}/contracts/${contractAddress}/arbitrable-transaction/${arbitrableTransactionIndex}/meta-evidence`
 
   getEvidenceUri = (
     userAddress,
     contractAddress,
-    arbitrableTransaction,
+    arbitrableTransactionIndex,
     evidenceIndex
   ) =>
     `${
       this._storeUri
-    }/${userAddress}/contracts/${contractAddress}/arbitrable-transaction/${arbitrableTransaction}/evidence/${evidenceIndex}`
+    }/${userAddress}/contracts/${contractAddress}/arbitrable-transaction/${arbitrableTransactionIndex}/evidence/${evidenceIndex}`
 
   // **************************** //
   // *          Read            * //
@@ -251,6 +254,7 @@ class StoreProviderWrapper {
    * stored evidence for the specified user, not all parties of the dispute.
    * @param {string} contractAddress - Address of the contract
    * @param {string} userAddress - Address of the user.
+   * @param {string} arbitrableTransactionIndex - Id of the arbitrable transaction.
    * @param {string} name - Name of evidence.
    * @param {string} description - Description of evidence.
    * @param {string} url - A link to the evidence.
@@ -259,6 +263,7 @@ class StoreProviderWrapper {
   addEvidenceContract = async (
     contractAddress,
     userAddress,
+    arbitrableTransactionIndex,
     name,
     description,
     url,
@@ -279,7 +284,9 @@ class StoreProviderWrapper {
     const response = await this.queueWriteRequest(
       getBodyFn,
       'POST',
-      `${this._storeUri}/${userAddress}/contracts/${contractAddress}/evidence`
+      `${
+        this._storeUri
+      }/${userAddress}/contracts/${contractAddress}/arbitrable-transaction/${arbitrableTransactionIndex}/evidence`
     )
 
     if (response.status !== 201)

@@ -14,27 +14,10 @@ class MultipleArbitrableTransaction extends MultipleArbitrable {
   /**
    * Constructor ArbitrableTransaction.
    * @param {object} web3Provider instance
-   * @param {string} multipleArbitrableTransactionArtifact of the contract
    * @param {string} contractAddress of the contract
-   * @param {string} storeProviderInstance of the contract
-   * @param {number} arbitrableTransactionId of the contract
-   * @param {string} metaEvidenceJsonLink of the contract
    */
-  constructor(
-    web3Provider,
-    contractAddress,
-    storeProviderInstance,
-    arbitrableTransactionId,
-    metaEvidenceJsonLink
-  ) {
-    super(
-      web3Provider,
-      multipleArbitrableTransactionArtifact,
-      contractAddress,
-      storeProviderInstance,
-      arbitrableTransactionId,
-      metaEvidenceJsonLink
-    )
+  constructor(web3Provider, contractAddress) {
+    super(web3Provider, multipleArbitrableTransactionArtifact, contractAddress)
   }
 
   /**
