@@ -25,21 +25,16 @@ class Arbitrable extends ContractImplementation {
    * one meta-evidence that is submitted on contract creation. Look up meta-evidence event
    * and make an http request to the resource.
    */
-  getMetaEvidence = async () => {
+  getMetaEvidence = async (metaEvidenceID = 0) => {
     if (this.metaEvidenceCache[this.contractAddress])
       return this.metaEvidenceCache[this.contractAddress]
-
-    if (this.arbitrableTransactionId === null)
-      throw new Error(
-        `Unable to fetch meta-evidence. "ArbitrableTransactionId" must be set up.`
-      )
 
     const metaEvidenceLog = await EventListener.getEventLogs(
       this,
       'MetaEvidence',
       0,
       'latest',
-      { _metaEvidenceID: this.arbitrableTransactionId }
+      { _metaEvidenceID: metaEvidenceID }
     )
 
     if (!metaEvidenceLog[0]) return {} // NOTE better to throw errors for missing meta-evidence?
