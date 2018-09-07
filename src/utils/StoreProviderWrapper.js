@@ -117,11 +117,13 @@ class StoreProviderWrapper {
     if (!userProfile)
       throw new Error(errorConstants.PROFILE_NOT_FOUND(userAddress))
 
-    return _.filter(
+    const dispute = _.filter(
       userProfile.disputes,
       o =>
         o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeID
     )[0]
+    dispute.disputeID = dispute.disputeId
+    return dispute
   }
 
   /**
@@ -133,7 +135,10 @@ class StoreProviderWrapper {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile) return []
 
-    return userProfile.disputes
+    return userProfile.disputes.map(dispute => {
+      dispute.disputeID = dispute.disputeId
+      return dispute
+    })
   }
 
   /**
