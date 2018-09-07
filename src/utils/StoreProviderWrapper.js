@@ -24,6 +24,7 @@ class StoreProviderWrapper {
    * @param {fn} getBodyFn async function to call before we write. Should to reads and return JSON to be used as body.
    * @param {string} verb POST or PUT
    * @param {string} uri uri to call
+   * @param {string} userAddress The users ETH address. Used to clear cache.
    * @returns {promise} promise that returns result of request. wait on this if you need it to be syncronous
    */
   queueWriteRequest = (getBodyFn, verb, uri = null, userAddress) => {
@@ -103,19 +104,21 @@ class StoreProviderWrapper {
    * Get all stored data for a dispute. Must exist in User Profile.
    * @param {string} userAddress - Address of user.
    * @param {string} arbitratorAddress - Address of arbitrator contract.
-   * @param {number} disputeId - Index of the dispute.
+   * @param {number} disputeID - Index of the dispute.
    * @returns {object} - a response object.
    */
-  getDispute = async (userAddress, arbitratorAddress, disputeId) => {
+  getDispute = async (userAddress, arbitratorAddress, disputeID) => {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile)
       throw new Error(errorConstants.PROFILE_NOT_FOUND(userAddress))
 
-    return _.filter(
+    const dispute = _.filter(
       userProfile.disputes,
       o =>
-        o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeId
+        o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeID
     )[0]
+    dispute.disputeID = dispute.disputeId
+    return dispute
   }
 
   /**
@@ -127,7 +130,10 @@ class StoreProviderWrapper {
     const userProfile = await this.getUserProfile(userAddress)
     if (!userProfile) return []
 
-    return userProfile.disputes
+    return userProfile.disputes.map(dispute => {
+      dispute.disputeID = dispute.disputeId
+      return dispute
+    })
   }
 
   /**
@@ -138,7 +144,7 @@ class StoreProviderWrapper {
   getLastBlock = async userAddress => {
     let userProfile
     try {
-      userProfile = await this.newUserProfile(userAddress)
+      userProfile = (await this.newUserProfile(userAddress)) || {}
       // eslint-disable-next-line no-unused-vars
     } catch (err) {
       userProfile = {}
@@ -258,6 +264,7 @@ class StoreProviderWrapper {
    * @param {string} name - Name of evidence.
    * @param {string} description - Description of evidence.
    * @param {string} url - A link to the evidence.
+   * @param {string} hash - The hash of the evidence.
    * @returns {number} - The index of the evidence
    */
   addEvidenceContract = async (
@@ -301,14 +308,14 @@ class StoreProviderWrapper {
    * Update stored dispute data for a user. Note this will not overwrite data.
    * @param {string} userAddress - The address of the user.
    * @param {string} arbitratorAddress - The address of the arbitrator contract.
-   * @param {number} disputeId - The index of the dispute.
+   * @param {number} disputeID - The index of the dispute.
    * @param {object} params - The dispute data we are updating.
    * @returns {Promise} The resulting dispute data.
    */
   updateDisputeProfile = (
     userAddress,
     arbitratorAddress,
-    disputeId,
+    disputeID,
     params
   ) => {
     const getBodyFn = async () => {
@@ -319,12 +326,12 @@ class StoreProviderWrapper {
           userProfile.disputes,
           dispute =>
             dispute.arbitratorAddress === arbitratorAddress &&
-            dispute.disputeId === disputeId
+            dispute.disputeId === disputeID
         )[0] || {}
 
       delete currentDisputeProfile._id
       // set these so if it is a new dispute they are included
-      params.disputeId = disputeId
+      params.disputeId = disputeID
       params.arbitratorAddress = arbitratorAddress
 
       return JSON.stringify({ ...currentDisputeProfile, ...params })
@@ -335,7 +342,7 @@ class StoreProviderWrapper {
       'POST',
       `${
         this._storeUri
-      }/${userAddress}/arbitrators/${arbitratorAddress}/disputes/${disputeId}`
+      }/${userAddress}/arbitrators/${arbitratorAddress}/disputes/${disputeID}`
     )
   }
 
@@ -343,7 +350,7 @@ class StoreProviderWrapper {
    * Adds draws for juror to dispute profile.
    * @param {string} userAddress - The address of the user.
    * @param {string} arbitratorAddress - The address of the arbitrator contract.
-   * @param {number} disputeId - The index of the dispute.
+   * @param {number} disputeID - The index of the dispute.
    * @param {number[]} draws - The draws the juror has.
    * @param {number} appeal - The appeal for which it is for.
    * @returns {Promise} The resulting dispute data.
@@ -351,7 +358,7 @@ class StoreProviderWrapper {
   addNewDrawsDisputeProfile = (
     userAddress,
     arbitratorAddress,
-    disputeId,
+    disputeID,
     draws,
     appeal
   ) => {
@@ -370,7 +377,7 @@ class StoreProviderWrapper {
       'POST',
       `${
         this._storeUri
-      }/${userAddress}/arbitrators/${arbitratorAddress}/disputes/${disputeId}/draws`
+      }/${userAddress}/arbitrators/${arbitratorAddress}/disputes/${disputeID}/draws`
     )
   }
 

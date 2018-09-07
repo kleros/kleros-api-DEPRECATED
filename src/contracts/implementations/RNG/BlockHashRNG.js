@@ -1,7 +1,6 @@
-import BlockHashRNGArtifact from 'kleros-interaction/build/contracts/BlockHashRNG'
+import BlockHashRNGArtifact from 'kleros-interaction/build/contracts/BlockHashRNGFallback'
 import _ from 'lodash'
 
-import * as ethConstants from '../../../constants/eth'
 import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
 
@@ -27,7 +26,7 @@ class BlockHashRNG extends ContractImplementation {
   static deploy = async (account, web3Provider) => {
     const contractDeployed = await deployContractAsync(
       account,
-      ethConstants.TRANSACTION.VALUE,
+      0,
       BlockHashRNGArtifact,
       web3Provider
     )

@@ -24,6 +24,7 @@ const setUpContracts = async (
     provider,
     tokenFactory.address
   )
+
   // initialize KlerosPOC
   const klerosCourt = await KlerosPOC.deploy(
     rngContract.address,
@@ -39,10 +40,12 @@ const setUpContracts = async (
     klerosCourt.address,
     klerosPOCParams.account
   )
+
   const contractArbitrableTransaction = await MultipleArbitrableTransaction.deploy(
     arbitrableContractParams.partyA,
     provider
   )
+  
   return [
     klerosCourt.address,
     contractArbitrableTransaction.address,

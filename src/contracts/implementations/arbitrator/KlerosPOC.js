@@ -2,11 +2,7 @@ import klerosPOCArtifact from 'kleros/build/contracts/KlerosPOC'
 import _ from 'lodash'
 
 import * as ethConstants from '../../../constants/eth'
-import * as errorConstants from '../../../constants/error'
-import * as arbitratorConstants from '../../../constants/arbitrator'
-import ContractImplementation from '../../ContractImplementation'
 import deployContractAsync from '../../../utils/deployContractAsync'
-import EventListener from '../../../utils/EventListener'
 
 import Kleros from './Kleros'
 
@@ -24,23 +20,49 @@ class KlerosPOC extends Kleros {
   }
 
   /**
+   * STATIC: Deploy a KlerosPOC contract on the blockchain.
+   * @param {string} rngAddress address of random number generator contract
+   * @param {string} pnkAddress address of pinakion contract
+   * @param {number[]} timesPerPeriod array of 5 ints indicating the time limit for each period of contract
+   * @param {string} account address of user
+   * @param {number} value amout of eth to send to contract
+   * @param {object} web3Provider web3 provider object NOTE: NOT Kleros Web3Wrapper
+   * @returns {object} truffle-contract Object | err The contract object or error deploy
+   */
+  static deploy = async (
+    rngAddress,
+    pnkAddress,
+    timesPerPeriod = [300, 0, 300, 300, 300],
+    account,
+    value = ethConstants.TRANSACTION.VALUE,
+    web3Provider
+  ) => {
+    const contractDeployed = await deployContractAsync(
+      account,
+      value,
+      klerosPOCArtifact,
+      web3Provider,
+      pnkAddress,
+      rngAddress,
+      timesPerPeriod
+    )
+
+    return contractDeployed
+  }
+
+  /**
    * Purchase PNK.
-   * @param {string} amount - The number of pinakion to buy.
+   * @param {string} amount - The amount of pinakion to buy in wei.
    * @param {string} account - The address of the user.
    * @returns {object} - The result transaction object.
    */
-  buyPNK = async (amount, account = this._Web3Wrapper.getAccount(0)) => {
+  buyPNK = async (amount, account) => {
     await this.loadContract()
-
-    try {
-      return this.contractInstance.buyPinakion({
-        from: account,
-        value: this._Web3Wrapper.toWei(amount, 'ether')
-      })
-    } catch (err) {
-      console.error(err)
-      throw new Error(errorConstants.UNABLE_TO_BUY_PNK)
-    }
+    return this.contractInstance.buyPinakion({
+      from: account,
+      value: amount,
+      gas: process.env.GAS || undefined
+    })
   }
 }
 

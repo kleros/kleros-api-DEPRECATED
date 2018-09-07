@@ -1,6 +1,6 @@
 {
   "name": "kleros-api",
-  "version": "0.15.0",
+  "version": "0.17.1",
   "description": "A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol.",
   "keywords": [
     "Blockchain",
@@ -29,8 +29,8 @@
     "docs": "esdoc",
     "prettify": "kleros-scripts prettify",
     "lint": "kleros-scripts lint:js --config ./.eslintrc.js",
-    "ganache": "ganache-cli -a 15",
-    "test": "jest --config ./jest.config.js",
+    "ganache": "ganache-cli -a 15 -s 1",
+    "test": "GAS=3000000 jest --config ./jest.config.js",
     "test:coveralls": "coveralls < ./coverage/lcov.info",
     "commitmsg": "kleros-scripts commitmsg",
     "cz": "kleros-scripts cz",
@@ -55,7 +55,7 @@
     "esdoc": "^1.0.4",
     "esdoc-ecmascript-proposal-plugin": "^1.0.0",
     "esdoc-standard-plugin": "^1.0.0",
-    "ganache-cli": "^6.1.0",
+    "ganache-cli": "^6.1.8",
     "husky": "^0.14.3",
     "jest": "^22.4.2",
     "kleros-scripts": "^0.4.0",

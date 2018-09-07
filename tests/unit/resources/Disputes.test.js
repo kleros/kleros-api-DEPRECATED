@@ -1,3 +1,5 @@
+import Web3 from 'web3'
+
 import DisputesApi from '../../../src/resources/Disputes'
 import _asyncMockResponse from '../../helpers/asyncMockResponse'
 
@@ -8,6 +10,7 @@ describe('Disputes', () => {
   let arbitrableConctractAddress = '0xEcB2db3E3fA7a6cba5dFE964408099d860246D7Z'
   let account = '0x'
   let disputesInstance
+  let web3 = new Web3()
 
   beforeEach(async () => {
     disputesInstance = new DisputesApi(
@@ -31,14 +34,14 @@ describe('Disputes', () => {
 
   describe('getDataForDispute', async () => {
     it('gets data for new dispute (no store data)', async () => {
-      const disputeId = 0
+      const disputeID = 0
       const arbitrableContractAddress = '0xfakeaddress'
       const session = 1
       const period = 0
       const numberOfAppeals = 0
       const rulingChoices = [0, 1]
       const initialNumberJurors = 3
-      const arbitrationFeePerJuror = 0.15
+      const arbitrationFeePerJuror = web3.toBigNumber(web3.toWei(0.15, 'ether'))
       const voteCounters = []
       const partyA = '0x0'
       const partyB = '0x1'
@@ -49,7 +52,7 @@ describe('Disputes', () => {
       const mockArbitratorGetDispute = jest.fn().mockReturnValue(
         _asyncMockResponse({
           arbitratorAddress,
-          disputeId,
+          disputeID,
           arbitrableContractAddress,
           firstSession: session,
           numberOfAppeals,
@@ -62,6 +65,7 @@ describe('Disputes', () => {
         })
       )
       const mockArbitrator = {
+        getVoteForJuror: jest.fn().mockReturnValue([0, 1]),
         getDispute: mockArbitratorGetDispute,
         getPeriod: jest.fn().mockReturnValue(period),
         getSession: jest.fn().mockReturnValue(session),
@@ -78,13 +82,16 @@ describe('Disputes', () => {
       disputesInstance._ArbitratorInstance = mockArbitrator
 
       const mockArbitrableContractData = {
-        partyA,
-        partyB,
-        status: 0
+        metaEvidence: {
+          title: 'test'
+        }
       }
       const mockArbitrableContract = {
-        getData: jest.fn().mockReturnValue(mockArbitrableContractData),
-        getEvidenceForArbitrableContract: jest.fn().mockReturnValue([]),
+        getParties: jest.fn().mockReturnValue({ partyA, partyB }),
+        getMetaEvidence: jest
+          .fn()
+          .mockReturnValue(mockArbitrableContractData.metaEvidence),
+        getEvidence: jest.fn().mockReturnValue([]),
         setContractInstance: jest.fn()
       }
       disputesInstance._ArbitrableInstance = mockArbitrableContract
@@ -99,7 +106,7 @@ describe('Disputes', () => {
       disputesInstance.setStoreProviderInstance(mockStoreProvider)
 
       const disputeData = await disputesInstance.getDataForDispute(
-        disputeId,
+        disputeID,
         account
       )
 
@@ -107,11 +114,10 @@ describe('Disputes', () => {
       expect(disputeData.arbitrableContractAddress).toEqual(
         arbitrableContractAddress
       )
-      expect(disputeData.arbitrableContractStatus).toEqual(0)
       expect(disputeData.arbitratorAddress).toEqual(arbitratorAddress)
-      expect(disputeData.partyA).toEqual(partyA)
-      expect(disputeData.partyB).toEqual(partyB)
-      expect(disputeData.disputeId).toEqual(disputeId)
+      expect(disputeData.parties.partyA).toEqual(partyA)
+      expect(disputeData.parties.partyB).toEqual(partyB)
+      expect(disputeData.disputeID).toEqual(disputeID)
       expect(disputeData.firstSession).toEqual(session)
       expect(disputeData.lastSession).toEqual(session)
       expect(disputeData.numberOfAppeals).toEqual(numberOfAppeals)
@@ -119,20 +125,21 @@ describe('Disputes', () => {
       expect(disputeData.disputeStatus).toEqual(0)
       expect(disputeData.appealJuror.length).toBe(1)
       expect(disputeData.appealRulings.length).toBe(1)
-      expect(disputeData.description).toEqual(mockContract.description)
-      expect(disputeData.email).toEqual(mockContract.email)
       expect(disputeData.evidence).toEqual([])
       expect(disputeData.netPNK).toEqual(0)
+      expect(disputeData.metaEvidence).toEqual(
+        mockArbitrableContractData.metaEvidence
+      )
     })
     it('gets data active dispute', async () => {
-      const disputeId = 0
+      const disputeID = 0
       const arbitrableContractAddress = '0xfakeaddress'
       const session = 1
       const period = 3
       const numberOfAppeals = 0
       const rulingChoices = [0, 1]
       const initialNumberJurors = 3
-      const arbitrationFeePerJuror = 0.15
+      const arbitrationFeePerJuror = web3.toBigNumber(web3.toWei(0.15, 'ether'))
       const voteCounters = [[2, 4]]
       const partyA = '0x0'
       const partyB = '0x1'
@@ -143,7 +150,7 @@ describe('Disputes', () => {
       const mockArbitratorGetDispute = jest.fn().mockReturnValue(
         _asyncMockResponse({
           arbitratorAddress,
-          disputeId,
+          disputeID,
           arbitrableContractAddress,
           firstSession: session,
           numberOfAppeals,
@@ -156,6 +163,7 @@ describe('Disputes', () => {
         })
       )
       const mockArbitrator = {
+        getVoteForJuror: jest.fn().mockReturnValue([0, 1]),
         getDispute: mockArbitratorGetDispute,
         getPeriod: jest.fn().mockReturnValue(period),
         getSession: jest.fn().mockReturnValue(session),
@@ -172,13 +180,16 @@ describe('Disputes', () => {
       disputesInstance._ArbitratorInstance = mockArbitrator
 
       const mockArbitrableContractData = {
-        partyA,
-        partyB,
-        status: 0
+        metaEvidence: {
+          title: 'test'
+        }
       }
       const mockArbitrableContract = {
-        getData: jest.fn().mockReturnValue(mockArbitrableContractData),
-        getEvidenceForArbitrableContract: jest.fn().mockReturnValue([]),
+        getParties: jest.fn().mockReturnValue({ partyA, partyB }),
+        getMetaEvidence: jest
+          .fn()
+          .mockReturnValue(mockArbitrableContractData.metaEvidence),
+        getEvidence: jest.fn().mockReturnValue([]),
         setContractInstance: jest.fn()
       }
       disputesInstance._ArbitrableInstance = mockArbitrableContract
@@ -197,7 +208,7 @@ describe('Disputes', () => {
       disputesInstance.setStoreProviderInstance(mockStoreProvider)
 
       const disputeData = await disputesInstance.getDataForDispute(
-        disputeId,
+        disputeID,
         account
       )
 
@@ -205,11 +216,10 @@ describe('Disputes', () => {
       expect(disputeData.arbitrableContractAddress).toEqual(
         arbitrableContractAddress
       )
-      expect(disputeData.arbitrableContractStatus).toEqual(0)
       expect(disputeData.arbitratorAddress).toEqual(arbitratorAddress)
-      expect(disputeData.partyA).toEqual(partyA)
-      expect(disputeData.partyB).toEqual(partyB)
-      expect(disputeData.disputeId).toEqual(disputeId)
+      expect(disputeData.parties.partyA).toEqual(partyA)
+      expect(disputeData.parties.partyB).toEqual(partyB)
+      expect(disputeData.disputeID).toEqual(disputeID)
       expect(disputeData.firstSession).toEqual(session)
       expect(disputeData.lastSession).toEqual(session)
       expect(disputeData.numberOfAppeals).toEqual(numberOfAppeals)
@@ -219,8 +229,9 @@ describe('Disputes', () => {
       expect(disputeData.appealJuror.length).toBe(1)
       const jurorData = disputeData.appealJuror[0]
       expect(jurorData.fee).toEqual(
-        arbitrationFeePerJuror *
+        arbitrationFeePerJuror.mul(
           mockUserData.appealDraws[numberOfAppeals].length
+        )
       )
       expect(jurorData.draws).toEqual(mockUserData.appealDraws[numberOfAppeals])
       expect(jurorData.canRule).toBeTruthy()
@@ -234,20 +245,21 @@ describe('Disputes', () => {
       expect(appealData.canRepartition).toBeFalsy()
       expect(appealData.canExecute).toBeFalsy()
 
-      expect(disputeData.description).toEqual(mockContract.description)
-      expect(disputeData.email).toEqual(mockContract.email)
       expect(disputeData.evidence).toEqual([])
       expect(disputeData.netPNK).toEqual(0)
+      expect(disputeData.metaEvidence).toEqual(
+        mockArbitrableContractData.metaEvidence
+      )
     })
     it('gets data ruled on dispute -- can repartition', async () => {
-      const disputeId = 0
+      const disputeID = 0
       const arbitrableContractAddress = '0xfakeaddress'
       const session = 1
       const period = 4
       const numberOfAppeals = 0
       const rulingChoices = [0, 1]
       const initialNumberJurors = 3
-      const arbitrationFeePerJuror = 0.15
+      const arbitrationFeePerJuror = web3.toBigNumber(web3.toWei(0.15, 'ether'))
       const voteCounters = [[4, 5]]
       const partyA = '0x0'
       const partyB = '0x1'
@@ -258,7 +270,7 @@ describe('Disputes', () => {
       const mockArbitratorGetDispute = jest.fn().mockReturnValue(
         _asyncMockResponse({
           arbitratorAddress,
-          disputeId,
+          disputeID,
           arbitrableContractAddress,
           firstSession: session,
           numberOfAppeals,
@@ -271,6 +283,7 @@ describe('Disputes', () => {
         })
       )
       const mockArbitrator = {
+        getVoteForJuror: jest.fn().mockReturnValue([0, 1]),
         getDispute: mockArbitratorGetDispute,
         getPeriod: jest.fn().mockReturnValue(period),
         getSession: jest.fn().mockReturnValue(session),
@@ -287,13 +300,16 @@ describe('Disputes', () => {
       disputesInstance._ArbitratorInstance = mockArbitrator
 
       const mockArbitrableContractData = {
-        partyA,
-        partyB,
-        status: 3
+        metaEvidence: {
+          title: 'test'
+        }
       }
       const mockArbitrableContract = {
-        getData: jest.fn().mockReturnValue(mockArbitrableContractData),
-        getEvidenceForArbitrableContract: jest.fn().mockReturnValue([]),
+        getParties: jest.fn().mockReturnValue({ partyA, partyB }),
+        getMetaEvidence: jest
+          .fn()
+          .mockReturnValue(mockArbitrableContractData.metaEvidence),
+        getEvidence: jest.fn().mockReturnValue([]),
         setContractInstance: jest.fn()
       }
       disputesInstance._ArbitrableInstance = mockArbitrableContract
@@ -316,7 +332,7 @@ describe('Disputes', () => {
       disputesInstance.setStoreProviderInstance(mockStoreProvider)
 
       const disputeData = await disputesInstance.getDataForDispute(
-        disputeId,
+        disputeID,
         account
       )
 
@@ -324,11 +340,10 @@ describe('Disputes', () => {
       expect(disputeData.arbitrableContractAddress).toEqual(
         arbitrableContractAddress
       )
-      expect(disputeData.arbitrableContractStatus).toEqual(3)
       expect(disputeData.arbitratorAddress).toEqual(arbitratorAddress)
-      expect(disputeData.partyA).toEqual(partyA)
-      expect(disputeData.partyB).toEqual(partyB)
-      expect(disputeData.disputeId).toEqual(disputeId)
+      expect(disputeData.parties.partyA).toEqual(partyA)
+      expect(disputeData.parties.partyB).toEqual(partyB)
+      expect(disputeData.disputeID).toEqual(disputeID)
       expect(disputeData.firstSession).toEqual(session)
       expect(disputeData.lastSession).toEqual(session)
       expect(disputeData.numberOfAppeals).toEqual(numberOfAppeals)
@@ -338,8 +353,9 @@ describe('Disputes', () => {
       expect(disputeData.appealJuror.length).toBe(1)
       const jurorData = disputeData.appealJuror[0]
       expect(jurorData.fee).toEqual(
-        arbitrationFeePerJuror *
+        arbitrationFeePerJuror.mul(
           mockUserData.appealDraws[numberOfAppeals].length
+        )
       )
       expect(jurorData.draws).toEqual(mockUserData.appealDraws[numberOfAppeals])
       expect(jurorData.canRule).toBeFalsy()
@@ -350,20 +366,17 @@ describe('Disputes', () => {
       expect(appealData.ruling).toEqual(2)
       expect(appealData.canRepartition).toBeTruthy()
       expect(appealData.canExecute).toBeFalsy()
-
-      expect(disputeData.description).toEqual(mockContract.description)
-      expect(disputeData.email).toEqual(mockContract.email)
       expect(disputeData.evidence).toEqual([])
     })
     it('gets data ruled on dispute -- can execute', async () => {
-      const disputeId = 0
+      const disputeID = 0
       const arbitrableContractAddress = '0xfakeaddress'
       const session = 1
       const period = 4
       const numberOfAppeals = 0
       const rulingChoices = [0, 1]
       const initialNumberJurors = 3
-      const arbitrationFeePerJuror = 0.15
+      const arbitrationFeePerJuror = web3.toBigNumber(web3.toWei(0.15, 'ether'))
       const voteCounters = [[4, 5]]
       const partyA = '0x0'
       const partyB = '0x1'
@@ -374,7 +387,7 @@ describe('Disputes', () => {
       const mockArbitratorGetDispute = jest.fn().mockReturnValue(
         _asyncMockResponse({
           arbitratorAddress,
-          disputeId,
+          disputeID,
           arbitrableContractAddress,
           firstSession: session,
           numberOfAppeals,
@@ -387,6 +400,7 @@ describe('Disputes', () => {
         })
       )
       const mockArbitrator = {
+        getVoteForJuror: jest.fn().mockReturnValue([0, 1]),
         getDispute: mockArbitratorGetDispute,
         getPeriod: jest.fn().mockReturnValue(period),
         getSession: jest.fn().mockReturnValue(session),
@@ -403,13 +417,16 @@ describe('Disputes', () => {
       disputesInstance._ArbitratorInstance = mockArbitrator
 
       const mockArbitrableContractData = {
-        partyA,
-        partyB,
-        status: 3
+        metaEvidence: {
+          title: 'test'
+        }
       }
       const mockArbitrableContract = {
-        getData: jest.fn().mockReturnValue(mockArbitrableContractData),
-        getEvidenceForArbitrableContract: jest.fn().mockReturnValue([]),
+        getParties: jest.fn().mockReturnValue({ partyA, partyB }),
+        getMetaEvidence: jest
+          .fn()
+          .mockReturnValue(mockArbitrableContractData.metaEvidence),
+        getEvidence: jest.fn().mockReturnValue([]),
         setContractInstance: jest.fn()
       }
       disputesInstance._ArbitrableInstance = mockArbitrableContract
@@ -432,7 +449,7 @@ describe('Disputes', () => {
       disputesInstance.setStoreProviderInstance(mockStoreProvider)
 
       const disputeData = await disputesInstance.getDataForDispute(
-        disputeId,
+        disputeID,
         account
       )
 
@@ -440,11 +457,8 @@ describe('Disputes', () => {
       expect(disputeData.arbitrableContractAddress).toEqual(
         arbitrableContractAddress
       )
-      expect(disputeData.arbitrableContractStatus).toEqual(3)
       expect(disputeData.arbitratorAddress).toEqual(arbitratorAddress)
-      expect(disputeData.partyA).toEqual(partyA)
-      expect(disputeData.partyB).toEqual(partyB)
-      expect(disputeData.disputeId).toEqual(disputeId)
+      expect(disputeData.disputeID).toEqual(disputeID)
       expect(disputeData.firstSession).toEqual(session)
       expect(disputeData.lastSession).toEqual(session)
       expect(disputeData.numberOfAppeals).toEqual(numberOfAppeals)
@@ -454,8 +468,9 @@ describe('Disputes', () => {
       expect(disputeData.appealJuror.length).toBe(1)
       const jurorData = disputeData.appealJuror[0]
       expect(jurorData.fee).toEqual(
-        arbitrationFeePerJuror *
+        arbitrationFeePerJuror.mul(
           mockUserData.appealDraws[numberOfAppeals].length
+        )
       )
       expect(jurorData.draws).toEqual(mockUserData.appealDraws[numberOfAppeals])
       expect(jurorData.canRule).toBeFalsy()
@@ -466,10 +481,10 @@ describe('Disputes', () => {
       expect(appealData.ruling).toEqual(2)
       expect(appealData.canRepartition).toBeFalsy()
       expect(appealData.canExecute).toBeTruthy()
-
-      expect(disputeData.description).toEqual(mockContract.description)
-      expect(disputeData.email).toEqual(mockContract.email)
       expect(disputeData.evidence).toEqual([])
+      expect(disputeData.metaEvidence).toEqual(
+        mockArbitrableContractData.metaEvidence
+      )
     })
   })
 })

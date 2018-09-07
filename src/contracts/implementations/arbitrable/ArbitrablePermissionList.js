@@ -1,8 +1,6 @@
 import ArbitrablePermissionListArtifact from 'kleros-interaction/build/contracts/ArbitrablePermissionList'
 
-import * as ethConstants from '../../../constants/eth'
 import Arbitrable from './Arbitrable'
-import deployContractAsync from '../../../utils/deployContractAsync'
 
 /**
  * Provides interaction with an Arbitrable Transaction contract deployed on the blockchain.
@@ -18,26 +16,14 @@ class ArbitrablePermissionList extends Arbitrable {
   }
 
   /**
-   * Deploy ArbitrablePermissionList. TODO
-   * @param {object} account Ethereum account (default account[0])
-   * @param {number} value funds to be placed in contract
-   * @param {object} web3Provider web3 provider object
-   * @returns {object} truffle-contract Object | err The deployed contract or an error
+   * Fetch an item hash by disputeID
+   * @param {number} disputeID The index of the dispute.
+   * @returns {string} The item hash.
    */
-  // static deploy = async (
-  //   account,
-  //   value = ethConstants.TRANSACTION.VALUE,
-  //   web3Provider
-  // ) => {
-  //   // const contractDeployed = await deployContractAsync()
-  //   //
-  //   // return contractDeployed
-  // }
-
-  getItemByDisputeId = async disputeId => {
+  getItemByDisputeId = async disputeID => {
     await this.loadContract()
 
-    return this.contractInstance.disputeIDToItem(disputeId)
+    return this.contractInstance.disputeIDToItem(disputeID)
   }
 }
 

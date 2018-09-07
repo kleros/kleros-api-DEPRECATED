@@ -1,7 +1,6 @@
 import Eth from 'ethjs'
 
 import getContractAddress from '../../utils/getContractAddress'
-
 import AbstractContract from '../AbstractContract'
 
 /**
@@ -15,12 +14,12 @@ class ArbitrableContract extends AbstractContract {
    * Deploy a contract and add to the Store.
    * @param {string} account - Ethereum address.
    * @param {int} value - funds to be placed in contract.
-   * @param {string} hashContract - Keccak hash of the plain English contract.
    * @param {string} arbitratorAddress - The address of the arbitrator contract.
    * @param {int} timeout - Time after which a party automatically loose a dispute.
    * @param {string} partyB - Ethereum address of the other party in the contract.
    * @param {bytes} arbitratorExtraData - Extra data for the arbitrator.
    * @param {string} email - Email address of the contract creator (default empty string).
+   * @param {object} metaEvidence - The metaEvidence object associated with the Arbitarble Contract.
    * @param {...any} args - Extra arguments for the contract.
    * @returns {object | Error} - The contract object or an error.
    */

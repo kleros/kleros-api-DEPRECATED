@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.17.1"></a>
+## [0.17.1](https://github.com/kleros/kleros-api/compare/v0.17.0...v0.17.1) (2018-09-07)
+
+
+### Bug Fixes
+
+* disputeId -> disputeID from store ([93508e2](https://github.com/kleros/kleros-api/commit/93508e2))
+
+
+
+<a name="0.17.0"></a>
+# [0.17.0](https://github.com/kleros/kleros-api/compare/v0.16.0...v0.17.0) (2018-09-06)
+
+
+### Bug Fixes
+
+* activatedTokens is BN even when 0 ([020fd25](https://github.com/kleros/kleros-api/commit/020fd25))
+* get dispute from store ([696e715](https://github.com/kleros/kleros-api/commit/696e715))
+* use toString in notifications ([3cb5f9e](https://github.com/kleros/kleros-api/commit/3cb5f9e))
+
+
+### Features
+
+* fetch parties from arbitrable implementation ([2be78ce](https://github.com/kleros/kleros-api/commit/2be78ce))
+* remove conversions ([7a5bae5](https://github.com/kleros/kleros-api/commit/7a5bae5))
+
+
+
+<a name="0.16.0"></a>
+# [0.16.0](https://github.com/kleros/kleros-api/compare/v0.15.0...v0.16.0) (2018-08-29)
+
+
+### Features
+
+* pull open disputes from cache ([39505f5](https://github.com/kleros/kleros-api/commit/39505f5))
+
+
+
 <a name="0.15.0"></a>
 # [0.15.0](https://github.com/kleros/kleros-api/compare/v0.14.2...v0.15.0) (2018-08-13)
 
