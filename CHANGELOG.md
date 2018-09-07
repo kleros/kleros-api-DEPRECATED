@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.17.1"></a>
+## [0.17.1](https://github.com/kleros/kleros-api/compare/v0.17.0...v0.17.1) (2018-09-07)
+
+
+### Bug Fixes
+
+* disputeId -> disputeID from store ([93508e2](https://github.com/kleros/kleros-api/commit/93508e2))
+
+
+
 <a name="0.17.0"></a>
 # [0.17.0](https://github.com/kleros/kleros-api/compare/v0.16.0...v0.17.0) (2018-09-06)
 
