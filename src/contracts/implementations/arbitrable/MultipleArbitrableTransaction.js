@@ -24,7 +24,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
 
   /**
    * Deploy MultipleArbitrableTransaction.
-   * @param {object} account Ethereum account (default account[0])
+   * @param {object} account Ethereum account
    * @param {object} web3Provider web3 provider object
    * @returns {object} truffle-contract Object | err The deployed contract or an error
    */
@@ -41,7 +41,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
 
   /**
    * Create MultipleArbitrableTransaction.
-   * @param {object} account Ethereum account (default account[0])
+   * @param {object} account Ethereum account
    * @param {string} arbitratorAddress The address of the arbitrator contract
    * @param {object} seller Seller Ethereum account
    * @param {number} value funds to be placed in contract
@@ -94,13 +94,13 @@ class MultipleArbitrableTransaction extends Arbitrable {
 
   /**
    * Pay the seller. To be called when the good is delivered or the service rendered.
-   * @param {string} account - Ethereum account (default account[0]).
+   * @param {string} account - Ethereum account.
    * @param {number} arbitrableTransactionId - The index of the transaction.
    * @param {amount} amount - Part or all of the amount of the good or the service.
    * @returns {object} - The result transaction object.
    */
   pay = async (
-    account = this._Web3Wrapper.getAccount(0),
+    account,
     arbitrableTransactionId,
     amount
   ) => {
@@ -119,13 +119,13 @@ class MultipleArbitrableTransaction extends Arbitrable {
 
   /**
    * Reimburse the seller. To be called when the good is not delivered or the service rendered.
-   * @param {string} account - Ethereum account (default account[0]).
+   * @param {string} account - Ethereum account.
    * @param {number} arbitrableTransactionId - The index of the transaction.
    * @param {amount} amount - Part or all of the amount of the good or the service.
    * @returns {object} - The result transaction object.
    */
   reimburse = async (
-    account = this._Web3Wrapper.getAccount(0),
+    account,
     arbitrableTransactionId,
     amount
   ) => {
@@ -144,13 +144,13 @@ class MultipleArbitrableTransaction extends Arbitrable {
 
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the buyer.
-   * @param {string} account - Ethereum account (default account[0]).
+   * @param {string} account - Ethereum account.
    * @param {number} arbitrableTransactionId - The index of the transaction.
    * @param {number} arbitrationCost - Arbitration cost.
    * @returns {object} - The result transaction object.
    */
   payArbitrationFeeByBuyer = async (
-    account = this._Web3Wrapper.getAccount(0),
+    account,
     arbitrableTransactionId,
     arbitrationCost
   ) => {
@@ -172,12 +172,12 @@ class MultipleArbitrableTransaction extends Arbitrable {
 
   /**
    * Pay the arbitration fee to raise a dispute. To be called by the seller.
-   * @param {string} account Ethereum account (default account[1]).
+   * @param {string} account Ethereum account.
    * @param {number} arbitrableTransactionId - The index of the transaction.
    * @returns {object} - The result transaction object.
    */
   payArbitrationFeeBySeller = async (
-    account = this._Web3Wrapper.getAccount(1),
+    account,
     arbitrableTransactionId
   ) => {
     await this.loadContract()
@@ -209,7 +209,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
    * @returns {string} txHash Hash transaction.
    */
   submitEvidence = async (
-    account = this._Web3Wrapper.getAccount(0),
+    account,
     arbitrableTransactionId,
     url
   ) => {
@@ -234,7 +234,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
    * @returns {object} The result transaction object.
    */
   callTimeOutBuyer = async (
-    account = this._Web3Wrapper.getAccount(0),
+    account,
     arbitrableTransactionId
   ) => {
     await this.loadContract()
@@ -272,7 +272,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
    * @returns {object} The result transaction object.
    */
   callTimeOutSeller = async (
-    account = this._Web3Wrapper.getAccount(1),
+    account,
     arbitrableTransactionId
   ) => {
     await this.loadContract()
@@ -300,7 +300,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
 
   /**
    * Appeal an appealable ruling.
-   * @param {string} account Ethereum account (default account[0]).
+   * @param {string} account Ethereum account.
    * @param {number} arbitrableTransactionId - The index of the transaction.
    * @param {bytes} extraData for the arbitrator appeal procedure.
    * @param {number} appealCost Amount to pay the arbitrator. (default 0.35 ether).
