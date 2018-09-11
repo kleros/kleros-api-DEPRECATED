@@ -307,7 +307,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
    * @returns {object} - The result transaction object.
    */
   appeal = async (
-    account = this._Web3Wrapper.getAccount(0),
+    account,
     arbitrableTransactionId,
     extraData = 0x0,
     appealCost = 0.3
