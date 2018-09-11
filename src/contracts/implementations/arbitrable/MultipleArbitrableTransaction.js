@@ -51,7 +51,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
    * @returns {object} truffle-contract Object | err The deployed contract or an error
    */
   createArbitrableTransaction = async (
-    account = this._Web3Wrapper.getAccount(0),
+    account,
     arbitratorAddress,
     seller,
     value,
