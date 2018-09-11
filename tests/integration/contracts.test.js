@@ -247,13 +247,13 @@ describe('Contracts', () => {
         expect(klerosPOCAddress).toBeDefined()
         expect(arbitrableContractAddress).toBeDefined()
 
-        const ArbitrableTransactionInstanceInstance = new MultipleArbitrableTransaction(
+        const ArbitrableTransactionInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
 
         // create a arbitrable transaction
-        await ArbitrableTransactionInstanceInstance.createArbitrableTransaction(
+        await ArbitrableTransactionInstance.createArbitrableTransaction(
           arbitrableContractData.partyA,
           klerosPOCAddress,
           arbitrableContractData.partyB,
@@ -270,10 +270,10 @@ describe('Contracts', () => {
         )
 
         // buyer A pays fee
-        const raiseDisputeByBuyerTxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeByBuyer(
+        const raiseDisputeByBuyerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByBuyer(
           arbitrableContractData.partyA,
           0,
-          arbitrationCost
+          web3.fromWei(arbitrationCost)
         )
 
         expect(raiseDisputeByBuyerTxObj.tx).toEqual(
@@ -282,7 +282,7 @@ describe('Contracts', () => {
 
         await delaySecond(2)
         // call timeout by the buyer
-        const txHashTimeOutByBuyer = await ArbitrableTransactionInstanceInstance.callTimeOutBuyer(
+        const txHashTimeOutByBuyer = await ArbitrableTransactionInstance.callTimeOutBuyer(
           arbitrableContractData.partyA,
           0
         )
@@ -293,9 +293,8 @@ describe('Contracts', () => {
       50000
     )
     it(
-      'dispute with an appeal call by partyA',
+      'dispute with an appeal call by the buyer',
       async () => {
-        // deploy klerosPOC and arbitrableContract contracts
         const [
           klerosPOCAddress,
           arbitrableContractAddress
@@ -304,18 +303,16 @@ describe('Contracts', () => {
           klerosPOCData,
           arbitrableContractData
         )
-        expect(klerosPOCAddress).toBeDefined()
-        expect(arbitrableContractAddress).toBeDefined()
+        await expect(klerosPOCAddress).toBeDefined()
+        await expect(arbitrableContractAddress).toBeDefined()
 
-        const KlerosPOCInstance = new KlerosPOC(provider, klerosPOCAddress)
-
-        const ArbitrableTransactionInstanceInstance = new MultipleArbitrableTransaction(
+        const ArbitrableTransactionInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
 
         // create a arbitrable transaction
-        await ArbitrableTransactionInstanceInstance.createArbitrableTransaction(
+        await ArbitrableTransactionInstance.createArbitrableTransaction(
           arbitrableContractData.partyA,
           klerosPOCAddress,
           arbitrableContractData.partyB,
@@ -325,12 +322,14 @@ describe('Contracts', () => {
           arbitrableContractData.metaEvidenceUri
         )
 
-        // ****** Juror side (activate token) ****** //
+        const KlerosPOCInstance = await new KlerosPOC(provider, klerosPOCAddress)
+
+        // // ****** Juror side (activate token) ****** //
 
         // jurors buy PNK
         const pnkAmount = '1000000000000000000'
         const buyPNKJurors = await Promise.all([
-          KlerosPOCInstance.buyPNK(pnkAmount, jurorContract1),
+          await KlerosPOCInstance.buyPNK(pnkAmount, jurorContract1),
           await KlerosPOCInstance.buyPNK(pnkAmount, jurorContract2)
         ])
 
@@ -344,20 +343,19 @@ describe('Contracts', () => {
           await KlerosPOCInstance.activatePNK(pnkAmount, jurorContract2)
         }
 
-        // load klerosPOC
-        const klerosPOCInstance = await KlerosPOCInstance.loadContract()
-
         // ****** Parties side (raise dispute) ****** //
 
-        const arbitrationCost = await klerosPOCInstance.getArbitrationCost(
+        const KlerosInstance = new KlerosPOC(provider, klerosPOCAddress)
+        // return a bigint with the default value : 10000 wei fees in ether
+        const arbitrationCost = await KlerosInstance.getArbitrationCost(
           arbitrableContractData.extraData
         )
 
         // buyer A pays fee
-        const raiseDisputeByBuyerTxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeByBuyer(
+        const raiseDisputeByBuyerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByBuyer(
           arbitrableContractData.partyA,
           0,
-          arbitrationCost
+          web3.fromWei(arbitrationCost)
         )
 
         expect(raiseDisputeByBuyerTxObj.tx).toEqual(
@@ -365,10 +363,10 @@ describe('Contracts', () => {
         ) // tx hash
 
         // seller pays fee
-        const raiseDisputeBySellerTxObj = await ArbitrableTransactionInstanceInstance.payArbitrationFeeBySeller(
+        const raiseDisputeBySellerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeBySeller(
           arbitrableContractData.partyB,
           0,
-          arbitrationCost
+          web3.fromWei(arbitrationCost)
         )
 
         expect(raiseDisputeBySellerTxObj.tx).toEqual(
