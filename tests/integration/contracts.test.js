@@ -355,7 +355,7 @@ describe('Contracts', () => {
         const raiseDisputeByBuyerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByBuyer(
           arbitrableContractData.partyA,
           0,
-          web3.fromWei(arbitrationCost)
+          web3.fromWei(arbitrationCost).toNumber()
         )
 
         expect(raiseDisputeByBuyerTxObj.tx).toEqual(
@@ -366,13 +366,12 @@ describe('Contracts', () => {
         const raiseDisputeBySellerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeBySeller(
           arbitrableContractData.partyB,
           0,
-          web3.fromWei(arbitrationCost)
+          web3.fromWei(arbitrationCost).toNumber()
         )
 
         expect(raiseDisputeBySellerTxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
-
 
         // ****** Juror side (pass period) ****** //
 

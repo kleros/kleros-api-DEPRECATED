@@ -174,25 +174,22 @@ class MultipleArbitrableTransaction extends Arbitrable {
    * Pay the arbitration fee to raise a dispute. To be called by the seller.
    * @param {string} account Ethereum account.
    * @param {number} arbitrableTransactionId - The index of the transaction.
+   * @param {number} arbitrationCost - Arbitration cost.
    * @returns {object} - The result transaction object.
    */
   payArbitrationFeeBySeller = async (
     account,
-    arbitrableTransactionId
+    arbitrableTransactionId,
+    arbitrationCost
   ) => {
     await this.loadContract()
-
-    const transactionArbitrableData0 = await this.getData(0)
 
     try {
       return this.contractInstance.payArbitrationFeeBySeller(
         arbitrableTransactionId,
         {
           from: account,
-          value: this._Web3Wrapper.toWei(
-            transactionArbitrableData0.sellerFee,
-            'ether'
-          )
+          value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
         }
       )
     } catch (err) {
