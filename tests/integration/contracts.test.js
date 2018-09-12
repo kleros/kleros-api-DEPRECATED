@@ -154,13 +154,11 @@ describe('Contracts', () => {
 
         expect(klerosPOCAddress).toBeDefined()
         expect(arbitrableContractAddress).toBeDefined()
-
         // arbitrable contract
         const ArbitrableTransactionInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
-
         await ArbitrableTransactionInstance.createArbitrableTransaction(
           arbitrableContractData.partyA,
           klerosPOCAddress,
@@ -170,7 +168,6 @@ describe('Contracts', () => {
           arbitrableContractData.extraData,
           arbitrableContractData.metaEvidenceUri
         )
-
         const transactionArbitrable0 = await ArbitrableTransactionInstance.getData(
           0
         )
@@ -204,13 +201,13 @@ describe('Contracts', () => {
         expect(klerosPOCAddress).toBeDefined()
         expect(arbitrableContractAddress).toBeDefined()
 
-        const ArbitrableTransactionInstanceInstance = new MultipleArbitrableTransaction(
+        const ArbitrableTransactionInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
 
         // create a arbitrable transaction
-        await ArbitrableTransactionInstanceInstance.createArbitrableTransaction(
+        await ArbitrableTransactionInstance.createArbitrableTransaction(
           arbitrableContractData.partyA,
           klerosPOCAddress,
           arbitrableContractData.partyB,
@@ -221,7 +218,7 @@ describe('Contracts', () => {
         )
 
         // buyer pays the seller
-        const transactionArbitrable0 = await ArbitrableTransactionInstanceInstance.pay(
+        const transactionArbitrable0 = await ArbitrableTransactionInstance.pay(
           arbitrableContractData.partyA,
           0,
           arbitrableContractData.value
@@ -273,7 +270,7 @@ describe('Contracts', () => {
         const raiseDisputeByBuyerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByBuyer(
           arbitrableContractData.partyA,
           0,
-          web3.fromWei(arbitrationCost)
+          arbitrationCost
         )
 
         expect(raiseDisputeByBuyerTxObj.tx).toEqual(
@@ -355,7 +352,7 @@ describe('Contracts', () => {
         const raiseDisputeByBuyerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByBuyer(
           arbitrableContractData.partyA,
           0,
-          web3.fromWei(arbitrationCost).toNumber()
+          arbitrationCost
         )
 
         expect(raiseDisputeByBuyerTxObj.tx).toEqual(
@@ -366,7 +363,7 @@ describe('Contracts', () => {
         const raiseDisputeBySellerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeBySeller(
           arbitrableContractData.partyB,
           0,
-          web3.fromWei(arbitrationCost).toNumber()
+          arbitrationCost
         )
 
         expect(raiseDisputeBySellerTxObj.tx).toEqual(
@@ -423,15 +420,16 @@ describe('Contracts', () => {
         await delaySecond()
         await KlerosPOCInstance.passPeriod(other)
 
-        const currentRuling = await klerosPOCInstance.currentRuling(0)
+        const currentRuling = await KlerosPOCInstance.currentRulingForDispute(0, 0)
         expect(currentRuling.toString()).toBeTruthy() // make sure the ruling exists
 
         const appealCost = await KlerosPOCInstance.getAppealCost(
           0,
           arbitrableContractData.extraData
         )
+
         // raise appeal party A
-        const raiseAppealByPartyATxObj = await ArbitrableTransactionInstanceInstance.appeal(
+        const raiseAppealByPartyATxObj = await ArbitrableTransactionInstance.appeal(
           partyA,
           0,
           arbitrableContractData.extraData,

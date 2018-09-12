@@ -62,18 +62,6 @@ class MultipleArbitrableTransaction extends Arbitrable {
     await this.loadContract()
 
     try {
-      const estimateGas = await this.contractInstance.createTransaction.estimateGas(
-        arbitratorAddress,
-        timeout,
-        seller,
-        arbitratorExtraData,
-        metaEvidenceUri,
-        {
-          from: account,
-          value: this._Web3Wrapper.toWei(value, 'ether')
-        }
-      )
-
       return this.contractInstance.createTransaction(
         arbitratorAddress,
         timeout,
@@ -82,8 +70,8 @@ class MultipleArbitrableTransaction extends Arbitrable {
         metaEvidenceUri,
         {
           from: account,
-          value: this._Web3Wrapper.toWei(value, 'ether'),
-          gas: estimateGas
+          value: value,
+          gas: process.env.GAS || undefined
         }
       )
     } catch (err) {
@@ -161,7 +149,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
         arbitrableTransactionId,
         {
           from: account,
-          value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
+          value: arbitrationCost
         }
       )
     } catch (err) {
@@ -189,7 +177,8 @@ class MultipleArbitrableTransaction extends Arbitrable {
         arbitrableTransactionId,
         {
           from: account,
-          value: this._Web3Wrapper.toWei(arbitrationCost, 'ether')
+          value: arbitrationCost,
+          gas: process.env.GAS || undefined
         }
       )
     } catch (err) {
@@ -314,7 +303,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
     try {
       return this.contractInstance.appeal(arbitrableTransactionId, extraData, {
         from: account,
-        value: this._Web3Wrapper.toWei(appealCost, 'ether')
+        value: appealCost
       })
     } catch (err) {
       console.error(err)
