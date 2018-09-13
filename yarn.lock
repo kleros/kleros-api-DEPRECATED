@@ -5745,9 +5745,9 @@ kleros-interaction@^0.0.15:
     minimetoken "^0.2.0"
     zeppelin-solidity "^1.7.0"
 
-kleros-interaction@^0.0.22:
-  version "0.0.22"
-  resolved "https://registry.yarnpkg.com/kleros-interaction/-/kleros-interaction-0.0.22.tgz#abf006cc3c8d07e35246779e18ea3fabb47bf6a8"
+kleros-interaction@^0.0.24:
+  version "0.0.24"
+  resolved "https://registry.yarnpkg.com/kleros-interaction/-/kleros-interaction-0.0.24.tgz#4bfd836b910ffee6634fffea0b6d85b44dbd3d92"
   dependencies:
     minimetoken "^0.2.0"
     zeppelin-solidity "^1.7.0"

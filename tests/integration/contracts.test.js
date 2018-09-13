@@ -1,7 +1,7 @@
 import Web3 from 'web3'
 
 import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
-import ArbitrableTransaction from '../../src/contracts/implementations/arbitrable/ArbitrableTransaction'
+import MultipleArbitrableTransaction from '../../src/contracts/implementations/arbitrable/MultipleArbitrableTransaction'
 import * as ethConstants from '../../src/constants/eth'
 import * as errorConstants from '../../src/constants/error'
 import setUpContracts from '../helpers/setUpContracts'
@@ -46,7 +46,7 @@ describe('Contracts', () => {
       value: 0,
       timeout: 1,
       extraData: '',
-      metaEvidenceUri: 'https://test-meta-evidence.com'
+      metaEvidenceUri: 'https://my-meta-evidence.ipfs.io'
     }
   })
 
@@ -137,31 +137,52 @@ describe('Contracts', () => {
         expect(klerosCourtData.rngContractAddress).toEqual(rngAddress)
         expect(klerosCourtData.period).toEqual(0)
         expect(klerosCourtData.session).toEqual(1)
-        // // arbitrable contract
-        const ArbitrableTransactionInstanceInstance = new ArbitrableTransaction(
+      },
+      10000
+    )
+    it(
+      'create a arbitrable transaction',
+      async () => {
+        const [
+          klerosPOCAddress,
+          arbitrableContractAddress
+        ] = await setUpContracts(
+          provider,
+          klerosPOCData,
+          arbitrableContractData
+        )
+
+        expect(klerosPOCAddress).toBeDefined()
+        expect(arbitrableContractAddress).toBeDefined()
+        // arbitrable contract
+        const ArbitrableTransactionInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
+        await ArbitrableTransactionInstance.createArbitrableTransaction(
+          arbitrableContractData.partyA,
+          klerosPOCAddress,
+          arbitrableContractData.partyB,
+          arbitrableContractData.value,
+          arbitrableContractData.timeout,
+          arbitrableContractData.extraData,
+          arbitrableContractData.metaEvidenceUri
+        )
+        const transactionArbitrable0 = await ArbitrableTransactionInstance.getData(
+          0
+        )
 
-        const contractArbitrableTransactionData = await ArbitrableTransactionInstanceInstance.getData(
-          arbitrableContractAddress,
-          partyA
-        )
-        expect(contractArbitrableTransactionData.address).toEqual(
-          arbitrableContractAddress
-        )
-        expect(contractArbitrableTransactionData.arbitrator).toEqual(
-          klerosPOCAddress
-        )
-        expect(contractArbitrableTransactionData.timeout).toEqual(
-          arbitrableContractData.timeout
-        )
-        expect(contractArbitrableTransactionData.partyA).toEqual(
-          arbitrableContractData.partyA
-        )
-        expect(contractArbitrableTransactionData.partyB).toEqual(
-          arbitrableContractData.partyB
-        )
+        expect(transactionArbitrable0.seller).toEqual(arbitrableContractData.partyB)
+        expect(transactionArbitrable0.buyer).toEqual(arbitrableContractData.partyA)
+        expect(transactionArbitrable0.amount).toEqual(arbitrableContractData.value)
+        expect(transactionArbitrable0.timeout).toEqual(arbitrableContractData.timeout)
+        expect(transactionArbitrable0.disputeId).toEqual(0)
+        expect(transactionArbitrable0.arbitrator).toEqual(klerosPOCAddress)
+        expect(transactionArbitrable0.arbitratorExtraData).toEqual('0x')
+        expect(transactionArbitrable0.sellerFee).toEqual(0)
+        expect(transactionArbitrable0.buyerFee).toEqual(0)
+        expect(transactionArbitrable0.lastInteraction).toBeDefined()
+        expect(transactionArbitrable0.status).toEqual(0)
       },
       10000
     )
@@ -180,24 +201,37 @@ describe('Contracts', () => {
         expect(klerosPOCAddress).toBeDefined()
         expect(arbitrableContractAddress).toBeDefined()
 
-        // FIXME use arbitrableTransaction
-        const ArbitrableTransactionInstance = new ArbitrableTransaction(
+        const ArbitrableTransactionInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
-        const arbitrableContractInstance = await ArbitrableTransactionInstance.loadContract()
-        const partyApaysPartyB = await arbitrableContractInstance.pay({
-          from: partyA
-        })
 
-        expect(partyApaysPartyB.tx).toEqual(
+        // create a arbitrable transaction
+        await ArbitrableTransactionInstance.createArbitrableTransaction(
+          arbitrableContractData.partyA,
+          klerosPOCAddress,
+          arbitrableContractData.partyB,
+          arbitrableContractData.value,
+          arbitrableContractData.timeout,
+          arbitrableContractData.extraData,
+          arbitrableContractData.metaEvidenceUri
+        )
+
+        // buyer pays the seller
+        const transactionArbitrable0 = await ArbitrableTransactionInstance.pay(
+          arbitrableContractData.partyA,
+          0,
+          arbitrableContractData.value
+        )
+
+        expect(transactionArbitrable0.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
       },
       50000
     )
     it(
-      'dispute with a timeout call by partyA',
+      'dispute with a timeout call by the buyer',
       async () => {
         const [
           klerosPOCAddress,
@@ -210,51 +244,54 @@ describe('Contracts', () => {
         expect(klerosPOCAddress).toBeDefined()
         expect(arbitrableContractAddress).toBeDefined()
 
-        // return a bigint
-        // FIXME use arbitrableTransaction
-        const ArbitrableTransactionInstance = new ArbitrableTransaction(
+        const ArbitrableTransactionInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
-        const arbitrableContractInstance = await ArbitrableTransactionInstance.loadContract()
-        const partyAFeeContractInstance = await arbitrableContractInstance.partyAFee()
 
-        // return bytes
-        // FIXME use arbitrableTransaction
-        let extraDataContractInstance = await arbitrableContractInstance.arbitratorExtraData()
+        // create a arbitrable transaction
+        await ArbitrableTransactionInstance.createArbitrableTransaction(
+          arbitrableContractData.partyA,
+          klerosPOCAddress,
+          arbitrableContractData.partyB,
+          arbitrableContractData.value,
+          arbitrableContractData.timeout,
+          arbitrableContractData.extraData,
+          arbitrableContractData.metaEvidenceUri
+        )
 
         const KlerosInstance = new KlerosPOC(provider, klerosPOCAddress)
         // return a bigint with the default value : 10000 wei fees in ether
         const arbitrationCost = await KlerosInstance.getArbitrationCost(
-          extraDataContractInstance
+          arbitrableContractData.extraData
         )
 
-        // raise dispute party A
-        const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyA(
-          partyA,
-          arbitrationCost -
-            web3.fromWei(partyAFeeContractInstance, 'ether').toNumber()
+        // buyer A pays fee
+        const raiseDisputeByBuyerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByBuyer(
+          arbitrableContractData.partyA,
+          0,
+          arbitrationCost
         )
-        expect(raiseDisputeByPartyATxObj.tx).toEqual(
+
+        expect(raiseDisputeByBuyerTxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
 
-        await delaySecond()
-        // call timeout by partyA
-        // TODO should test the api not directly the truffle contract
-        const txHashTimeOutByPartyA = await arbitrableContractInstance.timeOutByPartyA(
-          { from: partyA }
+        await delaySecond(2)
+        // call timeout by the buyer
+        const txHashTimeOutByBuyer = await ArbitrableTransactionInstance.callTimeOutBuyer(
+          arbitrableContractData.partyA,
+          0
         )
-        expect(txHashTimeOutByPartyA.tx).toEqual(
+        expect(txHashTimeOutByBuyer.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
       },
       50000
     )
     it(
-      'dispute with an appeal call by partyA',
+      'dispute with an appeal call by the buyer',
       async () => {
-        // deploy klerosPOC and arbitrableContract contracts
         const [
           klerosPOCAddress,
           arbitrableContractAddress
@@ -263,24 +300,33 @@ describe('Contracts', () => {
           klerosPOCData,
           arbitrableContractData
         )
-        expect(klerosPOCAddress).toBeDefined()
-        expect(arbitrableContractAddress).toBeDefined()
+        await expect(klerosPOCAddress).toBeDefined()
+        await expect(arbitrableContractAddress).toBeDefined()
 
-        const KlerosPOCInstance = new KlerosPOC(provider, klerosPOCAddress)
-
-        // return a bigint
-        // FIXME use arbitrableTransaction
-        const ArbitrableTransactionInstance = new ArbitrableTransaction(
+        const ArbitrableTransactionInstance = new MultipleArbitrableTransaction(
           provider,
           arbitrableContractAddress
         )
 
-        // ****** Juror side (activate token) ****** //
+        // create a arbitrable transaction
+        await ArbitrableTransactionInstance.createArbitrableTransaction(
+          arbitrableContractData.partyA,
+          klerosPOCAddress,
+          arbitrableContractData.partyB,
+          arbitrableContractData.value,
+          arbitrableContractData.timeout,
+          arbitrableContractData.extraData,
+          arbitrableContractData.metaEvidenceUri
+        )
+
+        const KlerosPOCInstance = await new KlerosPOC(provider, klerosPOCAddress)
+
+        // // ****** Juror side (activate token) ****** //
 
         // jurors buy PNK
         const pnkAmount = '1000000000000000000'
         const buyPNKJurors = await Promise.all([
-          KlerosPOCInstance.buyPNK(pnkAmount, jurorContract1),
+          await KlerosPOCInstance.buyPNK(pnkAmount, jurorContract1),
           await KlerosPOCInstance.buyPNK(pnkAmount, jurorContract2)
         ])
 
@@ -294,41 +340,33 @@ describe('Contracts', () => {
           await KlerosPOCInstance.activatePNK(pnkAmount, jurorContract2)
         }
 
-        // load klerosPOC
-        const klerosPOCInstance = await KlerosPOCInstance.loadContract()
-
         // ****** Parties side (raise dispute) ****** //
-
-        const arbitrableContractInstance = await ArbitrableTransactionInstance.loadContract()
-
-        const partyAFeeContractInstance = await arbitrableContractInstance.partyAFee()
-        const partyBFeeContractInstance = await arbitrableContractInstance.partyBFee()
-
-        // return bytes
-        // FIXME use arbitrableTransaction
-        let extraDataContractInstance = await arbitrableContractInstance.arbitratorExtraData()
 
         const KlerosInstance = new KlerosPOC(provider, klerosPOCAddress)
         // return a bigint with the default value : 10000 wei fees in ether
         const arbitrationCost = await KlerosInstance.getArbitrationCost(
-          extraDataContractInstance
+          arbitrableContractData.extraData
         )
 
-        // raise dispute party A
-        const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyA(
-          partyA,
-          arbitrationCost.minus(partyAFeeContractInstance)
+        // buyer A pays fee
+        const raiseDisputeByBuyerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByBuyer(
+          arbitrableContractData.partyA,
+          0,
+          arbitrationCost
         )
-        expect(raiseDisputeByPartyATxObj.tx).toEqual(
+
+        expect(raiseDisputeByBuyerTxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
 
-        // raise dispute party B
-        const raiseDisputeByPartyBTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyB(
-          partyB,
-          arbitrationCost.minus(partyBFeeContractInstance)
+        // seller pays fee
+        const raiseDisputeBySellerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeBySeller(
+          arbitrableContractData.partyB,
+          0,
+          arbitrationCost
         )
-        expect(raiseDisputeByPartyBTxObj.tx).toEqual(
+
+        expect(raiseDisputeBySellerTxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)
         ) // tx hash
 
@@ -382,18 +420,20 @@ describe('Contracts', () => {
         await delaySecond()
         await KlerosPOCInstance.passPeriod(other)
 
-        const currentRuling = await klerosPOCInstance.currentRuling(0)
+        const currentRuling = await KlerosPOCInstance.currentRulingForDispute(0, 0)
         expect(currentRuling.toString()).toBeTruthy() // make sure the ruling exists
 
         const appealCost = await KlerosPOCInstance.getAppealCost(
           0,
-          extraDataContractInstance
+          arbitrableContractData.extraData
         )
+
         // raise appeal party A
         const raiseAppealByPartyATxObj = await ArbitrableTransactionInstance.appeal(
           partyA,
-          appealCost,
-          extraDataContractInstance
+          0,
+          arbitrableContractData.extraData,
+          appealCost
         )
         expect(raiseAppealByPartyATxObj.tx).toEqual(
           expect.stringMatching(/^0x[a-f0-9]{64}$/)

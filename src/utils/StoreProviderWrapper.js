@@ -44,29 +44,24 @@ class StoreProviderWrapper {
   queueReadRequest = uri =>
     this._storeQueue.fetch(() => httpRequest('GET', uri))
 
-  /**
-   * Fetch the URI where metaEvidence in the kleros store should be stored.
-   * @param {string} userAddress - The users ETH address.
-   * @param {string} contractAddress - The address of the arbitrable contract.
-   * @returns {stirng} - The URI where metaEvidence in the kleros store should be stored.
-   */
-  getMetaEvidenceUri = (userAddress, contractAddress) =>
+  getMetaEvidenceUri = (
+    userAddress,
+    contractAddress,
+    arbitrableTransactionIndex
+  ) =>
     `${
       this._storeUri
-    }/${userAddress}/contracts/${contractAddress}/meta-evidence`
+    }/${userAddress}/contracts/${contractAddress}/arbitrable-transaction/${arbitrableTransactionIndex}/meta-evidence`
 
-  /**
-   * Fetch the URI where evidence in the kleros store should be stored.
-   * @param {string} userAddress - The users ETH address.
-   * @param {string} contractAddress - The address of the arbitrable contract.
-   * @param {number} evidenceIndex - The index of the evidence.
-   * Should be returned when evidence is added to the store
-   * @returns {stirng} - The URI where evidence in the kleros store should be stored.
-   */
-  getEvidenceUri = (userAddress, contractAddress, evidenceIndex) =>
+  getEvidenceUri = (
+    userAddress,
+    contractAddress,
+    arbitrableTransactionIndex,
+    evidenceIndex
+  ) =>
     `${
       this._storeUri
-    }/${userAddress}/contracts/${contractAddress}/evidence/${evidenceIndex}`
+    }/${userAddress}/contracts/${contractAddress}/arbitrable-transaction/${arbitrableTransactionIndex}/evidence/${evidenceIndex}`
 
   // **************************** //
   // *          Read            * //
@@ -265,6 +260,7 @@ class StoreProviderWrapper {
    * stored evidence for the specified user, not all parties of the dispute.
    * @param {string} contractAddress - Address of the contract
    * @param {string} userAddress - Address of the user.
+   * @param {string} arbitrableTransactionIndex - Id of the arbitrable transaction.
    * @param {string} name - Name of evidence.
    * @param {string} description - Description of evidence.
    * @param {string} url - A link to the evidence.
@@ -274,6 +270,7 @@ class StoreProviderWrapper {
   addEvidenceContract = async (
     contractAddress,
     userAddress,
+    arbitrableTransactionIndex,
     name,
     description,
     url,
@@ -294,7 +291,9 @@ class StoreProviderWrapper {
     const response = await this.queueWriteRequest(
       getBodyFn,
       'POST',
-      `${this._storeUri}/${userAddress}/contracts/${contractAddress}/evidence`
+      `${
+        this._storeUri
+      }/${userAddress}/contracts/${contractAddress}/arbitrable-transaction/${arbitrableTransactionIndex}/evidence`
     )
 
     if (response.status !== 201)

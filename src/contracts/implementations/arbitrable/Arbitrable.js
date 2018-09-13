@@ -26,7 +26,7 @@ class Arbitrable extends ContractImplementation {
    * and make an http request to the resource.
    * @returns {object} The metaEvidence object
    */
-  getMetaEvidence = async () => {
+  getMetaEvidence = async (metaEvidenceID = 0) => {
     if (this.metaEvidenceCache[this.contractAddress])
       return this.metaEvidenceCache[this.contractAddress]
 
@@ -35,7 +35,7 @@ class Arbitrable extends ContractImplementation {
       'MetaEvidence',
       0,
       'latest',
-      { _metaEvidenceID: 0 }
+      { _metaEvidenceID: metaEvidenceID }
     )
 
     if (!metaEvidenceLog[0]) return {} // NOTE better to throw errors for missing meta-evidence?
@@ -87,6 +87,19 @@ class Arbitrable extends ContractImplementation {
         }
       })
     )
+  }
+
+  /**
+   * Fetch all standard contract data.
+   */
+  getContractData = async () => {
+    await this.loadContract()
+
+    const [metaEvidence] = await Promise.all([this.getMetaEvidence()])
+
+    return {
+      metaEvidence
+    }
   }
 }
 

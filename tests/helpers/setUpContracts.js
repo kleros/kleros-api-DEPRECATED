@@ -2,7 +2,7 @@ import BlockHashRNG from '../../src/contracts/implementations/RNG/BlockHashRNG'
 import MiniMePinakion from '../../src/contracts/implementations/PNK/MiniMePinakion'
 import TokenFactory from '../../src/contracts/implementations/PNK/TokenFactory'
 import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
-import ArbitrableTransaction from '../../src/contracts/implementations/arbitrable/ArbitrableTransaction'
+import MultipleArbitrableTransaction from '../../src/contracts/implementations/arbitrable/MultipleArbitrableTransaction'
 
 const setUpContracts = async (
   provider,
@@ -41,16 +41,11 @@ const setUpContracts = async (
     klerosPOCParams.account
   )
 
-  const contractArbitrableTransaction = await ArbitrableTransaction.deploy(
+  const contractArbitrableTransaction = await MultipleArbitrableTransaction.deploy(
     arbitrableContractParams.partyA,
-    arbitrableContractParams.value,
-    klerosCourt.address,
-    arbitrableContractParams.timeout,
-    arbitrableContractParams.partyB,
-    arbitrableContractParams.extraData,
-    arbitrableContractParams.metaEvidenceUri,
     provider
   )
+  
   return [
     klerosCourt.address,
     contractArbitrableTransaction.address,
