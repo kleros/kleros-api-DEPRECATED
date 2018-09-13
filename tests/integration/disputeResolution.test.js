@@ -1,7 +1,7 @@
 import Web3 from 'web3'
 
 import KlerosPOC from '../../src/contracts/implementations/arbitrator/KlerosPOC'
-import ArbitrableTransaction from '../../src/contracts/implementations/arbitrable/ArbitrableTransaction'
+import MultipleArbitrableTransaction from '../../src/contracts/implementations/arbitrable/MultipleArbitrableTransaction'
 import Notifications from '../../src/resources/Notifications'
 import * as ethConstants from '../../src/constants/eth'
 import * as notificationConstants from '../../src/constants/notification'
@@ -45,10 +45,7 @@ describe('Dispute Resolution', () => {
       value: '1000000000000000000',
       timeout: 1,
       extraData: '',
-      title: 'test title',
-      description: 'test description',
-      email: 'test@test.test',
-      metaEvidenceUri: 'https://test-meta-evidence.com'
+      metaEvidenceUri: 'https://my-meta-evidence.ipfs.io'
     }
   })
 
@@ -67,7 +64,8 @@ describe('Dispute Resolution', () => {
       expect(pnkAddress).toBeDefined()
 
       const KlerosPOCInstance = new KlerosPOC(provider, klerosPOCAddress)
-      const ArbitrableTransactionInstance = new ArbitrableTransaction(
+      // arbitrable contract
+      const ArbitrableTransactionInstance = new MultipleArbitrableTransaction(
         provider,
         arbitrableContractAddress
       )
@@ -129,36 +127,42 @@ describe('Dispute Resolution', () => {
       )
       // return a bigint
       // FIXME use arbitrableTransaction
-      const arbitrableContractInstance = await ArbitrableTransactionInstance.loadContract()
-      const partyAFeeContractInstance = await arbitrableContractInstance.partyAFee()
-      // return bytes
-      // FIXME use arbitrableTransaction
-      let extraDataContractInstance = await arbitrableContractInstance.arbitratorExtraData()
-
+      await ArbitrableTransactionInstance.createArbitrableTransaction(
+        arbitrableContractData.partyA,
+        klerosPOCAddress,
+        arbitrableContractData.partyB,
+        arbitrableContractData.value,
+        arbitrableContractData.timeout,
+        arbitrableContractData.extraData,
+        arbitrableContractData.metaEvidenceUri
+      )
       // return a bigint with the default value : 10000 wei fees in ether
       const arbitrationCost = await KlerosPOCInstance.getArbitrationCost(
-        extraDataContractInstance
+        arbitrableContractData.extraData
       )
-      // raise dispute party A
-      const raiseDisputeByPartyATxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyA(
-        partyA,
-        arbitrationCost.minus(partyAFeeContractInstance)
+
+      // buyer pays arbitration fee
+      const raiseDisputeByBuyerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByBuyer(
+        arbitrableContractData.partyA,
+        0,
+        arbitrationCost
       )
-      expect(raiseDisputeByPartyATxObj.tx).toEqual(
+
+      expect(raiseDisputeByBuyerTxObj.tx).toEqual(
         expect.stringMatching(/^0x[a-f0-9]{64}$/)
       ) // tx hash
 
-      // return a bigint
-      // FIXME use arbitrableTransaction
-      const partyBFeeContractInstance = await arbitrableContractInstance.partyBFee()
-
-      const raiseDisputeByPartyBTxObj = await ArbitrableTransactionInstance.payArbitrationFeeByPartyB(
-        partyB,
-        arbitrationCost.minus(partyBFeeContractInstance)
+      // seller pays fee to raise a dispute
+      const raiseDisputeBySellerTxObj = await ArbitrableTransactionInstance.payArbitrationFeeBySeller(
+        arbitrableContractData.partyB,
+        0,
+        arbitrationCost
       )
-      expect(raiseDisputeByPartyBTxObj.tx).toEqual(
+
+      expect(raiseDisputeBySellerTxObj.tx).toEqual(
         expect.stringMatching(/^0x[a-f0-9]{64}$/)
       ) // tx hash
+
       const dispute = await KlerosPOCInstance.getDispute(0, true)
       expect(dispute.arbitrableContractAddress).toEqual(
         arbitrableContractAddress
@@ -178,10 +182,9 @@ describe('Dispute Resolution', () => {
       const testDesc = 'test description'
       const testURL = 'http://test.com'
       const txHashAddEvidence = await ArbitrableTransactionInstance.submitEvidence(
-        partyA,
-        testName,
-        testDesc,
-        testURL
+        arbitrableContractData.partyA,
+        0,  // arbitrable transaction id
+        'https://my-evidence.ipfs.io' // evidence url
       )
       expect(txHashAddEvidence).toEqual(
         expect.stringMatching(/^0x[a-f0-9]{64}$/)
