@@ -177,10 +177,7 @@ describe('Dispute Resolution', () => {
         )
       )
 
-      // add an evidence for partyA
-      const testName = 'test name'
-      const testDesc = 'test description'
-      const testURL = 'http://test.com'
+      // add an evidence for the buyer
       const txHashAddEvidence = await ArbitrableTransactionInstance.submitEvidence(
         arbitrableContractData.partyA,
         0,  // arbitrable transaction id
@@ -355,10 +352,10 @@ describe('Dispute Resolution', () => {
           partyABalance.toString()
         )
       }
-      // const netPNK = await KlerosPOCInstance.getNetTokensForDispute(0, partyA)
+      const netPNK = await KlerosPOCInstance.getNetTokensForDispute(0, partyA)
 
-      const updatedContractData = await ArbitrableTransactionInstance.getData()
-      expect(parseInt(updatedContractData.status, 10)).toEqual(4)
+      const updatedTransactionArbitrable0Data = await ArbitrableTransactionInstance.getData(0)
+      expect(updatedTransactionArbitrable0Data.status).toEqual(4) // Resolved status expected
     },
     100000
   )
