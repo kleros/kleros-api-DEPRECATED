@@ -31,68 +31,63 @@ class Arbitrator extends AbstractContract {
       return this.getDisputesForUserFromStore(account)
     }
 
-    let profile = await this._StoreProvider.newUserProfile(account)
-    if (currentSession !== profile.session) {
-      // pull open disputes from off chain cache
-      let cachedDisputes = null
-      if (allowOffChainCache) {
-        const cachedDisputesResponse = await httpRequest(
-          'GET',
-          `${DISPUTE_CACHE_URI}/${currentSession}`
-        )
+    const profile = await this._StoreProvider.newUserProfile(account)
+    // pull open disputes from off chain cache
+    let cachedDisputes = null
+    if (allowOffChainCache) {
+      const cachedDisputesResponse = await httpRequest(
+        'GET',
+        `${DISPUTE_CACHE_URI}/${currentSession}`
+      )
 
-        if (
-          cachedDisputesResponse.body &&
-          cachedDisputesResponse.body.open_disputes
-        ) {
-          cachedDisputes = await Promise.all(
-            cachedDisputesResponse.body.open_disputes.map(disputeIDString =>
-              this._contractImplementation.getDispute(Number(disputeIDString))
-            )
+      if (
+        cachedDisputesResponse.body &&
+        cachedDisputesResponse.body.open_disputes
+      ) {
+        cachedDisputes = await Promise.all(
+          cachedDisputesResponse.body.open_disputes.map(disputeIDString =>
+            this._contractImplementation.getDispute(Number(disputeIDString))
+          )
+        )
+      }
+    }
+
+    // get disputes for juror
+    const myDisputes = await this._contractImplementation.getDisputesForJuror(
+      account,
+      cachedDisputes
+    )
+
+    // update user profile for each dispute
+    await Promise.all(
+      myDisputes.map(async dispute => {
+        if (dispute.appealDraws[dispute.numberOfAppeals].length > 0) {
+          const disputeCreationLog = await this._contractImplementation.getDisputeCreationEvent(
+            dispute.disputeID
+          )
+
+          if (!disputeCreationLog)
+            throw new Error('Could not fetch dispute creation event log')
+          // update profile for account
+          await this._StoreProvider.updateDisputeProfile(
+            account,
+            dispute.arbitratorAddress,
+            dispute.disputeID,
+            {
+              blockNumber: disputeCreationLog.blockNumber
+            }
+          )
+          // add draws separately for appeals
+          await this._StoreProvider.addNewDrawsDisputeProfile(
+            account,
+            dispute.arbitratorAddress,
+            dispute.disputeID,
+            dispute.appealDraws[dispute.numberOfAppeals],
+            dispute.numberOfAppeals
           )
         }
-      }
-
-      // get disputes for juror
-      const myDisputes = await this._contractImplementation.getDisputesForJuror(
-        account,
-        cachedDisputes
-      )
-
-      // update user profile for each dispute
-      await Promise.all(
-        myDisputes.map(async dispute => {
-          if (dispute.appealDraws[dispute.numberOfAppeals].length > 0) {
-            const disputeCreationLog = await this._contractImplementation.getDisputeCreationEvent(
-              dispute.disputeID
-            )
-
-            if (!disputeCreationLog)
-              throw new Error('Could not fetch dispute creation event log')
-            // update profile for account
-            await this._StoreProvider.updateDisputeProfile(
-              account,
-              dispute.arbitratorAddress,
-              dispute.disputeID,
-              {
-                blockNumber: disputeCreationLog.blockNumber
-              }
-            )
-            // add draws separately for appeals
-            await this._StoreProvider.addNewDrawsDisputeProfile(
-              account,
-              dispute.arbitratorAddress,
-              dispute.disputeID,
-              dispute.appealDraws[dispute.numberOfAppeals],
-              dispute.numberOfAppeals
-            )
-          }
-        })
-      )
-
-      // FIXME do we want to store session?
-      this._StoreProvider.updateUserSession(account, currentSession)
-    }
+      })
+    )
 
     return this.getDisputesForUserFromStore(account)
   }
