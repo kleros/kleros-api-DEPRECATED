@@ -183,6 +183,7 @@ describe('Contracts', () => {
         expect(transactionArbitrable0.buyerFee).toEqual(0)
         expect(transactionArbitrable0.lastInteraction).toBeDefined()
         expect(transactionArbitrable0.status).toEqual(0)
+        expect(transactionArbitrable0.metaEvidenceUri).toEqual(arbitrableContractData.metaEvidenceUri)
       },
       10000
     )

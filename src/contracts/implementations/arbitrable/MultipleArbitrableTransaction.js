@@ -342,7 +342,8 @@ class MultipleArbitrableTransaction extends Arbitrable {
       sellerFee: this._Web3Wrapper.fromWei(arbitrableTransaction[7], 'ether'),
       buyerFee: this._Web3Wrapper.fromWei(arbitrableTransaction[8], 'ether'),
       lastInteraction: arbitrableTransaction[9].toNumber(),
-      status: arbitrableTransaction[10].toNumber()
+      status: arbitrableTransaction[10].toNumber(),
+      metaEvidenceUri: await this.getMetaEvidence(arbitrableTransactionId)
     }
   }
 }
