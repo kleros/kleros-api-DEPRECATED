@@ -27,8 +27,8 @@ class Arbitrable extends ContractImplementation {
    * @returns {object} The metaEvidence object
    */
   getMetaEvidence = async (metaEvidenceID = 0) => {
-    if (this.metaEvidenceCache[this.contractAddress])
-      return this.metaEvidenceCache[this.contractAddress]
+    if (this.metaEvidenceCache[metaEvidenceID])
+      return this.metaEvidenceCache[metaEvidenceID]
 
     const metaEvidenceLog = await EventListener.getEventLogs(
       this,
@@ -47,7 +47,7 @@ class Arbitrable extends ContractImplementation {
     if (metaEvidenceResponse.status >= 400)
       throw new Error(`Unable to fetch meta-evidence at ${metaEvidenceUri}`)
 
-    this.metaEvidenceCache[this.contractAddress] =
+    this.metaEvidenceCache[metaEvidenceID] =
       metaEvidenceResponse.body || metaEvidenceResponse
     return metaEvidenceResponse.body || metaEvidenceResponse
   }

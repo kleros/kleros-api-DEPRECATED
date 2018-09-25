@@ -87,11 +87,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
    * @param {amount} amount - Part or all of the amount of the good or the service.
    * @returns {object} - The result transaction object.
    */
-  pay = async (
-    account,
-    arbitrableTransactionId,
-    amount
-  ) => {
+  pay = async (account, arbitrableTransactionId, amount) => {
     await this.loadContract()
 
     try {
@@ -342,7 +338,8 @@ class MultipleArbitrableTransaction extends Arbitrable {
       sellerFee: this._Web3Wrapper.fromWei(arbitrableTransaction[7], 'ether'),
       buyerFee: this._Web3Wrapper.fromWei(arbitrableTransaction[8], 'ether'),
       lastInteraction: arbitrableTransaction[9].toNumber(),
-      status: arbitrableTransaction[10].toNumber()
+      status: arbitrableTransaction[10].toNumber(),
+      metaEvidenceUri: await this.getMetaEvidence(arbitrableTransactionId)
     }
   }
 }
