@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.17.3"></a>
+## [0.17.3](https://github.com/kleros/kleros-api/compare/v0.17.1...v0.17.3) (2018-09-25)
+
+
+### Bug Fixes
+
+* remove sesion cache for drawns ([e19ad3a](https://github.com/kleros/kleros-api/commit/e19ad3a))
+* use session again ([8f4b282](https://github.com/kleros/kleros-api/commit/8f4b282))
+
+
+
 <a name="0.17.1"></a>
 ## [0.17.1](https://github.com/kleros/kleros-api/compare/v0.17.0...v0.17.1) (2018-09-07)
 
