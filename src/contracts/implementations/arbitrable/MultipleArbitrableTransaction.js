@@ -87,11 +87,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
    * @param {amount} amount - Part or all of the amount of the good or the service.
    * @returns {object} - The result transaction object.
    */
-  pay = async (
-    account,
-    arbitrableTransactionId,
-    amount
-  ) => {
+  pay = async (account, arbitrableTransactionId, amount) => {
     await this.loadContract()
 
     try {
