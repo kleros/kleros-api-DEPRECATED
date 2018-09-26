@@ -46,7 +46,13 @@ describe('Contracts', () => {
       value: 0,
       timeout: 1,
       extraData: '',
-      metaEvidenceUri: 'https://my-meta-evidence.ipfs.io'
+      metaEvidenceUri: 'https://jsonplaceholder.typicode.com/posts/42', // assume this api is available and renders the content below
+      metaEvidence: {
+        userId: 5,
+        id: 42,
+        title: "commodi ullam sint et excepturi error explicabo praesentium voluptas",
+        body: "odio fugit voluptatum ducimus earum autem est incidunt voluptatem\nodit reiciendis aliquam sunt sequi nulla dolorem\nnon facere repellendus voluptates quia\nratione harum vitae ut"
+      }
     }
   })
 
@@ -183,6 +189,7 @@ describe('Contracts', () => {
         expect(transactionArbitrable0.buyerFee).toEqual(0)
         expect(transactionArbitrable0.lastInteraction).toBeDefined()
         expect(transactionArbitrable0.status).toEqual(0)
+        expect(transactionArbitrable0.metaEvidence).toEqual(arbitrableContractData.metaEvidence)
       },
       10000
     )
