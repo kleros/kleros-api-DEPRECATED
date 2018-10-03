@@ -56,15 +56,7 @@ class Arbitrable extends ContractImplementation {
    * Get the evidence submitted in a dispute.
    * @returns {object[]} An array of evidence objects.
    */
-  getEvidence = async () => {
-    await this.loadContract()
-    const arbitratorAddress = await this.contractInstance.arbitrator()
-    await this.loadContract()
-    const disputeID = (await this.contractInstance.disputeID()).toNumber()
-
-    // No evidence yet as there is no dispute
-    if (_.isNull(disputeID)) return []
-
+  getEvidence = async (arbitratorAddress, disputeID = 0) => {
     const evidenceLogs = await EventListener.getEventLogs(
       this,
       'Evidence',
