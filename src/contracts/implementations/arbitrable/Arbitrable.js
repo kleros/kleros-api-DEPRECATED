@@ -38,9 +38,10 @@ class Arbitrable extends ContractImplementation {
       { _metaEvidenceID: metaEvidenceID }
     )
 
-    if (!metaEvidenceLog[0]) return {} // NOTE better to throw errors for missing meta-evidence?
+    if (!metaEvidenceLog[metaEvidenceID]) return {} // NOTE better to throw errors for missing meta-evidence?
 
-    const metaEvidenceUri = metaEvidenceLog[0].args._evidence
+    const metaEvidenceUri = metaEvidenceLog[metaEvidenceID].args._evidence
+
     // FIXME caching issue need a query param to fetch from AWS
     const metaEvidenceResponse = await httpRequest('GET', metaEvidenceUri)
 
