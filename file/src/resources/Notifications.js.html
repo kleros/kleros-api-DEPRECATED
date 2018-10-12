@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/resources/Notifications.js | kleros-api</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol."><meta property="twitter:card" content="summary"><meta property="twitter:title" content="kleros-api"><meta property="twitter:description" content="A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol."></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/kleros.js~Kleros.html">Kleros</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts">contracts</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/AbstractContract.js~AbstractContract.html">AbstractContract</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/ContractImplementation.js~ContractImplementation.html">ContractImplementation</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-abstractions">contracts/abstractions</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/abstractions/Arbitrable.js~ArbitrableContract.html">ArbitrableContract</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/abstractions/Arbitrator.js~Arbitrator.html">Arbitrator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/abstractions/MultipleArbitrable.js~ArbitrableContract.html">ArbitrableContract</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-implementations-pnk">contracts/implementations/PNK</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/PNK/MiniMePinakion.js~MiniMePinakion.html">MiniMePinakion</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/PNK/PinakionPOC.js~PinakionPOC.html">PinakionPOC</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/PNK/TokenFactory.js~TokenFactory.html">TokenFactory</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-implementations-rng">contracts/implementations/RNG</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/RNG/BlockHashRNG.js~BlockHashRNG.html">BlockHashRNG</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-implementations-arbitrable">contracts/implementations/arbitrable</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrable/Arbitrable.js~Arbitrable.html">Arbitrable</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrable/ArbitrablePermissionList.js~ArbitrablePermissionList.html">ArbitrablePermissionList</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrable/ArbitrableTransaction.js~ArbitrableTransaction.html">ArbitrableTransaction</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrable/MultipleArbitrableTransaction.js~MultipleArbitrableTransaction.html">MultipleArbitrableTransaction</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-implementations-arbitrator">contracts/implementations/arbitrator</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrator/Kleros.js~Kleros.html">Kleros</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrator/KlerosPOC.js~KlerosPOC.html">KlerosPOC</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#resources">resources</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/resources/Auth.js~Auth.html">Auth</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/resources/Disputes.js~Disputes.html">Disputes</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/resources/Notifications.js~Notifications.html">Notifications</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#utils">utils</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/utils/EventListener.js~EventListener.html">EventListener</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/utils/StoreProviderWrapper.js~StoreProviderWrapper.html">StoreProviderWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/utils/Web3Wrapper.js~Web3Wrapper.html">Web3Wrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-PromiseQueue">PromiseQueue</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-delegateCalls">delegateCalls</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-deployContractAsync">deployContractAsync</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getContractAddress">getContractAddress</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-httpRequest">httpRequest</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isRequired">isRequired</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/resources/Notifications.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import _ from &apos;lodash&apos;
+
+import * as arbitratorConstants from &apos;../constants/arbitrator&apos;
+import * as notificationConstants from &apos;../constants/notification&apos;
+import * as disputeConstants from &apos;../constants/dispute&apos;
+import { MISSING_STORE_PROVIDER } from &apos;../constants/error&apos;
+import isRequired from &apos;../utils/isRequired&apos;
+
+/**
+ * Notifications API. Use this object to fetch notifications from the store, register
+ * event log handlers to update store and send push notifications.
+ */
+class Notifications {
+  constructor(
+    arbitratorInstance = isRequired(&apos;arbitratorInstance&apos;),
+    arbitrableInstance = isRequired(&apos;arbitrableInstance&apos;),
+    storeProviderInstance
+  ) {
+    this._ArbitratorInstance = arbitratorInstance
+    this._Web3Wrapper = this._ArbitratorInstance.getWeb3Wrapper()
+    this._ArbitrableInstance = arbitrableInstance
+    this._StoreProviderInstance = storeProviderInstance
+  }
+  /**
+   * Set arbitrator instance.
+   * @param {object} arbitratorInstance - instance of an arbitrator contract.
+   */
+  setArbitratorInstance = arbitratorInstance =&gt; {
+    this._ArbitratorInstance = arbitratorInstance
+  }
+  /**
+   * Set arbitrable instance.
+   * @param {object} arbitrableInstance - instance of an arbitrable contract.
+   */
+  setArbitrableInstance = arbitrableInstance =&gt; {
+    this._ArbitrableInstance = arbitrableInstance
+  }
+  /**
+   * Set store provider instance.
+   * @param {object} storeProviderInstance - instance of store provider wrapper.
+   */
+  setStoreProviderInstance = storeProviderInstance =&gt; {
+    this._StoreProviderInstance = storeProviderInstance
+  }
+
+  // **************************** //
+  // *         Public           * //
+  // **************************** //
+
+  /**
+   * Register event handlers for the arbitrator instance.
+   * @param {string} account - Filter notifications for account.
+   * @param {object} eventListener - Event Listener that will fetch logs and call callbacks
+   * @param {function} callback - If we want notifications to be &quot;pushed&quot; provide a callback function to call when a new notification is created.
+   */
+  registerArbitratorNotifications = (
+    account = isRequired(&apos;account&apos;),
+    eventListener = isRequired(&apos;eventListener&apos;),
+    callback
+  ) =&gt; {
+    const eventHandlerMap = {
+      DisputeCreation: this._disputeCreationHandler,
+      AppealPossible: this._appealPossibleHandler,
+      AppealDecision: this._appealingDecisionHandler,
+      TokenShift: this._tokenShiftHandler,
+      ArbitrationReward: this._arbitrationRewardHandler,
+      NewPeriod: this._newPeriodHandler
+    }
+
+    for (let event in eventHandlerMap) {
+      if (eventHandlerMap.hasOwnProperty(event)) {
+        eventListener.addEventHandler(
+          this._ArbitratorInstance,
+          event,
+          this._createHandler(eventHandlerMap[event], account, callback)
+        )
+      }
+    }
+  }
+
+  /**
+   * Get stateful notifications. Stateful notifications change based on the state of the arbitrator contract.
+   * @param {string} account - Filter notifications for account.
+   * @param {function} isJuror - If the account is a juror.
+   * @returns {object[]} - Array of stateful notification objects.
+   */
+  getStatefulNotifications = async (account, isJuror = true) =&gt; {
+    const notifications = []
+    const [contracts, disputes] = await Promise.all([
+      this._getContracts(account),
+      this._getDisputes(account, isJuror)
+    ])
+    const currentPeriod = await this._ArbitratorInstance.getPeriod()
+    const currentSession = await this._ArbitratorInstance.getSession()
+    if (isJuror) {
+      /* Juror notifications:
+      * - Activate tokens
+      * - Need to vote
+      * - Ready to repartition (shared)
+      * - Ready to execute (shared)
+      */
+      if (currentPeriod === arbitratorConstants.PERIOD.ACTIVATION) {
+        // FIXME use estimateGas
+        const contractInstance = await this._ArbitratorInstance.loadContract()
+        const lastActivatedSession = (await contractInstance.jurors(
+          account
+        ))[2].toNumber()
+        if (lastActivatedSession &lt; currentSession) {
+          notifications.push(
+            this._createNotification(
+              notificationConstants.TYPE.CAN_ACTIVATE,
+              &apos;You can now deposit PNK.&apos;,
+              {}
+            )
+          )
+        }
+      } else if (currentPeriod === arbitratorConstants.PERIOD.VOTE) {
+        for (let dispute of disputes) {
+          const draws = dispute.appealDraws[dispute.appealDraws.length - 1]
+          if (draws) {
+            const canVote = await this._ArbitratorInstance.canRuleDispute(
+              dispute.disputeID,
+              draws,
+              account
+            )
+            if (canVote) {
+              notifications.push(
+                this._createNotification(
+                  notificationConstants.TYPE.CAN_VOTE,
+                  &apos;Open cases still need your decision.&apos;,
+                  {
+                    disputeID: dispute.disputeID,
+                    arbitratorAddress: dispute.arbitratorAddress
+                  }
+                )
+              )
+            }
+          }
+        }
+      }
+    } else {
+      /* Counterparty notifications:
+      * - Need to pay fee
+      * - Ready to repartition (shared)
+      * - Ready to execute (shared)
+      */
+      await Promise.all(
+        contracts.map(async contract =&gt; {
+          // load arbitrable contract
+          await this._ArbitrableInstance.setContractInstance(contract.address)
+          const contractData = await this._ArbitrableInstance.getData(
+            contract.partyA
+          )
+          const arbitrationCost = await this._ArbitratorInstance.getArbitrationCost(
+            contractData.arbitratorExtraData
+          )
+          if (contractData.partyA === account) {
+            if (contractData.partyAFee &lt; arbitrationCost) {
+              notifications.push(
+                this._createNotification(
+                  notificationConstants.TYPE.CAN_PAY_FEE,
+                  &apos;Arbitration fee required&apos;,
+                  {
+                    arbitratorAddress: contractData.arbitrator,
+                    arbitrableContractAddress: contract.address,
+                    feeToPay: arbitrationCost - contractData.partyAFee
+                  }
+                )
+              )
+            }
+          } else if (contractData.partyB === account) {
+            if (contractData.partyBFee &lt; arbitrationCost) {
+              notifications.push(
+                this._createNotification(
+                  notificationConstants.TYPE.CAN_PAY_FEE,
+                  &apos;Arbitration fee required&apos;,
+                  {
+                    arbitratorAddress: contractData.arbitrator,
+                    arbitrableContractAddress: contract.address,
+                    feeToPay: arbitrationCost - contractData.partyBFee
+                  }
+                )
+              )
+            }
+          }
+        })
+      )
+    }
+
+    // Repartition and execute
+    if (currentPeriod === arbitratorConstants.PERIOD.EXECUTE) {
+      await Promise.all(
+        disputes.map(async dispute =&gt; {
+          const disputeData = await this._ArbitratorInstance.getDispute(
+            dispute.disputeID
+          )
+          if (
+            disputeData.firstSession + disputeData.numberOfAppeals ===
+            currentSession
+          ) {
+            if (disputeData.state &lt;= disputeConstants.STATE.RESOLVING) {
+              notifications.push(
+                this._createNotification(
+                  notificationConstants.TYPE.CAN_REPARTITION,
+                  &apos;Ready to repartition dispute&apos;,
+                  {
+                    disputeID: dispute.disputeID,
+                    arbitratorAddress: dispute.arbitratorAddress
+                  }
+                )
+              )
+            } else if (
+              disputeData.state === disputeConstants.STATE.EXECUTABLE
+            ) {
+              notifications.push(
+                this._createNotification(
+                  notificationConstants.TYPE.CAN_EXECUTE,
+                  &apos;Ready to execute dispute&apos;,
+                  {
+                    disputeID: dispute.disputeID,
+                    arbitratorAddress: dispute.arbitratorAddress
+                  }
+                )
+              )
+            }
+          }
+        })
+      )
+    }
+    return notifications
+  }
+
+  /**
+   * Fetch all unread notifications from store.
+   * @param {string} account - Address of user.
+   * @returns {object[]} - Array of notification objects.
+   */
+  getUnreadStoredNotifications = async account =&gt; {
+    this._requireStoreProvider()
+    const profile = await this._StoreProviderInstance.newUserProfile(account)
+    const currentArbitrator = this._ArbitratorInstance.getContractAddress()
+    // return notifications that are for current arbitrator and are unread
+    return _.filter(
+      profile.notifications,
+      notification =&gt;
+        notification.data.arbitratorAddress === currentArbitrator &amp;&amp;
+        !notification.read
+    )
+  }
+
+  /**
+   * Mark stored notification as read.
+   * @param {string} account address of user
+   * @param {string} txHash hash of transaction that produced event
+   * @param {number} logIndex index of the log. used to differentiate logs if multiple logs per tx
+   * @returns {promise} promise that can be waited on for syncronousity
+   */
+  markStoredNotificationAsRead = async (account, txHash, logIndex) =&gt; {
+    this._requireStoreProvider()
+    const result = await this._StoreProviderInstance.markNotificationAsRead(
+      account,
+      txHash,
+      logIndex,
+      true
+    )
+    return result
+  }
+
+  /**
+   * Fetch all user notifications from store.
+   * @param {string} account - Address of user.
+   * @returns {object[]} - Array of notification objects.
+   */
+  getStoredNotifications = async account =&gt; {
+    this._requireStoreProvider()
+
+    return (await this._StoreProviderInstance.getUserProfile(account))
+      .notifications
+  }
+
+  // **************************** //
+  // *        Handlers          * //
+  // **************************** //
+
+  /**
+   * Checks for appeal possible notifications during APPEAL period.
+   * @param {object} event - The event log.
+   * @param {string} account - The user account.
+   * @param {function} callback - The callback.
+   */
+  _newPeriodHandler = async (event, account, callback) =&gt; {
+    const newPeriod = event.args._period.toNumber()
+    const eventSession = event.args._session.toNumber()
+    const currentSession = await this._ArbitratorInstance.getSession()
+    // send appeal possible notifications if in current session
+    if (
+      newPeriod === arbitratorConstants.PERIOD.APPEAL &amp;&amp;
+      eventSession === currentSession
+    ) {
+      const disputes = await this._getDisputes(account) // get users disputes
+      const openDisputes = await this._ArbitratorInstance.getOpenDisputesForSession() // get all disputes for session
+      const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+
+      await Promise.all(
+        openDisputes.map(async openDispute =&gt; {
+          if (
+            _.findIndex(
+              disputes,
+              dispute =&gt;
+                dispute.disputeID === openDispute.disputeID &amp;&amp;
+                dispute.arbitratorAddress === arbitratorAddress
+            ) &gt;= 0
+          ) {
+            const ruling = await this._ArbitratorInstance.currentRulingForDispute(
+              openDispute.disputeID,
+              openDispute.numberOfAppeals
+            )
+
+            const notification = await this._newNotification(
+              account,
+              event.transactionHash,
+              event.blockNumber,
+              openDispute.disputeID, // use disputeID instead of logIndex since it doens&apos;t have its own event
+              notificationConstants.TYPE.APPEAL_POSSIBLE,
+              &apos;A ruling has been made. Appeal is possible&apos;,
+              {
+                disputeID: openDispute.disputeID,
+                arbitratorAddress,
+                ruling
+              }
+            )
+
+            await this._sendPushNotification(callback, notification)
+          }
+        })
+      )
+    }
+  }
+
+  /**
+   * Handler for DisputeCreation event
+   * sends notification to partyA and partyB when dispute is created
+   * @param {object} event - The event log.
+   * @param {string} account - The user account.
+   * @param {function} callback - The callback.
+   */
+  _disputeCreationHandler = async (event, account, callback) =&gt; {
+    const disputeID = event.args._disputeID.toNumber()
+    const txHash = event.transactionHash
+    // load arbitrable contract
+    await this._ArbitrableInstance.setContractInstance(event.args._arbitrable)
+
+    const arbitrableData = await this._ArbitrableInstance.getData()
+
+    if (
+      arbitrableData.partyA === account ||
+      arbitrableData.partyB === account
+    ) {
+      const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+      const notification = await this._newNotification(
+        account,
+        txHash,
+        event.blockNumber,
+        event.logIndex,
+        notificationConstants.TYPE.DISPUTE_CREATED,
+        &apos;New Dispute Created&apos;,
+        {
+          disputeID: disputeID,
+          arbitratorAddress: arbitratorAddress
+        }
+      )
+      if (notification) await this._sendPushNotification(callback, notification)
+    }
+  }
+
+  /**
+   * handler for AppealPossible event
+   * sends notification informing accounts that a ruling has been made and an appeal possible
+   * @param {object} event - The event log.
+   * @param {string} account - The user account.
+   * @param {function} callback - The callback.
+   */
+  _appealPossibleHandler = async (event, account, callback) =&gt; {
+    const disputes = await this._getDisputes(account)
+    const disputeID = event.args._disputeID.toNumber()
+    const ruling = await this._ArbitratorInstance.currentRulingForDispute(
+      disputeID
+    )
+    const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+
+    if (
+      _.findIndex(
+        disputes,
+        dispute =&gt;
+          dispute.disputeID === disputeID &amp;&amp;
+          dispute.arbitratorAddress === arbitratorAddress
+      ) &gt;= 0
+    ) {
+      const notification = await this._newNotification(
+        account,
+        event.transactionHash,
+        event.blockNumber,
+        event.logIndex,
+        notificationConstants.TYPE.APPEAL_POSSIBLE,
+        &apos;A ruling has been made. Appeal is possible&apos;,
+        {
+          disputeID,
+          arbitratorAddress,
+          ruling
+        }
+      )
+
+      if (notification) await this._sendPushNotification(callback, notification)
+    }
+  }
+
+  /**
+   * Handler for AppealDecision event
+   * sends notification informing subscribers that a ruling has been appealed
+   * @param {object} event - The event log.
+   * @param {string} account - The user account.
+   * @param {function} callback - The callback.
+   */
+  _appealingDecisionHandler = async (event, account, callback) =&gt; {
+    const disputes = await this._getDisputes(account)
+    const disputeID = event.args._disputeID.toNumber()
+    const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+
+    if (
+      _.findIndex(
+        disputes,
+        dispute =&gt;
+          dispute.disputeID === disputeID &amp;&amp;
+          dispute.arbitratorAddress === arbitratorAddress
+      ) &gt;= 0
+    ) {
+      const notification = await this._newNotification(
+        account,
+        event.transactionHash,
+        event.blockNumber,
+        event.logIndex,
+        notificationConstants.TYPE.RULING_APPEALED,
+        &apos;A ruling you made has been appealed by one of the parties.&apos;,
+        {
+          disputeID,
+          arbitratorAddress
+        }
+      )
+
+      if (notification) await this._sendPushNotification(callback, notification)
+    }
+  }
+
+  /**
+   * Handler for TokenShift event.
+   * NOTE: you will get a notification for each vote. So a juror that has 3 votes will receive 3 notifications
+   * @param {object} event - The event log.
+   * @param {string} account - The user account.
+   * @param {function} callback - The callback.
+   */
+  _tokenShiftHandler = async (event, account, callback) =&gt; {
+    // address indexed _account, uint _disputeID, int _amount
+    const disputeID = event.args._disputeID.toNumber()
+    const address = event.args._account
+    const amount = event.args._amount.toString()
+
+    if (account === address) {
+      const message =
+        amount === 0
+          ? `Dispute Resolved: No PNK won`
+          : `Dispute Resolved: You have ${
+              amount &lt; 0 ? &apos;lost&apos; : &apos;won&apos;
+            } ${this._Web3Wrapper.fromWei(amount, &apos;ether&apos;)} PNK.`
+      const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+      const notification = await this._newNotification(
+        account,
+        event.transactionHash,
+        event.blockNumber,
+        event.logIndex,
+        notificationConstants.TYPE.TOKEN_SHIFT,
+        message,
+        {
+          disputeID,
+          arbitratorAddress,
+          account: address,
+          amount
+        }
+      )
+
+      if (notification) await this._sendPushNotification(callback, notification)
+    }
+  }
+
+  /**
+   * Handler for arbitration reward event.
+   * @param {object} event - The event log.
+   * @param {string} account - The user account.
+   * @param {function} callback - The callback.
+   */
+  _arbitrationRewardHandler = async (event, account, callback) =&gt; {
+    // address indexed _account, uint _disputeID, int _amount
+    const disputeID = event.args._disputeID.toNumber()
+    const address = event.args._account
+    const amount = event.args._amount.toString()
+
+    if (account === address) {
+      const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+      const notification = await this._newNotification(
+        account,
+        event.transactionHash,
+        event.blockNumber,
+        event.logIndex,
+        notificationConstants.TYPE.ARBITRATION_REWARD,
+        `You have been awarded an ${this._Web3Wrapper.fromWei(
+          amount,
+          &apos;ether&apos;
+        )} ETH arbitration fee`,
+        {
+          disputeID,
+          arbitratorAddress,
+          account: address,
+          amount
+        }
+      )
+
+      if (notification) await this._sendPushNotification(callback, notification)
+    }
+  }
+
+  // **************************** //
+  // *        Helpers           * //
+  // **************************** //
+  /**
+   * Helper method to create handler with correct params
+   * @param {function} handler - The handler.
+   * @param {string} account - The account.
+   * @param {function} callback - The callback.
+   * @returns {object} - The created handler.
+   */
+  _createHandler = (handler, account, callback) =&gt; args =&gt;
+    handler(args, account, callback)
+
+  /**
+   * Sends a push notification.
+   * @param {function} callback - The callback.
+   * @param {object} notification - The notification.
+   */
+  _sendPushNotification = async (callback, notification) =&gt; {
+    if (callback &amp;&amp; notification) {
+      callback(notification)
+    }
+  }
+
+  /**
+   * Creates a notification object.
+   * @param {number} notificationType - The notificationType.
+   * @param {string} message - The message.
+   * @param {object} data - The data.
+   * @returns {function} - The notification object.
+   */
+  _createNotification = (notificationType, message, data) =&gt; ({
+    notificationType,
+    message,
+    data
+  })
+
+  /**
+   * Creates a new notification object in the store.
+   * @param {string} account - The account.
+   * @param {string} txHash - The txHash.
+   * @param {string} blockNumber - The block number of the event log.
+   * @param {number} logIndex - The logIndex.
+   * @param {number} notificationType - The notificationType.
+   * @param {string} message - The message.
+   * @param {object} data - The data.
+   * @param {bool} read - Wether the notification has been read or not.
+   * @returns {function} - The notification object.
+   */
+  _newNotification = async (
+    account,
+    txHash,
+    blockNumber,
+    logIndex,
+    notificationType,
+    message = &apos;&apos;,
+    data = {},
+    read = false
+  ) =&gt; {
+    if (this._StoreProviderInstance) {
+      // update last block we have processed an event for
+      await this._StoreProviderInstance.updateLastBlock(account, blockNumber)
+
+      const response = await this._StoreProviderInstance.newNotification(
+        account,
+        txHash,
+        logIndex,
+        notificationType,
+        message,
+        data,
+        read
+      )
+
+      if (response.status === 201) {
+        const notification = response.body.notifications.filter(
+          notification =&gt;
+            notification.txHash === txHash &amp;&amp; notification.logIndex === logIndex
+        )
+        return notification[0]
+      }
+    } else {
+      // If we have no store provider simply return object of params for a push notification
+      return {
+        txHash,
+        logIndex,
+        notificationType,
+        message,
+        data,
+        read
+      }
+    }
+  }
+
+  /**
+   * Get contracts from store if set or return empty array. Used for notifications
+   * @param {string} account - Filter notifications for account.
+   * @returns {object[]} - Array of dispute objects
+   */
+  _getContracts = async account =&gt; {
+    let contracts = []
+
+    // If we have store provider fetch contracts and disputes from the store.
+    if (this._StoreProviderInstance) {
+      const userProfile = await this._StoreProviderInstance.newUserProfile(
+        account
+      )
+
+      contracts = userProfile.contracts
+    }
+
+    return contracts
+  }
+
+  /**
+   * Get disputes either from store or from arbitrator if Store Provider is not set. Used for notifications
+   * @param {string} account - Filter notifications for account.
+   * @param {function} isJuror - If the account is a juror.
+   * @returns {object[]} - Array of dispute objects
+   */
+  _getDisputes = async (account, isJuror = true) =&gt; {
+    let disputes = []
+
+    // If we have store provider fetch contracts and disputes from the store.
+    if (this._StoreProviderInstance) {
+      disputes = await this._StoreProviderInstance.getDisputes(account)
+    } else if (isJuror) {
+      // We have no way to get contracts. Get disputes from current session
+      // TODO make a function to get open disputes for parites
+      disputes = await this._ArbitratorInstance.getDisputesForJuror(account)
+    }
+
+    return disputes
+  }
+
+  _requireStoreProvider = () =&gt; {
+    if (!this._StoreProviderInstance) throw new Error(MISSING_STORE_PROVIDER)
+  }
+}
+
+export default Notifications
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

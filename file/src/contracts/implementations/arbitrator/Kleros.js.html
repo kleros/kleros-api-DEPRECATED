@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../../../">
+  <title data-ice="title">src/contracts/implementations/arbitrator/Kleros.js | kleros-api</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol."><meta property="twitter:card" content="summary"><meta property="twitter:title" content="kleros-api"><meta property="twitter:description" content="A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol."></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/kleros.js~Kleros.html">Kleros</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts">contracts</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/AbstractContract.js~AbstractContract.html">AbstractContract</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/ContractImplementation.js~ContractImplementation.html">ContractImplementation</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-abstractions">contracts/abstractions</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/abstractions/Arbitrable.js~ArbitrableContract.html">ArbitrableContract</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/abstractions/Arbitrator.js~Arbitrator.html">Arbitrator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/abstractions/MultipleArbitrable.js~ArbitrableContract.html">ArbitrableContract</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-implementations-pnk">contracts/implementations/PNK</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/PNK/MiniMePinakion.js~MiniMePinakion.html">MiniMePinakion</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/PNK/PinakionPOC.js~PinakionPOC.html">PinakionPOC</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/PNK/TokenFactory.js~TokenFactory.html">TokenFactory</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-implementations-rng">contracts/implementations/RNG</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/RNG/BlockHashRNG.js~BlockHashRNG.html">BlockHashRNG</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-implementations-arbitrable">contracts/implementations/arbitrable</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrable/Arbitrable.js~Arbitrable.html">Arbitrable</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrable/ArbitrablePermissionList.js~ArbitrablePermissionList.html">ArbitrablePermissionList</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrable/ArbitrableTransaction.js~ArbitrableTransaction.html">ArbitrableTransaction</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrable/MultipleArbitrableTransaction.js~MultipleArbitrableTransaction.html">MultipleArbitrableTransaction</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-implementations-arbitrator">contracts/implementations/arbitrator</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrator/Kleros.js~Kleros.html">Kleros</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrator/KlerosPOC.js~KlerosPOC.html">KlerosPOC</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#resources">resources</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/resources/Auth.js~Auth.html">Auth</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/resources/Disputes.js~Disputes.html">Disputes</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/resources/Notifications.js~Notifications.html">Notifications</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#utils">utils</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/utils/EventListener.js~EventListener.html">EventListener</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/utils/StoreProviderWrapper.js~StoreProviderWrapper.html">StoreProviderWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/utils/Web3Wrapper.js~Web3Wrapper.html">Web3Wrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-PromiseQueue">PromiseQueue</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-delegateCalls">delegateCalls</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-deployContractAsync">deployContractAsync</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getContractAddress">getContractAddress</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-httpRequest">httpRequest</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isRequired">isRequired</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/contracts/implementations/arbitrator/Kleros.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import klerosArtifact from &apos;kleros/build/contracts/Kleros&apos;
+import _ from &apos;lodash&apos;
+
+import MiniMePinakion from &apos;../PNK/MiniMePinakion&apos;
+import * as ethConstants from &apos;../../../constants/eth&apos;
+import * as errorConstants from &apos;../../../constants/error&apos;
+import * as arbitratorConstants from &apos;../../../constants/arbitrator&apos;
+import ContractImplementation from &apos;../../ContractImplementation&apos;
+import deployContractAsync from &apos;../../../utils/deployContractAsync&apos;
+import EventListener from &apos;../../../utils/EventListener&apos;
+
+/**
+ * Provides interaction with a Kleros contract on the blockchain.
+ */
+class Kleros extends ContractImplementation {
+  /**
+   * Create new Kleros Implementation.
+   * @param {object} web3Provider - web3 instance.
+   * @param {string} contractAddress - Address of the Kleros contract.
+   * @param {object} artifact - &lt;optional&gt; An alternate Kleros artifact can be
+   * passed for classes that inherit Kleros (such as KlerosPOC)
+   */
+  constructor(web3Provider, contractAddress, artifact = klerosArtifact) {
+    super(web3Provider, artifact, contractAddress)
+    this._disputeDeadlineCache = {}
+    this._appealCreationTimestampCache = {}
+    this._appealRuledAtTimestampCache = {}
+    this._openDisputesCache = {}
+  }
+
+  /**
+   * STATIC: Deploy a Kleros contract on the blockchain.
+   * @param {string} rngAddress address of random number generator contract
+   * @param {string} pnkAddress address of pinakion contract
+   * @param {number[]} timesPerPeriod array of 5 ints indicating the time limit for each period of contract
+   * @param {string} account address of user
+   * @param {number} value amout of eth to send to contract
+   * @param {object} web3Provider web3 provider object NOTE: NOT Kleros Web3Wrapper
+   * @returns {object} truffle-contract Object | err The contract object or error deploy
+   */
+  static deploy = async (
+    rngAddress,
+    pnkAddress,
+    timesPerPeriod = [300, 0, 300, 300, 300],
+    account,
+    value = ethConstants.TRANSACTION.VALUE,
+    web3Provider
+  ) =&gt; {
+    const contractDeployed = await deployContractAsync(
+      account,
+      value,
+      klerosArtifact,
+      web3Provider,
+      pnkAddress,
+      rngAddress,
+      timesPerPeriod
+    )
+
+    return contractDeployed
+  }
+
+  /**
+   * Deposit PNK to the contract.
+   * @param {number} amount - The amount of PNK to deposit.
+   * @param {string} account - The address of the user.
+   * @returns {object} - Balance information including total PNK balance and activated tokens.
+   */
+  transferPNKToArbitrator = async (
+    amount,
+    account = this._Web3Wrapper.getAccount(0)
+  ) =&gt; {
+    await this.loadContract()
+
+    const pinakionContractAddress = await this.contractInstance.pinakion()
+    const pnkInstance = new MiniMePinakion(
+      this.getWeb3Provider(),
+      pinakionContractAddress
+    )
+
+    const deposited = await pnkInstance.approveAndCall(
+      this.contractAddress,
+      amount,
+      account
+    )
+    if (!deposited) throw new Error(&apos;Unable to deposit PNK&apos;)
+
+    return this.getPNKBalance(account)
+  }
+
+  /**
+   * Withdraw PNK from the contract.
+   * @param {number} amount - The BigNumber amount of PNK to deposit.
+   * @param {string} account - The address of the user.
+   * @returns {object} - Balance information including total PNK balance and activated tokens.
+   */
+  withdrawPNK = async (amount, account) =&gt; {
+    await this.loadContract()
+    await this.contractInstance.withdraw(amount, {
+      from: account
+    })
+
+    return this.getPNKBalance(account)
+  }
+
+  /**
+   * Get PNK Balances.
+   * @param {string} account - The address of the user.
+   * @returns {object} - Balance information including total PNK balance and activated tokens.
+   */
+  getPNKBalance = async account =&gt; {
+    await this.loadContract()
+
+    const pinakionContractAddress = await this.contractInstance.pinakion()
+    const pnkInstance = new MiniMePinakion(
+      this.getWeb3Provider(),
+      pinakionContractAddress
+    )
+
+    const contractBalance = await pnkInstance.getTokenBalance(account)
+
+    const juror = await this.contractInstance.jurors(account)
+    if (!juror)
+      throw new Error(
+        errorConstants.ACCOUNT_NOT_A_JUROR_FOR_CONTRACT(
+          account,
+          this.contractAddress
+        )
+      )
+
+    // Activated Tokens
+    const currentSession = await this.contractInstance.session()
+    let activatedTokens = this._Web3Wrapper.toBigNumber(0)
+    if (juror[2].toNumber() === currentSession.toNumber())
+      activatedTokens = juror[4].minus(juror[3])
+
+    return {
+      tokenBalance: juror[0],
+      activatedTokens,
+      lockedTokens: juror[1],
+      contractBalance
+    }
+  }
+
+  /**
+   * Activate Pinakion tokens to be eligible to be a juror.
+   * @param {string} amount - Amount in wei of tokens to activate.
+   * @param {string} account - Address of user.
+   * @returns {object} - PNK balance in wei.
+   */
+  activatePNK = async (
+    amount, // amount in wei
+    account
+  ) =&gt; {
+    await this.loadContract()
+
+    try {
+      await this.contractInstance.activateTokens(amount, {
+        from: account
+      })
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_ACTIVATE_PNK)
+    }
+
+    return this.getPNKBalance(account)
+  }
+
+  /**
+   * Fetch the cost of arbitration.
+   * @param {bytes} contractExtraData - extra data from arbitrable contract.
+   * @returns {number} - The cost of arbitration as a BigNumber.
+   */
+  getArbitrationCost = async contractExtraData =&gt; {
+    await this.loadContract()
+
+    try {
+      return this.contractInstance.arbitrationCost(contractExtraData)
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_FETCH_ARBITRATION_COST)
+    }
+  }
+
+  /**
+   * Fetch the cost of appeal.
+   * @param {number} disputeID - index of the dispute.
+   * @param {bytes} contractExtraData - extra data from arbitrable contract.
+   * @returns {number} - The cost of appeal as a BigNumber.
+   */
+  getAppealCost = async (disputeID, contractExtraData) =&gt; {
+    await this.loadContract()
+
+    try {
+      return this.contractInstance.appealCost(disputeID, contractExtraData)
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_FETCH_APPEAL_COST)
+    }
+  }
+
+  /**
+   * Call contract to move on to the next period.
+   * @param {string} account - address of user.
+   * @returns {Promise} - resulting object.
+   */
+  passPeriod = async account =&gt; {
+    await this.loadContract()
+
+    try {
+      return this.contractInstance.passPeriod.original({
+        from: account
+      })
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_PASS_PERIOD)
+    }
+  }
+
+  /**
+   * Submit votes. Note can only be called during Voting period (Period 2).
+   * @param {number} disputeID - index of the dispute.
+   * @param {number} ruling - int representing the jurors decision.
+   * @param {number[]} votes - int[] of drawn votes for dispute.
+   * @param {string} account - address of user.
+   * @returns {object} - The result transaction object.
+   */
+  submitVotes = async (disputeID, ruling, votes, account) =&gt; {
+    await this.loadContract()
+
+    try {
+      return this.contractInstance.voteRuling(disputeID, ruling, votes, {
+        from: account,
+        gas: process.env.GAS || undefined
+      })
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_SUBMIT_VOTES)
+    }
+  }
+
+  /**
+   * Appeal ruling on dispute.
+   * @param {number} disputeID - Index of the dispute.
+   * @param {string} extraData - Extra data.
+   * @param {string} account - Address of user.
+   * @returns {object} - The result transaction object.
+   */
+  appealRuling = async (disputeID, extraData, account) =&gt; {
+    await this.loadContract()
+
+    try {
+      return this.contractInstance.appeal(disputeID, extraData, {
+        from: account,
+        value: await this.contractInstance.appealCost(disputeID, extraData)
+      })
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_APPEAL)
+    }
+  }
+
+  /**
+   * Repartition juror tokens.
+   * @param {number} disputeID - index of the dispute.
+   * @param {string} account - address of user.
+   * @returns {object} - The result transaction object.
+   */
+  repartitionJurorTokens = async (disputeID, account) =&gt; {
+    await this.loadContract()
+
+    try {
+      return this.contractInstance.oneShotTokenRepartition(disputeID, {
+        from: account,
+        gas: process.env.GAS || undefined
+      })
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_REPARTITION_TOKENS)
+    }
+  }
+
+  /**
+   * Execute ruling on dispute
+   * @param {number} disputeID - index of the dispute.
+   * @param {string} account - address of user.
+   * @returns {object} - The result transaction object.
+   */
+  executeRuling = async (disputeID, account) =&gt; {
+    await this.loadContract()
+
+    try {
+      return this.contractInstance.executeRuling(disputeID, {
+        from: account
+      })
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_EXECUTE_RULING)
+    }
+  }
+
+  /**
+   * Get time for a period.
+   * @param {number} periodNumber - int representing period.
+   * @returns {number} - The seconds in the period.
+   */
+  getTimeForPeriod = async periodNumber =&gt; {
+    await this.loadContract()
+
+    let timePerPeriod
+
+    try {
+      timePerPeriod = await this.contractInstance.timePerPeriod(periodNumber)
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_FETCH_TIME_PER_PERIOD)
+    }
+
+    if (timePerPeriod) return timePerPeriod.toNumber()
+
+    throw new Error(errorConstants.PERIOD_OUT_OF_RANGE(periodNumber))
+  }
+
+  /**
+   * Get dispute.
+   * @param {number} disputeID - The index of the dispute.
+   * @param {bool} withVoteCount - Whether to pull voteCounter data for a dispute.
+   * false by default for better performance.
+   * @returns {object} - The dispute data from the contract.
+   */
+  getDispute = async (disputeID, withVoteCount = false) =&gt; {
+    await this.loadContract()
+
+    try {
+      const dispute = await this.contractInstance.disputes(disputeID)
+      const numberOfAppeals = dispute[2].toNumber()
+      const rulingChoices = dispute[3].toNumber()
+
+      let voteCounters = []
+      const status = await this.contractInstance.disputeStatus(disputeID)
+      if (withVoteCount) {
+        for (let appeal = 0; appeal &lt;= numberOfAppeals; appeal++) {
+          const voteCounts = []
+          for (let choice = 0; choice &lt;= rulingChoices; choice++)
+            voteCounts.push(
+              this.contractInstance
+                .getVoteCount(disputeID, appeal, choice)
+                .then(v =&gt; v.toNumber())
+            )
+          voteCounters.push(voteCounts)
+        }
+
+        voteCounters = await Promise.all(
+          voteCounters.map(voteCounts =&gt; Promise.all(voteCounts))
+        )
+      }
+
+      return {
+        arbitratorAddress: this.contractAddress,
+        disputeID,
+        arbitrableContractAddress: dispute[0],
+        firstSession: dispute[1].toNumber(),
+        numberOfAppeals,
+        rulingChoices,
+        initialNumberJurors: dispute[4].toNumber(),
+        arbitrationFeePerJuror: dispute[5],
+        state: dispute[6].toNumber(),
+        voteCounters,
+        status: status ? status.toNumber() : null
+      }
+      // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_FETCH_DISPUTE)
+    }
+  }
+
+  /**
+   * Get number of jurors for a dispute.
+   * @param {number} disputeID - Index of dispute.
+   * @returns {number} - Number of jurors for a dispute.
+   */
+  getAmountOfJurorsForDispute = async disputeID =&gt; {
+    await this.loadContract()
+
+    let amountOfJurors
+
+    try {
+      amountOfJurors = await this.contractInstance.amountJurors(disputeID)
+    } catch (err) {
+      console.error(err)
+      throw new Error(errorConstants.UNABLE_TO_FETCH_AMOUNT_OF_JURORS)
+    }
+
+    if (amountOfJurors) return amountOfJurors.toNumber()
+
+    throw new Error(errorConstants.DISPUTE_DOES_NOT_EXIST)
+  }
+
+  /**
+   * Get number of jurors for a dispute.
+   * @param {number} disputeID - Index of dispute.
+   * @param {number} draw - Int for draw.
+   * @param {string} jurorAddress - Address of juror.
+   * @returns {bool} - `true` indicates juror has a vote for draw, `false` indicates they do not.
+   */
+  isJurorDrawnForDispute = async (disputeID, draw, jurorAddress) =&gt; {
+    await this.loadContract()
+
+    const isDrawn = await this.contractInstance.isDrawn(
+      disputeID,
+      jurorAddress,
+      draw
+    )
+
+    return isDrawn
+  }
+
+  /**
+   * Can juror currently rule in dispute.
+   * @param {number} disputeID - index of dispute.
+   * @param {int[]} draws - voting positions for dispute.
+   * @param {string} account - address of user.
+   * @returns {bool} - Boolean indicating if juror can rule or not.
+   */
+  canRuleDispute = async (disputeID, draws, account) =&gt; {
+    await this.loadContract()
+
+    const validDraws = await this.contractInstance.validDraws(
+      account,
+      disputeID,
+      draws
+    )
+
+    const lastRuling = (await this.contractInstance.getLastSessionVote(
+      disputeID,
+      account
+    )).toNumber()
+
+    const currentSession = await this.getSession()
+    const period = await this.getPeriod()
+    return (
+      validDraws &amp;&amp;
+      lastRuling !== currentSession &amp;&amp;
+      period &lt; arbitratorConstants.PERIOD.APPEAL
+    )
+  }
+
+  /**
+   * Get number of jurors for a dispute.
+   * @param {number} disputeID - Index of dispute.
+   * @param {number} appeal - Index of appeal.
+   * @returns {number} - Int indicating the ruling of the dispute.
+   */
+  currentRulingForDispute = async (disputeID, appeal) =&gt; {
+    await this.loadContract()
+
+    const ruling = await this.contractInstance.getWinningChoice(
+      disputeID,
+      appeal
+    )
+
+    return ruling.toNumber()
+  }
+
+  /**
+   * Get current period of the contract
+   * @returns {number} - Int indicating the period.
+   */
+  getPeriod = async () =&gt; {
+    await this.loadContract()
+
+    const currentPeriod = await this.contractInstance.period()
+
+    return currentPeriod.toNumber()
+  }
+
+  /**
+   * Get min activated tokens for a session
+   * @returns {number} - Number of tokens as a BigNumber
+   */
+  getMinActivatedToken = async () =&gt; {
+    await this.loadContract()
+
+    return this.contractInstance.minActivatedToken()
+  }
+
+  /**
+   * Get current session of the contract.
+   * @returns {number} - Int indicating the session.
+   */
+  getSession = async () =&gt; {
+    await this.loadContract()
+
+    const currentSession = await this.contractInstance.session()
+
+    return currentSession.toNumber()
+  }
+
+  /**
+   * Get disputes from Kleros contract.
+   * @param {string} account - Address of user.
+   * @param {string} openDisputes - &lt;optional&gt; Pass open disputes from cached source
+   * @returns {object[]} - Array of disputes.
+   */
+  getDisputesForJuror = async (account, openDisputes) =&gt; {
+    await this.loadContract()
+
+    // contract data
+    if (!openDisputes) openDisputes = await this.getOpenDisputesForSession()
+
+    const disputes = await Promise.all(
+      openDisputes.map(async disputeData =&gt; {
+        const draws = await this.getDrawsForJuror(
+          disputeData.disputeID,
+          account
+        )
+        disputeData.appealDraws = disputeData.appealDraws || []
+        disputeData.appealDraws[disputeData.numberOfAppeals] = draws
+
+        return disputeData
+      })
+    )
+
+    return disputes
+  }
+
+  /**
+   * Fetch the votes a juror has in a dispute.
+   * @param {number} disputeID - ID of the dispute.
+   * @param {string} account - Potential jurors address.
+   * @returns {number[]} - Array of integers indicating the draw.
+   */
+  getDrawsForJuror = async (disputeID, account) =&gt; {
+    await this.loadContract()
+
+    const numberOfJurors = await this.getAmountOfJurorsForDispute(disputeID)
+    const draws = []
+    for (let draw = 1; draw &lt;= numberOfJurors; draw++) {
+      const isJuror = await this.isJurorDrawnForDispute(
+        disputeID,
+        draw,
+        account
+      )
+      if (isJuror) {
+        draws.push(draw)
+      }
+    }
+    return draws
+  }
+
+  /** Get all disputes that are active this session.
+   * @returns {int[]} - array of active disputeID
+   */
+  getOpenDisputesForSession = async () =&gt; {
+    await this.loadContract()
+    const period = (await this.contractInstance.period()).toNumber()
+
+    // There are never any open disputes before VOTE. Don&apos;t want to populate cache
+    if (period &lt; arbitratorConstants.PERIOD.VOTE) return []
+
+    const currentSession = await this.getSession()
+    if (this._openDisputesCache[currentSession])
+      return this._openDisputesCache[currentSession]
+    const openDisputes = []
+
+    let disputeID = 0
+    let dispute
+    while (1) {
+      // Iterate over all the disputes
+      // TODO: Implement a more performant solution
+      try {
+        dispute = await this.getDispute(disputeID)
+      } catch (err) {
+        // Dispute out of range, break
+        if (err.message === errorConstants.UNABLE_TO_FETCH_DISPUTE) break
+        console.error(err)
+        throw err
+      }
+      // Dispute has no arbitrable contract, break
+      if (dispute.arbitrableContractAddress === ethConstants.NULL_ADDRESS) break
+
+      // If dispute is in the current session, add it to the result array
+      if (dispute.firstSession + dispute.numberOfAppeals === currentSession)
+        openDisputes.push(dispute)
+
+      // Advance to the next dispute
+      disputeID++
+    }
+
+    this._openDisputesCache[currentSession] = openDisputes
+    return openDisputes
+  }
+
+  /**
+   * Fetch how a juror ruled in a dispute
+   * @param {number} disputeID The index of the dispute
+   * @param {number} appeal The index of the appeal
+   * @param {string} address The users ETH address
+   * @returns {number} The ruling that the juror gave
+   */
+  getVoteForJuror = async (disputeID, appeal, address) =&gt; {
+    await this.loadContract()
+
+    const numberOfJurors = await this.getAmountOfJurorsForDispute(disputeID)
+    let jurorDraw = null
+    for (let i = 0; i &lt; numberOfJurors; i++) {
+      const jurorAddress = await this.contractInstance.getVoteAccount(
+        disputeID,
+        appeal,
+        i
+      )
+
+      // NOTE jurors can only vote once per session so this is safe for now.
+      if (jurorAddress === address) {
+        jurorDraw = i
+        break
+      }
+    }
+
+    if (_.isNull(jurorDraw)) return null
+
+    return this.getVoteForDraw(disputeID, appeal, jurorDraw)
+  }
+
+  /**
+   * Get the ruling that a juror gave in dispute
+   * @param {number} disputeID - the index of the dispute.
+   * @param {number} appeal - the index of the appeal.
+   * @param {number} draw - the index of the vote draw.
+   * @returns {number} ruling.
+   */
+  getVoteForDraw = async (disputeID, appeal, draw) =&gt; {
+    await this.loadContract()
+
+    const vote = await this.contractInstance.getVoteRuling(
+      disputeID,
+      appeal,
+      draw
+    )
+
+    return vote.toNumber()
+  }
+
+  /**
+   * Find when a ruling was made in a session
+   * @param {number} session - The session number.
+   * @returns {number[]} an array of timestamps
+   */
+  getAppealRuledAtTimestamp = async session =&gt; {
+    if (this._appealRuledAtTimestampCache[session])
+      return this._appealRuledAtTimestampCache[session]
+    const eventLog = await this._getNewPeriodEventLogForSession(
+      session,
+      arbitratorConstants.PERIOD.APPEAL
+    )
+    // May not have happened yet
+    if (!eventLog) return null
+
+    const ruledAtTimestamp = await this._getTimestampForBlock(
+      eventLog.blockNumber
+    )
+
+    const timestamp = ruledAtTimestamp * 1000
+    this._appealRuledAtTimestampCache[session] = timestamp
+    return timestamp
+  }
+
+  /**
+   * Find the deadline for disputes in a session.
+   * @param {number} session - The session number.
+   * @returns {number[]} an array of timestamps
+   */
+  getDisputeDeadlineTimestamp = async session =&gt; {
+    if (this._disputeDeadlineCache[session])
+      return this._disputeDeadlineCache[session]
+
+    const eventLog = await this._getNewPeriodEventLogForSession(
+      session,
+      arbitratorConstants.PERIOD.VOTE
+    )
+    // May not have happened yet
+    if (!eventLog) return null
+
+    // Fetch length of Vote period
+    const periodLength = await this.getTimeForPeriod(
+      arbitratorConstants.PERIOD.VOTE
+    )
+    // Get the time that the period started
+    const periodStartTimestamp = await this._getTimestampForBlock(
+      eventLog.blockNumber
+    )
+
+    const deadline = (periodLength + periodStartTimestamp) * 1000
+    this._disputeDeadlineCache[session] = deadline
+    return deadline
+  }
+
+  /**
+   * Get the event log for an appeal creation
+   * @param {number} session - The session number.
+   * @returns {number[]} an array of timestamps
+   */
+  getAppealCreationTimestamp = async session =&gt; {
+    if (this._appealCreationTimestampCache[session])
+      return this._appealCreationTimestampCache[session]
+    const eventLog = await this._getNewPeriodEventLogForSession(
+      session,
+      arbitratorConstants.PERIOD.EXECUTE
+    )
+
+    // May not have happened yet
+    if (!eventLog) return null
+
+    const createdAtTimestamp = await this._getTimestampForBlock(
+      eventLog.blockNumber
+    )
+
+    const timestamp = createdAtTimestamp * 1000
+    this._appealCreationTimestampCache[session] = timestamp
+    return timestamp
+  }
+
+  /**
+   * Get the event log for the dispute creation.
+   * @param {number} disputeID - The block number that the dispute was created.
+   * @returns {object} dispute creation event log.
+   */
+  getDisputeCreationEvent = async disputeID =&gt; {
+    const eventLogs = await EventListener.getEventLogs(
+      this,
+      &apos;DisputeCreation&apos;,
+      0,
+      &apos;latest&apos;,
+      { _disputeID: disputeID }
+    )
+
+    for (let i = 0; i &lt; eventLogs.length; i++) {
+      const log = eventLogs[i]
+
+      if (log.args._disputeID.toNumber() === disputeID) return log
+    }
+
+    return null
+  }
+
+  /**
+   * Get the amount of tokens won or lost by a juror for a dispute
+   * @param {number} disputeID The index of the dispute
+   * @param {string} account The account of the juror
+   * @returns {number} The net total PNK
+   */
+  getNetTokensForDispute = async (disputeID, account) =&gt; {
+    const eventLogs = await EventListener.getEventLogs(
+      this,
+      &apos;TokenShift&apos;,
+      0,
+      &apos;latest&apos;,
+      { _account: account }
+    )
+
+    let netPNK = 0
+    for (let i = 0; i &lt; eventLogs.length; i++) {
+      const event = eventLogs[i]
+      if (event.args._disputeID.toNumber() === disputeID)
+        netPNK += event.args._amount.toNumber()
+    }
+
+    return netPNK
+  }
+
+  /**
+   * Get the timestamp from blockNumber
+   * @param {number} blockNumber - The block number
+   * @returns {number} timestamp
+   */
+  _getTimestampForBlock = async blockNumber =&gt;
+    (await this._Web3Wrapper.getBlock(blockNumber)).timestamp
+
+  /**
+   * Get event NewPeriod event logs a period in a session.
+   * @param {number} session - The session number.
+   * @param {number} periodNumber - The period number we want logs for.
+   * @returns {object} event log object.
+   */
+  _getNewPeriodEventLogForSession = async (session, periodNumber) =&gt; {
+    const logs = await EventListener.getEventLogs(
+      this,
+      &apos;NewPeriod&apos;,
+      0,
+      &apos;latest&apos;,
+      { _session: [session] }
+    )
+    for (let i = 0; i &lt; logs.length; i++) {
+      const eventLog = logs[i]
+      if (eventLog.args._period.toNumber() === periodNumber) return eventLog
+    }
+    // We have hit the latest event log and did not find data. Return all that we have.
+    return null
+  }
+
+  /**
+   * Get data from Kleros contract.
+   * TODO split these into their own methods for more flexability and speed
+   * @returns {object} - Data for kleros POC from contract.
+   */
+  getData = async () =&gt; {
+    await this.loadContract()
+
+    const timePerPeriod = await Promise.all([
+      this.getTimeForPeriod(arbitratorConstants.PERIOD.ACTIVATION),
+      this.getTimeForPeriod(arbitratorConstants.PERIOD.DRAW),
+      this.getTimeForPeriod(arbitratorConstants.PERIOD.VOTE),
+      this.getTimeForPeriod(arbitratorConstants.PERIOD.APPEAL),
+      this.getTimeForPeriod(arbitratorConstants.PERIOD.EXECUTE)
+    ])
+    const [
+      pinakionContractAddress,
+      rngContractAddress,
+      period,
+      session,
+      lastPeriodChange,
+      minActivatedToken
+    ] = await Promise.all([
+      this.contractInstance.pinakion(),
+      this.contractInstance.rng(),
+      this.contractInstance.period(),
+      this.contractInstance.session(),
+      this.contractInstance.lastPeriodChange(),
+      this.getMinActivatedToken()
+    ])
+
+    return {
+      pinakionContractAddress,
+      rngContractAddress,
+      period: period.toNumber(),
+      session: session.toNumber(),
+      lastPeriodChange: lastPeriodChange.toNumber(),
+      timePerPeriod,
+      minActivatedToken
+    }
+  }
+}
+
+export default Kleros
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

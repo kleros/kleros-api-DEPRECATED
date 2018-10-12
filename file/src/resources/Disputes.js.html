@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/resources/Disputes.js | kleros-api</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol."><meta property="twitter:card" content="summary"><meta property="twitter:title" content="kleros-api"><meta property="twitter:description" content="A Javascript library that makes it easy to build relayers and other DApps that use the Kleros protocol."></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/kleros.js~Kleros.html">Kleros</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts">contracts</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/AbstractContract.js~AbstractContract.html">AbstractContract</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/ContractImplementation.js~ContractImplementation.html">ContractImplementation</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-abstractions">contracts/abstractions</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/abstractions/Arbitrable.js~ArbitrableContract.html">ArbitrableContract</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/abstractions/Arbitrator.js~Arbitrator.html">Arbitrator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/abstractions/MultipleArbitrable.js~ArbitrableContract.html">ArbitrableContract</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-implementations-pnk">contracts/implementations/PNK</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/PNK/MiniMePinakion.js~MiniMePinakion.html">MiniMePinakion</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/PNK/PinakionPOC.js~PinakionPOC.html">PinakionPOC</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/PNK/TokenFactory.js~TokenFactory.html">TokenFactory</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-implementations-rng">contracts/implementations/RNG</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/RNG/BlockHashRNG.js~BlockHashRNG.html">BlockHashRNG</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-implementations-arbitrable">contracts/implementations/arbitrable</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrable/Arbitrable.js~Arbitrable.html">Arbitrable</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrable/ArbitrablePermissionList.js~ArbitrablePermissionList.html">ArbitrablePermissionList</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrable/ArbitrableTransaction.js~ArbitrableTransaction.html">ArbitrableTransaction</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrable/MultipleArbitrableTransaction.js~MultipleArbitrableTransaction.html">MultipleArbitrableTransaction</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts-implementations-arbitrator">contracts/implementations/arbitrator</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrator/Kleros.js~Kleros.html">Kleros</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contracts/implementations/arbitrator/KlerosPOC.js~KlerosPOC.html">KlerosPOC</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#resources">resources</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/resources/Auth.js~Auth.html">Auth</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/resources/Disputes.js~Disputes.html">Disputes</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/resources/Notifications.js~Notifications.html">Notifications</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#utils">utils</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/utils/EventListener.js~EventListener.html">EventListener</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/utils/StoreProviderWrapper.js~StoreProviderWrapper.html">StoreProviderWrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/utils/Web3Wrapper.js~Web3Wrapper.html">Web3Wrapper</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-PromiseQueue">PromiseQueue</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-delegateCalls">delegateCalls</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-deployContractAsync">deployContractAsync</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getContractAddress">getContractAddress</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-httpRequest">httpRequest</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isRequired">isRequired</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/resources/Disputes.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import _ from &apos;lodash&apos;
+
+import * as arbitratorConstants from &apos;../constants/arbitrator&apos;
+import * as disputeConstants from &apos;../constants/dispute&apos;
+import isRequired from &apos;../utils/isRequired&apos;
+
+/**
+ * Disputes API. Provides cross arbitrator and arbitrable contracts functionality.
+ * Requires Store Provider to be set.
+ */
+class Disputes {
+  constructor(
+    arbitratorInstance = isRequired(&apos;arbitratorInstance&apos;),
+    arbitrableInstance = isRequired(&apos;arbitrableInstance&apos;),
+    storeProviderInstance = isRequired(&apos;storeProviderInstance&apos;)
+  ) {
+    this._ArbitratorInstance = arbitratorInstance
+    this._ArbitrableInstance = arbitrableInstance
+    this._StoreProviderInstance = storeProviderInstance
+    this.disputeCache = {}
+  }
+  /**
+   * Set arbitrator instance.
+   * @param {object} arbitratorInstance - instance of an arbitrator contract.
+   */
+  setArbitratorInstance = arbitratorInstance =&gt; {
+    this._ArbitratorInstance = arbitratorInstance
+  }
+  /**
+   * Set arbitrable instance.
+   * @param {object} arbitrableInstance - instance of an arbitrable contract.
+   */
+  setArbitrableInstance = arbitrableInstance =&gt; {
+    this._ArbitrableInstance = arbitrableInstance
+  }
+  /**
+   * Set store provider instance.
+   * @param {object} storeProviderInstance - instance of store provider wrapper.
+   */
+  setStoreProviderInstance = storeProviderInstance =&gt; {
+    this._StoreProviderInstance = storeProviderInstance
+  }
+
+  // **************************** //
+  // *         Events           * //
+  // **************************** //
+
+  /**
+   * Method to register all dispute handlers to an EventListener.
+   * @param {string} account - The address of the user.
+   * @param {object} eventListener - The EventListener instance. See utils/EventListener.js.
+   */
+  registerStoreUpdateEventListeners = (
+    account = isRequired(&apos;account&apos;),
+    eventListener = isRequired(&apos;eventListener&apos;)
+  ) =&gt; {
+    const eventHandlerMap = {
+      DisputeCreation: [this._storeNewDisputeHandler]
+    }
+
+    for (let event in eventHandlerMap) {
+      if (eventHandlerMap.hasOwnProperty(event)) {
+        eventHandlerMap[event].forEach(handler =&gt; {
+          eventListener.addEventHandler(this._ArbitratorInstance, event, args =&gt;
+            handler(args, account)
+          )
+        })
+      }
+    }
+  }
+
+  /**
+   * Event listener handler that stores dispute in store upon creation
+   * @param {string} event - The event log.
+   * @param {string} account - Account of user to update store data for
+   */
+  _storeNewDisputeHandler = async (event, account) =&gt; {
+    // There is no need to handle this event if we are not using the store
+    const disputeID = event.args._disputeID.toNumber()
+
+    const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+    // arbitrator data
+    const disputeData = await this._ArbitratorInstance.getDispute(disputeID)
+    // arbitrable contract data
+    await this._ArbitrableInstance.setContractInstance(
+      disputeData.arbitrableContractAddress
+    )
+
+    const arbitrableContractData = await this._ArbitrableInstance.getData(
+      account
+    )
+
+    if (
+      account === arbitrableContractData.partyA ||
+      account === arbitrableContractData.partyB
+    ) {
+      await this._StoreProviderInstance.updateDisputeProfile(
+        account,
+        arbitratorAddress,
+        disputeID,
+        {
+          contractAddress: disputeData.arbitrableContractAddress,
+          partyA: arbitrableContractData.partyA,
+          partyB: arbitrableContractData.partyB,
+          blockNumber: event.blockNumber
+        }
+      )
+    }
+  }
+
+  // **************************** //
+  // *        Internal          * //
+  // **************************** //
+
+  /**
+   * Add new data to the cache
+   * @param {number} disputeID - The index of the dispute. Used as the key in cache
+   * @param {object} newCacheData - Freeform data to cache. Will overwrite data with the same keys.
+   */
+  _updateDisputeCache = (disputeID, newCacheData = {}) =&gt; {
+    this.disputeCache[disputeID] = {
+      ...this.disputeCache[disputeID],
+      ...newCacheData
+    }
+  }
+
+  /**
+   * Get the block at which a dispute was created. Used to find timestamps for dispute.
+   * The start block is cached after it has been found once as it will never change.
+   * @param {number} disputeID - The index of the dispute.
+   * @param {string} account - The address of the user.
+   * @returns {number} The block number that the dispute was created.
+   */
+  _getDisputeStartBlock = async (disputeID, account) =&gt; {
+    const cachedDispute = this.disputeCache[disputeID]
+    if (cachedDispute &amp;&amp; cachedDispute.startBlock)
+      return cachedDispute.startBlock
+
+    const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+
+    let blockNumber
+
+    try {
+      const userData = await this._StoreProviderInstance.getDispute(
+        account,
+        arbitratorAddress,
+        disputeID
+      )
+      blockNumber = userData.blockNumber
+      // eslint-disable-next-line no-unused-vars
+    } catch (err) {}
+    // if block number is not stored we can look it up
+    if (!blockNumber) {
+      // Fetching a dispute will fail if it hasn&apos;t been added to the store yet. This is ok, we can just not return store data
+      // see if we can get dispute start block from events
+      const disputeCreationEvent = await this._ArbitratorInstance.getDisputeCreationEvent(
+        disputeID
+      )
+      if (disputeCreationEvent) {
+        blockNumber = disputeCreationEvent.blockNumber
+      }
+    }
+
+    // cache start block for dispute
+    this._updateDisputeCache(disputeID, { startBlock: blockNumber })
+    return blockNumber
+  }
+
+  // **************************** //
+  // *          Public          * //
+  // **************************** //
+  /**
+   * Fetch the shared dispute data from the store.
+   * @param {string} account - The users account.
+   * @param {string} disputeID - The index of the dispute.
+   * @returns {Promise} The dispute data in the store.
+   */
+  getDisputeFromStore = async (account, disputeID) =&gt; {
+    const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+    return this._StoreProviderInstance.getDispute(
+      account,
+      arbitratorAddress,
+      disputeID
+    )
+  }
+
+  /**
+   * Get the dispute deadline for the appeal.
+   * @param {number} disputeID - The index of the dispute.
+   * @param {number} appeal - The appeal number. 0 if there have been no appeals.
+   * @returns {number} timestamp of the appeal
+   */
+  getDisputeDeadline = async (disputeID, appeal = 0) =&gt; {
+    const cachedDispute = this.disputeCache[disputeID] || {}
+    if (cachedDispute.appealDeadlines &amp;&amp; cachedDispute.appealDeadlines[appeal])
+      return cachedDispute.appealDeadlines[appeal]
+
+    const dispute = await this._ArbitratorInstance.getDispute(disputeID)
+
+    const deadlineTimestamp = await this._ArbitratorInstance.getDisputeDeadlineTimestamp(
+      dispute.firstSession + appeal
+    )
+
+    if (deadlineTimestamp) {
+      const currentDeadlines = cachedDispute.appealDeadlines || []
+      currentDeadlines[appeal] = deadlineTimestamp
+      // cache the deadline for the appeal
+      this._updateDisputeCache(disputeID, {
+        appealDeadlines: currentDeadlines
+      })
+    }
+
+    return deadlineTimestamp
+  }
+
+  /**
+   * Get the timestamp on when the dispute&apos;s ruling was finalized.
+   * @param {number} disputeID - The index of the dispute.
+   * @param {number} appeal - The appeal number. 0 if there have been no appeals.
+   * @returns {number} timestamp of the appeal
+   */
+  getAppealRuledAt = async (disputeID, appeal = 0) =&gt; {
+    const cachedDispute = this.disputeCache[disputeID]
+    if (
+      cachedDispute &amp;&amp;
+      cachedDispute.appealRuledAt &amp;&amp;
+      cachedDispute.appealRuledAt[appeal]
+    )
+      return cachedDispute.appealRuledAt[appeal]
+
+    const dispute = await this._ArbitratorInstance.getDispute(disputeID)
+    const appealRuledAtTimestamp = await this._ArbitratorInstance.getAppealRuledAtTimestamp(
+      dispute.firstSession + appeal
+    )
+
+    // cache the deadline for the appeal
+    if (appealRuledAtTimestamp) {
+      const currentRuledAt = cachedDispute.appealRuledAt || []
+      currentRuledAt[appeal] = appealRuledAtTimestamp
+      this._updateDisputeCache(disputeID, {
+        appealRuledAt: currentRuledAt
+      })
+    }
+
+    return appealRuledAtTimestamp
+  }
+
+  /**
+   * Get the timestamp on when the dispute&apos;s appeal was created
+   * @param {number} disputeID - The index of the dispute.
+   * @param {string} account - The users address.
+   * @param {number} appeal - The appeal number. 0 if there have been no appeals.
+   * @returns {number} timestamp of the appeal
+   */
+  getAppealCreatedAt = async (disputeID, account, appeal = 0) =&gt; {
+    const cachedDispute = this.disputeCache[disputeID]
+    if (
+      cachedDispute &amp;&amp;
+      cachedDispute.appealCreatedAt &amp;&amp;
+      cachedDispute.appealCreatedAt[appeal]
+    )
+      return cachedDispute.appealCreatedAt[appeal]
+
+    const dispute = await this._ArbitratorInstance.getDispute(disputeID)
+
+    let appealCreatedAtTimestamp = null
+    if (appeal === 0) {
+      const creationBlock = await this._getDisputeStartBlock(disputeID, account)
+      if (creationBlock) {
+        const timestampSeconds = await this._ArbitratorInstance._getTimestampForBlock(
+          creationBlock
+        )
+
+        appealCreatedAtTimestamp = timestampSeconds * 1000
+      }
+    } else {
+      appealCreatedAtTimestamp = await this._ArbitratorInstance.getAppealCreationTimestamp(
+        dispute.firstSession + (appeal - 1) // appeal was created during previous session
+      )
+
+      // cache the deadline for the appeal
+      if (appealCreatedAtTimestamp) {
+        const currentCreatedAt = cachedDispute.appealCreatedAt || []
+        currentCreatedAt[appeal] = appealCreatedAtTimestamp
+        this._updateDisputeCache(disputeID, {
+          appealCreatedAt: currentCreatedAt
+        })
+      }
+    }
+
+    return appealCreatedAtTimestamp
+  }
+
+  /**
+   * Get data for a dispute. This method provides data from the store as well as both
+   * arbitrator and arbitrable contracts. Used to get all relevant data on a dispute.
+   * @param {number} disputeID - The dispute&apos;s ID.
+   * @param {string} account - The juror&apos;s address.
+   * @returns {object} - Data object for the dispute that uses data from the contract and the store.
+   */
+  getDataForDispute = async (disputeID, account) =&gt; {
+    const arbitratorAddress = this._ArbitratorInstance.getContractAddress()
+    // Get dispute data from contract. Also get the current session and period.
+    const [dispute, period, session] = await Promise.all([
+      this._ArbitratorInstance.getDispute(disputeID, true),
+      this._ArbitratorInstance.getPeriod(),
+      this._ArbitratorInstance.getSession()
+    ])
+
+    // Get arbitrable contract data and evidence
+    const arbitrableContractAddress = dispute.arbitrableContractAddress
+    await this._ArbitrableInstance.setContractInstance(
+      arbitrableContractAddress
+    )
+    const [metaEvidence, evidence, parties] = await Promise.all([
+      this._ArbitrableInstance.getMetaEvidence(),
+      this._ArbitrableInstance.getEvidence(),
+      this._ArbitrableInstance.getParties()
+    ])
+
+    // Get dispute data from the store
+    let appealDraws = []
+
+    // get draws if they have been added to store.
+    try {
+      const userData = await this._StoreProviderInstance.getDispute(
+        account,
+        arbitratorAddress,
+        disputeID
+      )
+      if (userData.appealDraws) appealDraws = userData.appealDraws || []
+      // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      // Dispute exists on chain but not in store. We have lost draws for past disputes.
+      console.error(&apos;Dispute does not exist in store.&apos;)
+    }
+
+    const netPNK = await this._ArbitratorInstance.getNetTokensForDispute(
+      disputeID,
+      account
+    )
+
+    // Build juror info and ruling arrays, indexed by appeal number
+    const lastSession = dispute.firstSession + dispute.numberOfAppeals
+    const appealJuror = []
+    const appealRulings = []
+
+    for (let appeal = 0; appeal &lt;= dispute.numberOfAppeals; appeal++) {
+      const isLastAppeal = dispute.firstSession + appeal === lastSession
+      // Get appeal data
+      const draws = appealDraws[appeal] || []
+      let canRule = false
+      let canRepartition = false
+      let canExecute = false
+      let ruling
+      const rulingPromises = [
+        this._ArbitratorInstance.currentRulingForDispute(disputeID, appeal)
+      ]
+
+      // Extra info for the last appeal
+      if (isLastAppeal) {
+        if (draws.length &gt; 0)
+          rulingPromises.push(
+            this._ArbitratorInstance.canRuleDispute(disputeID, draws, account)
+          )
+
+        if (session &amp;&amp; period)
+          canRepartition =
+            lastSession &lt;= session &amp;&amp; // Not appealed to the next session
+            period === arbitratorConstants.PERIOD.EXECUTE &amp;&amp; // Executable period
+            dispute.state === disputeConstants.STATE.OPEN // Open dispute
+        canExecute = dispute.state === disputeConstants.STATE.EXECUTABLE // Executable state
+      }
+
+      // Wait for parallel requests to complete
+      ;[ruling, canRule] = await Promise.all(rulingPromises)
+
+      let jurorRuling = null
+      // if can&apos;t rule that means they already did or they missed it
+      if (!canRule) {
+        jurorRuling = await this._ArbitratorInstance.getVoteForJuror(
+          dispute.disputeID,
+          appeal,
+          account
+        )
+      }
+
+      const appealCreatedAt = await this.getAppealCreatedAt(
+        dispute.disputeID,
+        account,
+        appeal
+      )
+      const appealDeadline = await this.getDisputeDeadline(
+        dispute.disputeID,
+        appeal
+      )
+      const appealRuledAt = await this.getAppealRuledAt(
+        dispute.disputeID,
+        appeal
+      )
+
+      appealJuror[appeal] = {
+        createdAt: appealCreatedAt,
+        fee: dispute.arbitrationFeePerJuror.mul(draws.length),
+        draws,
+        jurorRuling,
+        canRule
+      }
+      appealRulings[appeal] = {
+        voteCounter: dispute.voteCounters[appeal],
+        deadline: appealDeadline,
+        ruledAt: appealRuledAt,
+        ruling,
+        canRepartition,
+        canExecute
+      }
+    }
+
+    return {
+      // Arbitrable Contract Data
+      arbitrableContractAddress,
+      arbitratorAddress,
+      parties,
+      evidence,
+      metaEvidence,
+
+      // Dispute Data
+      disputeID,
+      firstSession: dispute.firstSession,
+      lastSession,
+      numberOfAppeals: dispute.numberOfAppeals,
+      disputeState: dispute.state,
+      disputeStatus: dispute.status,
+      appealJuror,
+      appealRulings,
+      netPNK
+    }
+  }
+}
+
+export default Disputes
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>
