@@ -87,13 +87,13 @@ class MiniMePinakion extends ContractImplementation {
    * @param {string} account - The users account.
    * @returns {bool} If the transfer succeeded or not
    */
-  approveAndCall = async (arbitratorAddress, amount, account) => {
+  approveAndCall = async (arbitratorAddress, amount, account, extraData='0x0') => {
     await this.loadContract()
 
     return this.contractInstance.approveAndCall(
       arbitratorAddress,
       amount,
-      '0x0',
+      extraData,
       {
         from: account
       }

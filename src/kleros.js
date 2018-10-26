@@ -33,12 +33,14 @@ class Kleros {
    *                 use when initializing KlerosPOC
    * @param {string} arbitrableContractAddress - Address of the arbitrator contract we should
    *                 use when initializing KlerosPOC
+   * @param {string} bondingCurveAddress - Address of the bonding curve contract.
    */
   constructor(
     ethereumProvider = isRequired('ethereumProvider'),
     storeUri = isRequired('storeUri'),
     arbitratorAddress,
-    arbitrableContractAddress
+    arbitrableContractAddress,
+    bondingCurveAddress
   ) {
     /**
      * We need a set of implementations that we expose to the outside api and a set we use
@@ -55,6 +57,10 @@ class Kleros {
     const _arbitrableTransaction = new contracts.implementations.arbitrable.MultipleArbitrableTransaction(
       ethereumProvider,
       arbitrableContractAddress
+    )
+    const _bondingCurve = new contracts.implementations.bondingCurve.BondingCurve(
+      ethereumProvider,
+      bondingCurveAddress
     )
     // INTERNAL
     const _klerosPOCInternal = new contracts.implementations.arbitrator.KlerosPOC(
@@ -80,6 +86,11 @@ class Kleros {
     // ARBITRABLE CONTRACTS
     this.arbitrable = new contracts.abstractions.Arbitrable(
       _arbitrableTransaction,
+      this.storeWrapper
+    )
+    // BONDING CURVE
+    this.bondingCurve = new contracts.abstractions.BondingCurve(
+      _bondingCurve,
       this.storeWrapper
     )
 

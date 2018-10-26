@@ -91,3 +91,8 @@ export const ERROR_FETCHING_EVENTS = error => `Unable to fetch events: ${error}`
 export const UNABLE_TO_SIGN_TOKEN = `There was an error signing the auth token. Please try again`
 export const INVALID_AUTH_TOKEN = msg =>
   `Authorization Token is invalid: ${msg}`
+
+// Bonding Curve
+export const UNABLE_TO_FETCH_TOTAL_ETH = `Unable to fetch total Ether in the bonding curve`
+export const UNABLE_TO_FETCH_TOTAL_TKN = `Unable to fetch total token in the bonding curve`
+export const UNABLE_TO_FETCH_SPREAD = `Unable to fetch spead in the of the bonding curve`
