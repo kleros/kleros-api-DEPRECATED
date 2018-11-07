@@ -337,6 +337,7 @@ class Kleros extends ContractImplementation {
 
       let voteCounters = []
       const status = await this.contractInstance.disputeStatus(disputeID)
+
       if (withVoteCount) {
         for (let appeal = 0; appeal <= numberOfAppeals; appeal++) {
           const voteCounts = []

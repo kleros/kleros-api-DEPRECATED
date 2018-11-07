@@ -116,7 +116,7 @@ class StoreProviderWrapper {
       userProfile.disputes,
       o =>
         o.arbitratorAddress === arbitratorAddress && o.disputeId === disputeID
-    )[0]
+    )[0] || {}
     dispute.disputeID = dispute.disputeId
     return dispute
   }

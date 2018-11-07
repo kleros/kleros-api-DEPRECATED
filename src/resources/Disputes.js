@@ -220,9 +220,8 @@ class Disputes {
    * @returns {number} timestamp of the appeal
    */
   getAppealRuledAt = async (disputeID, appeal = 0) => {
-    const cachedDispute = this.disputeCache[disputeID]
+    const cachedDispute = this.disputeCache[disputeID] || {}
     if (
-      cachedDispute &&
       cachedDispute.appealRuledAt &&
       cachedDispute.appealRuledAt[appeal]
     )
@@ -253,9 +252,8 @@ class Disputes {
    * @returns {number} timestamp of the appeal
    */
   getAppealCreatedAt = async (disputeID, account, appeal = 0) => {
-    const cachedDispute = this.disputeCache[disputeID]
+    const cachedDispute = this.disputeCache[disputeID] || {}
     if (
-      cachedDispute &&
       cachedDispute.appealCreatedAt &&
       cachedDispute.appealCreatedAt[appeal]
     )
