@@ -315,6 +315,23 @@ class MultipleArbitrableTransaction extends Arbitrable {
   setArbitrableTransactionId = arbitrableTransactionId =>
     (this.arbitrableTransactionId = arbitrableTransactionId)
 
+    /**
+     * Fetch the parties involved in the arbitrable transaction contract.
+     * @returns {object} returns a mapping of partyA and partyB to ETH addresses.
+     */
+    getParties = async (arbitrableTransactionId) => {
+      await this.loadContract()
+
+      const arbitrableTransaction = await this.contractInstance.transactions(
+        arbitrableTransactionId
+      )
+
+      return {
+        seller: arbitrableTransaction[0],
+        buyer: arbitrableTransaction[1]
+      }
+    }
+
   /**
    * Data of the contract
    * @param {number} arbitrableTransactionId - The index of the transaction.
