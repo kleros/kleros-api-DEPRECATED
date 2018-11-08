@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.18.8"></a>
+## [0.18.8](https://github.com/kleros/kleros-api/compare/v0.17.1...v0.18.8) (2018-11-08)
+
+
+### Bug Fixes
+
+* **evidences:** get evidences ([f69dc5e](https://github.com/kleros/kleros-api/commit/f69dc5e))
+* timestamps caching error ([d20e402](https://github.com/kleros/kleros-api/commit/d20e402))
+
+
+
 <a name="0.17.1"></a>
 ## [0.17.1](https://github.com/kleros/kleros-api/compare/v0.17.0...v0.17.1) (2018-09-07)
 
