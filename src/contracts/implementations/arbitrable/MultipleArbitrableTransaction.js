@@ -347,7 +347,10 @@ class MultipleArbitrableTransaction extends Arbitrable {
     return {
       seller: arbitrableTransaction[0],
       buyer: arbitrableTransaction[1],
-      amount: arbitrableTransaction[2].toNumber(),
+      amount: this._Web3Wrapper.fromWei(
+        arbitrableTransaction[2].toNumber(),
+        'ether'
+      ),
       timeout: arbitrableTransaction[3].toNumber(),
       disputeId: arbitrableTransaction[4].toNumber(),
       arbitrator: arbitrableTransaction[5],
