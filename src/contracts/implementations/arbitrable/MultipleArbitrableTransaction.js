@@ -93,7 +93,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
     try {
       return this.contractInstance.pay(
         arbitrableTransactionId,
-        this._Web3Wrapper.fromWei(amount, 'ether'),
+        this._Web3Wrapper.toWei(amount, 'ether'),
         {
           from: account,
           value: 0
@@ -122,7 +122,7 @@ class MultipleArbitrableTransaction extends Arbitrable {
     try {
       return this.contractInstance.reimburse(
         arbitrableTransactionId,
-        this._Web3Wrapper.fromWei(amount, 'ether'),
+        this._Web3Wrapper.toWei(amount, 'ether'),
         {
           from: account,
           value: 0
