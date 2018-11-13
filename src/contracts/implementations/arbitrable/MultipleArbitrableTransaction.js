@@ -91,10 +91,14 @@ class MultipleArbitrableTransaction extends Arbitrable {
     await this.loadContract()
 
     try {
-      return this.contractInstance.pay(arbitrableTransactionId, amount, {
-        from: account,
-        value: 0
-      })
+      return this.contractInstance.pay(
+        arbitrableTransactionId,
+        this._Web3Wrapper.fromWei(amount, 'ether'),
+        {
+          from: account,
+          value: 0
+        }
+      )
     } catch (err) {
       console.error(err)
       throw new Error(errorConstants.UNABLE_TO_PAY_SELLER)
@@ -116,10 +120,14 @@ class MultipleArbitrableTransaction extends Arbitrable {
     await this.loadContract()
 
     try {
-      return this.contractInstance.reimburse(arbitrableTransactionId, amount, {
-        from: account,
-        value: 0
-      })
+      return this.contractInstance.reimburse(
+        arbitrableTransactionId,
+        this._Web3Wrapper.fromWei(amount, 'ether'),
+        {
+          from: account,
+          value: 0
+        }
+      )
     } catch (err) {
       console.error(err)
       throw new Error(errorConstants.UNABLE_TO_REIMBURSE_BUYER)
