@@ -352,7 +352,7 @@ class Disputes {
       let canExecute = false
       let ruling
       const rulingPromises = [
-        this._ArbitratorInstance.currentRulingForDispute(disputeID, appeal)
+        this._ArbitratorInstance.currentRulingForDispute(disputeID)
       ]
 
       // Extra info for the last appeal

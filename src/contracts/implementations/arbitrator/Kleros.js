@@ -449,16 +449,12 @@ class Kleros extends ContractImplementation {
   /**
    * Get number of jurors for a dispute.
    * @param {number} disputeID - Index of dispute.
-   * @param {number} appeal - Index of appeal.
    * @returns {number} - Int indicating the ruling of the dispute.
    */
-  currentRulingForDispute = async (disputeID, appeal) => {
+  currentRulingForDispute = async disputeID => {
     await this.loadContract()
 
-    const ruling = await this.contractInstance.getWinningChoice(
-      disputeID,
-      appeal
-    )
+    const ruling = await this.contractInstance.currentRuling(disputeID)
 
     return ruling.toNumber()
   }
